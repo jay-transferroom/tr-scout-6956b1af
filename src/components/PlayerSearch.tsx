@@ -6,6 +6,7 @@ import { useUnifiedPlayersData } from "@/hooks/useUnifiedPlayersData";
 import { useTeamsData } from "@/hooks/useTeamsData";
 import { getTeamLogoUrl } from "@/utils/teamLogos";
 import { useNavigate } from "react-router-dom";
+import { isNationalityInRegion } from "@/utils/regionMapping";
 import SearchFilters from "@/components/unified-search/SearchFilters";
 import PlayerSearchResults from "./player-search/PlayerSearchResults";
 import PlayerRecentList from "./player-search/PlayerRecentList";
@@ -98,7 +99,7 @@ const PlayerSearch = ({ onSelectPlayer }: PlayerSearchProps) => {
     }
     
     if (regionFilter !== "all") {
-      results = results.filter(player => player.region === regionFilter);
+      results = results.filter(player => isNationalityInRegion(player.nationality, regionFilter));
     }
     
     setFilteredPlayers(results);

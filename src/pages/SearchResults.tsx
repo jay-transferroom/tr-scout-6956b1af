@@ -9,6 +9,7 @@ import { getTeamLogoUrl } from "@/utils/teamLogos";
 import { Player } from "@/types/player";
 import PlayerSearchTableFilters, { PlayerSearchFilterCriteria } from "@/components/player-search/PlayerSearchTableFilters";
 import PlayerSearchTable from "@/components/player-search/PlayerSearchTable";
+import { isNationalityInRegion } from "@/utils/regionMapping";
 
 const SearchResults = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -117,7 +118,7 @@ const SearchResults = () => {
     }
     
     if (searchFilters.regionFilter !== "all") {
-      results = results.filter(player => player.region === searchFilters.regionFilter);
+      results = results.filter(player => isNationalityInRegion(player.nationality, searchFilters.regionFilter));
     }
     
     if (searchFilters.nationalityFilter !== "all") {

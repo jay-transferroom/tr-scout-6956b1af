@@ -11,6 +11,7 @@ import SearchResultsList from "./unified-search/SearchResultsList";
 import PlayerRecentList from "./player-search/PlayerRecentList";
 import HeaderSearchDialog from "./unified-search/HeaderSearchDialog";
 import { usePlayerNameSearch } from "@/hooks/usePlayerNameSearch";
+import { isNationalityInRegion } from "@/utils/regionMapping";
 
 interface UnifiedPlayerSearchProps {
   onSelectPlayer?: (player: Player) => void;
@@ -156,7 +157,7 @@ const UnifiedPlayerSearch = ({
           results = results.filter((p) => p.contractStatus === contractFilter);
         }
       }
-      if (regionFilter !== 'all') results = results.filter((p) => p.region === regionFilter);
+      if (regionFilter !== 'all') results = results.filter((p) => isNationalityInRegion(p.nationality, regionFilter));
 
       setFilteredPlayers(results);
       return;
@@ -253,7 +254,7 @@ const UnifiedPlayerSearch = ({
         results = results.filter((p) => p.contractStatus === contractFilter);
       }
     }
-    if (regionFilter !== 'all') results = results.filter((p) => p.region === regionFilter);
+    if (regionFilter !== 'all') results = results.filter((p) => isNationalityInRegion(p.nationality, regionFilter));
 
     setFilteredPlayers(results);
   }, [searchQuery, ageFilter, contractFilter, regionFilter, players.length, remotePlayers.length]); // Use .length to avoid array reference changes

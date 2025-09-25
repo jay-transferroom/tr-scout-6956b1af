@@ -1,8 +1,9 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Player } from "@/types/player";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Star, Target, BarChart3 } from "lucide-react";
-import { Player } from "@/types/player";
+import { isNationalityInRegion } from "@/utils/regionMapping";
 
 interface PlayerRatingsCardProps {
   player: Player;
@@ -37,9 +38,8 @@ const PlayerRatingsCard = ({ player, aggregatedData }: PlayerRatingsCardProps) =
     // Convert the raw value to millions (assuming it's in basic currency units)
     const valueInMillions = score / 1000000;
     
-    // Determine currency based on player's region or nationality
-    const isEuropean = player.region === 'Europe' || 
-                      ['Spain', 'France', 'Germany', 'Italy', 'Portugal', 'Netherlands', 'Belgium'].includes(player.nationality);
+    // Determine currency based on player's nationality
+    const isEuropean = isNationalityInRegion(player.nationality, 'Europe');
     const currency = isEuropean ? '€' : '£';
     
     return `${currency}${valueInMillions.toFixed(1)}M`;
