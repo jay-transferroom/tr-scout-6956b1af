@@ -37,6 +37,7 @@ import UpcomingMatches from "@/pages/transfers/UpcomingMatches";
 import PlayerPitches from "@/pages/transfers/PlayerPitches";
 import DataImport from "@/pages/transfers/DataImport";
 import SavedConversations from "@/pages/SavedChats";
+import MatchScouting from "@/pages/MatchScouting";
 import AppInitializer from "@/components/AppInitializer";
 
 const queryClient = new QueryClient({
@@ -76,6 +77,7 @@ function App() {
                 <Route path="/notifications" element={<ProtectedRoute><NotificationsList /></ProtectedRoute>} />
                 <Route path="/shortlists" element={<ProtectedRoute><Shortlists /></ProtectedRoute>} />
                 <Route path="/saved-conversations" element={<ProtectedRoute><SavedConversations /></ProtectedRoute>} />
+                <Route path="/match-scouting" element={<ProtectedRoute><MatchScouting /></ProtectedRoute>} />
                 <Route path="/squad-view" element={<ProtectedRoute><SquadView /></ProtectedRoute>} />
                 <Route path="/transfers-in" element={<ProtectedRoute><TransfersIn /></ProtectedRoute>} />
                 <Route path="/transfers-in/requirement/:requirementName" element={<ProtectedRoute><RequirementDetailsPage /></ProtectedRoute>} />
