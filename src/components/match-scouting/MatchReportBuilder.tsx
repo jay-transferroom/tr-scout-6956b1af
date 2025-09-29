@@ -17,7 +17,6 @@ interface MatchReportBuilderProps {
 }
 
 interface LocationState {
-  selectedTemplate?: MatchTemplate;
   player?: Player;
 }
 
@@ -28,19 +27,9 @@ const MatchReportBuilder = ({ onSave, existingReport }: MatchReportBuilderProps)
   const locationState = location.state as LocationState;
   
   const [currentStep, setCurrentStep] = useState<BuilderStep>(existingReport ? 'review' : 'template');
-  const [selectedTemplate, setSelectedTemplate] = useState<MatchTemplate | null>(
-    locationState?.selectedTemplate || null
-  );
+  const [selectedTemplate, setSelectedTemplate] = useState<MatchTemplate | null>(null);
   const [selectedMode, setSelectedMode] = useState<'live' | 'replay'>('live');
   const [currentReport, setCurrentReport] = useState<Partial<MatchReport>>(existingReport || {});
-
-  // If template is provided from navigation, skip template selection
-  useEffect(() => {
-    if (locationState?.selectedTemplate && !existingReport) {
-      setSelectedTemplate(locationState.selectedTemplate);
-      setCurrentStep('setup');
-    }
-  }, [locationState, existingReport]);
 
   const handleTemplateSelect = (template: MatchTemplate) => {
     setSelectedTemplate(template);

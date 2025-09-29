@@ -1,11 +1,10 @@
 import { ReportTemplate } from "@/types/report";
-import { MATCH_TEMPLATES } from "@/types/matchReport";
 
-// Convert match templates to report templates
-const convertMatchTemplateToReportTemplate = (matchTemplate: any): ReportTemplate => ({
-  id: `match-${matchTemplate.id}`,
-  name: `Match Report - ${matchTemplate.name}`,
-  description: `${matchTemplate.description} - Captures structured match observations`,
+// Create a single match scouting template
+const createMatchScoutingTemplate = (): ReportTemplate => ({
+  id: `match-scouting`,
+  name: `Match Scouting Report`,
+  description: `Comprehensive match analysis with configurable depth - capture live or replay observations`,
   defaultTemplate: false,
   defaultRatingSystem: {
     type: "numeric-1-10",
@@ -25,13 +24,13 @@ const convertMatchTemplateToReportTemplate = (matchTemplate: any): ReportTemplat
           label: "Redirect to Match Scouting",
           type: "text",
           required: false,
-          description: "This will redirect to the match scouting interface"
+          description: "This will redirect to the match scouting interface with template options"
         }
       ]
     }
   ],
   isMatchTemplate: true,
-  originalMatchTemplate: matchTemplate
+  originalMatchTemplate: null
 });
 
 export const mockTemplates: ReportTemplate[] = [
@@ -295,6 +294,6 @@ export const mockTemplates: ReportTemplate[] = [
       },
     ],
   },
-  // Add converted match templates
-  ...MATCH_TEMPLATES.map(convertMatchTemplateToReportTemplate),
+  // Add single match scouting template
+  createMatchScoutingTemplate(),
 ];

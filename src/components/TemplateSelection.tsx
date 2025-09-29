@@ -28,7 +28,6 @@ const TemplateSelection = ({ player, isOpen, onClose, onSelectTemplate }: Templa
         // Redirect to match scouting page
         navigate("/match-scouting", {
           state: {
-            selectedTemplate: template.originalMatchTemplate,
             player
           }
         });
