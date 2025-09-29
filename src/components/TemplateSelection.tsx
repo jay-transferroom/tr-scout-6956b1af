@@ -23,6 +23,18 @@ const TemplateSelection = ({ player, isOpen, onClose, onSelectTemplate }: Templa
   const handleSelectTemplate = () => {
     const template = mockTemplates.find(t => t.id === selectedTemplateId);
     if (template && player) {
+      // Check if this is a match template
+      if (template.isMatchTemplate) {
+        // Redirect to match scouting page
+        navigate("/match-scouting", {
+          state: {
+            selectedTemplate: template.originalMatchTemplate,
+            player
+          }
+        });
+        return;
+      }
+      
       onSelectTemplate(player, template);
       
       // Navigate to the report builder page with player and template data

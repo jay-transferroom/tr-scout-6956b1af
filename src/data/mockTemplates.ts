@@ -1,4 +1,38 @@
 import { ReportTemplate } from "@/types/report";
+import { MATCH_TEMPLATES } from "@/types/matchReport";
+
+// Convert match templates to report templates
+const convertMatchTemplateToReportTemplate = (matchTemplate: any): ReportTemplate => ({
+  id: `match-${matchTemplate.id}`,
+  name: `Match Report - ${matchTemplate.name}`,
+  description: `${matchTemplate.description} - Captures structured match observations`,
+  defaultTemplate: false,
+  defaultRatingSystem: {
+    type: "numeric-1-10",
+    values: Array.from({ length: 10 }, (_, i) => ({
+      value: i + 1,
+      label: `${i + 1}`,
+      description: i < 3 ? "Below standard" : i < 6 ? "Average" : i < 8 ? "Good" : "Excellent"
+    })),
+  },
+  sections: [
+    {
+      id: "match-redirect",
+      title: "Match Scouting",
+      fields: [
+        {
+          id: "redirectToMatch",
+          label: "Redirect to Match Scouting",
+          type: "text",
+          required: false,
+          description: "This will redirect to the match scouting interface"
+        }
+      ]
+    }
+  ],
+  isMatchTemplate: true,
+  originalMatchTemplate: matchTemplate
+});
 
 export const mockTemplates: ReportTemplate[] = [
   {
@@ -48,8 +82,8 @@ export const mockTemplates: ReportTemplate[] = [
         title: "Technical Attributes",
         fields: [
           {
-            id: "firstTouch",
-            label: "First Touch",
+            id: "ballControl",
+            label: "Ball Control",
             type: "rating",
             required: true,
             ratingSystem: {
@@ -57,12 +91,13 @@ export const mockTemplates: ReportTemplate[] = [
               values: Array.from({ length: 10 }, (_, i) => ({
                 value: i + 1,
                 label: `${i + 1}`,
+                description: i < 3 ? "Below standard" : i < 6 ? "Average" : i < 8 ? "Good" : "Excellent"
               })),
             },
           },
           {
             id: "passing",
-            label: "Passing",
+            label: "Passing Range & Accuracy",
             type: "rating",
             required: true,
             ratingSystem: {
@@ -70,12 +105,13 @@ export const mockTemplates: ReportTemplate[] = [
               values: Array.from({ length: 10 }, (_, i) => ({
                 value: i + 1,
                 label: `${i + 1}`,
+                description: i < 3 ? "Below standard" : i < 6 ? "Average" : i < 8 ? "Good" : "Excellent"
               })),
             },
           },
           {
             id: "shooting",
-            label: "Shooting",
+            label: "Shooting Technique",
             type: "rating",
             required: true,
             ratingSystem: {
@@ -83,6 +119,21 @@ export const mockTemplates: ReportTemplate[] = [
               values: Array.from({ length: 10 }, (_, i) => ({
                 value: i + 1,
                 label: `${i + 1}`,
+                description: i < 3 ? "Below standard" : i < 6 ? "Average" : i < 8 ? "Good" : "Excellent"
+              })),
+            },
+          },
+          {
+            id: "dribbling",
+            label: "Dribbling & Ball Manipulation",
+            type: "rating",
+            required: true,
+            ratingSystem: {
+              type: "numeric-1-10",
+              values: Array.from({ length: 10 }, (_, i) => ({
+                value: i + 1,
+                label: `${i + 1}`,
+                description: i < 3 ? "Below standard" : i < 6 ? "Average" : i < 8 ? "Good" : "Excellent"
               })),
             },
           },
@@ -95,12 +146,12 @@ export const mockTemplates: ReportTemplate[] = [
         ],
       },
       {
-        id: "tactical",
-        title: "Tactical Intelligence",
+        id: "physical",
+        title: "Physical Attributes",
         fields: [
           {
-            id: "positioning",
-            label: "Positioning",
+            id: "pace",
+            label: "Pace & Acceleration",
             type: "rating",
             required: true,
             ratingSystem: {
@@ -108,6 +159,75 @@ export const mockTemplates: ReportTemplate[] = [
               values: Array.from({ length: 10 }, (_, i) => ({
                 value: i + 1,
                 label: `${i + 1}`,
+                description: i < 3 ? "Below standard" : i < 6 ? "Average" : i < 8 ? "Good" : "Excellent"
+              })),
+            },
+          },
+          {
+            id: "strength",
+            label: "Physical Strength",
+            type: "rating",
+            required: true,
+            ratingSystem: {
+              type: "numeric-1-10",
+              values: Array.from({ length: 10 }, (_, i) => ({
+                value: i + 1,
+                label: `${i + 1}`,
+                description: i < 3 ? "Below standard" : i < 6 ? "Average" : i < 8 ? "Good" : "Excellent"
+              })),
+            },
+          },
+          {
+            id: "stamina",
+            label: "Stamina & Endurance",
+            type: "rating",
+            required: true,
+            ratingSystem: {
+              type: "numeric-1-10",
+              values: Array.from({ length: 10 }, (_, i) => ({
+                value: i + 1,
+                label: `${i + 1}`,
+                description: i < 3 ? "Below standard" : i < 6 ? "Average" : i < 8 ? "Good" : "Excellent"
+              })),
+            },
+          },
+          {
+            id: "agility",
+            label: "Agility & Balance",
+            type: "rating",
+            required: true,
+            ratingSystem: {
+              type: "numeric-1-10",
+              values: Array.from({ length: 10 }, (_, i) => ({
+                value: i + 1,
+                label: `${i + 1}`,
+                description: i < 3 ? "Below standard" : i < 6 ? "Average" : i < 8 ? "Good" : "Excellent"
+              })),
+            },
+          },
+          {
+            id: "physicalNotes",
+            label: "Physical Notes",
+            type: "text",
+            required: false,
+          },
+        ],
+      },
+      {
+        id: "tactical",
+        title: "Tactical & Mental",
+        fields: [
+          {
+            id: "positioning",
+            label: "Positioning & Awareness",
+            type: "rating",
+            required: true,
+            ratingSystem: {
+              type: "numeric-1-10",
+              values: Array.from({ length: 10 }, (_, i) => ({
+                value: i + 1,
+                label: `${i + 1}`,
+                description: i < 3 ? "Below standard" : i < 6 ? "Average" : i < 8 ? "Good" : "Excellent"
               })),
             },
           },
@@ -121,12 +241,13 @@ export const mockTemplates: ReportTemplate[] = [
               values: Array.from({ length: 10 }, (_, i) => ({
                 value: i + 1,
                 label: `${i + 1}`,
+                description: i < 3 ? "Below standard" : i < 6 ? "Average" : i < 8 ? "Good" : "Excellent"
               })),
             },
           },
           {
-            id: "awareness",
-            label: "Awareness",
+            id: "workRate",
+            label: "Work Rate & Attitude",
             type: "rating",
             required: true,
             ratingSystem: {
@@ -134,6 +255,7 @@ export const mockTemplates: ReportTemplate[] = [
               values: Array.from({ length: 10 }, (_, i) => ({
                 value: i + 1,
                 label: `${i + 1}`,
+                description: i < 3 ? "Below standard" : i < 6 ? "Average" : i < 8 ? "Good" : "Excellent"
               })),
             },
           },
@@ -146,191 +268,26 @@ export const mockTemplates: ReportTemplate[] = [
         ],
       },
       {
-        id: "physical",
-        title: "Physical Attributes",
+        id: "recommendation",
+        title: "Recommendation",
         fields: [
           {
-            id: "acceleration",
-            label: "Acceleration",
-            type: "rating",
-            required: true,
-            ratingSystem: {
-              type: "numeric-1-10",
-              values: Array.from({ length: 10 }, (_, i) => ({
-                value: i + 1,
-                label: `${i + 1}`,
-              })),
-            },
-          },
-          {
-            id: "strength",
-            label: "Strength",
-            type: "rating",
-            required: true,
-            ratingSystem: {
-              type: "numeric-1-10",
-              values: Array.from({ length: 10 }, (_, i) => ({
-                value: i + 1,
-                label: `${i + 1}`,
-              })),
-            },
-          },
-          {
-            id: "stamina",
-            label: "Stamina",
-            type: "rating",
-            required: true,
-            ratingSystem: {
-              type: "numeric-1-10",
-              values: Array.from({ length: 10 }, (_, i) => ({
-                value: i + 1,
-                label: `${i + 1}`,
-              })),
-            },
-          },
-          {
-            id: "physicalNotes",
-            label: "Physical Notes",
-            type: "text",
-            required: false,
-          },
-        ],
-      },
-      {
-        id: "summary",
-        title: "Summary & Recommendation",
-        fields: [
-          {
-            id: "bestPosition",
-            label: "Best Position",
+            id: "verdict",
+            label: "Verdict",
             type: "dropdown",
             required: true,
-            options: ["GK", "CB", "LB", "RB", "CDM", "CM", "CAM", "LW", "RW", "ST"],
+            options: [
+              "Sign / Proceed to next stage",
+              "Monitor / Track Further", 
+              "Further Scouting Required",
+              "Concerns / With Reservations",
+              "Do Not Pursue"
+            ],
+            description: "Final recommendation based on assessment"
           },
           {
-            id: "potentialRole",
-            label: "Potential Role",
-            type: "dropdown",
-            required: true,
-            options: ["Starter", "Squad Player", "Prospect", "Not Suitable"],
-          },
-          {
-            id: "recommendation",
-            label: "Recommendation",
-            type: "dropdown",
-            required: true,
-            options: ["Sign", "Monitor", "Not Suitable"],
-          },
-          {
-            id: "summaryNotes",
-            label: "Additional Notes",
-            type: "text",
-            required: false,
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "t2",
-    name: "Youth Prospect Report",
-    description: "Focused assessment for youth players (U21)",
-    defaultRatingSystem: {
-      type: "letter",
-      values: [
-        { value: "A", label: "Elite", color: "#22C55E" },
-        { value: "B", label: "Very Good", color: "#84CC16" },
-        { value: "C", label: "Average", color: "#EAB308" },
-        { value: "D", label: "Below Average", color: "#F97316" },
-        { value: "E", label: "Poor", color: "#EF4444" },
-      ],
-    },
-    sections: [
-      {
-        id: "overall",
-        title: "Overall Rating",
-        fields: [
-          {
-            id: "overallRating",
-            label: "Overall Potential Rating",
-            type: "rating",
-            required: true,
-            description: "Assessment of long-term potential",
-            ratingSystem: {
-              type: "letter",
-              values: [
-                { value: "A", label: "Elite", color: "#22C55E" },
-                { value: "B", label: "Very Good", color: "#84CC16" },
-                { value: "C", label: "Average", color: "#EAB308" },
-                { value: "D", label: "Below Average", color: "#F97316" },
-                { value: "E", label: "Poor", color: "#EF4444" },
-              ],
-            },
-          },
-          {
-            id: "overallAssessment",
-            label: "Development Assessment",
-            type: "text",
-            required: true,
-            description: "Overall development trajectory and potential",
-          },
-        ],
-      },
-      {
-        id: "potential",
-        title: "Development Potential",
-        fields: [
-          {
-            id: "technicalPotential",
-            label: "Technical Potential",
-            type: "rating",
-            required: true,
-            ratingSystem: {
-              type: "letter",
-              values: [
-                { value: "A", label: "Elite", color: "#22C55E" },
-                { value: "B", label: "Very Good", color: "#84CC16" },
-                { value: "C", label: "Average", color: "#EAB308" },
-                { value: "D", label: "Below Average", color: "#F97316" },
-                { value: "E", label: "Poor", color: "#EF4444" },
-              ],
-            },
-          },
-          {
-            id: "tacticalPotential",
-            label: "Tactical Potential",
-            type: "rating",
-            required: true,
-            ratingSystem: {
-              type: "letter",
-              values: [
-                { value: "A", label: "Elite", color: "#22C55E" },
-                { value: "B", label: "Very Good", color: "#84CC16" },
-                { value: "C", label: "Average", color: "#EAB308" },
-                { value: "D", label: "Below Average", color: "#F97316" },
-                { value: "E", label: "Poor", color: "#EF4444" },
-              ],
-            },
-          },
-          {
-            id: "physicalPotential",
-            label: "Physical Potential",
-            type: "rating",
-            required: true,
-            ratingSystem: {
-              type: "letter",
-              values: [
-                { value: "A", label: "Elite", color: "#22C55E" },
-                { value: "B", label: "Very Good", color: "#84CC16" },
-                { value: "C", label: "Average", color: "#EAB308" },
-                { value: "D", label: "Below Average", color: "#F97316" },
-                { value: "E", label: "Poor", color: "#EF4444" },
-              ],
-            },
-          },
-          {
-            id: "developmentPlan",
-            label: "Development Plan",
+            id: "summary",
+            label: "Summary Notes",
             type: "text",
             required: true,
           },
@@ -338,4 +295,6 @@ export const mockTemplates: ReportTemplate[] = [
       },
     ],
   },
+  // Add converted match templates
+  ...MATCH_TEMPLATES.map(convertMatchTemplateToReportTemplate),
 ];

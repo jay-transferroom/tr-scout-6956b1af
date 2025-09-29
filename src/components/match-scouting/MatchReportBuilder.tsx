@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { MatchTemplate, MatchReport } from "@/types/matchReport";
+import { Player } from "@/types/player";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,13 +16,31 @@ interface MatchReportBuilderProps {
   existingReport?: MatchReport;
 }
 
+interface LocationState {
+  selectedTemplate?: MatchTemplate;
+  player?: Player;
+}
+
 type BuilderStep = 'template' | 'setup' | 'live' | 'replay' | 'review';
 
 const MatchReportBuilder = ({ onSave, existingReport }: MatchReportBuilderProps) => {
+  const location = useLocation();
+  const locationState = location.state as LocationState;
+  
   const [currentStep, setCurrentStep] = useState<BuilderStep>(existingReport ? 'review' : 'template');
-  const [selectedTemplate, setSelectedTemplate] = useState<MatchTemplate | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<MatchTemplate | null>(
+    locationState?.selectedTemplate || null
+  );
   const [selectedMode, setSelectedMode] = useState<'live' | 'replay'>('live');
   const [currentReport, setCurrentReport] = useState<Partial<MatchReport>>(existingReport || {});
+
+  // If template is provided from navigation, skip template selection
+  useEffect(() => {
+    if (locationState?.selectedTemplate && !existingReport) {
+      setSelectedTemplate(locationState.selectedTemplate);
+      setCurrentStep('setup');
+    }
+  }, [locationState, existingReport]);
 
   const handleTemplateSelect = (template: MatchTemplate) => {
     setSelectedTemplate(template);

@@ -7,6 +7,8 @@ export interface ReportTemplate {
   sections: ReportSection[];
   defaultTemplate?: boolean;
   defaultRatingSystem?: RatingSystem; // Added default rating system
+  isMatchTemplate?: boolean; // Added for match templates
+  originalMatchTemplate?: any; // Added for match templates
 }
 
 export interface ReportSection {
