@@ -385,25 +385,31 @@ const Calendar = () => {
                               return (
                                 <div 
                                   key={`${fixture.match_number}-${index}`}
-                                  className="flex items-center justify-between text-sm"
+                                  className="flex items-center justify-between text-sm gap-2"
                                 >
-                                  <span className="truncate flex-1">
-                                    {fixture.home_team} vs {fixture.away_team}
-                                  </span>
-                                  {isLive && (
-                                    <Badge variant="destructive" className="ml-2">LIVE</Badge>
-                                  )}
-                                  {isCompleted && fixture.home_score !== null && (
-                                    <span className="ml-2 text-muted-foreground">
-                                      {fixture.home_score}-{fixture.away_score}
+                                  <div className="flex items-center gap-2 truncate flex-1">
+                                    <ClubBadge clubName={fixture.home_team} size="sm" />
+                                    <span className="truncate">
+                                      {fixture.home_team} vs {fixture.away_team}
                                     </span>
-                                  )}
-                                  {fixture.shortlistedPlayers?.length > 0 && (
-                                    <div className="flex items-center gap-1 ml-2">
-                                      <Star className="h-3 w-3 text-yellow-500" />
-                                      <span className="text-xs">{fixture.shortlistedPlayers.length}</span>
-                                    </div>
-                                  )}
+                                    <ClubBadge clubName={fixture.away_team} size="sm" />
+                                  </div>
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    {isLive && (
+                                      <Badge variant="destructive" className="ml-2">LIVE</Badge>
+                                    )}
+                                    {isCompleted && fixture.home_score !== null && (
+                                      <span className="ml-2 text-muted-foreground">
+                                        {fixture.home_score}-{fixture.away_score}
+                                      </span>
+                                    )}
+                                    {fixture.shortlistedPlayers?.length > 0 && (
+                                      <div className="flex items-center gap-1 ml-2">
+                                        <Star className="h-3 w-3 text-yellow-500" />
+                                        <span className="text-xs">{fixture.shortlistedPlayers.length}</span>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               );
                             })}
@@ -533,18 +539,21 @@ const Calendar = () => {
                                 
                                 return (
                                   <div key={player.id} className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded px-2 py-1">
-                                    <div>
-                                      <div className="text-sm font-medium">{player.name}</div>
-                                      <div className="text-xs text-muted-foreground">
-                                        {player.club} • {player.positions?.[0] || 'Unknown'}
-                                        {player.age && ` • ${player.age}y`}
-                                        {player.transferroomRating && ` • ${player.transferroomRating}/100`}
-                                      </div>
-                                      {playerAssignment && (
-                                        <div className="text-xs text-blue-600 font-medium mt-1">
-                                          Assigned to: {scouts.find(s => s.id === playerAssignment.assigned_to_scout_id)?.first_name} {scouts.find(s => s.id === playerAssignment.assigned_to_scout_id)?.last_name}
+                                    <div className="flex items-center gap-2">
+                                      <ClubBadge clubName={player.club} size="sm" />
+                                      <div>
+                                        <div className="text-sm font-medium">{player.name}</div>
+                                        <div className="text-xs text-muted-foreground">
+                                          {player.club} • {player.positions?.[0] || 'Unknown'}
+                                          {player.age && ` • ${player.age}y`}
+                                          {player.transferroomRating && ` • ${player.transferroomRating}/100`}
                                         </div>
-                                      )}
+                                        {playerAssignment && (
+                                          <div className="text-xs text-blue-600 font-medium mt-1">
+                                            Assigned to: {scouts.find(s => s.id === playerAssignment.assigned_to_scout_id)?.first_name} {scouts.find(s => s.id === playerAssignment.assigned_to_scout_id)?.last_name}
+                                          </div>
+                                        )}
+                                      </div>
                                     </div>
                                     <div className="flex flex-col items-end gap-1">
                                       <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
@@ -581,9 +590,11 @@ const Calendar = () => {
                 
                 return (
                   <div key={player.id} className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded px-2 py-1">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <div className="text-sm font-medium">{player.name}</div>
+                    <div className="flex items-center gap-2">
+                      <ClubBadge clubName={player.club} size="sm" />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-sm font-medium">{player.name}</div>
                         {isShortlisted && (
                           <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 h-5">
                             <Star className="h-3 w-3 mr-1" /> Shortlisted
@@ -595,13 +606,14 @@ const Calendar = () => {
                           </Badge>
                         )}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {player.club} • {player.positions?.[0] || 'Unknown'}
-                        {player.age && ` • ${player.age}y`}
-                        {player.transferroomRating && ` • ${player.transferroomRating}/100`}
-                        {player.xtvScore && ` • €${(player.xtvScore / 1000000).toFixed(1)}M`}
+                        <div className="text-xs text-muted-foreground">
+                          {player.club} • {player.positions?.[0] || 'Unknown'}
+                          {player.age && ` • ${player.age}y`}
+                          {player.transferroomRating && ` • ${player.transferroomRating}/100`}
+                          {player.xtvScore && ` • €${(player.xtvScore / 1000000).toFixed(1)}M`}
+                        </div>
                       </div>
-                     </div>
+                    </div>
                      {canAssignScouts && (
                        <Button
                          size="sm"
