@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, List } from "lucide-react";
+import { Calendar, List } from "lucide-react";
 interface ViewToggleProps {
   currentView: 'grid' | 'list';
   onViewChange: (view: 'grid' | 'list') => void;
@@ -16,8 +16,8 @@ const ViewToggle = ({
         onClick={() => onViewChange('grid')}
         className="flex items-center gap-2"
       >
-        <LayoutGrid className="h-4 w-4" />
-        Grid
+        <Calendar className="h-4 w-4" />
+        Cal
       </Button>
       <Button
         variant={currentView === 'list' ? "default" : "ghost"}

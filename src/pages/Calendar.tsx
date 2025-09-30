@@ -564,20 +564,21 @@ const Calendar = () => {
                           onClick={() => hasFixtures && setSelectedDate(day)}
                           disabled={!hasFixtures}
                           className={cn(
-                            "relative p-2 rounded-lg text-sm transition-colors min-h-[80px] flex flex-col items-start",
-                            !isCurrentMonth && "text-muted-foreground opacity-50",
-                            isCurrentMonth && !hasFixtures && "hover:bg-muted/30 cursor-default",
-                            hasFixtures && "hover:bg-muted cursor-pointer",
+                            "relative p-2 rounded-lg border text-sm transition-colors min-h-[90px] flex flex-col items-start",
+                            !isCurrentMonth && "text-muted-foreground opacity-50 border-muted",
+                            isCurrentMonth && !hasFixtures && "hover:bg-muted/30 cursor-default border-border",
+                            hasFixtures && "hover:bg-muted cursor-pointer border-border",
                             isSelected && "bg-primary/10 border-2 border-primary",
-                            isTodayDate && !isSelected && "bg-accent"
+                            isTodayDate && !isSelected && "bg-accent border-accent-foreground/20"
                           )}
                         >
-                          <div className="font-medium mb-1">{format(day, 'd')}</div>
+                          <div className="font-semibold mb-2">{format(day, 'd')}</div>
                           {hasFixtures && (
-                            <div className="space-y-1 w-full">
-                              <div className="text-xs text-muted-foreground">
-                                {dayFixtures.length} {dayFixtures.length === 1 ? 'match' : 'matches'}
-                              </div>
+                            <div className="space-y-1.5 w-full">
+                              <Badge variant="secondary" className="text-xs font-normal">
+                                <CalendarIcon className="h-3 w-3 mr-1" />
+                                {dayFixtures.length}
+                              </Badge>
                               {(() => {
                                 const totalShortlisted = dayFixtures.reduce((sum, f) => sum + (f.shortlistedPlayers?.length || 0), 0);
                                 return totalShortlisted > 0 && (
