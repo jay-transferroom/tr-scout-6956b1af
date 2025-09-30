@@ -97,6 +97,14 @@ const Calendar = () => {
       })
       .slice(0, 3);
 
+    // Debug log for shortlisted players
+    if (shortlistedPlayers.length > 0) {
+      console.log(`Fixture: ${fixture.home_team} vs ${fixture.away_team}`, {
+        shortlistedPlayers: shortlistedPlayers.map(p => ({ name: p.name, club: p.club })),
+        totalPlayers: playersInFixture.length
+      });
+    }
+
     return {
       ...fixture,
       playersInFixture: filteredPlayers,
@@ -322,6 +330,15 @@ const Calendar = () => {
                                   <span className="ml-1 text-xs">LIVE</span>
                                 )}
                               </div>
+                              {/* Show shortlisted players count */}
+                              {fixture.shortlistedPlayers && fixture.shortlistedPlayers.length > 0 && (
+                                <div className="flex items-center gap-1 mt-0.5">
+                                  <Star className="h-2 w-2 text-yellow-600" />
+                                  <span className="text-xs text-yellow-800 font-medium">
+                                    {fixture.shortlistedPlayers.length} shortlisted
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           );
                         })}
