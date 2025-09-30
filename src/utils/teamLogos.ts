@@ -21,9 +21,12 @@ const TEAM_LOGO_MAP: Record<string, string> = {
   "Manchester City": "manchester city.svg",
   "Manchester United": "manchester united.svg",
   "Newcastle United": "newcastle united.svg",
-  "Norwich City": "norwich city.svg", 
+  "Norwich City": "norwich city.svg",
+  "Nottingham Forest": "/badges/nottingham-forest.svg",
+  "Nottm Forest": "/badges/nottingham-forest.svg",
   "Tottenham Hotspur": "tottenham hotspur.svg",
   "Tottenham": "tottenham hotspur.svg",
+  "Spurs": "tottenham hotspur.svg",
   "Watford": "watford.svg",
   "West Ham United": "west ham united.svg",
   "West Ham": "west ham united.svg",
@@ -49,6 +52,10 @@ export const getTeamLogoUrl = (teamName: string): string | undefined => {
   // Normalize team name and check for exact match first
   const logoFile = TEAM_LOGO_MAP[teamName];
   if (logoFile) {
+    // Check if it's a public path (starts with /)
+    if (logoFile.startsWith('/')) {
+      return logoFile;
+    }
     return `${SUPABASE_STORAGE_URL}/${logoFile}`;
   }
   
@@ -56,6 +63,10 @@ export const getTeamLogoUrl = (teamName: string): string | undefined => {
   const normalizedName = teamName.toLowerCase();
   for (const [key, file] of Object.entries(TEAM_LOGO_MAP)) {
     if (key.toLowerCase().includes(normalizedName) || normalizedName.includes(key.toLowerCase())) {
+      // Check if it's a public path (starts with /)
+      if (file.startsWith('/')) {
+        return file;
+      }
       return `${SUPABASE_STORAGE_URL}/${file}`;
     }
   }
