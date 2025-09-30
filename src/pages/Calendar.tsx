@@ -525,22 +525,14 @@ const Calendar = () => {
                           <div className="font-medium mb-1">{format(day, 'd')}</div>
                           {hasFixtures && (
                             <div className="space-y-1 w-full">
-                              <div className="flex items-center gap-1 text-xs">
-                                <CalendarIcon className="h-3 w-3" />
-                                <span>{dayFixtures.length}</span>
+                              <div className="text-xs text-muted-foreground">
+                                {dayFixtures.length} {dayFixtures.length === 1 ? 'match' : 'matches'}
                               </div>
-                              {dayFixtures.slice(0, 1).map((fixture, idx) => (
-                                <div key={idx} className="text-xs truncate w-full flex items-center gap-1">
-                                  <ClubBadge clubName={fixture.home_team} size="sm" />
-                                  <span className="truncate">vs</span>
-                                  <ClubBadge clubName={fixture.away_team} size="sm" />
-                                </div>
-                              ))}
                               {(() => {
                                 const totalShortlisted = dayFixtures.reduce((sum, f) => sum + (f.shortlistedPlayers?.length || 0), 0);
                                 return totalShortlisted > 0 && (
                                   <div className="flex items-center gap-1 text-xs text-yellow-600">
-                                    <Star className="h-3 w-3" />
+                                    <Star className="h-3 w-3 fill-current" />
                                     <span>{totalShortlisted}</span>
                                   </div>
                                 );
