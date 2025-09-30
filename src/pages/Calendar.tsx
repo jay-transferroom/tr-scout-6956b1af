@@ -479,7 +479,7 @@ const Calendar = () => {
                           <div className="flex items-center justify-center gap-4">
                             <div className="text-right flex-1 flex items-center justify-end gap-2">
                               <div className="font-semibold text-lg">{fixture.home_team}</div>
-                              <ClubBadge clubName={fixture.home_team} size="md" />
+                              <ClubBadge clubName={fixture.home_team} size="xl" />
                             </div>
                             <div className="flex flex-col items-center gap-1">
                               {hasScore ? (
@@ -496,7 +496,7 @@ const Calendar = () => {
                               )}
                             </div>
                             <div className="text-left flex-1 flex items-center justify-start gap-2">
-                              <ClubBadge clubName={fixture.away_team} size="md" />
+                              <ClubBadge clubName={fixture.away_team} size="xl" />
                               <div className="font-semibold text-lg">{fixture.away_team}</div>
                             </div>
                           </div>

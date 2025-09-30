@@ -5,7 +5,7 @@ interface ClubBadgeProps {
   clubName: string;
   logoUrl?: string;
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 const ClubBadge = ({
   clubName,
@@ -33,6 +33,12 @@ const ClubBadge = ({
       logo: "h-16 w-16",
       text: "text-xl",
       fallbackText: "text-lg"
+    },
+    xl: {
+      container: "gap-3",
+      logo: "h-10 w-10",
+      text: "text-lg",
+      fallbackText: "text-base"
     }
   };
   const currentSize = sizeClasses[size];
