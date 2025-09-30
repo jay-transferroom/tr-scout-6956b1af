@@ -21,7 +21,7 @@ export const PlayerClubInfo = ({ player, getContractStatusColor, getPositionColo
         <div className="grid grid-cols-2 gap-2">
           <div>
             <p className="text-xs text-gray-600 mb-0.5">Current Club</p>
-            <ClubBadge clubName={player.club} className="scale-75 origin-left" />
+            <ClubBadge clubName={player.club} />
           </div>
           
           <div>

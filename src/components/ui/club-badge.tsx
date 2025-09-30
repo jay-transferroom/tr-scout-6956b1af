@@ -11,14 +11,14 @@ const ClubBadge = ({
   clubName,
   logoUrl,
   className,
-  size = 'sm'
+  size = 'md'
 }: ClubBadgeProps) => {
   // Use provided logoUrl or get from storage
   const teamLogoUrl = logoUrl || getTeamLogoUrl(clubName);
   const sizeClasses = {
     sm: {
       container: "gap-2",
-      logo: "h-6 w-6",
+      logo: "h-8 w-8",
       text: "text-sm",
       fallbackText: "text-xs"
     },
@@ -30,13 +30,13 @@ const ClubBadge = ({
     },
     lg: {
       container: "gap-3",
-      logo: "h-16 w-16",
+      logo: "h-8 w-8",
       text: "text-xl",
       fallbackText: "text-lg"
     },
     xl: {
       container: "gap-3",
-      logo: "h-10 w-10",
+      logo: "h-8 w-8",
       text: "text-lg",
       fallbackText: "text-base"
     }
