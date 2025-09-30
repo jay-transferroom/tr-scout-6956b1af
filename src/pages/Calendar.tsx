@@ -535,7 +535,7 @@ const Calendar = () => {
                 <div className="grid grid-cols-7 gap-2 auto-rows-fr">{/* Day headers */}
                   {/* Day headers */}
                   {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
+                    <div key={day} className="text-center text-sm font-medium text-muted-foreground py-1">
                       {day}
                     </div>
                   ))}
