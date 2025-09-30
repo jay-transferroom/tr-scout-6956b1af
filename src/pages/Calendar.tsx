@@ -432,7 +432,7 @@ const Calendar = () => {
         {/* Match Details */}
         <div>
           {selectedDate && (
-            <Card className="h-[calc(100vh-280px)]">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="h-5 w-5" />
