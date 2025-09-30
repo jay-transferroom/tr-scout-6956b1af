@@ -101,7 +101,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    // Provide a safe fallback during initialization/HMR to avoid crashes
+    return {
+      user: null,
+      profile: null,
+      session: null,
+      loading: true,
+      signUp: async () => ({ error: new Error('Auth not ready') }),
+      signIn: async () => ({ error: new Error('Auth not ready') }),
+      signOut: async () => {},
+      resetPassword: async () => ({ error: new Error('Auth not ready') }),
+      refreshProfile: async () => {},
+    } as AuthContextType;
   }
   return context;
 }
