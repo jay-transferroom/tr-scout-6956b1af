@@ -4,13 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar as CalendarIcon, Clock, MapPin, Users, UserCheck, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Calendar as CalendarIcon, Clock, MapPin, Users, UserCheck, Plus, Search, Star, Target } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useFixturesData } from "@/hooks/useFixturesData";
 import { useScoutUsers } from "@/hooks/useScoutUsers";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { useScoutingAssignments } from "@/hooks/useScoutingAssignments";
+import { useShortlists } from "@/hooks/useShortlists";
 import { useAuth } from "@/contexts/AuthContext";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
 
@@ -18,6 +20,8 @@ const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedScout, setSelectedScout] = useState<string>("all");
+  const [selectedShortlist, setSelectedShortlist] = useState<string>("all");
+  const [playerSearchTerm, setPlayerSearchTerm] = useState("");
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
 
@@ -26,6 +30,7 @@ const Calendar = () => {
   const { data: scouts = [] } = useScoutUsers();
   const { data: allPlayers = [] } = usePlayersData();
   const { data: assignments = [], refetch: refetchAssignments } = useScoutingAssignments();
+  const { shortlists } = useShortlists();
 
   // Check if user can assign scouts (recruitment or director roles)
   const canAssignScouts = profile?.role === 'recruitment' || profile?.role === 'director';
@@ -33,29 +38,69 @@ const Calendar = () => {
   // Get assigned player IDs to filter recommendations
   const assignedPlayerIds = new Set(assignments.map(a => a.player_id));
 
+  // Get all shortlisted player IDs
+  const allShortlistedPlayerIds = new Set(
+    shortlists.flatMap(shortlist => shortlist.playerIds || [])
+  );
+
+  // Get players from selected shortlist
+  const getShortlistPlayers = () => {
+    if (selectedShortlist === "all") return [];
+    const shortlist = shortlists.find(s => s.id === selectedShortlist);
+    if (!shortlist?.playerIds) return [];
+    return allPlayers.filter(player => shortlist.playerIds.includes(player.id.toString()));
+  };
+
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
   // Enhanced fixture data with player recommendations
   const enhancedFixtures = fixtures.map(fixture => {
-    // Find players from teams playing in this fixture who aren't assigned
+    // Find all players from teams playing in this fixture
     const playersInFixture = allPlayers.filter(player => 
-      (player.club === fixture.home_team || player.club === fixture.away_team) &&
-      !assignedPlayerIds.has(player.id.toString())
+      player.club === fixture.home_team || player.club === fixture.away_team
     );
 
-  // Get scout assignments for this fixture's date
-  const scoutWorkload = assignments.filter(assignment => {
-    const assignmentDate = assignment.deadline ? new Date(assignment.deadline) : null;
-    return assignmentDate && isSameDay(assignmentDate, new Date(fixture.match_date_utc));
-  });
+    // Apply player search filter if provided
+    const filteredPlayers = playerSearchTerm 
+      ? playersInFixture.filter(player => 
+          player.name.toLowerCase().includes(playerSearchTerm.toLowerCase())
+        )
+      : playersInFixture;
+
+    // Separate shortlisted and non-shortlisted players
+    const shortlistedPlayers = filteredPlayers.filter(player => 
+      allShortlistedPlayerIds.has(player.id.toString())
+    );
+
+    const unassignedPlayers = filteredPlayers.filter(player => 
+      !assignedPlayerIds.has(player.id.toString()) &&
+      !allShortlistedPlayerIds.has(player.id.toString())
+    );
+
+    // Get scout assignments for this fixture's date
+    const scoutWorkload = assignments.filter(assignment => {
+      const assignmentDate = assignment.deadline ? new Date(assignment.deadline) : null;
+      return assignmentDate && isSameDay(assignmentDate, new Date(fixture.match_date_utc));
+    });
+
+    // Prioritize recommendations: high XTV score, good ratings, young age
+    const recommendedPlayers = unassignedPlayers
+      .sort((a, b) => {
+        const scoreA = (a.xtvScore || 0) + (a.transferroomRating || 0) * 100000 + (30 - (a.age || 30)) * 50000;
+        const scoreB = (b.xtvScore || 0) + (b.transferroomRating || 0) * 100000 + (30 - (b.age || 30)) * 50000;
+        return scoreB - scoreA;
+      })
+      .slice(0, 3);
 
     return {
       ...fixture,
-      playersInFixture,
+      playersInFixture: filteredPlayers,
+      shortlistedPlayers,
+      unassignedPlayers,
       scoutWorkload: scoutWorkload.length,
-      recommendedPlayers: playersInFixture.slice(0, 3) // Top 3 recommendations
+      recommendedPlayers
     };
   });
 
@@ -63,24 +108,36 @@ const Calendar = () => {
     return enhancedFixtures.filter(fixture => isSameDay(new Date(fixture.match_date_utc), date));
   };
 
-  // Filter fixtures by selected scout's workload or show all
+  // Filter fixtures by selected scout's workload, shortlist, or show all
   const getScoutRelevantFixtures = (date: Date) => {
-    const dayFixtures = getFixturesForDate(date);
+    let dayFixtures = getFixturesForDate(date);
     
-    if (selectedScout === "all") {
-      return dayFixtures;
+    // Filter by shortlist if selected
+    if (selectedShortlist !== "all") {
+      const shortlistPlayers = getShortlistPlayers();
+      const shortlistPlayerIds = new Set(shortlistPlayers.map(p => p.id.toString()));
+      
+      dayFixtures = dayFixtures.filter(fixture => 
+        fixture.playersInFixture.some(player => 
+          shortlistPlayerIds.has(player.id.toString())
+        )
+      );
+    }
+    
+    // Filter by scout if selected
+    if (selectedScout !== "all") {
+      return dayFixtures.filter(fixture => {
+        const hasScoutAssignments = assignments.some(a => 
+          a.assigned_to_scout_id === selectedScout && 
+          a.deadline && 
+          isSameDay(new Date(a.deadline), date)
+        );
+        
+        return hasScoutAssignments || fixture.recommendedPlayers.length > 0 || fixture.shortlistedPlayers.length > 0;
+      });
     }
 
-    // Show fixtures where the scout has assignments or could have new ones
-    return dayFixtures.filter(fixture => {
-      const hasScoutAssignments = assignments.some(a => 
-        a.assigned_to_scout_id === selectedScout && 
-        a.deadline && 
-        isSameDay(new Date(a.deadline), date)
-      );
-      
-      return hasScoutAssignments || fixture.recommendedPlayers.length > 0;
-    });
+    return dayFixtures;
   };
 
   const selectedDateFixtures = selectedDate ? getScoutRelevantFixtures(selectedDate) : [];
@@ -118,12 +175,12 @@ const Calendar = () => {
         </p>
       </div>
 
-      {/* Scout Filter */}
-      <div className="mb-6">
-        <div className="flex items-center gap-4">
+      {/* Filters */}
+      <div className="mb-6 space-y-4">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <UserCheck className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Filter by Scout:</span>
+            <span className="text-sm font-medium">Scout:</span>
           </div>
           <Select value={selectedScout} onValueChange={setSelectedScout}>
             <SelectTrigger className="w-[200px]">
@@ -138,6 +195,35 @@ const Calendar = () => {
               ))}
             </SelectContent>
           </Select>
+
+          <div className="flex items-center gap-2">
+            <Star className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Shortlist:</span>
+          </div>
+          <Select value={selectedShortlist} onValueChange={setSelectedShortlist}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Select shortlist" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Players</SelectItem>
+              {shortlists.map((shortlist) => (
+                <SelectItem key={shortlist.id} value={shortlist.id}>
+                  {shortlist.name} ({shortlist.playerIds?.length || 0})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <div className="flex items-center gap-2">
+            <Search className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Player:</span>
+          </div>
+          <Input
+            placeholder="Search players..."
+            value={playerSearchTerm}
+            onChange={(e) => setPlayerSearchTerm(e.target.value)}
+            className="w-[200px]"
+          />
         </div>
       </div>
 
@@ -341,21 +427,55 @@ const Calendar = () => {
                           </div>
                         )}
                         
+                        {/* Shortlisted Players */}
+                        {fixture.shortlistedPlayers.length > 0 && (
+                          <div className="border-t pt-3 mt-3">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Star className="h-4 w-4 text-yellow-500" />
+                              <span className="text-sm font-medium">
+                                Shortlisted Players ({fixture.shortlistedPlayers.length})
+                              </span>
+                            </div>
+                            <div className="space-y-2">
+                              {fixture.shortlistedPlayers.map(player => (
+                                <div key={player.id} className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded px-2 py-1">
+                                  <div>
+                                    <div className="text-sm font-medium">{player.name}</div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {player.club} • {player.positions?.[0] || 'Unknown'}
+                                      {player.age && ` • ${player.age}y`}
+                                      {player.transferroomRating && ` • ${player.transferroomRating}/100`}
+                                    </div>
+                                  </div>
+                                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                                    <Star className="h-3 w-3 mr-1" />
+                                    Shortlisted
+                                  </Badge>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Recommended Players */}
                         {fixture.recommendedPlayers.length > 0 && (
                           <div className="border-t pt-3 mt-3">
                             <div className="flex items-center gap-2 mb-2">
-                              <Users className="h-4 w-4 text-muted-foreground" />
+                              <Target className="h-4 w-4 text-blue-500" />
                               <span className="text-sm font-medium">
                                 {isCompleted ? "Players to Review" : "Recommended for Scouting"}
                               </span>
                             </div>
                             <div className="space-y-2">
                               {fixture.recommendedPlayers.map(player => (
-                                <div key={player.id} className="flex items-center justify-between bg-muted/30 rounded px-2 py-1">
+                                <div key={player.id} className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded px-2 py-1">
                                   <div>
                                     <div className="text-sm font-medium">{player.name}</div>
                                     <div className="text-xs text-muted-foreground">
                                       {player.club} • {player.positions?.[0] || 'Unknown'}
+                                      {player.age && ` • ${player.age}y`}
+                                      {player.transferroomRating && ` • ${player.transferroomRating}/100`}
+                                      {player.xtvScore && ` • €${(player.xtvScore / 1000000).toFixed(1)}M`}
                                     </div>
                                    </div>
                                    {canAssignScouts && (
