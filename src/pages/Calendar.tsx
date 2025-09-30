@@ -48,7 +48,15 @@ const Calendar = () => {
     if (selectedShortlist === "all") return [];
     const shortlist = shortlists.find(s => s.id === selectedShortlist);
     if (!shortlist?.playerIds) return [];
-    return allPlayers.filter(player => shortlist.playerIds.includes(player.id.toString()));
+    
+    const shortlistPlayers = allPlayers.filter(player => shortlist.playerIds.includes(player.id.toString()));
+    console.log(`Selected shortlist: ${shortlist.name}`, {
+      shortlistId: selectedShortlist,
+      playerIds: shortlist.playerIds,
+      foundPlayers: shortlistPlayers.map(p => ({ name: p.name, club: p.club }))
+    });
+    
+    return shortlistPlayers;
   };
 
   const monthStart = startOfMonth(currentDate);
@@ -128,11 +136,23 @@ const Calendar = () => {
       const shortlistPlayers = getShortlistPlayers();
       const shortlistPlayerIds = new Set(shortlistPlayers.map(p => p.id.toString()));
       
-      dayFixtures = dayFixtures.filter(fixture => 
-        fixture.playersInFixture.some(player => 
+      console.log(`Filtering fixtures by shortlist. Found ${shortlistPlayers.length} players in shortlist.`);
+      
+      dayFixtures = dayFixtures.filter(fixture => {
+        // Check if any player from either team is in the shortlist
+        const hasShortlistedPlayer = allPlayers.some(player => 
+          (player.club === fixture.home_team || player.club === fixture.away_team) &&
           shortlistPlayerIds.has(player.id.toString())
-        )
-      );
+        );
+        
+        if (hasShortlistedPlayer) {
+          console.log(`Fixture ${fixture.home_team} vs ${fixture.away_team} has shortlisted players`);
+        }
+        
+        return hasShortlistedPlayer;
+      });
+      
+      console.log(`After shortlist filtering: ${dayFixtures.length} fixtures remaining`);
     }
     
     // Filter by scout if selected
