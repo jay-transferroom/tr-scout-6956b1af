@@ -47,7 +47,7 @@ const ClubBadge = ({
         <img
           src={teamLogoUrl}
           alt={`${clubName} logo`}
-          className="w-full h-full rounded-full object-cover block"
+          className="w-full h-full object-contain block"
         />
       ) : (
         <div className="w-full h-full rounded-full bg-muted flex items-center justify-center">
