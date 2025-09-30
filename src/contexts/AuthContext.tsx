@@ -85,15 +85,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   console.log('AuthProvider: Providing context with value:', { user: !!user, profile: !!profile, loading });
+  
+  // Don't render children until initial auth check is complete
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+  
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-  console.log('useAuth: Attempting to get context');
   const context = useContext(AuthContext);
-  console.log('useAuth: Context value:', context);
   if (context === undefined) {
-    console.error('useAuth: Context is undefined! AuthProvider not found in component tree');
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
