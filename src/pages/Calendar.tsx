@@ -205,16 +205,19 @@ const Calendar = () => {
   const getScoutRelevantFixtures = (date: Date) => {
     let dayFixtures = getFixturesForDate(date);
     
-    // Filter by scout if selected
+    // Filter by scout if selected - only show fixtures with players assigned to that scout
     if (selectedScout !== "all") {
       return dayFixtures.filter(fixture => {
-        const hasScoutAssignments = assignments.some(a => 
+        // Get all players in this fixture
+        const fixturePlayerIds = fixture.playersInFixture.map(p => p.id.toString());
+        
+        // Check if any player in this fixture is assigned to the selected scout
+        const hasScoutAssignedPlayer = assignments.some(a => 
           a.assigned_to_scout_id === selectedScout && 
-          a.deadline && 
-          isSameDay(new Date(a.deadline), date)
+          fixturePlayerIds.includes(a.player_id)
         );
         
-        return hasScoutAssignments || fixture.recommendedPlayers.length > 0 || fixture.shortlistedPlayers.length > 0;
+        return hasScoutAssignedPlayer;
       });
     }
 
@@ -658,45 +661,6 @@ const Calendar = () => {
           </Card>
           )}
 
-          {/* Scout Performance Summary */}
-          {selectedDate && selectedScout !== "all" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Scout Performance</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {(() => {
-                    const scout = scouts.find(s => s.id === selectedScout);
-                    const scoutAssignments = assignments.filter(a => a.assigned_to_scout_id === selectedScout);
-                    const completedCount = scoutAssignments.filter(a => a.status === 'completed').length;
-                    const completionRate = scoutAssignments.length > 0 ? Math.round((completedCount / scoutAssignments.length) * 100) : 0;
-                    
-                    return (
-                      <>
-                        <div className="text-center mb-4">
-                          <div className="font-semibold">{scout?.first_name} {scout?.last_name}</div>
-                          <div className="text-sm text-muted-foreground">Scout Performance</div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Total Assignments:</span>
-                          <span className="font-semibold">{scoutAssignments.length}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Completed:</span>
-                          <span className="font-semibold text-green-600">{completedCount}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Success Rate:</span>
-                          <span className="font-semibold text-blue-600">{completionRate}%</span>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
 
