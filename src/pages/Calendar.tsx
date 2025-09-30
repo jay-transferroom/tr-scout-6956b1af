@@ -59,6 +59,13 @@ const Calendar = () => {
     return shortlistPlayers;
   };
 
+  // Get teams that have shortlisted players
+  const getShortlistTeams = () => {
+    if (selectedShortlist === "all") return new Set();
+    const shortlistPlayers = getShortlistPlayers();
+    return new Set(shortlistPlayers.map(player => player.club));
+  };
+
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   // Get the full calendar grid including leading/trailing days from adjacent months
@@ -124,36 +131,30 @@ const Calendar = () => {
   });
 
   const getFixturesForDate = (date: Date) => {
-    return enhancedFixtures.filter(fixture => isSameDay(new Date(fixture.match_date_utc), date));
-  };
-
-  // Filter fixtures by selected scout's workload, shortlist, or show all
-  const getScoutRelevantFixtures = (date: Date) => {
-    let dayFixtures = getFixturesForDate(date);
+    let dayFixtures = enhancedFixtures.filter(fixture => isSameDay(new Date(fixture.match_date_utc), date));
     
-    // Filter by shortlist if selected
+    // Filter by shortlist if selected - only show fixtures involving teams with shortlisted players
     if (selectedShortlist !== "all") {
-      const shortlistPlayers = getShortlistPlayers();
-      const shortlistPlayerIds = new Set(shortlistPlayers.map(p => p.id.toString()));
-      
-      console.log(`Filtering fixtures by shortlist. Found ${shortlistPlayers.length} players in shortlist.`);
+      const shortlistTeams = getShortlistTeams();
+      console.log(`Filtering fixtures for shortlist teams:`, Array.from(shortlistTeams));
       
       dayFixtures = dayFixtures.filter(fixture => {
-        // Check if any player from either team is in the shortlist
-        const hasShortlistedPlayer = allPlayers.some(player => 
-          (player.club === fixture.home_team || player.club === fixture.away_team) &&
-          shortlistPlayerIds.has(player.id.toString())
-        );
-        
-        if (hasShortlistedPlayer) {
-          console.log(`Fixture ${fixture.home_team} vs ${fixture.away_team} has shortlisted players`);
+        const hasShortlistTeam = shortlistTeams.has(fixture.home_team) || shortlistTeams.has(fixture.away_team);
+        if (hasShortlistTeam) {
+          console.log(`Including fixture: ${fixture.home_team} vs ${fixture.away_team}`);
         }
-        
-        return hasShortlistedPlayer;
+        return hasShortlistTeam;
       });
       
-      console.log(`After shortlist filtering: ${dayFixtures.length} fixtures remaining`);
+      console.log(`After shortlist filtering: ${dayFixtures.length} fixtures for date ${format(date, 'yyyy-MM-dd')}`);
     }
+    
+    return dayFixtures;
+  };
+
+  // Filter fixtures by selected scout's workload or show all
+  const getScoutRelevantFixtures = (date: Date) => {
+    let dayFixtures = getFixturesForDate(date);
     
     // Filter by scout if selected
     if (selectedScout !== "all") {
@@ -477,22 +478,39 @@ const Calendar = () => {
                               </span>
                             </div>
                             <div className="space-y-2">
-                              {fixture.shortlistedPlayers.map(player => (
-                                <div key={player.id} className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded px-2 py-1">
-                                  <div>
-                                    <div className="text-sm font-medium">{player.name}</div>
-                                    <div className="text-xs text-muted-foreground">
-                                      {player.club} • {player.positions?.[0] || 'Unknown'}
-                                      {player.age && ` • ${player.age}y`}
-                                      {player.transferroomRating && ` • ${player.transferroomRating}/100`}
+                              {fixture.shortlistedPlayers.map(player => {
+                                // Check if this shortlisted player has a scout assignment
+                                const playerAssignment = assignments.find(a => a.player_id === player.id.toString());
+                                
+                                return (
+                                  <div key={player.id} className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded px-2 py-1">
+                                    <div>
+                                      <div className="text-sm font-medium">{player.name}</div>
+                                      <div className="text-xs text-muted-foreground">
+                                        {player.club} • {player.positions?.[0] || 'Unknown'}
+                                        {player.age && ` • ${player.age}y`}
+                                        {player.transferroomRating && ` • ${player.transferroomRating}/100`}
+                                      </div>
+                                      {playerAssignment && (
+                                        <div className="text-xs text-blue-600 font-medium mt-1">
+                                          Assigned to: {scouts.find(s => s.id === playerAssignment.assigned_to_scout_id)?.first_name} {scouts.find(s => s.id === playerAssignment.assigned_to_scout_id)?.last_name}
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="flex flex-col items-end gap-1">
+                                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                                        <Star className="h-3 w-3 mr-1" />
+                                        Shortlisted
+                                      </Badge>
+                                      {playerAssignment && (
+                                        <Badge variant="outline" className="bg-blue-50 text-blue-700 text-xs">
+                                          Scout Assigned
+                                        </Badge>
+                                      )}
                                     </div>
                                   </div>
-                                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                                    <Star className="h-3 w-3 mr-1" />
-                                    Shortlisted
-                                  </Badge>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                         )}
