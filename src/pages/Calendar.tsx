@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ClubBadge } from "@/components/ui/club-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Calendar as CalendarIcon, Clock, MapPin, Users, UserCheck, Plus, Search, Star, Target } from "lucide-react";
@@ -476,8 +477,9 @@ const Calendar = () => {
                         
                         <div className="text-center mb-3">
                           <div className="flex items-center justify-center gap-4">
-                            <div className="text-right flex-1">
+                            <div className="text-right flex-1 flex items-center justify-end gap-2">
                               <div className="font-semibold text-lg">{fixture.home_team}</div>
+                              <ClubBadge clubName={fixture.home_team} size="md" />
                             </div>
                             <div className="flex flex-col items-center gap-1">
                               {hasScore ? (
@@ -493,7 +495,8 @@ const Calendar = () => {
                                 </div>
                               )}
                             </div>
-                            <div className="text-left flex-1">
+                            <div className="text-left flex-1 flex items-center justify-start gap-2">
+                              <ClubBadge clubName={fixture.away_team} size="md" />
                               <div className="font-semibold text-lg">{fixture.away_team}</div>
                             </div>
                           </div>
