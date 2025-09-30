@@ -5,20 +5,20 @@ interface ClubBadgeProps {
   clubName: string;
   logoUrl?: string;
   className?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg';
 }
 const ClubBadge = ({
   clubName,
   logoUrl,
   className,
-  size = 'md'
+  size = 'sm'
 }: ClubBadgeProps) => {
   // Use provided logoUrl or get from storage
   const teamLogoUrl = logoUrl || getTeamLogoUrl(clubName);
   const sizeClasses = {
     sm: {
       container: "gap-2",
-      logo: "h-8 w-8",
+      logo: "h-6 w-6",
       text: "text-sm",
       fallbackText: "text-xs"
     },
@@ -30,15 +30,9 @@ const ClubBadge = ({
     },
     lg: {
       container: "gap-3",
-      logo: "h-8 w-8",
+      logo: "h-16 w-16",
       text: "text-xl",
       fallbackText: "text-lg"
-    },
-    xl: {
-      container: "gap-3",
-      logo: "h-8 w-8",
-      text: "text-lg",
-      fallbackText: "text-base"
     }
   };
   const currentSize = sizeClasses[size];
@@ -53,7 +47,7 @@ const ClubBadge = ({
         <img
           src={teamLogoUrl}
           alt={`${clubName} logo`}
-          className="w-full h-full object-contain block"
+          className="w-full h-full rounded-full object-cover block"
         />
       ) : (
         <div className="w-full h-full rounded-full bg-muted flex items-center justify-center">
