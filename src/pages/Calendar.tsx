@@ -43,28 +43,76 @@ const Calendar = () => {
     shortlists.flatMap(shortlist => shortlist.playerIds || [])
   );
 
+  // Helper: normalize team/club names for matching
+  const normalizeTeamName = (name?: string) => {
+    if (!name) return "";
+    return name
+      .toLowerCase()
+      .replace(/\./g, "")
+      .replace(/\bf\.?c\.?\b/g, "") // remove FC / F.C.
+      .replace(/football club/g, "")
+      .replace(/[^a-z0-9&\s-]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
+  const clubsMatch = (a?: string, b?: string) => {
+    const na = normalizeTeamName(a);
+    const nb = normalizeTeamName(b);
+    return na === nb || na.includes(nb) || nb.includes(na);
+  };
+
+  // Infer shortlist by name (for role-based lists like "Strikers")
+  const getNameBasedPredicate = (name?: string) => {
+    const key = (name || "").toLowerCase();
+    if (key.includes("striker")) {
+      return (p: any) => (p.positions || []).some((pos: string) => ["st", "cf", "fw"].includes(pos.toLowerCase()));
+    }
+    if (key.includes("winger")) {
+      return (p: any) => (p.positions || []).some((pos: string) => ["lw", "rw"].includes(pos.toLowerCase()));
+    }
+    if (key.includes("midfield")) {
+      return (p: any) => (p.positions || []).some((pos: string) => ["cdm","cm","cam","lm","rm"].includes(pos.toLowerCase()));
+    }
+    if (key.includes("defend")) {
+      return (p: any) => (p.positions || []).some((pos: string) => ["cb","lb","rb","lwb","rwb"].includes(pos.toLowerCase()));
+    }
+    if (key.includes("keeper") || key.includes("goalkeeper") || key === "gk") {
+      return (p: any) => (p.positions || []).some((pos: string) => pos.toLowerCase() === "gk");
+    }
+    return null;
+  };
+
   // Get players from selected shortlist
   const getShortlistPlayers = () => {
     if (selectedShortlist === "all") return [];
     const shortlist = shortlists.find(s => s.id === selectedShortlist);
-    if (!shortlist?.playerIds) return [];
-    
-    const shortlistPlayers = allPlayers.filter(player => shortlist.playerIds.includes(player.id.toString()));
-    console.log(`Selected shortlist: ${shortlist.name}`, {
-      shortlistId: selectedShortlist,
-      playerIds: shortlist.playerIds,
-      foundPlayers: shortlistPlayers.map(p => ({ name: p.name, club: p.club }))
-    });
-    
-    return shortlistPlayers;
+    if (!shortlist) return [];
+
+    // If explicit playerIds exist, use them
+    if (shortlist.playerIds && shortlist.playerIds.length > 0) {
+      const players = allPlayers.filter(player => shortlist.playerIds.includes(player.id.toString()));
+      return players;
+    }
+
+    // Fallback: infer by shortlist name (e.g., "Strikers")
+    const predicate = getNameBasedPredicate(shortlist.name);
+    if (predicate) {
+      const players = allPlayers.filter(predicate);
+      return players;
+    }
+
+    return [];
   };
 
   // Get teams that have shortlisted players
   const getShortlistTeams = () => {
-    if (selectedShortlist === "all") return new Set();
+    if (selectedShortlist === "all") return [] as string[];
     const shortlistPlayers = getShortlistPlayers();
-    return new Set(shortlistPlayers.map(player => player.club));
+    return Array.from(new Set(shortlistPlayers.map(p => p.club)));
   };
+
+  // (legacy) getShortlistTeams removed - consolidated above
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -77,7 +125,7 @@ const Calendar = () => {
   const enhancedFixtures = fixtures.map(fixture => {
     // Find all players from teams playing in this fixture
     const playersInFixture = allPlayers.filter(player => 
-      player.club === fixture.home_team || player.club === fixture.away_team
+      clubsMatch(player.club, fixture.home_team) || clubsMatch(player.club, fixture.away_team)
     );
 
     // Apply player search filter if provided
@@ -136,10 +184,12 @@ const Calendar = () => {
     // Filter by shortlist if selected - only show fixtures involving teams with shortlisted players
     if (selectedShortlist !== "all") {
       const shortlistTeams = getShortlistTeams();
-      console.log(`Filtering fixtures for shortlist teams:`, Array.from(shortlistTeams));
+      console.log(`Filtering fixtures for shortlist teams:`, shortlistTeams);
       
       dayFixtures = dayFixtures.filter(fixture => {
-        const hasShortlistTeam = shortlistTeams.has(fixture.home_team) || shortlistTeams.has(fixture.away_team);
+        const hasShortlistTeam = shortlistTeams.some(team =>
+          clubsMatch(team, fixture.home_team) || clubsMatch(team, fixture.away_team)
+        );
         if (hasShortlistTeam) {
           console.log(`Including fixture: ${fixture.home_team} vs ${fixture.away_team}`);
         }
@@ -524,31 +574,49 @@ const Calendar = () => {
                                 {isCompleted ? "Players to Review" : "Recommended for Scouting"}
                               </span>
                             </div>
-                            <div className="space-y-2">
-                              {fixture.recommendedPlayers.map(player => (
-                                <div key={player.id} className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded px-2 py-1">
-                                  <div>
-                                    <div className="text-sm font-medium">{player.name}</div>
-                                    <div className="text-xs text-muted-foreground">
-                                      {player.club} • {player.positions?.[0] || 'Unknown'}
-                                      {player.age && ` • ${player.age}y`}
-                                      {player.transferroomRating && ` • ${player.transferroomRating}/100`}
-                                      {player.xtvScore && ` • €${(player.xtvScore / 1000000).toFixed(1)}M`}
-                                    </div>
-                                   </div>
-                                   {canAssignScouts && (
-                                     <Button
-                                       size="sm"
-                                       variant="outline"
-                                       className="h-6 px-2"
-                                       onClick={() => handleAssignPlayer(player)}
-                                     >
-                                       <Plus className="h-3 w-3" />
-                                     </Button>
-                                   )}
-                                </div>
-                              ))}
-                            </div>
+            <div className="space-y-2">
+              {fixture.recommendedPlayers.map(player => {
+                const isShortlisted = allShortlistedPlayerIds.has(player.id.toString());
+                const playerAssignment = assignments.find(a => a.player_id === player.id.toString());
+                const assignedScout = playerAssignment ? scouts.find(s => s.id === playerAssignment.assigned_to_scout_id) : null;
+                
+                return (
+                  <div key={player.id} className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded px-2 py-1">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-sm font-medium">{player.name}</div>
+                        {isShortlisted && (
+                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 h-5">
+                            <Star className="h-3 w-3 mr-1" /> Shortlisted
+                          </Badge>
+                        )}
+                        {playerAssignment && (
+                          <Badge variant="outline" className="bg-blue-50 text-blue-700 h-5">
+                            Scout: {assignedScout ? `${assignedScout.first_name} ${assignedScout.last_name}` : 'Assigned'}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {player.club} • {player.positions?.[0] || 'Unknown'}
+                        {player.age && ` • ${player.age}y`}
+                        {player.transferroomRating && ` • ${player.transferroomRating}/100`}
+                        {player.xtvScore && ` • €${(player.xtvScore / 1000000).toFixed(1)}M`}
+                      </div>
+                     </div>
+                     {canAssignScouts && (
+                       <Button
+                         size="sm"
+                         variant="outline"
+                         className="h-6 px-2"
+                         onClick={() => handleAssignPlayer(player)}
+                       >
+                         <Plus className="h-3 w-3" />
+                       </Button>
+                     )}
+                  </div>
+                );
+              })}
+            </div>
                           </div>
                         )}
                       </div>
