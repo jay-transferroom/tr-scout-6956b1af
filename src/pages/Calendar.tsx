@@ -532,15 +532,17 @@ const Calendar = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pb-4">
-                <div className="grid grid-cols-7 gap-2 auto-rows-fr">{/* Day headers */}
-                  {/* Day headers */}
+                {/* Day headers */}
+                <div className="grid grid-cols-7 gap-2 mb-2">
                   {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="text-center text-sm font-medium text-muted-foreground py-0 leading-tight h-auto">
+                    <div key={day} className="text-center text-sm font-medium text-muted-foreground">
                       {day}
                     </div>
                   ))}
-                  
-                  {/* Calendar days */}
+                </div>
+                
+                {/* Calendar grid */}
+                <div className="grid grid-cols-7 gap-2 auto-rows-fr">
                   {(() => {
                     const monthStart = startOfMonth(currentDate);
                     const monthEnd = endOfMonth(currentDate);
