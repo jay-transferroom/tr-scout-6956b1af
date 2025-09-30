@@ -114,12 +114,10 @@ const Calendar = () => {
 
   // (legacy) getShortlistTeams removed - consolidated above
 
-  const monthStart = startOfMonth(currentDate);
-  const monthEnd = endOfMonth(currentDate);
-  // Get the full calendar grid including leading/trailing days from adjacent months
-  const calendarStart = startOfWeek(monthStart);
-  const calendarEnd = endOfWeek(monthEnd);
-  const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+  // Get date range for fixtures (30 days forward)
+  const today = new Date();
+  const thirtyDaysFromNow = new Date();
+  thirtyDaysFromNow.setDate(today.getDate() + 30);
 
   // Enhanced fixture data with player recommendations
   const enhancedFixtures = fixtures.map(fixture => {
@@ -222,6 +220,26 @@ const Calendar = () => {
     return dayFixtures;
   };
 
+  // Get all dates with fixtures
+  const datesWithFixtures = Array.from(
+    new Set(
+      enhancedFixtures
+        .filter(fixture => {
+          const fixtureDate = new Date(fixture.match_date_utc);
+          return fixtureDate >= today && fixtureDate <= thirtyDaysFromNow;
+        })
+        .map(fixture => format(new Date(fixture.match_date_utc), 'yyyy-MM-dd'))
+    )
+  )
+    .sort()
+    .map(dateStr => new Date(dateStr))
+    .filter(date => getScoutRelevantFixtures(date).length > 0);
+
+  // Auto-select first date if none selected
+  if (!selectedDate && datesWithFixtures.length > 0) {
+    setSelectedDate(datesWithFixtures[0]);
+  }
+
   const selectedDateFixtures = selectedDate ? getScoutRelevantFixtures(selectedDate) : [];
 
   const getScoutWorkloadForDate = (date: Date, scoutId: string) => {
@@ -309,140 +327,118 @@ const Calendar = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Calendar View */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Dates List */}
+        <div>
+          <Card className="h-[calc(100vh-280px)]">
+            <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CalendarIcon className="h-5 w-5" />
-                {format(currentDate, "MMMM yyyy")}
+                Upcoming Matches
               </CardTitle>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentDate(new Date())}
-                >
-                  Today
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
-                >
-                  Next
-                </Button>
-              </div>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-7 gap-2 mb-4">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                  <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">
-                    {day}
+            <CardContent className="p-0">
+              <div className="overflow-y-auto h-[calc(100vh-360px)]">
+                {datesWithFixtures.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No matches found for the selected filters</p>
                   </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-2">
-                {days.map(day => {
-                  const dayFixtures = getScoutRelevantFixtures(day);
-                  const isSelected = selectedDate && isSameDay(day, selectedDate);
-                  const isCurrentMonth = isSameMonth(day, currentDate);
-                  
-                  // Calculate scout workload for this day
-                  const totalWorkload = selectedScout === "all" 
-                    ? assignments.filter(a => a.deadline && isSameDay(new Date(a.deadline), day)).length
-                    : getScoutWorkloadForDate(day, selectedScout);
-                  
-                  return (
-                    <button
-                      key={day.toISOString()}
-                      onClick={() => setSelectedDate(day)}
-                      className={cn(
-                        "p-2 h-24 border rounded-lg text-left hover:bg-muted/50 transition-colors",
-                        isSelected && "bg-primary text-primary-foreground",
-                        !isCurrentMonth && "text-muted-foreground bg-muted/20",
-                        isToday(day) && !isSelected && "bg-blue-50 border-blue-200"
-                      )}
-                    >
-                      <div className="font-medium text-sm">{format(day, 'd')}</div>
-                      <div className="mt-1 space-y-1">
-                        {dayFixtures.slice(0, 2).map((fixture, index) => {
-                          const isCompleted = fixture.status === 'completed' || fixture.status === 'Full Time' || (fixture.home_score !== null && fixture.away_score !== null);
-                          const isLive = fixture.status === 'live' || fixture.status === 'Live';
-                          
-                          return (
-                            <div 
-                              key={`${fixture.match_number}-${index}`} 
-                              className={cn(
-                                "text-xs rounded px-1 py-0.5 truncate",
-                                isLive && "bg-green-100 text-green-800 animate-pulse",
-                                isCompleted && "bg-gray-100 text-gray-700",
-                                !isLive && !isCompleted && "bg-blue-100 text-blue-800"
-                              )}
-                            >
-                              <div className="flex items-center justify-between">
-                                <span className="truncate">
-                                  {fixture.home_team.substring(0, 3)} vs {fixture.away_team.substring(0, 3)}
-                                </span>
-                                {isCompleted && fixture.home_score !== null && fixture.away_score !== null && (
-                                  <span className="ml-1 font-medium">
-                                    {fixture.home_score}-{fixture.away_score}
-                                  </span>
-                                )}
-                                {isLive && (
-                                  <span className="ml-1 text-xs">LIVE</span>
-                                )}
+                ) : (
+                  <div className="divide-y">
+                    {datesWithFixtures.map(date => {
+                      const dayFixtures = getScoutRelevantFixtures(date);
+                      const isSelected = selectedDate && isSameDay(date, selectedDate);
+                      const totalWorkload = selectedScout === "all" 
+                        ? assignments.filter(a => a.deadline && isSameDay(new Date(a.deadline), date)).length
+                        : getScoutWorkloadForDate(date, selectedScout);
+                      
+                      return (
+                        <button
+                          key={date.toISOString()}
+                          onClick={() => setSelectedDate(date)}
+                          className={cn(
+                            "w-full p-4 text-left hover:bg-muted/50 transition-colors",
+                            isSelected && "bg-primary/10 border-l-4 border-primary"
+                          )}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div>
+                              <div className="font-semibold">
+                                {format(date, 'EEEE, MMMM d')}
                               </div>
-                              {/* Show shortlisted players count */}
-                              {fixture.shortlistedPlayers && fixture.shortlistedPlayers.length > 0 && (
-                                <div className="flex items-center gap-1 mt-0.5">
-                                  <Star className="h-2 w-2 text-yellow-600" />
-                                  <span className="text-xs text-yellow-800 font-medium">
-                                    {fixture.shortlistedPlayers.length} shortlisted
-                                  </span>
-                                </div>
+                              {isToday(date) && (
+                                <Badge variant="secondary" className="mt-1">Today</Badge>
                               )}
                             </div>
-                          );
-                        })}
-                        {dayFixtures.length > 2 && (
-                          <div className="text-xs text-muted-foreground">
-                            +{dayFixtures.length - 2} more
+                            <div className="text-right text-sm text-muted-foreground">
+                              {dayFixtures.length} {dayFixtures.length === 1 ? 'match' : 'matches'}
+                            </div>
                           </div>
-                        )}
-                        {totalWorkload > 0 && (
-                          <div className="text-xs bg-orange-100 text-orange-800 rounded px-1 py-0.5">
-                            {totalWorkload} task{totalWorkload > 1 ? 's' : ''}
+                          
+                          <div className="space-y-1">
+                            {dayFixtures.slice(0, 3).map((fixture, index) => {
+                              const isCompleted = fixture.status === 'completed' || fixture.status === 'Full Time';
+                              const isLive = fixture.status === 'live' || fixture.status === 'Live';
+                              
+                              return (
+                                <div 
+                                  key={`${fixture.match_number}-${index}`}
+                                  className="flex items-center justify-between text-sm"
+                                >
+                                  <span className="truncate flex-1">
+                                    {fixture.home_team} vs {fixture.away_team}
+                                  </span>
+                                  {isLive && (
+                                    <Badge variant="destructive" className="ml-2">LIVE</Badge>
+                                  )}
+                                  {isCompleted && fixture.home_score !== null && (
+                                    <span className="ml-2 text-muted-foreground">
+                                      {fixture.home_score}-{fixture.away_score}
+                                    </span>
+                                  )}
+                                  {fixture.shortlistedPlayers?.length > 0 && (
+                                    <div className="flex items-center gap-1 ml-2">
+                                      <Star className="h-3 w-3 text-yellow-500" />
+                                      <span className="text-xs">{fixture.shortlistedPlayers.length}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                            {dayFixtures.length > 3 && (
+                              <div className="text-xs text-muted-foreground">
+                                +{dayFixtures.length - 3} more matches
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
+                          
+                          {totalWorkload > 0 && (
+                            <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                              <Users className="h-3 w-3" />
+                              <span>{totalWorkload} scout {totalWorkload === 1 ? 'assignment' : 'assignments'}</span>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Fixture Details & Recommendations */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {selectedDate 
-                  ? format(selectedDate, "EEEE, MMMM d")
-                  : "Select a date"
-                }
-              </CardTitle>
-            </CardHeader>
+        {/* Match Details */}
+        <div>
+          {selectedDate && (
+            <Card className="h-[calc(100vh-280px)]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  {format(selectedDate, "EEEE, MMMM d, yyyy")}
+                </CardTitle>
+              </CardHeader>
             <CardContent>
               {selectedDateFixtures.length > 0 ? (
                 <div className="space-y-4">
@@ -633,9 +629,10 @@ const Calendar = () => {
               )}
             </CardContent>
           </Card>
+          )}
 
           {/* Scout Performance Summary */}
-          {selectedScout !== "all" && (
+          {selectedDate && selectedScout !== "all" && (
             <Card>
               <CardHeader>
                 <CardTitle>Scout Performance</CardTitle>
