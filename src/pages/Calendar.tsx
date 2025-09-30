@@ -7,7 +7,7 @@ import { ClubBadge } from "@/components/ui/club-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Calendar as CalendarIcon, Clock, MapPin, Users, UserCheck, Plus, Search, Star, Target } from "lucide-react";
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday } from "date-fns";
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday, addWeeks, subWeeks, isSameWeek } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useFixturesData } from "@/hooks/useFixturesData";
 import { useScoutUsers } from "@/hooks/useScoutUsers";
@@ -226,7 +226,19 @@ const Calendar = () => {
     return dayFixtures;
   };
 
-  // Get all dates with fixtures
+  // Get dates within the current week view for list mode
+  const weekStart = startOfWeek(currentDate);
+  const weekEnd = endOfWeek(currentDate);
+  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
+  
+  const datesWithFixturesInWeek = weekDays
+    .map(date => ({
+      date,
+      fixtures: getScoutRelevantFixtures(date)
+    }))
+    .filter(({ fixtures }) => fixtures.length > 0);
+
+  // Get all dates with fixtures (for calendar grid view)
   const datesWithFixtures = Array.from(
     new Set(
       enhancedFixtures
@@ -242,9 +254,20 @@ const Calendar = () => {
     .filter(date => getScoutRelevantFixtures(date).length > 0);
 
   // Auto-select first date if none selected
-  if (!selectedDate && datesWithFixtures.length > 0) {
-    setSelectedDate(datesWithFixtures[0]);
+  if (!selectedDate && datesWithFixturesInWeek.length > 0) {
+    setSelectedDate(datesWithFixturesInWeek[0].date);
   }
+  
+  // Determine week title based on current week
+  const getWeekTitle = () => {
+    if (isSameWeek(currentDate, today)) {
+      return "This Week's Matches";
+    } else if (currentDate < today) {
+      return "Past Matches";
+    } else {
+      return "Upcoming Matches";
+    }
+  };
 
   const selectedDateFixtures = selectedDate ? getScoutRelevantFixtures(selectedDate) : [];
 
@@ -347,22 +370,49 @@ const Calendar = () => {
           {viewMode === 'list' ? (
             <Card className="h-[calc(100vh-280px)]">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CalendarIcon className="h-5 w-5" />
-                  Upcoming Matches
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon className="h-5 w-5" />
+                    {getWeekTitle()}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentDate(subWeeks(currentDate, 1))}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentDate(new Date())}
+                    >
+                      Today
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentDate(addWeeks(currentDate, 1))}
+                    >
+                      Next
+                    </Button>
+                  </div>
                 </CardTitle>
+                <div className="text-sm text-muted-foreground">
+                  {format(weekStart, 'MMM d')} - {format(weekEnd, 'MMM d, yyyy')}
+                </div>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="overflow-y-auto h-[calc(100vh-360px)]">
-                  {datesWithFixtures.length === 0 ? (
+                  {datesWithFixturesInWeek.length === 0 ? (
                     <div className="p-8 text-center text-muted-foreground">
                       <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No matches found for the selected filters</p>
+                      <p>No matches found for the selected filters this week</p>
                     </div>
                   ) : (
                     <div className="divide-y">
-                      {datesWithFixtures.map(date => {
-                        const dayFixtures = getScoutRelevantFixtures(date);
+                      {datesWithFixturesInWeek.map(({ date, fixtures: dayFixtures }) => {
                         const isSelected = selectedDate && isSameDay(date, selectedDate);
                         const totalWorkload = selectedScout === "all" 
                           ? assignments.filter(a => a.deadline && isSameDay(new Date(a.deadline), date)).length
