@@ -527,124 +527,148 @@ const Calendar = () => {
                         )}
                         
                         {/* Shortlisted Players */}
-                        {fixture.shortlistedPlayers.length > 0 && (
-                          <div className="border-t pt-3 mt-3">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Star className="h-4 w-4 text-yellow-500" />
-                              <span className="text-sm font-medium">
-                                Shortlisted Players ({fixture.shortlistedPlayers.length})
-                              </span>
-                            </div>
-                            <div className="space-y-2">
-                              {fixture.shortlistedPlayers.map(player => {
-                                // Check if this shortlisted player has a scout assignment
-                                const playerAssignment = assignments.find(a => a.player_id === player.id.toString());
-                                
-                                return (
-                                  <div key={player.id} className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded px-2 py-1">
-                                    <div className="flex items-center gap-2 flex-1">
-                                      <ClubBadge clubName={player.club} size="sm" />
-                                      <div className="flex-1">
-                                        <div className="text-sm font-medium">{player.name}</div>
-                                        <div className="text-xs text-muted-foreground">
-                                          {player.club} • {player.positions?.[0] || 'Unknown'}
-                                          {player.age && ` • ${player.age}y`}
-                                          {player.transferroomRating && ` • ${player.transferroomRating}/100`}
-                                        </div>
-                                        {playerAssignment && (
-                                          <div className="text-xs text-blue-600 font-medium mt-1">
-                                            Assigned to: {scouts.find(s => s.id === playerAssignment.assigned_to_scout_id)?.first_name} {scouts.find(s => s.id === playerAssignment.assigned_to_scout_id)?.last_name}
+                        {(() => {
+                          // Filter shortlisted players by selected scout if a scout filter is active
+                          const displayedShortlistedPlayers = selectedScout !== "all"
+                            ? fixture.shortlistedPlayers.filter(player => 
+                                assignments.some(a => 
+                                  a.player_id === player.id.toString() && 
+                                  a.assigned_to_scout_id === selectedScout
+                                )
+                              )
+                            : fixture.shortlistedPlayers;
+
+                          return displayedShortlistedPlayers.length > 0 && (
+                            <div className="border-t pt-3 mt-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Star className="h-4 w-4 text-yellow-500" />
+                                <span className="text-sm font-medium">
+                                  Shortlisted Players ({displayedShortlistedPlayers.length})
+                                </span>
+                              </div>
+                              <div className="space-y-2">
+                                {displayedShortlistedPlayers.map(player => {
+                                  // Check if this shortlisted player has a scout assignment
+                                  const playerAssignment = assignments.find(a => a.player_id === player.id.toString());
+                                  
+                                  return (
+                                    <div key={player.id} className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded px-2 py-1">
+                                      <div className="flex items-center gap-2 flex-1">
+                                        <ClubBadge clubName={player.club} size="sm" />
+                                        <div className="flex-1">
+                                          <div className="text-sm font-medium">{player.name}</div>
+                                          <div className="text-xs text-muted-foreground">
+                                            {player.club} • {player.positions?.[0] || 'Unknown'}
+                                            {player.age && ` • ${player.age}y`}
+                                            {player.transferroomRating && ` • ${player.transferroomRating}/100`}
                                           </div>
-                                        )}
+                                          {playerAssignment && (
+                                            <div className="text-xs text-blue-600 font-medium mt-1">
+                                              Assigned to: {scouts.find(s => s.id === playerAssignment.assigned_to_scout_id)?.first_name} {scouts.find(s => s.id === playerAssignment.assigned_to_scout_id)?.last_name}
+                                            </div>
+                                          )}
+                                        </div>
                                       </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <div className="flex flex-col items-end gap-1">
-                                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                                          <Star className="h-3 w-3 mr-1" />
-                                          Shortlisted
-                                        </Badge>
-                                        {playerAssignment && (
-                                          <Badge variant="outline" className="bg-blue-50 text-blue-700 text-xs">
-                                            Scout Assigned
+                                      <div className="flex items-center gap-2">
+                                        <div className="flex flex-col items-end gap-1">
+                                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                                            <Star className="h-3 w-3 mr-1" />
+                                            Shortlisted
                                           </Badge>
+                                          {playerAssignment && (
+                                            <Badge variant="outline" className="bg-blue-50 text-blue-700 text-xs">
+                                              Scout Assigned
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        {canAssignScouts && !playerAssignment && (
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="h-6 px-2"
+                                            onClick={() => handleAssignPlayer(player)}
+                                          >
+                                            <Plus className="h-3 w-3" />
+                                          </Button>
                                         )}
                                       </div>
-                                      {canAssignScouts && !playerAssignment && (
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          className="h-6 px-2"
-                                          onClick={() => handleAssignPlayer(player)}
-                                        >
-                                          <Plus className="h-3 w-3" />
-                                        </Button>
-                                      )}
                                     </div>
-                                  </div>
-                                );
-                              })}
+                                  );
+                                })}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          );
+                        })()}
 
                         {/* Recommended Players */}
-                        {fixture.recommendedPlayers.length > 0 && (
-                          <div className="border-t pt-3 mt-3">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Target className="h-4 w-4 text-blue-500" />
-                              <span className="text-sm font-medium">
-                                {isCompleted ? "Players to Review" : "Recommended for Scouting"}
-                              </span>
-                            </div>
-            <div className="space-y-2">
-              {fixture.recommendedPlayers.map(player => {
-                const isShortlisted = allShortlistedPlayerIds.has(player.id.toString());
-                const playerAssignment = assignments.find(a => a.player_id === player.id.toString());
-                const assignedScout = playerAssignment ? scouts.find(s => s.id === playerAssignment.assigned_to_scout_id) : null;
-                
-                return (
-                  <div key={player.id} className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded px-2 py-1">
-                    <div className="flex items-center gap-2">
-                      <ClubBadge clubName={player.club} size="sm" />
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <div className="text-sm font-medium">{player.name}</div>
-                        {isShortlisted && (
-                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 h-5">
-                            <Star className="h-3 w-3 mr-1" /> Shortlisted
-                          </Badge>
-                        )}
-                        {playerAssignment && (
-                          <Badge variant="outline" className="bg-blue-50 text-blue-700 h-5">
-                            Scout: {assignedScout ? `${assignedScout.first_name} ${assignedScout.last_name}` : 'Assigned'}
-                          </Badge>
-                        )}
-                      </div>
-                        <div className="text-xs text-muted-foreground">
-                          {player.club} • {player.positions?.[0] || 'Unknown'}
-                          {player.age && ` • ${player.age}y`}
-                          {player.transferroomRating && ` • ${player.transferroomRating}/100`}
-                          {player.xtvScore && ` • €${(player.xtvScore / 1000000).toFixed(1)}M`}
+                        {(() => {
+                          // Filter recommended players by selected scout if a scout filter is active
+                          const displayedRecommendedPlayers = selectedScout !== "all"
+                            ? fixture.recommendedPlayers.filter(player => 
+                                assignments.some(a => 
+                                  a.player_id === player.id.toString() && 
+                                  a.assigned_to_scout_id === selectedScout
+                                )
+                              )
+                            : fixture.recommendedPlayers;
+
+                          return displayedRecommendedPlayers.length > 0 && (
+                            <div className="border-t pt-3 mt-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Target className="h-4 w-4 text-blue-500" />
+                                <span className="text-sm font-medium">
+                                  {isCompleted ? "Players to Review" : "Recommended for Scouting"}
+                                </span>
+                              </div>
+              <div className="space-y-2">
+                {displayedRecommendedPlayers.map(player => {
+                  const isShortlisted = allShortlistedPlayerIds.has(player.id.toString());
+                  const playerAssignment = assignments.find(a => a.player_id === player.id.toString());
+                  const assignedScout = playerAssignment ? scouts.find(s => s.id === playerAssignment.assigned_to_scout_id) : null;
+                  
+                  return (
+                    <div key={player.id} className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded px-2 py-1">
+                      <div className="flex items-center gap-2">
+                        <ClubBadge clubName={player.club} size="sm" />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <div className="text-sm font-medium">{player.name}</div>
+                          {isShortlisted && (
+                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 h-5">
+                              <Star className="h-3 w-3 mr-1" /> Shortlisted
+                            </Badge>
+                          )}
+                          {playerAssignment && (
+                            <Badge variant="outline" className="bg-blue-50 text-blue-700 h-5">
+                              Scout: {assignedScout ? `${assignedScout.first_name} ${assignedScout.last_name}` : 'Assigned'}
+                            </Badge>
+                          )}
+                        </div>
+                          <div className="text-xs text-muted-foreground">
+                            {player.club} • {player.positions?.[0] || 'Unknown'}
+                            {player.age && ` • ${player.age}y`}
+                            {player.transferroomRating && ` • ${player.transferroomRating}/100`}
+                            {player.xtvScore && ` • €${(player.xtvScore / 1000000).toFixed(1)}M`}
+                          </div>
                         </div>
                       </div>
+                       {canAssignScouts && (
+                         <Button
+                           size="sm"
+                           variant="outline"
+                           className="h-6 px-2"
+                           onClick={() => handleAssignPlayer(player)}
+                         >
+                           <Plus className="h-3 w-3" />
+                         </Button>
+                       )}
                     </div>
-                     {canAssignScouts && (
-                       <Button
-                         size="sm"
-                         variant="outline"
-                         className="h-6 px-2"
-                         onClick={() => handleAssignPlayer(player)}
-                       >
-                         <Plus className="h-3 w-3" />
-                       </Button>
-                     )}
-                  </div>
-                );
-              })}
-            </div>
-                          </div>
-                        )}
+                  );
+                })}
+              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     );
                   })}
