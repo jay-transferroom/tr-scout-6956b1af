@@ -16,6 +16,7 @@ import { useScoutingAssignments } from "@/hooks/useScoutingAssignments";
 import { useShortlists } from "@/hooks/useShortlists";
 import { useAuth } from "@/contexts/AuthContext";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
+import ViewToggle from "@/components/ViewToggle";
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -25,6 +26,7 @@ const Calendar = () => {
   const [playerSearchTerm, setPlayerSearchTerm] = useState("");
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const { profile } = useAuth();
   const { data: fixtures = [] } = useFixturesData();
@@ -273,10 +275,18 @@ const Calendar = () => {
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Scout Calendar</h1>
-        <p className="text-muted-foreground mt-2">
-          View fixtures and manage scout assignments with intelligent recommendations
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Scout Calendar</h1>
+            <p className="text-muted-foreground mt-2">
+              View fixtures and manage scout assignments with intelligent recommendations
+            </p>
+          </div>
+          <ViewToggle 
+            currentView={viewMode} 
+            onViewChange={setViewMode}
+          />
+        </div>
       </div>
 
       {/* Filters */}
@@ -332,111 +342,225 @@ const Calendar = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Dates List */}
+        {/* Dates List or Calendar Grid */}
         <div>
-          <Card className="h-[calc(100vh-280px)]">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CalendarIcon className="h-5 w-5" />
-                Upcoming Matches
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-y-auto h-[calc(100vh-360px)]">
-                {datesWithFixtures.length === 0 ? (
-                  <div className="p-8 text-center text-muted-foreground">
-                    <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>No matches found for the selected filters</p>
+          {viewMode === 'list' ? (
+            <Card className="h-[calc(100vh-280px)]">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CalendarIcon className="h-5 w-5" />
+                  Upcoming Matches
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-y-auto h-[calc(100vh-360px)]">
+                  {datesWithFixtures.length === 0 ? (
+                    <div className="p-8 text-center text-muted-foreground">
+                      <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>No matches found for the selected filters</p>
+                    </div>
+                  ) : (
+                    <div className="divide-y">
+                      {datesWithFixtures.map(date => {
+                        const dayFixtures = getScoutRelevantFixtures(date);
+                        const isSelected = selectedDate && isSameDay(date, selectedDate);
+                        const totalWorkload = selectedScout === "all" 
+                          ? assignments.filter(a => a.deadline && isSameDay(new Date(a.deadline), date)).length
+                          : getScoutWorkloadForDate(date, selectedScout);
+                        
+                        return (
+                          <button
+                            key={date.toISOString()}
+                            onClick={() => setSelectedDate(date)}
+                            className={cn(
+                              "w-full p-4 text-left hover:bg-muted/50 transition-colors",
+                              isSelected && "bg-primary/10 border-l-4 border-primary"
+                            )}
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <div>
+                                <div className="font-semibold">
+                                  {format(date, 'EEEE, MMMM d')}
+                                </div>
+                                {isToday(date) && (
+                                  <Badge variant="secondary" className="mt-1">Today</Badge>
+                                )}
+                              </div>
+                              <div className="text-right text-sm text-muted-foreground">
+                                {dayFixtures.length} {dayFixtures.length === 1 ? 'match' : 'matches'}
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-1">
+                              {dayFixtures.slice(0, 3).map((fixture, index) => {
+                                const isCompleted = fixture.status === 'completed' || fixture.status === 'Full Time';
+                                const isLive = fixture.status === 'live' || fixture.status === 'Live';
+                                
+                                return (
+                                  <div 
+                                    key={`${fixture.match_number}-${index}`}
+                                    className="flex items-center justify-between text-sm gap-2"
+                                  >
+                                    <div className="flex items-center gap-2 truncate flex-1">
+                                      <ClubBadge clubName={fixture.home_team} size="sm" />
+                                      <span className="truncate">
+                                        {fixture.home_team} vs {fixture.away_team}
+                                      </span>
+                                      <ClubBadge clubName={fixture.away_team} size="sm" />
+                                    </div>
+                                    <div className="flex items-center gap-1 shrink-0">
+                                      {isLive && (
+                                        <Badge variant="destructive" className="ml-2">LIVE</Badge>
+                                      )}
+                                      {isCompleted && fixture.home_score !== null && (
+                                        <span className="ml-2 text-muted-foreground">
+                                          {fixture.home_score}-{fixture.away_score}
+                                        </span>
+                                      )}
+                                      {fixture.shortlistedPlayers?.length > 0 && (
+                                        <div className="flex items-center gap-1 ml-2">
+                                          <Star className="h-3 w-3 text-yellow-500" />
+                                          <span className="text-xs">{fixture.shortlistedPlayers.length}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                              {dayFixtures.length > 3 && (
+                                <div className="text-xs text-muted-foreground">
+                                  +{dayFixtures.length - 3} more matches
+                                </div>
+                              )}
+                            </div>
+                            
+                            {totalWorkload > 0 && (
+                              <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                                <Users className="h-3 w-3" />
+                                <span>{totalWorkload} scout {totalWorkload === 1 ? 'assignment' : 'assignments'}</span>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="h-[calc(100vh-280px)]">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon className="h-5 w-5" />
+                    {format(currentDate, 'MMMM yyyy')}
                   </div>
-                ) : (
-                  <div className="divide-y">
-                    {datesWithFixtures.map(date => {
-                      const dayFixtures = getScoutRelevantFixtures(date);
-                      const isSelected = selectedDate && isSameDay(date, selectedDate);
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentDate(new Date())}
+                    >
+                      Today
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-7 gap-2">
+                  {/* Day headers */}
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                    <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
+                      {day}
+                    </div>
+                  ))}
+                  
+                  {/* Calendar days */}
+                  {(() => {
+                    const monthStart = startOfMonth(currentDate);
+                    const monthEnd = endOfMonth(currentDate);
+                    const calendarStart = startOfWeek(monthStart);
+                    const calendarEnd = endOfWeek(monthEnd);
+                    const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+                    
+                    return days.map(day => {
+                      const dayFixtures = getScoutRelevantFixtures(day);
+                      const hasFixtures = dayFixtures.length > 0;
+                      const isCurrentMonth = isSameMonth(day, currentDate);
+                      const isSelected = selectedDate && isSameDay(day, selectedDate);
+                      const isTodayDate = isToday(day);
                       const totalWorkload = selectedScout === "all" 
-                        ? assignments.filter(a => a.deadline && isSameDay(new Date(a.deadline), date)).length
-                        : getScoutWorkloadForDate(date, selectedScout);
+                        ? assignments.filter(a => a.deadline && isSameDay(new Date(a.deadline), day)).length
+                        : getScoutWorkloadForDate(day, selectedScout);
                       
                       return (
                         <button
-                          key={date.toISOString()}
-                          onClick={() => setSelectedDate(date)}
+                          key={day.toISOString()}
+                          onClick={() => hasFixtures && setSelectedDate(day)}
+                          disabled={!hasFixtures}
                           className={cn(
-                            "w-full p-4 text-left hover:bg-muted/50 transition-colors",
-                            isSelected && "bg-primary/10 border-l-4 border-primary"
+                            "relative p-2 rounded-lg text-sm transition-colors min-h-[80px] flex flex-col items-start",
+                            !isCurrentMonth && "text-muted-foreground opacity-50",
+                            isCurrentMonth && !hasFixtures && "hover:bg-muted/30 cursor-default",
+                            hasFixtures && "hover:bg-muted cursor-pointer",
+                            isSelected && "bg-primary/10 border-2 border-primary",
+                            isTodayDate && !isSelected && "bg-accent"
                           )}
                         >
-                          <div className="flex items-center justify-between mb-2">
-                            <div>
-                              <div className="font-semibold">
-                                {format(date, 'EEEE, MMMM d')}
+                          <div className="font-medium mb-1">{format(day, 'd')}</div>
+                          {hasFixtures && (
+                            <div className="space-y-1 w-full">
+                              <div className="flex items-center gap-1 text-xs">
+                                <CalendarIcon className="h-3 w-3" />
+                                <span>{dayFixtures.length}</span>
                               </div>
-                              {isToday(date) && (
-                                <Badge variant="secondary" className="mt-1">Today</Badge>
-                              )}
-                            </div>
-                            <div className="text-right text-sm text-muted-foreground">
-                              {dayFixtures.length} {dayFixtures.length === 1 ? 'match' : 'matches'}
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-1">
-                            {dayFixtures.slice(0, 3).map((fixture, index) => {
-                              const isCompleted = fixture.status === 'completed' || fixture.status === 'Full Time';
-                              const isLive = fixture.status === 'live' || fixture.status === 'Live';
-                              
-                              return (
-                                <div 
-                                  key={`${fixture.match_number}-${index}`}
-                                  className="flex items-center justify-between text-sm gap-2"
-                                >
-                                  <div className="flex items-center gap-2 truncate flex-1">
-                                    <ClubBadge clubName={fixture.home_team} size="sm" />
-                                    <span className="truncate">
-                                      {fixture.home_team} vs {fixture.away_team}
-                                    </span>
-                                    <ClubBadge clubName={fixture.away_team} size="sm" />
-                                  </div>
-                                  <div className="flex items-center gap-1 shrink-0">
-                                    {isLive && (
-                                      <Badge variant="destructive" className="ml-2">LIVE</Badge>
-                                    )}
-                                    {isCompleted && fixture.home_score !== null && (
-                                      <span className="ml-2 text-muted-foreground">
-                                        {fixture.home_score}-{fixture.away_score}
-                                      </span>
-                                    )}
-                                    {fixture.shortlistedPlayers?.length > 0 && (
-                                      <div className="flex items-center gap-1 ml-2">
-                                        <Star className="h-3 w-3 text-yellow-500" />
-                                        <span className="text-xs">{fixture.shortlistedPlayers.length}</span>
-                                      </div>
-                                    )}
-                                  </div>
+                              {dayFixtures.slice(0, 1).map((fixture, idx) => (
+                                <div key={idx} className="text-xs truncate w-full flex items-center gap-1">
+                                  <ClubBadge clubName={fixture.home_team} size="sm" />
+                                  <span className="truncate">vs</span>
+                                  <ClubBadge clubName={fixture.away_team} size="sm" />
                                 </div>
-                              );
-                            })}
-                            {dayFixtures.length > 3 && (
-                              <div className="text-xs text-muted-foreground">
-                                +{dayFixtures.length - 3} more matches
-                              </div>
-                            )}
-                          </div>
-                          
-                          {totalWorkload > 0 && (
-                            <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-                              <Users className="h-3 w-3" />
-                              <span>{totalWorkload} scout {totalWorkload === 1 ? 'assignment' : 'assignments'}</span>
+                              ))}
+                              {(() => {
+                                const totalShortlisted = dayFixtures.reduce((sum, f) => sum + (f.shortlistedPlayers?.length || 0), 0);
+                                return totalShortlisted > 0 && (
+                                  <div className="flex items-center gap-1 text-xs text-yellow-600">
+                                    <Star className="h-3 w-3" />
+                                    <span>{totalShortlisted}</span>
+                                  </div>
+                                );
+                              })()}
+                              {totalWorkload > 0 && (
+                                <div className="flex items-center gap-1 text-xs text-blue-600">
+                                  <Users className="h-3 w-3" />
+                                  <span>{totalWorkload}</span>
+                                </div>
+                              )}
                             </div>
                           )}
                         </button>
                       );
-                    })}
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                    });
+                  })()}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Match Details */}
