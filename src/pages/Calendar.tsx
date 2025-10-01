@@ -404,7 +404,7 @@ const Calendar = () => {
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="overflow-y-auto h-[calc(100vh-360px)]">
+                <div>
                   {datesWithFixturesInWeek.length === 0 ? (
                     <div className="p-8 text-center text-muted-foreground">
                       <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
