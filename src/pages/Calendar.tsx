@@ -368,7 +368,7 @@ const Calendar = () => {
         {/* Dates List or Calendar Grid */}
         <div>
           {viewMode === 'list' ? (
-            <Card className="h-[calc(100vh-280px)]">
+            <Card className="h-fit">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
