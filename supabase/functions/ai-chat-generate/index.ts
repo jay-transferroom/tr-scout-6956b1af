@@ -66,6 +66,13 @@ Provide a comprehensive analysis of these results in relation to the user's quer
     }
 
     const data = await response.json();
+    console.log('Gemini API response:', JSON.stringify(data, null, 2));
+    
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
+      console.error('Unexpected API response structure:', data);
+      throw new Error('Invalid response structure from Gemini API');
+    }
+    
     const generatedText = data.candidates[0].content.parts[0].text;
 
     return new Response(
