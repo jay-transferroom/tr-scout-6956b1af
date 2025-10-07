@@ -51,21 +51,24 @@ serve(async (req) => {
       console.error('Error fetching players:', playersError);
     }
 
-    // Search reports with player data
-    const { data: reports, error: reportsError } = await supabase
-      .from('reports')
-      .select('*')
-      .limit(20);
+  // Search reports with player data - join with players to get names
+  const { data: reports, error: reportsError } = await supabase
+    .from('reports')
+    .select(`
+      *,
+      players_new!inner(id, name, currentteam, firstposition, secondposition, firstnationality)
+    `)
+    .limit(20);
 
-    if (reportsError) {
-      console.error('Error fetching reports:', reportsError);
-    }
+  if (reportsError) {
+    console.error('Error fetching reports:', reportsError);
+  }
 
-    console.log('Found players:', players?.length || 0);
-    console.log('Found reports:', reports?.length || 0);
+  console.log('Found players:', players?.length || 0);
+  console.log('Found reports:', reports?.length || 0);
 
-    // Enhanced keyword search with scoring
-    const searchResults = performKeywordSearch(query, players || [], reports || [], limit);
+  // Enhanced keyword search with scoring
+  const searchResults = performKeywordSearch(query, players || [], reports || [], limit);
 
     console.log('Search completed, found', searchResults.length, 'results');
 
@@ -153,8 +156,13 @@ function performKeywordSearch(query: string, players: any[], reports: any[], lim
 
   // Search reports
   reports.forEach(report => {
+    const playerData = (report as any).players_new;
+    const playerName = playerData?.name || `Player ${report.player_id}`;
+    const playerInfo = playerData ? `${playerData.firstposition || 'Unknown'} • ${playerData.firstnationality || 'Unknown'}` : 'Unknown';
+    
     const searchableText = [
-      `player ${report.player_id}`,
+      playerName,
+      playerData?.currentteam || '',
       report.status || '',
       'report'
     ].join(' ');
@@ -166,9 +174,9 @@ function performKeywordSearch(query: string, players: any[], reports: any[], lim
         type: 'report',
         id: report.id,
         report_id: report.id,
-        title: `Report for Player ${report.player_id}`,
+        title: `Report: ${playerName}`,
         subtitle: `${report.status || 'Draft'} Report`,
-        description: `Scouting report`,
+        description: playerInfo,
         confidence: relevance,
         relevanceScore: relevance,
         metadata: report
