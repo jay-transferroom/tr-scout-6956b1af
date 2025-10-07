@@ -23,7 +23,9 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Define league mappings for better API calls
-    const leagueData = {
+    type LeagueName = 'Premier League' | 'La Liga' | 'Serie A' | 'Bundesliga' | 'Ligue 1';
+    
+    const leagueData: Record<LeagueName, { country: string; season: string }> = {
       'Premier League': { country: 'England', season: '2024' },
       'La Liga': { country: 'Spain', season: '2024' },
       'Serie A': { country: 'Italy', season: '2024' },
@@ -31,7 +33,7 @@ serve(async (req) => {
       'Ligue 1': { country: 'France', season: '2024' }
     }
 
-    if (!leagueData[leagueName]) {
+    if (!leagueData[leagueName as LeagueName]) {
       return new Response(
         JSON.stringify({ 
           error: `League "${leagueName}" not supported. Available: ${Object.keys(leagueData).join(', ')}`
@@ -43,7 +45,7 @@ serve(async (req) => {
       )
     }
 
-    const league = leagueData[leagueName]
+    const league = leagueData[leagueName as LeagueName]
     let totalTeamsImported = 0
     let totalPlayersImported = 0
 
@@ -64,7 +66,7 @@ serve(async (req) => {
       console.log(`Force reimport requested - deleting existing ${leagueName} data`)
       
       // Get team names for player deletion
-      const teamNames = getSampleTeamsForLeague(leagueName).map(team => team.name)
+      const teamNames = getSampleTeamsForLeague(leagueName).map((team: any) => team.name)
       
       // Delete players from teams in this league
       const { error: deletePlayersError } = await supabase
@@ -218,9 +220,10 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error importing league data:', error)
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     return new Response(
       JSON.stringify({ 
-        error: error.message 
+        error: errorMessage 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -231,7 +234,9 @@ serve(async (req) => {
 })
 
 function getSampleTeamsForLeague(leagueName: string) {
-  const teams = {
+  type LeagueName = 'Premier League' | 'La Liga' | 'Serie A' | 'Bundesliga' | 'Ligue 1';
+  
+  const teams: Record<LeagueName, Array<{ name: string; external_api_id: string; venue: string; founded: number }>> = {
     'Premier League': [
       { name: 'Manchester United', external_api_id: '33', venue: 'Old Trafford', founded: 1878 },
       { name: 'Liverpool', external_api_id: '8650', venue: 'Anfield', founded: 1892 },
@@ -260,7 +265,7 @@ function getSampleTeamsForLeague(leagueName: string) {
     ]
   }
 
-  return (teams[leagueName] || []).map(team => ({
+  return (teams[leagueName as LeagueName] || []).map((team: any) => ({
     ...team,
     league: leagueName,
     country: leagueName === 'Premier League' ? 'England' : 

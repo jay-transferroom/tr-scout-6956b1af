@@ -147,7 +147,8 @@ serve(async (req) => {
 
         return data
       } catch (error) {
-        console.error(`API call attempt ${attempt} failed:`, error.message)
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        console.error(`API call attempt ${attempt} failed:`, errorMessage)
         
         if (attempt < maxRetries) {
           console.log(`Waiting ${retryDelay}ms before retry...`)
@@ -163,10 +164,11 @@ serve(async (req) => {
     try {
       data = await makeApiCall(1)
     } catch (error) {
-      console.error(`All API attempts failed for team ${teamId}:`, error.message)
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error(`All API attempts failed for team ${teamId}:`, errorMessage)
       return new Response(
         JSON.stringify({ 
-          error: `Failed to fetch player data after ${maxRetries} attempts: ${error.message}`,
+          error: `Failed to fetch player data after ${maxRetries} attempts: ${errorMessage}`,
           teamId,
           teamName: finalTeamName
         }),
@@ -360,9 +362,10 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error importing player data:', error)
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     return new Response(
       JSON.stringify({ 
-        error: error.message 
+        error: errorMessage 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
