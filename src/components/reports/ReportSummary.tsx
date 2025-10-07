@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, Save, Send, Edit, Copy, Check } from "lucide-react";
 import { ReportWithPlayer } from "@/types/report";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ReportSummaryProps {
   report: ReportWithPlayer;
@@ -24,35 +25,25 @@ const ReportSummary = ({ report, template }: ReportSummaryProps) => {
   const generateSummary = async () => {
     setIsGenerating(true);
     try {
-      // Simulate AI generation - in reality this would call an edge function
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const mockSummary = `Executive Summary for ${report.player?.name}
+      const { data, error } = await supabase.functions.invoke('generate-report-summary', {
+        body: {
+          report,
+          template,
+          playerData: report.player
+        }
+      });
 
-RECOMMENDATION: Monitor closely for future opportunities
+      if (error) throw error;
 
-KEY HIGHLIGHTS:
-• Strong technical ability with excellent ball control and passing range
-• Shows good positional awareness and tactical understanding
-• Physical attributes suitable for professional level
-• Demonstrates leadership qualities on the pitch
-
-AREAS FOR DEVELOPMENT:
-• Consistency in high-pressure situations needs improvement
-• Aerial ability could be enhanced
-• Decision-making in final third requires refinement
-
-OVERALL ASSESSMENT:
-A promising talent with solid fundamentals and room for growth. Recommended for continued monitoring with potential for squad integration in 12-18 months with proper development.
-
-NEXT STEPS:
-• Schedule follow-up assessment in 3 months
-• Monitor performance in upcoming fixtures
-• Consider loan opportunity for development`;
-
-      setSummary(mockSummary);
-      setEditedSummary(mockSummary);
+      if (data?.summary) {
+        setSummary(data.summary);
+        setEditedSummary(data.summary);
+        toast.success("AI summary generated successfully");
+      } else {
+        throw new Error("No summary returned from AI");
+      }
     } catch (error) {
+      console.error("Error generating summary:", error);
       toast.error("Failed to generate summary");
     } finally {
       setIsGenerating(false);
@@ -174,8 +165,8 @@ NEXT STEPS:
               placeholder="Edit your summary..."
             />
           ) : (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <pre className="whitespace-pre-wrap text-sm font-medium text-gray-800">
+            <div className="bg-muted/50 p-6 rounded-lg border">
+              <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans">
                 {summary}
               </pre>
             </div>
@@ -185,9 +176,12 @@ NEXT STEPS:
       
       {isGenerating && (
         <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mr-4"></div>
-            <p className="text-muted-foreground">Analyzing report data and generating executive summary...</p>
+          <div className="flex flex-col items-center justify-center py-12 gap-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="text-center space-y-1">
+              <p className="text-sm font-medium">Analyzing report with AI...</p>
+              <p className="text-xs text-muted-foreground">Evaluating player performance, character traits, and generating comprehensive insights</p>
+            </div>
           </div>
         </CardContent>
       )}
