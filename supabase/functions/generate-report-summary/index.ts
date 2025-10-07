@@ -46,7 +46,7 @@ Match Context:
 - Role: ${report.matchContext.roleContext || 'N/A'}
 ` : '';
 
-    const prompt = `You are an experienced football recruitment analyst and sporting director. Generate a comprehensive executive summary for the following scouting report.
+    const prompt = `You are an experienced football recruitment analyst and sporting director with 20+ years of experience. Your job is to provide INTELLIGENT ANALYSIS and INSIGHTS that go beyond the raw data.
 
 PLAYER INFORMATION:
 Name: ${report.player?.name || 'Unknown'}
@@ -63,41 +63,68 @@ ${sectionsText}
 Scout: ${report.scoutProfile?.first_name || ''} ${report.scoutProfile?.last_name || ''}
 Date: ${new Date(report.createdAt).toLocaleDateString()}
 
-INSTRUCTIONS:
-Generate a professional executive summary that includes:
+CRITICAL INSTRUCTIONS:
+Your role is NOT to simply repeat or reformat the scouting data above. Instead, you must:
 
-1. **RECOMMENDATION**: Clear verdict (Recommend Signing / Add to Shortlist / Monitor / Further Scouting Required / With Reservations / Not Recommended)
+1. **ANALYZE PATTERNS**: Look for connections between different attributes (e.g., how does their technical ability relate to their decision-making?)
 
-2. **KEY HIGHLIGHTS**: 
-   - Technical abilities and standout skills
-   - Tactical understanding and positioning
-   - Physical attributes
-   - Mental/psychological strengths
-   - Leadership and character traits
+2. **PROVIDE CONTEXT**: Compare the player's profile against typical players in their position and age group
 
-3. **AREAS FOR DEVELOPMENT**:
-   - Technical aspects needing improvement
-   - Tactical or positional weaknesses
-   - Physical limitations
-   - Mental/behavioral concerns if any
+3. **IDENTIFY RED FLAGS**: Look for concerning patterns like inconsistent ratings, behavioral issues, or skill gaps
 
-4. **PERSONALITY & CHARACTER ASSESSMENT**:
-   - Work ethic and professionalism
-   - Discipline (training punctuality, conduct, etc.)
-   - Cultural fit considerations
-   - Leadership qualities
-   - Any behavioral concerns or exemplary traits noted
+4. **PROJECT DEVELOPMENT**: Based on their current profile, predict their development trajectory and potential ceiling
 
-5. **OVERALL ASSESSMENT**:
-   - Summary of potential and current level
-   - Fit for our squad/system
-   - Development timeline if applicable
+5. **ASSESS CULTURAL FIT**: Consider personality traits and how they might integrate with a professional club environment
 
-6. **NEXT STEPS**:
-   - Recommended actions
-   - Timeline for decisions or follow-ups
+6. **MAKE BOLD RECOMMENDATIONS**: Don't hedge - give a clear verdict with confidence levels
 
-Use the specific data from the scouting report to make your assessment. Be honest and balanced. Format with clear sections using markdown-style headings. Keep it concise but comprehensive - suitable for a sporting director to make informed decisions.`;
+Generate a professional executive summary with these sections:
+
+**EXECUTIVE RECOMMENDATION**
+[Clear verdict: Recommend Signing / Priority Shortlist / Monitor Closely / Further Assessment Needed / Pass]
+[Include confidence level: High / Medium / Low and why]
+
+**PLAYER PROFILE ANALYSIS**
+Provide your expert interpretation of what type of player this is based on the data:
+- Playing style and archetype (e.g., "dynamic ball-winner", "creative playmaker", "target man")
+- Best-case player comparison from professional football
+- Ceiling and floor projections
+
+**KEY STRENGTHS**
+Don't just list attributes - explain WHY they matter and HOW they translate to match performance:
+- What makes this player stand out?
+- What would they bring to a squad immediately?
+
+**DEVELOPMENT AREAS & CONCERNS**
+Be honest about weaknesses and what they mean:
+- Technical gaps that could limit progression
+- Tactical understanding issues
+- Physical or mental limitations
+- Any behavioral red flags from the scout's observations
+
+**CHARACTER & PROFESSIONALISM ASSESSMENT**
+This is CRITICAL - analyze:
+- Work ethic indicators from the data
+- Discipline and punctuality (if mentioned)
+- Attitude and coachability signals
+- Leadership potential or follower mentality
+- Cultural fit considerations for a professional environment
+- Any concerns about off-field behavior or commitment
+
+**RISK ASSESSMENT**
+Evaluate the risks of signing vs. passing:
+- What could go wrong?
+- What could we miss if we don't act?
+- Investment risk level: Low / Medium / High
+
+**ACTIONABLE NEXT STEPS**
+Be specific about what should happen next:
+- Timeline for decision-making
+- Additional scouting required (if any)
+- Key questions that need answering
+- Contract/negotiation considerations
+
+Use professional language but be direct and honest. Format with markdown headings and bullet points. Make it decision-ready for a sporting director.`;
 
     console.log('Calling Gemini API...');
 
@@ -115,10 +142,10 @@ Use the specific data from the scouting report to make your assessment. Be hones
             }]
           }],
           generationConfig: {
-            temperature: 0.7,
+            temperature: 0.9,
             topK: 40,
             topP: 0.95,
-            maxOutputTokens: 2048,
+            maxOutputTokens: 3072,
           }
         })
       }
