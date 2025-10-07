@@ -129,10 +129,41 @@ export const fillReportWithTestData = (
           value = null;
       }
       
+      // Generate comprehensive notes based on quality
+      let notes = '';
+      if (quality === 'good') {
+        const goodNotes = [
+          'Consistently demonstrated high-level ability throughout observation period. Shows excellent understanding of tactical requirements.',
+          'Outstanding performance with minimal weaknesses identified. Would adapt well to higher competitive levels.',
+          'Impressive technical execution and decision-making. Displays maturity and composure beyond experience level.',
+          'Exceptional quality in this area. Regularly influences play and demonstrates leadership qualities.',
+          'Standout performer who consistently delivers when tested. Shows clear potential for development.'
+        ];
+        notes = goodNotes[Math.floor(Math.random() * goodNotes.length)];
+      } else if (quality === 'average') {
+        const averageNotes = [
+          'Shows promise but needs more consistency. Development pathway available with proper coaching support.',
+          'Adequate performance level with noticeable room for improvement. Requires monitoring over extended period.',
+          'Mixed results during observation. Has foundation to build on but needs refinement in key areas.',
+          'Decent ability demonstrated but inconsistent application. May benefit from competitive exposure.',
+          'Satisfactory overall but lacks standout qualities. Would require investment to reach required standard.'
+        ];
+        notes = averageNotes[Math.floor(Math.random() * averageNotes.length)];
+      } else {
+        const poorNotes = [
+          'Significant concerns identified in this area. Would require substantial development work with uncertain outcomes.',
+          'Below required standard for target level. Multiple technical and tactical deficiencies observed.',
+          'Struggles to compete at observed level. Investment required would likely outweigh potential return.',
+          'Lacks fundamental qualities needed for progression. Not recommended for recruitment consideration.',
+          'Considerable weaknesses evident. Alternative targets should be prioritized for this position.'
+        ];
+        notes = poorNotes[Math.floor(Math.random() * poorNotes.length)];
+      }
+      
       return {
         ...field,
         value,
-        notes: quality === 'good' ? 'Impressive display' : (quality === 'average' ? 'Needs monitoring' : 'Concerns noted')
+        notes
       };
     });
     
