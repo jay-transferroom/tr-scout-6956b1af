@@ -54,7 +54,7 @@ Provide a comprehensive analysis of these results in relation to the user's quer
         }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 2048,
+          maxOutputTokens: 4096,
         },
       }),
     });
