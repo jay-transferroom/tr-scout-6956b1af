@@ -114,15 +114,10 @@ const ReportSummary = ({ report, template }: ReportSummaryProps) => {
     <Card className="mb-6">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CardTitle className="text-xl flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-purple-600" />
-              AI Summary for Sporting Director
-            </CardTitle>
-            <Badge variant="outline" className="text-xs">
-              Executive Brief
-            </Badge>
-          </div>
+          <CardTitle className="text-xl flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-purple-600" />
+            AI Summary
+          </CardTitle>
           
           <div className="flex gap-2">
             {!summary && (
