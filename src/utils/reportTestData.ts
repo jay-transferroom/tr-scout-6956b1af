@@ -25,21 +25,21 @@ const sampleTexts = {
 const getRatingValue = (quality: ReportQuality, ratingSystem: any) => {
   if (!ratingSystem) return null;
   
-  const options = ratingSystem.options || [];
-  if (options.length === 0) return null;
+  const values = ratingSystem.values || [];
+  if (values.length === 0) return null;
   
   // Find appropriate rating based on quality
   if (quality === 'good') {
     // Return top rating
-    return options[options.length - 1].value;
+    return values[values.length - 1].value;
   } else if (quality === 'average') {
     // Return middle rating
-    const midIndex = Math.floor(options.length / 2);
-    return options[midIndex].value;
+    const midIndex = Math.floor(values.length / 2);
+    return values[midIndex].value;
   } else {
     // Return low rating (but not the absolute lowest)
-    const lowIndex = Math.min(1, options.length - 1);
-    return options[lowIndex].value;
+    const lowIndex = Math.min(1, values.length - 1);
+    return values[lowIndex].value;
   }
 };
 
