@@ -23,11 +23,11 @@ interface ReportSummaryProps {
 }
 
 const LANGUAGES = [
-  { code: "en", name: "English", nativeName: "English" },
-  { code: "zh", name: "Chinese", nativeName: "中文" },
-  { code: "es", name: "Spanish", nativeName: "Español" },
-  { code: "ar", name: "Arabic", nativeName: "العربية" },
-  { code: "fr", name: "French", nativeName: "Français" },
+  { code: "en", name: "English", nativeName: "English", flag: "🇬🇧" },
+  { code: "zh", name: "Chinese", nativeName: "中文", flag: "🇨🇳" },
+  { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸" },
+  { code: "ar", name: "Arabic", nativeName: "العربية", flag: "🇸🇦" },
+  { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷" },
 ];
 
 const ReportSummary = ({ report, template }: ReportSummaryProps) => {
@@ -38,11 +38,9 @@ const ReportSummary = ({ report, template }: ReportSummaryProps) => {
   const [isSaving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("en");
-  const [showLanguageSelect, setShowLanguageSelect] = useState(false);
 
   const generateSummary = async () => {
     setIsGenerating(true);
-    setShowLanguageSelect(false);
     try {
       const languageName = LANGUAGES.find(l => l.code === selectedLanguage)?.name || "English";
       
@@ -127,28 +125,17 @@ const ReportSummary = ({ report, template }: ReportSummaryProps) => {
           </div>
           
           <div className="flex gap-2">
-            {!summary && !showLanguageSelect && (
-              <Button 
-                onClick={() => setShowLanguageSelect(true)} 
-                disabled={isGenerating}
-                className="gap-2"
-              >
-                <Sparkles className="h-4 w-4" />
-                Generate Summary
-              </Button>
-            )}
-
-            {!summary && showLanguageSelect && (
+            {!summary && (
               <>
                 <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-[200px]">
                     <SelectValue placeholder="Select language" />
                   </SelectTrigger>
                   <SelectContent>
                     {LANGUAGES.map((lang) => (
                       <SelectItem key={lang.code} value={lang.code}>
                         <div className="flex items-center gap-2">
-                          <Languages className="h-4 w-4" />
+                          <span className="text-lg">{lang.flag}</span>
                           {lang.nativeName}
                         </div>
                       </SelectItem>
@@ -161,14 +148,7 @@ const ReportSummary = ({ report, template }: ReportSummaryProps) => {
                   className="gap-2"
                 >
                   <Sparkles className="h-4 w-4" />
-                  {isGenerating ? "Generating..." : "Generate"}
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => setShowLanguageSelect(false)}
-                  disabled={isGenerating}
-                >
-                  Cancel
+                  {isGenerating ? "Generating..." : "Generate Summary"}
                 </Button>
               </>
             )}
