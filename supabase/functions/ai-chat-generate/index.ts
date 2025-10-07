@@ -54,7 +54,7 @@ Provide a comprehensive analysis of these results in relation to the user's quer
         }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 1000,
+          maxOutputTokens: 2048,
         },
       }),
     });
@@ -68,9 +68,15 @@ Provide a comprehensive analysis of these results in relation to the user's quer
     const data = await response.json();
     console.log('Gemini API response:', JSON.stringify(data, null, 2));
     
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
+    // Check if response was truncated
+    if (data.candidates?.[0]?.finishReason === 'MAX_TOKENS') {
+      console.warn('Response truncated due to max tokens');
+    }
+    
+    // Validate response structure
+    if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
       console.error('Unexpected API response structure:', data);
-      throw new Error('Invalid response structure from Gemini API');
+      throw new Error('Invalid or incomplete response from Gemini API. The response may have been truncated.');
     }
     
     const generatedText = data.candidates[0].content.parts[0].text;
