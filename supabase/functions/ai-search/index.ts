@@ -35,6 +35,10 @@ serve(async (req) => {
       throw new Error('Search query is required');
     }
 
+    // Set limits for different sources
+    const dbLimit = 5;
+    const webLimit = 5;
+
     // Create Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -69,22 +73,27 @@ serve(async (req) => {
   console.log('Found players:', players?.length || 0);
   console.log('Found reports:', reports?.length || 0);
 
-  // Enhanced keyword search with scoring
-  const databaseResults = performKeywordSearch(query, players || [], reports || [], limit);
+  // Enhanced keyword search with scoring (TransferRoom database)
+  const databaseResults = performKeywordSearch(query, players || [], reports || [], dbLimit);
 
   // Perform web search using Gemini
-  const webResults = await performWebSearch(query, limit);
+  const webResults = await performWebSearch(query, webLimit);
 
-  // Combine results
-  const searchResults = [...databaseResults, ...webResults];
+  // Combine results with source labels
+  const searchResults = [
+    ...databaseResults.map(r => ({ ...r, source: 'transferroom' })),
+    ...webResults.map(r => ({ ...r, source: 'web' }))
+  ];
 
-  console.log('Search completed, found', searchResults.length, 'results (DB:', databaseResults.length, 'Web:', webResults.length, ')');
+  console.log('Search completed - DB results:', databaseResults.length, 'Web results:', webResults.length, 'Total:', searchResults.length);
 
     return new Response(
       JSON.stringify({ 
         results: searchResults,
         query,
-        totalResults: searchResults.length
+        totalResults: searchResults.length,
+        databaseResults: databaseResults.length,
+        webResults: webResults.length
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -119,12 +128,22 @@ async function performWebSearch(query: string, limit: number): Promise<SearchRes
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `Search for football/soccer players matching this query: "${query}". Return information about relevant players including their names, clubs, positions, and nationalities. Focus on current professional players.`
+              text: `Search the web for football/soccer players matching this query: "${query}". 
+              
+Return up to ${limit} relevant players with their current information. For each player include:
+- Full name
+- Current club
+- Position(s)
+- Age
+- Nationality
+- Brief description of their playing style or recent performance
+
+Format as a structured list.`
             }]
           }],
           generationConfig: {
             temperature: 0.3,
-            maxOutputTokens: 1000,
+            maxOutputTokens: 2048,
           }
         })
       }
@@ -212,7 +231,7 @@ function performKeywordSearch(query: string, players: any[], reports: any[], lim
         description: `${club} • Age ${player.age || 'Unknown'}`,
         confidence: relevance,
         relevanceScore: relevance,
-        metadata: { ...player, isPrivatePlayer: false, source: 'database' }
+        metadata: { ...player, isPrivatePlayer: false }
       });
     }
   });
@@ -242,7 +261,7 @@ function performKeywordSearch(query: string, players: any[], reports: any[], lim
         description: playerInfo,
         confidence: relevance,
         relevanceScore: relevance,
-        metadata: { ...report, source: 'database' }
+        metadata: { ...report }
       });
     }
   });
