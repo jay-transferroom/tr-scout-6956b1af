@@ -1,10 +1,13 @@
-
 import { formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { Notification } from "@/types/notification";
 import { cn } from "@/lib/utils";
+import { PlayerAvatar } from "@/components/ui/player-avatar";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationItemProps {
   notification: Notification;
@@ -12,6 +15,40 @@ interface NotificationItemProps {
 }
 
 const NotificationItem = ({ notification, onMarkAsRead }: NotificationItemProps) => {
+  const navigate = useNavigate();
+  const playerId = notification.data?.player_id;
+
+  // Fetch player data if player_id exists
+  const { data: playerData } = useQuery({
+    queryKey: ['notification-player', playerId],
+    queryFn: async () => {
+      if (!playerId) return null;
+      
+      const { data, error } = await supabase
+        .from('players_new')
+        .select('name, imageurl')
+        .eq('id', parseInt(playerId))
+        .single();
+      
+      if (error) {
+        console.error('Error fetching player data:', error);
+        return null;
+      }
+      
+      return data;
+    },
+    enabled: !!playerId,
+  });
+
+  const handleClick = () => {
+    if (playerId) {
+      navigate(`/player/${playerId}`);
+      if (!notification.read) {
+        onMarkAsRead(notification.id);
+      }
+    }
+  };
+
   const getNotificationTypeColor = (type: string) => {
     switch (type) {
       case 'scout_management':
@@ -48,38 +85,55 @@ const NotificationItem = ({ notification, onMarkAsRead }: NotificationItemProps)
   };
 
   return (
-    <div className={cn(
-      "p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors",
-      !notification.read && "bg-blue-50"
-    )}>
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <Badge 
-              variant="secondary" 
-              className={cn("text-xs", getNotificationTypeColor(notification.type))}
-            >
-              {getNotificationTypeLabel(notification.type)}
-            </Badge>
-            {!notification.read && (
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            )}
+    <div 
+      className={cn(
+        "p-3 border-b border-border transition-colors",
+        !notification.read && "bg-accent/50",
+        playerId && "cursor-pointer hover:bg-accent/70"
+      )}
+      onClick={playerId ? handleClick : undefined}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          {playerData && (
+            <PlayerAvatar 
+              playerName={playerData.name}
+              avatarUrl={playerData.imageurl || undefined}
+              size="md"
+              className="mt-1"
+            />
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <Badge 
+                variant="secondary" 
+                className={cn("text-xs", getNotificationTypeColor(notification.type))}
+              >
+                {getNotificationTypeLabel(notification.type)}
+              </Badge>
+              {!notification.read && (
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+              )}
+            </div>
+            <h4 className="font-medium text-sm truncate">
+              {notification.title}
+            </h4>
+            <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+              {notification.message}
+            </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              {formatDistanceToNow(notification.createdAt, { addSuffix: true })}
+            </p>
           </div>
-          <h4 className="font-medium text-sm text-gray-900 truncate">
-            {notification.title}
-          </h4>
-          <p className="text-sm text-gray-600 line-clamp-2 mt-1">
-            {notification.message}
-          </p>
-          <p className="text-xs text-gray-400 mt-2">
-            {formatDistanceToNow(notification.createdAt, { addSuffix: true })}
-          </p>
         </div>
         {!notification.read && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onMarkAsRead(notification.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMarkAsRead(notification.id);
+            }}
             className="shrink-0 h-8 w-8 p-0"
           >
             <Check className="h-4 w-4" />
