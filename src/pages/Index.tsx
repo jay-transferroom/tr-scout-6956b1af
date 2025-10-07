@@ -118,14 +118,19 @@ const Index = () => {
   const scoutsWithoutAssignments = scouts.filter(s => s.role === 'scout').length - scoutsWithAssignments;
   const totalScouts = scouts.filter(s => s.role === 'scout').length;
 
-  const stats = [
+  // Scout-specific stats
+  const myAssignments = assignments.filter(a => a.assigned_to_scout_id === user?.id);
+  const myDraftReports = myReports.filter(r => r.status === 'draft');
+  const myCompletedReports = myReports.filter(r => r.status === 'submitted');
+
+  const stats = profile?.role === 'recruitment' ? [
     {
       title: "Reports Created Last Month",
       subtitle: "",
       value: loading ? 0 : reportsLastMonth.length,
       description: "New reports this month",
       icon: FileText,
-      trend: loading ? "Loading..." : `${profile?.role === 'recruitment' ? reports.length : myReports.length} total reports`,
+      trend: loading ? "Loading..." : `${reports.length} total reports`,
       route: "/reports?tab=all-reports"
     },
     {
@@ -154,6 +159,46 @@ const Index = () => {
       icon: Users,
       trend: scoutsLoading ? "Loading..." : `${totalScouts} total scouts`,
       route: "/scout-management"
+    },
+  ] : [
+    {
+      title: "Reports Created",
+      subtitle: "",
+      value: loading ? 0 : myReports.length,
+      description: "Total reports by you",
+      icon: FileText,
+      trend: loading ? "Loading..." : `${reportsLastMonth.length} this month`,
+      route: "/reports"
+    },
+    {
+      title: "Your Assigned Players",
+      subtitle: "",
+      value: assignmentsLoading ? 0 : myAssignments.length,
+      description: "Players assigned to you",
+      icon: UserCheck,
+      trend: assignmentsLoading ? "Loading..." : `${myAssignments.filter(a => a.status === 'assigned').length} pending`,
+      route: "/assigned-players"
+    },
+    {
+      title: "Your Drafts",
+      subtitle: "",
+      value: loading ? 0 : myDraftReports.length,
+      description: "Draft reports",
+      icon: FileText,
+      trend: loading ? "Loading..." : "Ready to submit",
+      route: "/reports?tab=my-reports&status=draft"
+    },
+    {
+      title: "Your Completed Reports",
+      subtitle: "",
+      value: loading ? 0 : myCompletedReports.length,
+      description: "Submitted reports",
+      icon: Star,
+      trend: loading ? "Loading..." : `${myCompletedReports.filter(r => {
+        const reportDate = new Date(r.createdAt);
+        return reportDate >= lastMonth;
+      }).length} this month`,
+      route: "/reports?tab=my-reports&status=submitted"
     },
   ];
 
