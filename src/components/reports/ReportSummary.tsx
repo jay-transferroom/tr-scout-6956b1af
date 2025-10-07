@@ -4,16 +4,31 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Save, Send, Edit, Copy, Check } from "lucide-react";
+import { Sparkles, Save, Send, Edit, Copy, Check, Languages } from "lucide-react";
 import { ReportWithPlayer } from "@/types/report";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ReportSummaryProps {
   report: ReportWithPlayer;
   template: any;
 }
+
+const LANGUAGES = [
+  { code: "en", name: "English", nativeName: "English" },
+  { code: "zh", name: "Chinese", nativeName: "中文" },
+  { code: "es", name: "Spanish", nativeName: "Español" },
+  { code: "ar", name: "Arabic", nativeName: "العربية" },
+  { code: "fr", name: "French", nativeName: "Français" },
+];
 
 const ReportSummary = ({ report, template }: ReportSummaryProps) => {
   const [summary, setSummary] = useState("");
@@ -22,15 +37,21 @@ const ReportSummary = ({ report, template }: ReportSummaryProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
+  const [showLanguageSelect, setShowLanguageSelect] = useState(false);
 
   const generateSummary = async () => {
     setIsGenerating(true);
+    setShowLanguageSelect(false);
     try {
+      const languageName = LANGUAGES.find(l => l.code === selectedLanguage)?.name || "English";
+      
       const { data, error } = await supabase.functions.invoke('generate-report-summary', {
         body: {
           report,
           template,
-          playerData: report.player
+          playerData: report.player,
+          language: languageName
         }
       });
 
@@ -39,7 +60,7 @@ const ReportSummary = ({ report, template }: ReportSummaryProps) => {
       if (data?.summary) {
         setSummary(data.summary);
         setEditedSummary(data.summary);
-        toast.success("AI summary generated successfully");
+        toast.success(`AI summary generated successfully in ${languageName}`);
       } else {
         throw new Error("No summary returned from AI");
       }
@@ -54,12 +75,21 @@ const ReportSummary = ({ report, template }: ReportSummaryProps) => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Here you would save to database
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase
+        .from('reports')
+        .update({ 
+          ai_summary: editedSummary,
+          summary_language: selectedLanguage 
+        })
+        .eq('id', report.id);
+
+      if (error) throw error;
+
       setSummary(editedSummary);
       setIsEditing(false);
       toast.success("Summary saved successfully");
     } catch (error) {
+      console.error("Error saving summary:", error);
       toast.error("Failed to save summary");
     } finally {
       setSaving(false);
@@ -97,15 +127,50 @@ const ReportSummary = ({ report, template }: ReportSummaryProps) => {
           </div>
           
           <div className="flex gap-2">
-            {!summary && (
+            {!summary && !showLanguageSelect && (
               <Button 
-                onClick={generateSummary} 
+                onClick={() => setShowLanguageSelect(true)} 
                 disabled={isGenerating}
                 className="gap-2"
               >
                 <Sparkles className="h-4 w-4" />
-                {isGenerating ? "Generating..." : "Generate Summary"}
+                Generate Summary
               </Button>
+            )}
+
+            {!summary && showLanguageSelect && (
+              <>
+                <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LANGUAGES.map((lang) => (
+                      <SelectItem key={lang.code} value={lang.code}>
+                        <div className="flex items-center gap-2">
+                          <Languages className="h-4 w-4" />
+                          {lang.nativeName}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button 
+                  onClick={generateSummary} 
+                  disabled={isGenerating}
+                  className="gap-2"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {isGenerating ? "Generating..." : "Generate"}
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowLanguageSelect(false)}
+                  disabled={isGenerating}
+                >
+                  Cancel
+                </Button>
+              </>
             )}
             
             {summary && (

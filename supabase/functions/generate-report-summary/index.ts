@@ -12,8 +12,8 @@ serve(async (req) => {
   }
 
   try {
-    const { report, template, playerData } = await req.json();
-    console.log('Generating report summary for:', report.player?.name);
+    const { report, template, playerData, language = 'English' } = await req.json();
+    console.log('Generating report summary for:', report.player?.name, 'in', language);
 
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
@@ -124,7 +124,7 @@ Be specific about what should happen next:
 - Key questions that need answering
 - Contract/negotiation considerations
 
-Use professional language but be direct and honest. Format with markdown headings and bullet points. Make it decision-ready for a sporting director.`;
+IMPORTANT: Generate the entire summary in ${language}. Use professional language but be direct and honest. Format with markdown headings and bullet points. Make it decision-ready for a sporting director.`;
 
     console.log('Calling Gemini API...');
 
