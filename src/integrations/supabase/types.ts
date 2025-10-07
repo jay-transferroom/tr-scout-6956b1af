@@ -197,6 +197,63 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_settings: {
+        Row: {
+          availability: boolean
+          chatbot: boolean
+          comparable_players: boolean
+          created_at: string
+          id: string
+          injury: boolean
+          market_tracking: boolean
+          player_tracking: boolean
+          players_of_interest: boolean
+          questions: boolean
+          scout_management: boolean
+          status_update: boolean
+          transfer: boolean
+          updated_at: string
+          user_id: string
+          xtv_change: boolean
+        }
+        Insert: {
+          availability?: boolean
+          chatbot?: boolean
+          comparable_players?: boolean
+          created_at?: string
+          id?: string
+          injury?: boolean
+          market_tracking?: boolean
+          player_tracking?: boolean
+          players_of_interest?: boolean
+          questions?: boolean
+          scout_management?: boolean
+          status_update?: boolean
+          transfer?: boolean
+          updated_at?: string
+          user_id: string
+          xtv_change?: boolean
+        }
+        Update: {
+          availability?: boolean
+          chatbot?: boolean
+          comparable_players?: boolean
+          created_at?: string
+          id?: string
+          injury?: boolean
+          market_tracking?: boolean
+          player_tracking?: boolean
+          players_of_interest?: boolean
+          questions?: boolean
+          scout_management?: boolean
+          status_update?: boolean
+          transfer?: boolean
+          updated_at?: string
+          user_id?: string
+          xtv_change?: boolean
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string

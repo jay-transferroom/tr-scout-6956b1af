@@ -5,13 +5,14 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings as SettingsIcon, Users, FileText, Upload } from 'lucide-react';
+import { Settings as SettingsIcon, Users, FileText, Upload, Bell } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 // Import existing admin components
 import UserManagement from './admin/UserManagement';
 import TemplateAdmin from './TemplateAdmin';
 import ReportDataImport from '@/components/ReportDataImport';
+import NotificationPreferences from '@/components/settings/NotificationPreferences';
 
 const Settings = () => {
   const { profile } = useAuth();
@@ -27,10 +28,14 @@ const Settings = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className={isAdmin ? "grid w-full grid-cols-5" : "grid w-full grid-cols-3"}>
           <TabsTrigger value="preferences" className="flex items-center gap-2">
             <SettingsIcon className="h-4 w-4" />
             Preferences
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            Notifications
           </TabsTrigger>
           <TabsTrigger value="import" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
@@ -54,35 +59,6 @@ const Settings = () => {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Notifications</CardTitle>
-                <CardDescription>
-                  Configure how you receive notifications
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="email-notifications" className="text-sm font-medium">
-                    Email notifications
-                  </Label>
-                  <Switch id="email-notifications" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="report-updates" className="text-sm font-medium">
-                    Report updates
-                  </Label>
-                  <Switch id="report-updates" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="new-players" className="text-sm font-medium">
-                    New player alerts
-                  </Label>
-                  <Switch id="new-players" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
                 <CardTitle>Display</CardTitle>
                 <CardDescription>
                   Customize your viewing experience
@@ -104,6 +80,10 @@ const Settings = () => {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="notifications" className="mt-6">
+          <NotificationPreferences />
         </TabsContent>
 
         <TabsContent value="import" className="mt-6">
