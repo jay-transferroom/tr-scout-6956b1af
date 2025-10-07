@@ -1,4 +1,5 @@
 import { Report, ReportSectionData } from "@/types/report";
+import { VerdictType } from "@/types/verdict";
 
 type ReportQuality = 'good' | 'average' | 'poor';
 
@@ -68,6 +69,20 @@ const getDropdownValue = (quality: ReportQuality, options: string[]) => {
   }
 };
 
+// Get verdict based on quality
+const getVerdictValue = (quality: ReportQuality): VerdictType => {
+  if (quality === 'good') {
+    // Good reports recommend signing or shortlisting
+    return Math.random() > 0.5 ? 'recommend-signing' : 'add-to-shortlist';
+  } else if (quality === 'average') {
+    // Average reports suggest monitoring or further scouting
+    return Math.random() > 0.5 ? 'monitor' : 'further-scouting';
+  } else {
+    // Poor reports have reservations or not recommended
+    return Math.random() > 0.5 ? 'with-reservations' : 'not-recommended';
+  }
+};
+
 // Get text based on field name and quality
 const getTextForField = (fieldName: string, quality: ReportQuality) => {
   const name = fieldName.toLowerCase();
@@ -101,6 +116,11 @@ export const fillReportWithTestData = (
       
       if (!templateField) return field;
       
+      // Check if this is a verdict field
+      const isVerdictField = templateField.id.toLowerCase().includes('recommendation') || 
+                            templateField.id.toLowerCase().includes('verdict') ||
+                            templateField.id.toLowerCase().includes('decision');
+      
       let value = null;
       
       switch (templateField.type) {
@@ -118,7 +138,12 @@ export const fillReportWithTestData = (
           break;
           
         case 'dropdown':
-          value = getDropdownValue(quality, templateField.options || []);
+          // If it's a verdict field, use verdict-specific logic
+          if (isVerdictField) {
+            value = getVerdictValue(quality);
+          } else {
+            value = getDropdownValue(quality, templateField.options || []);
+          }
           break;
           
         case 'checkbox':
