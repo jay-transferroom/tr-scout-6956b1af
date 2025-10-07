@@ -107,7 +107,7 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
                     <Button 
                       size="sm" 
                       variant="outline"
-                      className="w-full"
+                      className="w-full bg-white hover:bg-accent"
                       onClick={() => onMarkAsReviewed(player)}
                     >
                       <Check className="h-3 w-3 mr-1" />
@@ -122,7 +122,7 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="w-full"
+                    className="w-full bg-white hover:bg-accent"
                   >
                     <User className="h-3 w-3 mr-1" />
                     View Profile
