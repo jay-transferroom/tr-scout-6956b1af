@@ -470,8 +470,19 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ isOpen, onClose, initialQuery
                           {message.role === 'user' ? 'You' : 'Assistant'}
                         </span>
                       </div>
-                      <div className="prose prose-sm max-w-none dark:prose-invert">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-3 prose-headings:mt-4 prose-headings:mb-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-1">
+                        <ReactMarkdown 
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            p: ({children}) => <p className="mb-3 last:mb-0">{children}</p>,
+                            h1: ({children}) => <h1 className="text-xl font-bold mt-4 mb-2">{children}</h1>,
+                            h2: ({children}) => <h2 className="text-lg font-bold mt-4 mb-2">{children}</h2>,
+                            h3: ({children}) => <h3 className="text-base font-bold mt-3 mb-2">{children}</h3>,
+                            ul: ({children}) => <ul className="list-disc pl-5 my-2 space-y-1">{children}</ul>,
+                            ol: ({children}) => <ol className="list-decimal pl-5 my-2 space-y-1">{children}</ol>,
+                            li: ({children}) => <li className="my-1">{children}</li>,
+                          }}
+                        >
                           {message.content}
                         </ReactMarkdown>
                       </div>
