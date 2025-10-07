@@ -665,6 +665,7 @@ export type Database = {
       }
       reports: {
         Row: {
+          ai_summary: string | null
           created_at: string
           flagged_for_review: boolean | null
           id: string
@@ -673,11 +674,13 @@ export type Database = {
           scout_id: string
           sections: Json
           status: string
+          summary_language: string | null
           tags: string[] | null
           template_id: string
           updated_at: string
         }
         Insert: {
+          ai_summary?: string | null
           created_at?: string
           flagged_for_review?: boolean | null
           id?: string
@@ -686,11 +689,13 @@ export type Database = {
           scout_id: string
           sections?: Json
           status?: string
+          summary_language?: string | null
           tags?: string[] | null
           template_id: string
           updated_at?: string
         }
         Update: {
+          ai_summary?: string | null
           created_at?: string
           flagged_for_review?: boolean | null
           id?: string
@@ -699,6 +704,7 @@ export type Database = {
           scout_id?: string
           sections?: Json
           status?: string
+          summary_language?: string | null
           tags?: string[] | null
           template_id?: string
           updated_at?: string
