@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import PlayerProfileCard from "./PlayerProfileCard";
 import { toast } from "sonner";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface SearchResult {
   type: 'player' | 'report' | 'ai_recommendation';
@@ -468,7 +470,11 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ isOpen, onClose, initialQuery
                           {message.role === 'user' ? 'You' : 'Assistant'}
                         </span>
                       </div>
-                      <div className="whitespace-pre-wrap">{message.content}</div>
+                      <div className="prose prose-sm max-w-none dark:prose-invert">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {message.content}
+                        </ReactMarkdown>
+                      </div>
                     </div>
                   </div>
                   
