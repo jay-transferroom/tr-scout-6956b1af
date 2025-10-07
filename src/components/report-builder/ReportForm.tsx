@@ -4,6 +4,7 @@ import { ArrowLeft, Save, Send, Settings } from "lucide-react";
 import { Player } from "@/types/player";
 import { ReportTemplate, Report } from "@/types/report";
 import ReportSection from "@/components/ReportSection";
+import TestDataFiller from "./TestDataFiller";
 
 interface ReportFormProps {
   player: Player;
@@ -15,6 +16,7 @@ interface ReportFormProps {
   onSubmitReport: () => void;
   onBack: () => void;
   onManageTemplates: () => void;
+  onReportUpdate: (report: Report) => void;
 }
 
 const ReportForm = ({
@@ -27,6 +29,7 @@ const ReportForm = ({
   onSubmitReport,
   onBack,
   onManageTemplates,
+  onReportUpdate,
 }: ReportFormProps) => {
   // Separate overall section from other sections
   const overallSection = template.sections.find(section => section.id === "overall");
@@ -35,10 +38,17 @@ const ReportForm = ({
   return (
     <div className="container mx-auto py-8 max-w-5xl">
       <div className="flex justify-between items-center mb-6">
-        <Button variant="ghost" onClick={onBack} className="gap-2">
-          <ArrowLeft size={16} />
-          Back to Dashboard
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" onClick={onBack} className="gap-2">
+            <ArrowLeft size={16} />
+            Back to Dashboard
+          </Button>
+          <TestDataFiller 
+            report={report} 
+            template={template} 
+            onReportUpdate={onReportUpdate}
+          />
+        </div>
         
         <div className="space-x-2">
           <Button 

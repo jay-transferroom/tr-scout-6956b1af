@@ -225,6 +225,7 @@ const ReportBuilder = () => {
       onSubmitReport={() => handleSaveReport(report, player, template, "submitted")}
       onBack={() => navigate("/")}
       onManageTemplates={() => navigate("/admin/templates")}
+      onReportUpdate={setReport}
     />
   );
 };
