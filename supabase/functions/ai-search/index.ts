@@ -8,6 +8,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+
 interface SearchResult {
   type: 'player' | 'report' | 'ai_recommendation';
   id: string;
@@ -68,9 +70,15 @@ serve(async (req) => {
   console.log('Found reports:', reports?.length || 0);
 
   // Enhanced keyword search with scoring
-  const searchResults = performKeywordSearch(query, players || [], reports || [], limit);
+  const databaseResults = performKeywordSearch(query, players || [], reports || [], limit);
 
-    console.log('Search completed, found', searchResults.length, 'results');
+  // Perform web search using Gemini
+  const webResults = await performWebSearch(query, limit);
+
+  // Combine results
+  const searchResults = [...databaseResults, ...webResults];
+
+  console.log('Search completed, found', searchResults.length, 'results (DB:', databaseResults.length, 'Web:', webResults.length, ')');
 
     return new Response(
       JSON.stringify({ 
@@ -95,6 +103,61 @@ serve(async (req) => {
     );
   }
 });
+
+async function performWebSearch(query: string, limit: number): Promise<SearchResult[]> {
+  if (!geminiApiKey) {
+    console.log('No Gemini API key, skipping web search');
+    return [];
+  }
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `Search for football/soccer players matching this query: "${query}". Return information about relevant players including their names, clubs, positions, and nationalities. Focus on current professional players.`
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 1000,
+          }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      console.error('Gemini API error:', await response.text());
+      return [];
+    }
+
+    const data = await response.json();
+    const webContent = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    if (!webContent) return [];
+
+    // Parse the response to extract player information
+    const webResults: SearchResult[] = [{
+      type: 'ai_recommendation',
+      id: 'web-search-result',
+      title: 'Web Search Results',
+      subtitle: 'Information found on the web',
+      description: webContent,
+      confidence: 0.7,
+      relevanceScore: 0.7,
+      metadata: { source: 'web', content: webContent }
+    }];
+
+    return webResults;
+  } catch (error) {
+    console.error('Error performing web search:', error);
+    return [];
+  }
+}
 
 function performKeywordSearch(query: string, players: any[], reports: any[], limit: number): SearchResult[] {
   const queryLower = query.toLowerCase();
@@ -149,7 +212,7 @@ function performKeywordSearch(query: string, players: any[], reports: any[], lim
         description: `${club} • Age ${player.age || 'Unknown'}`,
         confidence: relevance,
         relevanceScore: relevance,
-        metadata: { ...player, isPrivatePlayer: false }
+        metadata: { ...player, isPrivatePlayer: false, source: 'database' }
       });
     }
   });
@@ -179,7 +242,7 @@ function performKeywordSearch(query: string, players: any[], reports: any[], lim
         description: playerInfo,
         confidence: relevance,
         relevanceScore: relevance,
-        metadata: report
+        metadata: { ...report, source: 'database' }
       });
     }
   });
