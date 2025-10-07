@@ -246,6 +246,35 @@ export const useCreateAssignment = () => {
           throw insertError;
         }
         console.log('New assignment created successfully');
+        
+        // Get player name for notification
+        const { data: playerData } = await supabase
+          .from('players_new')
+          .select('name')
+          .eq('id', parseInt(assignment.player_id))
+          .single();
+        
+        // Create notification for the scout
+        try {
+          await supabase
+            .from('notifications')
+            .insert({
+              user_id: assignment.assigned_to_scout_id,
+              type: 'scout_management',
+              title: 'New Player Assignment',
+              message: `You have been assigned to scout ${playerData?.name || 'a player'}`,
+              data: {
+                player_id: assignment.player_id,
+                assignment_id: assignment.player_id,
+                priority: assignment.priority,
+                deadline: assignment.deadline
+              }
+            });
+          console.log('Notification created for scout');
+        } catch (notificationError) {
+          console.error('Failed to create notification:', notificationError);
+          // Don't fail the assignment if notification fails
+        }
       }
     },
     onSuccess: () => {
