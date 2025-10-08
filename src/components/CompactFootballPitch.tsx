@@ -3,6 +3,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Player } from "@/types/player";
 import { Plus, Circle } from "lucide-react";
+import pitchBackground from "@/assets/pitch.png";
 
 interface CompactFootballPitchProps {
   players: Player[];
@@ -193,15 +194,12 @@ const CompactFootballPitch = ({
   };
 
   return (
-    <div className="relative w-full h-full bg-green-100 rounded-lg border border-green-200 overflow-hidden">
+    <div className="relative w-full h-full rounded-lg overflow-hidden">
       {/* Football pitch background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-green-400/20 to-green-600/20">
-        {/* Center circle */}
-        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-white/50 rounded-full"></div>
-        {/* Goal areas */}
-        <div className="absolute left-1/2 top-0 transform -translate-x-1/2 w-12 h-4 border-2 border-white/50 border-t-0"></div>
-        <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 w-12 h-4 border-2 border-white/50 border-b-0"></div>
-      </div>
+      <div 
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${pitchBackground})` }}
+      />
 
       {/* Player positions */}
       {Object.entries(currentFormation).map(([position, coords]) => {
