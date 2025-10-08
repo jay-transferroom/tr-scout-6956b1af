@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users, LayoutGrid, List, Eye, Minimize2, Maximize2, X, ChevronUp } from "lucide-react";
@@ -120,10 +119,10 @@ const CompactSquadView = ({
   }, [selectedPosition, squadPlayers]);
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
+    <div className="h-full">
+      <div className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg">
+          <h3 className="flex items-center gap-2 text-lg font-semibold">
             <Users className="h-5 w-5" />
             Squad Overview
             {selectedSquad === 'shadow-squad' && (
@@ -131,7 +130,7 @@ const CompactSquadView = ({
                 Depth View
               </Badge>
             )}
-          </CardTitle>
+          </h3>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-xs">
               {squadPlayers.length} players
@@ -156,9 +155,9 @@ const CompactSquadView = ({
             </Button>
           </div>
         </div>
-      </CardHeader>
+      </div>
       
-      <CardContent className="p-4">
+      <div className="p-4">
         {!isMinimized ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Left Side: Pitch View or Position Player Selection */}
@@ -315,8 +314,8 @@ const CompactSquadView = ({
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
