@@ -5,6 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Target, TrendingUp, TrendingDown, AlertTriangle, Star, Users, ArrowRight } from "lucide-react";
 import { Player } from "@/types/player";
 import { useNavigate } from "react-router-dom";
+import { useShortlists } from "@/hooks/useShortlists";
 
 interface SquadRecommendationsProps {
   players: Player[];
@@ -37,6 +38,7 @@ const SquadRecommendations = ({
   allPlayers = []
 }: SquadRecommendationsProps) => {
   const navigate = useNavigate();
+  const { shortlists } = useShortlists();
   
   const analyzeSquadPositions = (): PositionAnalysis[] => {
     const positions = [
@@ -180,14 +182,39 @@ const SquadRecommendations = ({
       .slice(0, 10);
   };
 
-  const handlePlayerClick = (playerId: string) => {
-    navigate(`/player/${playerId}`);
+  const handlePlayerClick = (playerId: string, isPrivate: boolean = false) => {
+    if (isPrivate) {
+      navigate(`/private-player/${playerId}`);
+    } else {
+      navigate(`/player/${playerId}`);
+    }
   };
 
-  // If a position is selected, show recruitment recommendations
+  // Get shortlist recommendations for selected position
+  const getShortlistRecommendations = (positionName: string) => {
+    const analysis = positionAnalysis.find(a => a.name === positionName);
+    if (!analysis) return [];
+
+    // Get all player IDs from shortlists
+    const shortlistPlayerIds = shortlists.flatMap(s => s.playerIds || []);
+    
+    // Filter players from all database that are in shortlists and match this position
+    const eligiblePlayers = allPlayers.filter(p => 
+      shortlistPlayerIds.includes(p.id) &&
+      p.positions.some(pos => analysis.requiredPositions.includes(pos)) &&
+      !players.some(squadPlayer => squadPlayer.id === p.id) // Exclude current squad players
+    );
+
+    // Sort by rating and return recommendations
+    return eligiblePlayers
+      .sort((a, b) => (b.transferroomRating || b.xtvScore || 0) - (a.transferroomRating || a.xtvScore || 0));
+  };
+
+  // If a position is selected, show recruitment and shortlist recommendations
   if (selectedPosition) {
     const analysis = positionAnalysis.find(a => a.name === selectedPosition);
     const recommendations = getRecruitmentRecommendations(selectedPosition);
+    const shortlistRecs = getShortlistRecommendations(selectedPosition);
 
     if (!analysis) return null;
 
@@ -264,7 +291,7 @@ const SquadRecommendations = ({
                   <div
                     key={player.id}
                     className="flex items-center gap-3 p-3 rounded-md hover:bg-muted/50 cursor-pointer transition-all"
-                    onClick={() => handlePlayerClick(player.id)}
+                    onClick={() => handlePlayerClick(player.id, player.isPrivatePlayer)}
                   >
                     <span className="text-muted-foreground w-6 text-sm">{index + 1}</span>
                     
@@ -310,22 +337,23 @@ const SquadRecommendations = ({
             )}
           </div>
 
-          {/* Current Squad Players in Position */}
-          {analysis.players.length > 0 && (
+          {/* Shortlist Recommendations */}
+          {shortlistRecs.length > 0 && (
             <div className="space-y-2 pt-4 border-t">
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 text-muted-foreground" />
-                <h3 className="font-medium text-sm">Current Squad</h3>
+                <h3 className="font-medium text-sm">From Shortlists</h3>
                 <Badge variant="outline" className="text-xs">
-                  {analysis.players.length} player{analysis.players.length !== 1 ? 's' : ''}
+                  {shortlistRecs.length} player{shortlistRecs.length !== 1 ? 's' : ''}
                 </Badge>
               </div>
 
               <div className="space-y-1">
-                {analysis.players.map((player) => (
+                {shortlistRecs.map((player) => (
                   <div
                     key={player.id}
-                    className="flex items-center gap-3 p-3 rounded-md bg-muted/30"
+                    className="flex items-center gap-3 p-3 rounded-md bg-muted/30 hover:bg-muted/50 cursor-pointer transition-all"
+                    onClick={() => handlePlayerClick(player.id, player.isPrivatePlayer)}
                   >
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={player.image} alt={player.name} />
@@ -337,8 +365,16 @@ const SquadRecommendations = ({
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate text-base">{player.name}</div>
                       <div className="text-sm text-muted-foreground">
-                        {player.age}y • {player.nationality}
+                        {player.club} • {player.age}y • {player.nationality}
                       </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {player.positions.slice(0, 2).map((pos, idx) => (
+                        <Badge key={idx} variant="outline" className="text-sm">
+                          {pos}
+                        </Badge>
+                      ))}
                     </div>
 
                     <div className="flex items-center gap-1">
@@ -347,6 +383,8 @@ const SquadRecommendations = ({
                         {Math.round(player.transferroomRating || player.xtvScore || 0)}
                       </span>
                     </div>
+
+                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
                   </div>
                 ))}
               </div>
