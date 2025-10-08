@@ -253,7 +253,7 @@ const PositionSlot = ({
   return (
     <div
       className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all cursor-pointer ${
-        isSelected ? 'scale-110 z-20' : 'hover:scale-105 z-10'
+        isSelected ? 'scale-125 z-20' : 'hover:scale-105 z-10'
       }`}
       style={{
         left: `${coords.x}%`,

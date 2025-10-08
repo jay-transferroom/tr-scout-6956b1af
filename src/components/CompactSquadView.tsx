@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, LayoutGrid, List, Eye, Minimize2, Maximize2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Users, LayoutGrid, List, Eye, Minimize2, Maximize2, Target, Star, Zap } from "lucide-react";
 import { Player } from "@/types/player";
 import CompactFootballPitch from "./CompactFootballPitch";
 import SquadListView from "./SquadListView";
 import { useNavigate } from "react-router-dom";
+import { useShortlists } from "@/hooks/useShortlists";
+import { usePlayersData } from "@/hooks/usePlayersData";
 
 interface CompactSquadViewProps {
   squadPlayers: Player[];
@@ -33,6 +36,10 @@ const CompactSquadView = ({
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
   const navigate = useNavigate();
+  
+  // Fetch all players and shortlists for recommendations
+  const { data: allPlayers = [] } = usePlayersData();
+  const { shortlists } = useShortlists();
 
   const handlePlayerClick = (player: Player) => {
     setSelectedPlayer(selectedPlayer?.id === player.id ? null : player);
@@ -58,6 +65,84 @@ const CompactSquadView = ({
       navigate(`/player/${player.id}`);
     }
   };
+
+  // Get position-specific eligible players
+  const getPositionEligiblePlayers = (position: string): Player[] => {
+    const positionMapping: Record<string, string[]> = {
+      'GK': ['GK'],
+      'LB': ['LB', 'LWB'],
+      'CB': ['CB'],
+      'CB1': ['CB'],
+      'CB2': ['CB'],
+      'CB3': ['CB'],
+      'RB': ['RB', 'RWB'],
+      'CDM': ['CM', 'CDM'],
+      'CDM1': ['CM', 'CDM'],
+      'CDM2': ['CM', 'CDM'],
+      'CM': ['CM', 'CAM'],
+      'CM1': ['CM', 'CAM'],
+      'CM2': ['CM', 'CAM'],
+      'CM3': ['CM', 'CAM'],
+      'CAM': ['CAM', 'CM'],
+      'LM': ['LM', 'W', 'LW'],
+      'RM': ['RM', 'W', 'RW'],
+      'LW': ['W', 'LW', 'LM'],
+      'RW': ['W', 'RW', 'RM'],
+      'ST': ['F', 'FW', 'ST', 'CF'],
+      'ST1': ['F', 'FW', 'ST', 'CF'],
+      'ST2': ['F', 'FW', 'ST', 'CF'],
+    };
+
+    const allowedPositions = positionMapping[position] || [];
+    
+    return allPlayers.filter(player =>
+      player.positions.some(pos => allowedPositions.includes(pos))
+    ).sort((a, b) => {
+      const ratingA = a.transferroomRating || a.xtvScore || 0;
+      const ratingB = b.transferroomRating || b.xtvScore || 0;
+      return ratingB - ratingA;
+    });
+  };
+
+  // Filter players based on selected position
+  const filteredPlayers = useMemo(() => {
+    if (!selectedPosition) return squadPlayers;
+    return getPositionEligiblePlayers(selectedPosition).filter(p => 
+      squadPlayers.some(sp => sp.id === p.id)
+    );
+  }, [selectedPosition, squadPlayers, allPlayers]);
+
+  // Get shortlist players for selected position
+  const shortlistPlayersForPosition = useMemo(() => {
+    if (!selectedPosition) return [];
+    
+    const eligiblePlayers = getPositionEligiblePlayers(selectedPosition);
+    const shortlistPlayerIds = new Set(
+      shortlists.flatMap(s => s.playerIds || [])
+    );
+    
+    return eligiblePlayers.filter(p => 
+      shortlistPlayerIds.has(p.id) && 
+      !squadPlayers.some(sp => sp.id === p.id)
+    ).slice(0, 10);
+  }, [selectedPosition, shortlists, allPlayers, squadPlayers]);
+
+  // Get recommendations for selected position
+  const recommendationsForPosition = useMemo(() => {
+    if (!selectedPosition) return [];
+    
+    const eligiblePlayers = getPositionEligiblePlayers(selectedPosition);
+    const shortlistPlayerIds = new Set(
+      shortlists.flatMap(s => s.playerIds || [])
+    );
+    
+    return eligiblePlayers
+      .filter(p => 
+        !squadPlayers.some(sp => sp.id === p.id) &&
+        !shortlistPlayerIds.has(p.id)
+      )
+      .slice(0, 10);
+  }, [selectedPosition, shortlists, allPlayers, squadPlayers]);
 
   return (
     <Card className="h-full">
@@ -126,23 +211,87 @@ const CompactSquadView = ({
               </div>
             </div>
 
-            {/* Squad List View */}
+            {/* Squad List View with Tabs when position selected */}
             <div className="space-y-2">
               <div className="flex items-center gap-2 mb-2">
                 <List className="h-4 w-4 text-muted-foreground" />
-                <h3 className="font-medium text-sm">Squad List</h3>
+                <h3 className="font-medium text-sm">
+                  {selectedPosition ? `${selectedPosition} Options` : 'Squad List'}
+                </h3>
+                {selectedPosition && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handlePositionClick('')}
+                    className="ml-auto text-xs"
+                  >
+                    Clear Filter
+                  </Button>
+                )}
               </div>
               
-              <div className="h-[700px]">
-                <SquadListView 
-                  players={squadPlayers}
-                  squadType={selectedSquad}
-                  formation={formation}
-                  positionAssignments={positionAssignments}
-                  onPlayerClick={handlePlayerClick}
-                  selectedPlayer={selectedPlayer}
-                />
-              </div>
+              {selectedPosition ? (
+                <Tabs defaultValue="current" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="current" className="text-xs">
+                      <Users className="h-3 w-3 mr-1" />
+                      Current ({filteredPlayers.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="shortlists" className="text-xs">
+                      <Star className="h-3 w-3 mr-1" />
+                      Shortlists ({shortlistPlayersForPosition.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="recommendations" className="text-xs">
+                      <Zap className="h-3 w-3 mr-1" />
+                      Suggested ({recommendationsForPosition.length})
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="current" className="h-[630px] mt-2">
+                    <SquadListView 
+                      players={filteredPlayers}
+                      squadType={selectedSquad}
+                      formation={formation}
+                      positionAssignments={positionAssignments}
+                      onPlayerClick={handlePlayerClick}
+                      selectedPlayer={selectedPlayer}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="shortlists" className="h-[630px] mt-2">
+                    <SquadListView 
+                      players={shortlistPlayersForPosition}
+                      squadType={selectedSquad}
+                      formation={formation}
+                      positionAssignments={positionAssignments}
+                      onPlayerClick={handlePlayerClick}
+                      selectedPlayer={selectedPlayer}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="recommendations" className="h-[630px] mt-2">
+                    <SquadListView 
+                      players={recommendationsForPosition}
+                      squadType={selectedSquad}
+                      formation={formation}
+                      positionAssignments={positionAssignments}
+                      onPlayerClick={handlePlayerClick}
+                      selectedPlayer={selectedPlayer}
+                    />
+                  </TabsContent>
+                </Tabs>
+              ) : (
+                <div className="h-[700px]">
+                  <SquadListView 
+                    players={squadPlayers}
+                    squadType={selectedSquad}
+                    formation={formation}
+                    positionAssignments={positionAssignments}
+                    onPlayerClick={handlePlayerClick}
+                    selectedPlayer={selectedPlayer}
+                  />
+                </div>
+              )}
             </div>
           </div>
         ) : (
