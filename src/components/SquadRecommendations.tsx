@@ -204,7 +204,7 @@ const SquadRecommendations = ({
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 overflow-y-auto max-h-[800px]">
           {/* Position Analysis Summary */}
           <div className="p-4 bg-muted/30 rounded-lg space-y-3">
             <div className="flex items-center justify-between">
