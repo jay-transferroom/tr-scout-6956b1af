@@ -1,7 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Target, TrendingUp, TrendingDown, AlertTriangle, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Target, TrendingUp, TrendingDown, AlertTriangle, Star, Users, ArrowRight } from "lucide-react";
 import { Player } from "@/types/player";
+import { useNavigate } from "react-router-dom";
 
 interface SquadRecommendationsProps {
   players: Player[];
@@ -33,6 +36,7 @@ const SquadRecommendations = ({
   onPositionSelect,
   allPlayers = []
 }: SquadRecommendationsProps) => {
+  const navigate = useNavigate();
   
   const analyzeSquadPositions = (): PositionAnalysis[] => {
     const positions = [
@@ -159,6 +163,201 @@ const SquadRecommendations = ({
     }
   };
 
+  // Get recruitment recommendations for selected position
+  const getRecruitmentRecommendations = (positionName: string) => {
+    const analysis = positionAnalysis.find(a => a.name === positionName);
+    if (!analysis) return [];
+
+    // Get players from all database that could fill this position
+    const eligiblePlayers = allPlayers.filter(p => 
+      p.positions.some(pos => analysis.requiredPositions.includes(pos)) &&
+      !players.some(squadPlayer => squadPlayer.id === p.id) // Exclude current squad players
+    );
+
+    // Sort by rating and return top recommendations
+    return eligiblePlayers
+      .sort((a, b) => (b.transferroomRating || b.xtvScore || 0) - (a.transferroomRating || a.xtvScore || 0))
+      .slice(0, 10);
+  };
+
+  const handlePlayerClick = (playerId: string) => {
+    navigate(`/player/${playerId}`);
+  };
+
+  // If a position is selected, show recruitment recommendations
+  if (selectedPosition) {
+    const analysis = positionAnalysis.find(a => a.name === selectedPosition);
+    const recommendations = getRecruitmentRecommendations(selectedPosition);
+
+    if (!analysis) return null;
+
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Target className="h-5 w-5" />
+              {analysis.displayName} - Recruitment
+            </CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => onPositionSelect('')}>
+              View All
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Position Analysis Summary */}
+          <div className="p-4 bg-muted/30 rounded-lg space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {getPriorityIcon(analysis.priority)}
+                <span className="font-medium">{analysis.displayName}</span>
+                <Badge variant={getPriorityColor(analysis.priority) as any}>
+                  {analysis.priority}
+                </Badge>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {analysis.current}/{analysis.needed} players
+              </span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-muted-foreground">Avg Rating:</span>
+                <span className="ml-2 font-medium">{analysis.averageRating || 'N/A'}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Top Rating:</span>
+                <span className="ml-2 font-medium">{analysis.topRating || 'N/A'}</span>
+              </div>
+            </div>
+
+            {(analysis.contractRisks > 0 || analysis.ageRisks > 0) && (
+              <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/20 p-2 rounded">
+                <AlertTriangle className="h-3 w-3" />
+                <span>
+                  {analysis.contractRisks > 0 && `${analysis.contractRisks} contract risk${analysis.contractRisks > 1 ? 's' : ''}`}
+                  {analysis.contractRisks > 0 && analysis.ageRisks > 0 && ', '}
+                  {analysis.ageRisks > 0 && `${analysis.ageRisks} aging player${analysis.ageRisks > 1 ? 's' : ''}`}
+                </span>
+              </div>
+            )}
+            
+            <div className="pt-2 border-t">
+              <p className="text-sm font-medium mb-1">Recruitment Strategy:</p>
+              <p className="text-sm text-muted-foreground">{analysis.recruitmentSuggestion}</p>
+            </div>
+          </div>
+
+          {/* Recruitment Recommendations */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-medium text-sm">Recommended Players</h3>
+              <Badge variant="outline" className="text-xs">
+                {recommendations.length} available
+              </Badge>
+            </div>
+
+            {recommendations.length > 0 ? (
+              <div className="space-y-1 max-h-[500px] overflow-y-auto">
+                {recommendations.map((player, index) => (
+                  <div
+                    key={player.id}
+                    className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-all text-sm"
+                    onClick={() => handlePlayerClick(player.id)}
+                  >
+                    <span className="text-muted-foreground w-5">{index + 1}</span>
+                    
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={player.image} alt={player.name} />
+                      <AvatarFallback className="text-xs">
+                        {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{player.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {player.club} • {player.age}y • {player.nationality}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {player.positions.slice(0, 2).map((pos, idx) => (
+                        <Badge key={idx} variant="outline" className="text-xs">
+                          {pos}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3 text-muted-foreground" />
+                      <span className="font-medium">
+                        {Math.round(player.transferroomRating || player.xtvScore || 0)}
+                      </span>
+                    </div>
+
+                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No recommendations available</p>
+                <p className="text-xs">All suitable players are already in the squad</p>
+              </div>
+            )}
+          </div>
+
+          {/* Current Squad Players in Position */}
+          {analysis.players.length > 0 && (
+            <div className="space-y-2 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <Star className="h-4 w-4 text-muted-foreground" />
+                <h3 className="font-medium text-sm">Current Squad</h3>
+                <Badge variant="outline" className="text-xs">
+                  {analysis.players.length} player{analysis.players.length !== 1 ? 's' : ''}
+                </Badge>
+              </div>
+
+              <div className="space-y-1">
+                {analysis.players.map((player) => (
+                  <div
+                    key={player.id}
+                    className="flex items-center gap-3 p-2 rounded-md bg-muted/30 text-sm"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={player.image} alt={player.name} />
+                      <AvatarFallback className="text-xs">
+                        {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{player.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {player.age}y • {player.nationality}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3 text-muted-foreground" />
+                      <span className="font-medium">
+                        {Math.round(player.transferroomRating || player.xtvScore || 0)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Default view: Show all positions
   return (
     <Card>
       <CardHeader className="pb-3">
