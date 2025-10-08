@@ -93,7 +93,7 @@ const CompactSquadView = ({
 
     const allowedPositions = positionMapping[position] || [];
     
-    return allPlayers.filter(player =>
+    return squadPlayers.filter(player =>
       player.positions.some(pos => allowedPositions.includes(pos))
     ).sort((a, b) => {
       const ratingA = a.transferroomRating || a.xtvScore || 0;
@@ -106,7 +106,7 @@ const CompactSquadView = ({
   const positionEligiblePlayers = useMemo(() => {
     if (!selectedPosition) return [];
     return getPositionEligiblePlayers(selectedPosition);
-  }, [selectedPosition, allPlayers]);
+  }, [selectedPosition, squadPlayers]);
 
   return (
     <Card className="h-full">
