@@ -14,10 +14,8 @@ interface SquadSelectorProps {
 
 const SQUAD_TYPES = [
   { id: 'first-team', label: 'First Team', icon: Trophy, color: 'bg-blue-600' },
-  { id: 'shadow-squad', label: 'Shadow Squad', icon: Shield, color: 'bg-gray-600' },
   { id: 'u21', label: 'Under 21s', icon: Users, color: 'bg-green-600' },
   { id: 'u18', label: 'Under 18s', icon: Users, color: 'bg-purple-600' },
-  { id: 'on-loan', label: 'On Loan', icon: Shield, color: 'bg-orange-600' },
 ];
 
 const SquadSelector = ({ selectedSquad, onSquadSelect, club, players }: SquadSelectorProps) => {
@@ -92,14 +90,10 @@ const SquadSelector = ({ selectedSquad, onSquadSelect, club, players }: SquadSel
         <p className="text-sm text-muted-foreground mt-2">
           {selectedSquad === 'first-team' 
             ? 'Main senior squad players at Chelsea FC'
-            : selectedSquad === 'shadow-squad'
-            ? 'Reserve and backup players from the first team'
             : selectedSquad === 'u21'
             ? 'Under 21 development squad players'
             : selectedSquad === 'u18'
             ? 'Under 18 academy players'
-            : selectedSquad === 'on-loan'
-            ? 'Chelsea players currently on loan at other clubs'
             : 'Select squad to analyze formation and player assignments'
           }
         </p>
