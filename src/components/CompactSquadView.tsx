@@ -251,7 +251,7 @@ const CompactSquadView = ({
             {/* Right Side: Squad Recommendations or Squad List */}
             <div className="space-y-2">
               {selectedPosition ? (
-                <div className="h-[700px] overflow-y-auto">
+                <div>
                   <SquadRecommendations 
                     players={squadPlayers}
                     selectedPosition={mapPositionToCategory(selectedPosition)}
