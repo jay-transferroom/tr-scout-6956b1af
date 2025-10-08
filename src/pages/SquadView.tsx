@@ -10,7 +10,6 @@ import SquadRecommendations from "@/components/SquadRecommendations";
 import ProspectComparison from "@/components/ProspectComparison";
 import SquadFormationCard from "@/components/SquadFormationCard";
 import SquadTableView from "@/components/SquadTableView";
-import ViewToggle from "@/components/ViewToggle";
 import SquadSettingsButton from "@/components/SquadSettingsButton";
 import { useSquadData } from "@/hooks/useSquadData";
 import { useSquadMetrics } from "@/hooks/useSquadMetrics";
@@ -24,7 +23,6 @@ const SquadView = () => {
   } = useAuth();
   const [selectedSquad, setSelectedSquad] = useState<string>('first-team');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
-  const [currentView, setCurrentView] = useState<'grid' | 'list'>('grid');
 
   // Redirect if not recruitment or director role
   if (profile?.role !== 'recruitment' && profile?.role !== 'director') {
@@ -112,21 +110,14 @@ const SquadView = () => {
         </div>
         <div className="flex items-center gap-3">
           <SquadSettingsButton clubName={userClub} />
-          <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
         </div>
       </div>
 
       {/* Squad Selector */}
       <SquadSelector selectedSquad={selectedSquad} onSquadSelect={setSelectedSquad} club={userClub} players={clubPlayers} />
 
-      {/* Conditional View Rendering */}
-      {currentView === 'grid' ? <>
-          {/* Enhanced Football Pitch Visualization */}
-          <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
-
-          
-        </> : (/* Table View */
-    <SquadTableView players={squadPlayers} />)}
+      {/* Enhanced Football Pitch Visualization */}
+      <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
     </div>;
 };
 export default SquadView;
