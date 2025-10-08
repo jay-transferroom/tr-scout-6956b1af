@@ -263,36 +263,36 @@ const SquadRecommendations = ({
                 {recommendations.map((player, index) => (
                   <div
                     key={player.id}
-                    className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-all text-sm"
+                    className="flex items-center gap-3 p-3 rounded-md hover:bg-muted/50 cursor-pointer transition-all"
                     onClick={() => handlePlayerClick(player.id)}
                   >
-                    <span className="text-muted-foreground w-5">{index + 1}</span>
+                    <span className="text-muted-foreground w-6 text-sm">{index + 1}</span>
                     
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-12 w-12">
                       <AvatarImage src={player.image} alt={player.name} />
-                      <AvatarFallback className="text-xs">
+                      <AvatarFallback className="text-sm">
                         {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
 
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{player.name}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="font-medium truncate text-base">{player.name}</div>
+                      <div className="text-sm text-muted-foreground">
                         {player.club} • {player.age}y • {player.nationality}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
                       {player.positions.slice(0, 2).map((pos, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
+                        <Badge key={idx} variant="outline" className="text-sm">
                           {pos}
                         </Badge>
                       ))}
                     </div>
 
                     <div className="flex items-center gap-1">
-                      <TrendingUp className="h-3 w-3 text-muted-foreground" />
-                      <span className="font-medium">
+                      <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium text-base">
                         {Math.round(player.transferroomRating || player.xtvScore || 0)}
                       </span>
                     </div>
@@ -325,25 +325,25 @@ const SquadRecommendations = ({
                 {analysis.players.map((player) => (
                   <div
                     key={player.id}
-                    className="flex items-center gap-3 p-2 rounded-md bg-muted/30 text-sm"
+                    className="flex items-center gap-3 p-3 rounded-md bg-muted/30"
                   >
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-12 w-12">
                       <AvatarImage src={player.image} alt={player.name} />
-                      <AvatarFallback className="text-xs">
+                      <AvatarFallback className="text-sm">
                         {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
 
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{player.name}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="font-medium truncate text-base">{player.name}</div>
+                      <div className="text-sm text-muted-foreground">
                         {player.age}y • {player.nationality}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-1">
-                      <TrendingUp className="h-3 w-3 text-muted-foreground" />
-                      <span className="font-medium">
+                      <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium text-base">
                         {Math.round(player.transferroomRating || player.xtvScore || 0)}
                       </span>
                     </div>

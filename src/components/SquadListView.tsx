@@ -113,26 +113,26 @@ const SquadListView = ({
                 return (
                   <div 
                     key={player.id} 
-                    className={`flex items-center gap-3 p-2 rounded-md cursor-pointer transition-all hover:bg-muted/50 text-sm ${
+                    className={`flex items-center gap-3 p-3 rounded-md cursor-pointer transition-all hover:bg-muted/50 ${
                       isSelected ? 'bg-primary/10 border border-primary/20' : ''
                     }`}
                     onClick={() => onPlayerClick?.(player)}
                   >
                     {/* Player Avatar */}
-                    <Avatar className="h-8 w-8 flex-shrink-0">
+                    <Avatar className="h-12 w-12 flex-shrink-0">
                       <AvatarImage 
                         src={player.image} 
                         alt={player.name}
                       />
-                      <AvatarFallback className="text-xs">
+                      <AvatarFallback className="text-sm">
                         {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
 
                     {/* Player Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{player.name}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="font-medium truncate text-base">{player.name}</div>
+                      <div className="text-sm text-muted-foreground">
                         {player.club} • {player.age}y • {player.nationality}
                       </div>
                     </div>
@@ -140,7 +140,7 @@ const SquadListView = ({
                     {/* Positions */}
                     <div className="flex items-center gap-1 flex-shrink-0">
                       {player.positions.slice(0, 2).map((position, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
+                        <Badge key={idx} variant="outline" className="text-sm">
                           {position}
                         </Badge>
                       ))}
@@ -148,14 +148,14 @@ const SquadListView = ({
 
                     {/* Assignment */}
                     {assignment && (
-                      <Badge variant="default" className="text-xs bg-green-600 flex-shrink-0">
+                      <Badge variant="default" className="text-sm bg-green-600 flex-shrink-0">
                         {assignment.position}
                       </Badge>
                     )}
 
                     {/* Contract Status */}
                     {contractStatus && (
-                      <Badge variant={contractStatus.variant} className="text-xs flex-shrink-0">
+                      <Badge variant={contractStatus.variant} className="text-sm flex-shrink-0">
                         {contractStatus.status}
                       </Badge>
                     )}
