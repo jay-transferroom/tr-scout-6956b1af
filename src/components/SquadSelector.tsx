@@ -22,26 +22,23 @@ const SquadSelector = ({ selectedSquad, onSquadSelect, club, players }: SquadSel
   const getSquadPlayerCount = (squadType: string) => {
     switch (squadType) {
       case 'first-team':
-        return players.filter(p => 
-          p.club === 'Chelsea FC' || 
-          (p.club?.includes('Chelsea') && !p.club?.includes('U21') && !p.club?.includes('U18'))
-        ).length;
-      case 'shadow-squad':
-        // Shadow squad is backup/reserve players from first team
-        return Math.min(players.filter(p => 
-          p.club === 'Chelsea FC' || 
-          (p.club?.includes('Chelsea') && !p.club?.includes('U21') && !p.club?.includes('U18'))
-        ).length, 17);
+        return players.filter(p => {
+          // Same logic as useSquadData: must be 21+, Chelsea-related, not on loan, not youth team
+          if (p.age < 21) return false;
+          const isOnLoan = p.club !== 'Chelsea FC' && 
+                          !p.club?.includes('Chelsea') && 
+                          p.club !== 'Unknown';
+          if (isOnLoan) return false;
+          const isChelsea = p.club === 'Chelsea FC' || 
+                           (p.club?.includes('Chelsea') && 
+                            !p.club?.includes('U21') && 
+                            !p.club?.includes('U18'));
+          return isChelsea;
+        }).length;
       case 'u21':
         return players.filter(p => p.club?.includes('U21')).length;
       case 'u18':
         return players.filter(p => p.club?.includes('U18')).length;
-      case 'on-loan':
-        return players.filter(p => 
-          p.club !== 'Chelsea FC' && 
-          !p.club?.includes('Chelsea') &&
-          p.club !== 'Unknown'
-        ).length;
       default:
         return 0;
     }
