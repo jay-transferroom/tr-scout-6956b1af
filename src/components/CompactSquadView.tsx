@@ -131,29 +131,9 @@ const CompactSquadView = ({
               </Badge>
             )}
           </h3>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs">
-              {squadPlayers.length} players
-            </Badge>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setIsMinimized(!isMinimized)}
-              className="text-xs"
-            >
-              {isMinimized ? <Maximize2 className="h-3 w-3 mr-1" /> : <Minimize2 className="h-3 w-3 mr-1" />}
-              {isMinimized ? 'Expand' : 'Minimize'}
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleViewFullPitch}
-              className="text-xs"
-            >
-              <Eye className="h-3 w-3 mr-1" />
-              Full View
-            </Button>
-          </div>
+          <Badge variant="outline" className="text-xs">
+            {squadPlayers.length} players
+          </Badge>
         </div>
       </div>
       
