@@ -64,6 +64,17 @@ const CompactSquadView = ({
     }
   };
 
+  // Map specific pitch positions to general position categories
+  const mapPositionToCategory = (position: string): string => {
+    if (position === 'GK') return 'GK';
+    if (['CB', 'CB1', 'CB2', 'CB3'].includes(position)) return 'CB';
+    if (['LB', 'RB', 'LWB', 'RWB'].includes(position)) return 'FB';
+    if (['CDM', 'CDM1', 'CDM2', 'CM', 'CM1', 'CM2', 'CM3', 'CAM'].includes(position)) return 'CM';
+    if (['LW', 'RW', 'LM', 'RM'].includes(position)) return 'W';
+    if (['ST', 'ST1', 'ST2', 'CF'].includes(position)) return 'ST';
+    return position;
+  };
+
   // Get position-specific eligible players
   const getPositionEligiblePlayers = (position: string): Player[] => {
     const positionMapping: Record<string, string[]> = {
@@ -244,8 +255,8 @@ const CompactSquadView = ({
                 <div className="h-[700px] overflow-y-auto">
                   <SquadRecommendations 
                     players={squadPlayers}
-                    selectedPosition={selectedPosition}
-                    onPositionSelect={handlePositionClick}
+                    selectedPosition={mapPositionToCategory(selectedPosition)}
+                    onPositionSelect={(pos) => handlePositionClick(pos)}
                     allPlayers={allPlayers}
                   />
                 </div>
