@@ -97,8 +97,8 @@ const SquadListView = ({
         return (
           <div key={category} className="space-y-1">
             <div className="flex items-center gap-2 px-1 sticky top-0 bg-background/95 backdrop-blur py-1">
-              <Users className="h-3 w-3 text-muted-foreground" />
-              <h3 className="font-medium text-xs">{category}</h3>
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-medium text-sm">{category}</h3>
               <Badge variant="outline" className="text-xs px-1 py-0">
                 {categoryPlayers.length}
               </Badge>
@@ -113,38 +113,34 @@ const SquadListView = ({
                 return (
                   <div 
                     key={player.id} 
-                    className={`flex items-center gap-2 p-2 rounded-md cursor-pointer transition-all hover:bg-muted/50 text-xs ${
+                    className={`flex items-center gap-3 p-2 rounded-md cursor-pointer transition-all hover:bg-muted/50 text-sm ${
                       isSelected ? 'bg-primary/10 border border-primary/20' : ''
                     }`}
                     onClick={() => onPlayerClick?.(player)}
                   >
                     {/* Player Avatar */}
-                    <Avatar className="h-6 w-6 flex-shrink-0">
+                    <Avatar className="h-8 w-8 flex-shrink-0">
                       <AvatarImage 
                         src={player.image} 
                         alt={player.name}
                       />
-                      <AvatarFallback className="bg-blue-600 text-white text-xs">
+                      <AvatarFallback className="text-xs">
                         {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
 
-                    {/* Player Name */}
-                    <div className="font-medium truncate min-w-0 flex-shrink">
-                      {player.name}
-                    </div>
-
-                    {/* Age & Nationality */}
-                    <div className="flex items-center gap-1 text-muted-foreground flex-shrink-0">
-                      <span>{player.age}y</span>
-                      <span>•</span>
-                      <span className="truncate max-w-8">{player.nationality}</span>
+                    {/* Player Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{player.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {player.club} • {player.age}y • {player.nationality}
+                      </div>
                     </div>
 
                     {/* Positions */}
-                    <div className="flex items-center gap-0.5 flex-shrink-0">
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       {player.positions.slice(0, 2).map((position, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs px-1 py-0 h-4">
+                        <Badge key={idx} variant="outline" className="text-xs">
                           {position}
                         </Badge>
                       ))}
@@ -152,14 +148,14 @@ const SquadListView = ({
 
                     {/* Assignment */}
                     {assignment && (
-                      <Badge variant="default" className="text-xs px-1 py-0 h-4 bg-green-600 flex-shrink-0">
+                      <Badge variant="default" className="text-xs bg-green-600 flex-shrink-0">
                         {assignment.position}
                       </Badge>
                     )}
 
                     {/* Contract Status */}
                     {contractStatus && (
-                      <Badge variant={contractStatus.variant} className="text-xs px-1 py-0 h-4 flex-shrink-0">
+                      <Badge variant={contractStatus.variant} className="text-xs flex-shrink-0">
                         {contractStatus.status}
                       </Badge>
                     )}

@@ -259,7 +259,7 @@ const SquadRecommendations = ({
             </div>
 
             {recommendations.length > 0 ? (
-              <div className="space-y-1 max-h-[500px] overflow-y-auto">
+              <div className="space-y-1 overflow-y-auto">{/* Removed max-h to allow full scrolling */}
                 {recommendations.map((player, index) => (
                   <div
                     key={player.id}

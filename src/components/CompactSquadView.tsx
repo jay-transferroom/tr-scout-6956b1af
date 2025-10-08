@@ -205,7 +205,7 @@ const CompactSquadView = ({
                   </div>
 
                   {/* Player Selection List */}
-                  <div className="h-[550px]">
+                  <div className="h-[700px]">{/* Match height with recommendations */}
                     <SquadListView 
                       players={positionEligiblePlayers}
                       squadType={selectedSquad}
