@@ -270,7 +270,11 @@ const PositionSlot = ({
         {/* Position badge */}
         <Badge 
           variant={isSelected ? "default" : "secondary"} 
-          className="text-xs mb-1 bg-white/90"
+          className="text-xs mb-1 bg-white/90 cursor-pointer hover:opacity-80"
+          onClick={(e) => {
+            e.stopPropagation();
+            onPositionClick?.(position);
+          }}
         >
           {position}
         </Badge>
