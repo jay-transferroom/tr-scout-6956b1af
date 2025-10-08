@@ -3,7 +3,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Player } from "@/types/player";
 import { Plus, Circle } from "lucide-react";
-import pitchBackground from "@/assets/pitch.png";
+import pitchBackground from "@/assets/pitch.svg";
 
 interface CompactFootballPitchProps {
   players: Player[];
