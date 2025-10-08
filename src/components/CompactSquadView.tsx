@@ -2,13 +2,12 @@ import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, LayoutGrid, List, Eye, Minimize2, Maximize2, Target, Star, Zap } from "lucide-react";
+import { Users, LayoutGrid, List, Eye, Minimize2, Maximize2, X, ChevronUp } from "lucide-react";
 import { Player } from "@/types/player";
 import CompactFootballPitch from "./CompactFootballPitch";
 import SquadListView from "./SquadListView";
+import SquadRecommendations from "./SquadRecommendations";
 import { useNavigate } from "react-router-dom";
-import { useShortlists } from "@/hooks/useShortlists";
 import { usePlayersData } from "@/hooks/usePlayersData";
 
 interface CompactSquadViewProps {
@@ -37,9 +36,8 @@ const CompactSquadView = ({
   const [isMinimized, setIsMinimized] = useState(false);
   const navigate = useNavigate();
   
-  // Fetch all players and shortlists for recommendations
+  // Fetch all players for recommendations
   const { data: allPlayers = [] } = usePlayersData();
-  const { shortlists } = useShortlists();
 
   const handlePlayerClick = (player: Player) => {
     setSelectedPlayer(selectedPlayer?.id === player.id ? null : player);
@@ -105,44 +103,10 @@ const CompactSquadView = ({
   };
 
   // Filter players based on selected position
-  const filteredPlayers = useMemo(() => {
-    if (!selectedPosition) return squadPlayers;
-    return getPositionEligiblePlayers(selectedPosition).filter(p => 
-      squadPlayers.some(sp => sp.id === p.id)
-    );
-  }, [selectedPosition, squadPlayers, allPlayers]);
-
-  // Get shortlist players for selected position
-  const shortlistPlayersForPosition = useMemo(() => {
+  const positionEligiblePlayers = useMemo(() => {
     if (!selectedPosition) return [];
-    
-    const eligiblePlayers = getPositionEligiblePlayers(selectedPosition);
-    const shortlistPlayerIds = new Set(
-      shortlists.flatMap(s => s.playerIds || [])
-    );
-    
-    return eligiblePlayers.filter(p => 
-      shortlistPlayerIds.has(p.id) && 
-      !squadPlayers.some(sp => sp.id === p.id)
-    ).slice(0, 10);
-  }, [selectedPosition, shortlists, allPlayers, squadPlayers]);
-
-  // Get recommendations for selected position
-  const recommendationsForPosition = useMemo(() => {
-    if (!selectedPosition) return [];
-    
-    const eligiblePlayers = getPositionEligiblePlayers(selectedPosition);
-    const shortlistPlayerIds = new Set(
-      shortlists.flatMap(s => s.playerIds || [])
-    );
-    
-    return eligiblePlayers
-      .filter(p => 
-        !squadPlayers.some(sp => sp.id === p.id) &&
-        !shortlistPlayerIds.has(p.id)
-      )
-      .slice(0, 10);
-  }, [selectedPosition, shortlists, allPlayers, squadPlayers]);
+    return getPositionEligiblePlayers(selectedPosition);
+  }, [selectedPosition, allPlayers]);
 
   return (
     <Card className="h-full">
@@ -186,111 +150,123 @@ const CompactSquadView = ({
       <CardContent className="p-4">
         {!isMinimized ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Compact Pitch View */}
+            {/* Left Side: Pitch View or Position Player Selection */}
             <div className="space-y-2">
-              <div className="flex items-center gap-2 mb-2">
-                <LayoutGrid className="h-4 w-4 text-muted-foreground" />
-                <h3 className="font-medium text-sm">Formation View</h3>
-                {formation && (
-                  <Badge variant="outline" className="text-xs">
-                    {formation}
-                  </Badge>
-                )}
-              </div>
-              
-              <div className="h-[700px] bg-muted rounded-lg p-2">
-                <CompactFootballPitch 
-                  players={squadPlayers}
-                  squadType={selectedSquad}
-                  formation={formation}
-                  positionAssignments={positionAssignments}
-                  onPositionClick={handlePositionClick}
-                  selectedPosition={selectedPosition}
-                  onPlayerChange={onPlayerChange}
-                />
-              </div>
+              {selectedPosition ? (
+                <>
+                  <div className="flex items-center gap-2 mb-2">
+                    <List className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="font-medium text-sm">Select Player for {selectedPosition}</h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handlePositionClick('')}
+                      className="ml-auto text-xs"
+                    >
+                      <X className="h-3 w-3 mr-1" />
+                      Close
+                    </Button>
+                  </div>
+                  
+                  {/* Minimized Pitch Preview */}
+                  <div className="h-[120px] bg-muted rounded-lg p-2 mb-2 relative overflow-hidden">
+                    <div className="absolute inset-0 opacity-30">
+                      <CompactFootballPitch 
+                        players={squadPlayers}
+                        squadType={selectedSquad}
+                        formation={formation}
+                        positionAssignments={positionAssignments}
+                        onPositionClick={handlePositionClick}
+                        selectedPosition={selectedPosition}
+                        onPlayerChange={onPlayerChange}
+                      />
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handlePositionClick('')}
+                        className="text-xs"
+                      >
+                        <ChevronUp className="h-3 w-3 mr-1" />
+                        Expand Pitch
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Player Selection List */}
+                  <div className="h-[550px]">
+                    <SquadListView 
+                      players={positionEligiblePlayers}
+                      squadType={selectedSquad}
+                      formation={formation}
+                      positionAssignments={positionAssignments}
+                      onPlayerClick={(player) => {
+                        if (onPlayerChange && selectedPosition) {
+                          onPlayerChange(selectedPosition, player.id);
+                        }
+                        handlePlayerClick(player);
+                      }}
+                      selectedPlayer={selectedPlayer}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 mb-2">
+                    <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="font-medium text-sm">Formation View</h3>
+                    {formation && (
+                      <Badge variant="outline" className="text-xs">
+                        {formation}
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <div className="h-[700px] bg-muted rounded-lg p-2">
+                    <CompactFootballPitch 
+                      players={squadPlayers}
+                      squadType={selectedSquad}
+                      formation={formation}
+                      positionAssignments={positionAssignments}
+                      onPositionClick={handlePositionClick}
+                      selectedPosition={selectedPosition}
+                      onPlayerChange={onPlayerChange}
+                    />
+                  </div>
+                </>
+              )}
             </div>
 
-            {/* Squad List View with Tabs when position selected */}
+            {/* Right Side: Squad Recommendations or Squad List */}
             <div className="space-y-2">
-              <div className="flex items-center gap-2 mb-2">
-                <List className="h-4 w-4 text-muted-foreground" />
-                <h3 className="font-medium text-sm">
-                  {selectedPosition ? `${selectedPosition} Options` : 'Squad List'}
-                </h3>
-                {selectedPosition && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handlePositionClick('')}
-                    className="ml-auto text-xs"
-                  >
-                    Clear Filter
-                  </Button>
-                )}
-              </div>
-              
               {selectedPosition ? (
-                <Tabs defaultValue="current" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="current" className="text-xs">
-                      <Users className="h-3 w-3 mr-1" />
-                      Current ({filteredPlayers.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="shortlists" className="text-xs">
-                      <Star className="h-3 w-3 mr-1" />
-                      Shortlists ({shortlistPlayersForPosition.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="recommendations" className="text-xs">
-                      <Zap className="h-3 w-3 mr-1" />
-                      Suggested ({recommendationsForPosition.length})
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="current" className="h-[630px] mt-2">
-                    <SquadListView 
-                      players={filteredPlayers}
-                      squadType={selectedSquad}
-                      formation={formation}
-                      positionAssignments={positionAssignments}
-                      onPlayerClick={handlePlayerClick}
-                      selectedPlayer={selectedPlayer}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="shortlists" className="h-[630px] mt-2">
-                    <SquadListView 
-                      players={shortlistPlayersForPosition}
-                      squadType={selectedSquad}
-                      formation={formation}
-                      positionAssignments={positionAssignments}
-                      onPlayerClick={handlePlayerClick}
-                      selectedPlayer={selectedPlayer}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="recommendations" className="h-[630px] mt-2">
-                    <SquadListView 
-                      players={recommendationsForPosition}
-                      squadType={selectedSquad}
-                      formation={formation}
-                      positionAssignments={positionAssignments}
-                      onPlayerClick={handlePlayerClick}
-                      selectedPlayer={selectedPlayer}
-                    />
-                  </TabsContent>
-                </Tabs>
-              ) : (
-                <div className="h-[700px]">
-                  <SquadListView 
+                <div className="h-[700px] overflow-y-auto">
+                  <SquadRecommendations 
                     players={squadPlayers}
-                    squadType={selectedSquad}
-                    formation={formation}
-                    positionAssignments={positionAssignments}
-                    onPlayerClick={handlePlayerClick}
-                    selectedPlayer={selectedPlayer}
+                    selectedPosition={selectedPosition}
+                    onPositionSelect={handlePositionClick}
+                    allPlayers={allPlayers}
                   />
                 </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 mb-2">
+                    <List className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="font-medium text-sm">Squad List</h3>
+                  </div>
+                  
+                  <div className="h-[700px]">
+                    <SquadListView 
+                      players={squadPlayers}
+                      squadType={selectedSquad}
+                      formation={formation}
+                      positionAssignments={positionAssignments}
+                      onPlayerClick={handlePlayerClick}
+                      selectedPlayer={selectedPlayer}
+                    />
+                  </div>
+                </>
               )}
             </div>
           </div>

@@ -252,13 +252,12 @@ const PositionSlot = ({
 
   return (
     <div
-      className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all cursor-pointer ${
-        isSelected ? 'scale-125 z-20' : 'hover:scale-105 z-10'
-      }`}
+      className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all cursor-pointer hover:scale-105 z-10"
       style={{
         left: `${coords.x}%`,
         top: `${coords.y}%`,
       }}
+      onClick={() => onPositionClick?.(position)}
     >
       <div className="flex flex-col items-center">
         {/* Depth indicator */}
@@ -270,11 +269,7 @@ const PositionSlot = ({
         {/* Position badge */}
         <Badge 
           variant={isSelected ? "default" : "secondary"} 
-          className="text-xs mb-1 bg-white/90 cursor-pointer hover:opacity-80"
-          onClick={(e) => {
-            e.stopPropagation();
-            onPositionClick?.(position);
-          }}
+          className="text-xs mb-1 bg-white/90"
         >
           {position}
         </Badge>
