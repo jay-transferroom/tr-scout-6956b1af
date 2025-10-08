@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Player } from "@/types/player";
-import { Plus } from "lucide-react";
+import { Plus, Circle } from "lucide-react";
 
 interface CompactFootballPitchProps {
   players: Player[];
@@ -172,6 +172,26 @@ const CompactFootballPitch = ({
     return null;
   };
 
+  // Calculate depth for each position group
+  const getPositionDepth = (position: string): { count: number; color: string } => {
+    const allowedPositions = getPositionMapping(position);
+    const availablePlayers = players.filter(player => 
+      player.positions.some(pos => allowedPositions.includes(pos))
+    );
+    
+    const count = availablePlayers.length;
+    
+    // Traffic light system: Red (0-1), Amber (2), Green (3+)
+    let color = 'text-red-500';
+    if (count >= 3) {
+      color = 'text-green-500';
+    } else if (count === 2) {
+      color = 'text-amber-500';
+    }
+    
+    return { count, color };
+  };
+
   return (
     <div className="relative w-full h-full bg-green-100 rounded-lg border border-green-200 overflow-hidden">
       {/* Football pitch background */}
@@ -188,6 +208,7 @@ const CompactFootballPitch = ({
         const player = getPlayerForPosition(position);
         const isSelected = selectedPosition === position;
         const eligiblePlayers = getEligiblePlayers(position);
+        const depth = getPositionDepth(position);
         
         return (
           <PositionSlot 
@@ -199,6 +220,7 @@ const CompactFootballPitch = ({
             eligiblePlayers={eligiblePlayers}
             onPositionClick={onPositionClick}
             onPlayerChange={onPlayerChange}
+            depth={depth}
           />
         );
       })}
@@ -214,7 +236,8 @@ const PositionSlot = ({
   isSelected, 
   eligiblePlayers,
   onPositionClick,
-  onPlayerChange 
+  onPlayerChange,
+  depth
 }: {
   position: string;
   coords: { x: number; y: number };
@@ -223,6 +246,7 @@ const PositionSlot = ({
   eligiblePlayers: Player[];
   onPositionClick?: (position: string) => void;
   onPlayerChange?: (position: string, playerId: string) => void;
+  depth: { count: number; color: string };
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -237,6 +261,12 @@ const PositionSlot = ({
       }}
     >
       <div className="flex flex-col items-center">
+        {/* Depth indicator */}
+        <div className="flex items-center gap-0.5 mb-1">
+          <Circle className={`w-2 h-2 ${depth.color} fill-current`} />
+          <span className={`text-xs font-medium ${depth.color}`}>{depth.count}</span>
+        </div>
+        
         {/* Position badge */}
         <Badge 
           variant={isSelected ? "default" : "secondary"} 
@@ -249,7 +279,7 @@ const PositionSlot = ({
         {player ? (
           <div className="relative">
             <Avatar 
-              className="w-8 h-8 border-2 border-white shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+              className="w-12 h-12 border-2 border-white shadow-md cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => {
                 if (onPlayerChange && eligiblePlayers.length > 1) {
                   setShowDropdown(!showDropdown);
@@ -269,7 +299,7 @@ const PositionSlot = ({
             </Avatar>
             
             {/* Rating */}
-            <div className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold border border-white">
+            <div className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold border border-white">
               {Math.round(player.transferroomRating || player.xtvScore || 0)}
             </div>
 
@@ -329,7 +359,7 @@ const PositionSlot = ({
           </div>
         ) : (
           <div 
-            className="w-8 h-8 rounded-full border-2 border-dashed border-gray-400 bg-white/50 flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors"
+            className="w-12 h-12 rounded-full border-2 border-dashed border-gray-400 bg-white/50 flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors"
             onClick={() => {
               if (onPlayerChange && eligiblePlayers.length > 0) {
                 setShowDropdown(!showDropdown);
@@ -338,7 +368,7 @@ const PositionSlot = ({
               }
             }}
           >
-            <Plus className="h-3 w-3 text-gray-400" />
+            <Plus className="h-4 w-4 text-gray-400" />
 
             {/* Empty position dropdown */}
             {showDropdown && onPlayerChange && eligiblePlayers.length > 0 && (

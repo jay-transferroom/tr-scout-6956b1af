@@ -113,7 +113,7 @@ const CompactSquadView = ({
                 )}
               </div>
               
-              <div className="h-[400px] bg-muted rounded-lg p-2">
+              <div className="h-[600px] bg-muted rounded-lg p-2">
                 <CompactFootballPitch 
                   players={squadPlayers}
                   squadType={selectedSquad}
@@ -133,7 +133,7 @@ const CompactSquadView = ({
                 <h3 className="font-medium text-sm">Squad List</h3>
               </div>
               
-              <div className="h-[400px]">
+              <div className="h-[600px]">
                 <SquadListView 
                   players={squadPlayers}
                   squadType={selectedSquad}
