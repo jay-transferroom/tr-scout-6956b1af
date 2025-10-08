@@ -90,7 +90,7 @@ const SquadListView = ({
   const categorizedPlayers = groupPlayersByCategory();
 
   return (
-    <div className="space-y-3 h-full overflow-y-auto">
+    <div className="space-y-3">
       {Object.entries(categorizedPlayers).map(([category, categoryPlayers]) => {
         if (categoryPlayers.length === 0) return null;
         
