@@ -14,8 +14,10 @@ import SquadSettingsButton from "@/components/SquadSettingsButton";
 import { useSquadData } from "@/hooks/useSquadData";
 import { useSquadMetrics } from "@/hooks/useSquadMetrics";
 import { useClubSettings } from "@/hooks/useClubSettings";
+import { useHeadCoach } from "@/hooks/useHeadCoach";
 import { getSquadDisplayName } from "@/utils/squadUtils";
 import { ClubBadge } from "@/components/ui/club-badge";
+import HeadCoachCard from "@/components/HeadCoachCard";
 const SquadView = () => {
   const navigate = useNavigate();
   const {
@@ -43,6 +45,12 @@ const SquadView = () => {
     data: clubSettings
   } = useClubSettings(userClub);
   const currentFormation = clubSettings?.formation || '4-3-3';
+
+  // Get head coach data
+  const {
+    data: headCoach,
+    isLoading: isCoachLoading
+  } = useHeadCoach(userClub);
 
   // Get player position assignments
   const {
@@ -115,6 +123,9 @@ const SquadView = () => {
 
       {/* Squad Selector */}
       <SquadSelector selectedSquad={selectedSquad} onSquadSelect={setSelectedSquad} club={userClub} players={clubPlayers} />
+
+      {/* Head Coach Section */}
+      {headCoach && <HeadCoachCard coach={headCoach} />}
 
       {/* Enhanced Football Pitch Visualization */}
       <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
