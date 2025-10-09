@@ -121,11 +121,11 @@ const SquadView = () => {
         </div>
       </div>
 
-      {/* Squad Selector */}
-      <SquadSelector selectedSquad={selectedSquad} onSquadSelect={setSelectedSquad} club={userClub} players={clubPlayers} />
-
       {/* Head Coach Section */}
       {headCoach && <HeadCoachCard coach={headCoach} />}
+
+      {/* Squad Selector */}
+      <SquadSelector selectedSquad={selectedSquad} onSquadSelect={setSelectedSquad} club={userClub} players={clubPlayers} />
 
       {/* Enhanced Football Pitch Visualization */}
       <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
