@@ -911,6 +911,168 @@ export type Database = {
         }
         Relationships: []
       }
+      "squad_average_starter-rating": {
+        Row: {
+          AttackerRating: number | null
+          average_starter_rating: number | null
+          CentreBackRating: number | null
+          CentreMidfielderRating: number | null
+          competition: string | null
+          competitionid: number | null
+          DefenderRating: number | null
+          ForwardRating: number | null
+          IsChelsea: string | null
+          KeeperRating: number | null
+          LeftBackRating: number | null
+          MidfielderRating: number | null
+          RightBackRating: number | null
+          Squad: string | null
+          squadid: number | null
+          WingerRating: number | null
+        }
+        Insert: {
+          AttackerRating?: number | null
+          average_starter_rating?: number | null
+          CentreBackRating?: number | null
+          CentreMidfielderRating?: number | null
+          competition?: string | null
+          competitionid?: number | null
+          DefenderRating?: number | null
+          ForwardRating?: number | null
+          IsChelsea?: string | null
+          KeeperRating?: number | null
+          LeftBackRating?: number | null
+          MidfielderRating?: number | null
+          RightBackRating?: number | null
+          Squad?: string | null
+          squadid?: number | null
+          WingerRating?: number | null
+        }
+        Update: {
+          AttackerRating?: number | null
+          average_starter_rating?: number | null
+          CentreBackRating?: number | null
+          CentreMidfielderRating?: number | null
+          competition?: string | null
+          competitionid?: number | null
+          DefenderRating?: number | null
+          ForwardRating?: number | null
+          IsChelsea?: string | null
+          KeeperRating?: number | null
+          LeftBackRating?: number | null
+          MidfielderRating?: number | null
+          RightBackRating?: number | null
+          Squad?: string | null
+          squadid?: number | null
+          WingerRating?: number | null
+        }
+        Relationships: []
+      }
+      squad_coaches: {
+        Row: {
+          age: number | null
+          current_Role: string | null
+          current_squad: string | null
+          CurrentSquadId: number | null
+          "Favourite Formation": string | null
+          Image: string | null
+          rating: number | null
+          shortname: string | null
+          staffid: number
+          Style: string | null
+          TrustInYouth: number | null
+        }
+        Insert: {
+          age?: number | null
+          current_Role?: string | null
+          current_squad?: string | null
+          CurrentSquadId?: number | null
+          "Favourite Formation"?: string | null
+          Image?: string | null
+          rating?: number | null
+          shortname?: string | null
+          staffid: number
+          Style?: string | null
+          TrustInYouth?: number | null
+        }
+        Update: {
+          age?: number | null
+          current_Role?: string | null
+          current_squad?: string | null
+          CurrentSquadId?: number | null
+          "Favourite Formation"?: string | null
+          Image?: string | null
+          rating?: number | null
+          shortname?: string | null
+          staffid?: number
+          Style?: string | null
+          TrustInYouth?: number | null
+        }
+        Relationships: []
+      }
+      squad_league_ratings: {
+        Row: {
+          AttackerRating: number | null
+          average_starter_rating: number | null
+          CentreBackRating: number | null
+          CentreMidfielderRating: number | null
+          competition: string | null
+          competitionid: number | null
+          DefenderRating: number | null
+          ForwardRating: number | null
+          KeeperRating: number | null
+          LeftBackRating: number | null
+          MidfielderRating: number | null
+          RightBackRating: number | null
+          WingerRating: number | null
+        }
+        Insert: {
+          AttackerRating?: number | null
+          average_starter_rating?: number | null
+          CentreBackRating?: number | null
+          CentreMidfielderRating?: number | null
+          competition?: string | null
+          competitionid?: number | null
+          DefenderRating?: number | null
+          ForwardRating?: number | null
+          KeeperRating?: number | null
+          LeftBackRating?: number | null
+          MidfielderRating?: number | null
+          RightBackRating?: number | null
+          WingerRating?: number | null
+        }
+        Update: {
+          AttackerRating?: number | null
+          average_starter_rating?: number | null
+          CentreBackRating?: number | null
+          CentreMidfielderRating?: number | null
+          competition?: string | null
+          competitionid?: number | null
+          DefenderRating?: number | null
+          ForwardRating?: number | null
+          KeeperRating?: number | null
+          LeftBackRating?: number | null
+          MidfielderRating?: number | null
+          RightBackRating?: number | null
+          WingerRating?: number | null
+        }
+        Relationships: []
+      }
+      squad_maresca_formation: {
+        Row: {
+          formation: string | null
+          games: number | null
+        }
+        Insert: {
+          formation?: string | null
+          games?: number | null
+        }
+        Update: {
+          formation?: string | null
+          games?: number | null
+        }
+        Relationships: []
+      }
       teams: {
         Row: {
           country: string
