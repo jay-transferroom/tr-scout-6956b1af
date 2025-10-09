@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { usePlayerPositionAssignments, useUpdatePlayerPositionAssignment, useAllPlayerPositionAssignments } from "@/hooks/usePlayerPositionAssignments";
-import SquadSelector from "@/components/SquadSelector";
+import SquadOverview from "@/components/SquadOverview";
 import SquadRecommendations from "@/components/SquadRecommendations";
 import ProspectComparison from "@/components/ProspectComparison";
 import SquadFormationCard from "@/components/SquadFormationCard";
@@ -17,7 +17,6 @@ import { useClubSettings } from "@/hooks/useClubSettings";
 import { useHeadCoach } from "@/hooks/useHeadCoach";
 import { getSquadDisplayName } from "@/utils/squadUtils";
 import { ClubBadge } from "@/components/ui/club-badge";
-import HeadCoachCard from "@/components/HeadCoachCard";
 const SquadView = () => {
   const navigate = useNavigate();
   const {
@@ -121,11 +120,14 @@ const SquadView = () => {
         </div>
       </div>
 
-      {/* Head Coach Section */}
-      {headCoach && <HeadCoachCard coach={headCoach} />}
-
-      {/* Squad Selector */}
-      <SquadSelector selectedSquad={selectedSquad} onSquadSelect={setSelectedSquad} club={userClub} players={clubPlayers} />
+      {/* Squad Overview - Combined Squad Selector and Head Coach */}
+      <SquadOverview 
+        selectedSquad={selectedSquad} 
+        onSquadSelect={setSelectedSquad} 
+        club={userClub} 
+        players={clubPlayers}
+        headCoach={headCoach}
+      />
 
       {/* Enhanced Football Pitch Visualization */}
       <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
