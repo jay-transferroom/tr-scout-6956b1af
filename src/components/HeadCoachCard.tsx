@@ -73,7 +73,7 @@ const HeadCoachCard = ({ coach }: HeadCoachCardProps) => {
               <div className="flex items-center gap-2 text-sm">
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 <span className="text-muted-foreground">
-                  Trust in Youth: <span className="font-medium text-foreground">{Math.round(coach.TrustInYouth * 100)}%</span>
+                  Trust in Youth: <span className="font-medium text-foreground">{coach.TrustInYouth.toFixed(2)}</span>
                 </span>
               </div>
             )}
