@@ -10,6 +10,7 @@ import SquadRecommendations from "@/components/SquadRecommendations";
 import ProspectComparison from "@/components/ProspectComparison";
 import SquadFormationCard from "@/components/SquadFormationCard";
 import SquadTableView from "@/components/SquadTableView";
+import SquadLeagueRatings from "@/components/SquadLeagueRatings";
 import { useSquadData } from "@/hooks/useSquadData";
 import { useSquadMetrics } from "@/hooks/useSquadMetrics";
 import { useClubSettings } from "@/hooks/useClubSettings";
@@ -128,6 +129,9 @@ const SquadView = () => {
 
       {/* Enhanced Football Pitch Visualization */}
       <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
+
+      {/* League Average Ratings */}
+      <SquadLeagueRatings />
     </div>;
 };
 export default SquadView;
