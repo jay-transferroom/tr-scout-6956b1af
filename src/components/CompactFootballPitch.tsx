@@ -18,46 +18,46 @@ interface CompactFootballPitchProps {
   onPlayerChange?: (position: string, playerId: string) => void;
 }
 
-// Simplified formation configurations for compact view
+// Simplified formation configurations for compact view - GK at bottom, attackers at top
 const COMPACT_FORMATION_CONFIGS: Record<string, Record<string, { x: number; y: number }>> = {
   '4-3-3': {
-    GK: { x: 50, y: 10 },
-    LB: { x: 80, y: 25 },
-    CB1: { x: 40, y: 25 },
-    CB2: { x: 60, y: 25 },
-    RB: { x: 20, y: 25 },
-    CDM: { x: 50, y: 45 },
-    CM1: { x: 35, y: 55 },
-    CM2: { x: 65, y: 55 },
-    LW: { x: 75, y: 75 },
-    ST: { x: 50, y: 85 },
-    RW: { x: 25, y: 75 },
+    GK: { x: 50, y: 90 },
+    LB: { x: 20, y: 75 },
+    CB1: { x: 40, y: 75 },
+    CB2: { x: 60, y: 75 },
+    RB: { x: 80, y: 75 },
+    CDM: { x: 50, y: 55 },
+    CM1: { x: 35, y: 45 },
+    CM2: { x: 65, y: 45 },
+    LW: { x: 25, y: 25 },
+    ST: { x: 50, y: 15 },
+    RW: { x: 75, y: 25 },
   },
   '4-2-3-1': {
-    GK: { x: 50, y: 10 },
-    LB: { x: 80, y: 25 },
-    CB1: { x: 40, y: 25 },
-    CB2: { x: 60, y: 25 },
-    RB: { x: 20, y: 25 },
-    CDM1: { x: 40, y: 45 },
-    CDM2: { x: 60, y: 45 },
-    LW: { x: 75, y: 65 },
-    CAM: { x: 50, y: 65 },
-    RW: { x: 25, y: 65 },
-    ST: { x: 50, y: 85 },
+    GK: { x: 50, y: 90 },
+    LB: { x: 20, y: 75 },
+    CB1: { x: 40, y: 75 },
+    CB2: { x: 60, y: 75 },
+    RB: { x: 80, y: 75 },
+    CDM1: { x: 40, y: 55 },
+    CDM2: { x: 60, y: 55 },
+    LW: { x: 25, y: 35 },
+    CAM: { x: 50, y: 35 },
+    RW: { x: 75, y: 35 },
+    ST: { x: 50, y: 15 },
   },
   '4-4-2': {
-    GK: { x: 50, y: 10 },
-    LB: { x: 80, y: 25 },
-    CB1: { x: 40, y: 25 },
-    CB2: { x: 60, y: 25 },
-    RB: { x: 20, y: 25 },
-    LM: { x: 80, y: 55 },
-    CM1: { x: 40, y: 55 },
-    CM2: { x: 60, y: 55 },
-    RM: { x: 20, y: 55 },
-    ST1: { x: 40, y: 85 },
-    ST2: { x: 60, y: 85 },
+    GK: { x: 50, y: 90 },
+    LB: { x: 20, y: 75 },
+    CB1: { x: 40, y: 75 },
+    CB2: { x: 60, y: 75 },
+    RB: { x: 80, y: 75 },
+    LM: { x: 20, y: 45 },
+    CM1: { x: 40, y: 45 },
+    CM2: { x: 60, y: 45 },
+    RM: { x: 80, y: 45 },
+    ST1: { x: 40, y: 15 },
+    ST2: { x: 60, y: 15 },
   },
 };
 
@@ -258,10 +258,10 @@ const PositionSlot = ({
       onClick={() => onPositionClick?.(position)}
     >
       <div className="flex flex-col items-center">
-        {/* Depth indicator */}
-        <div className="flex items-center gap-0.5 mb-1">
-          <Circle className={`w-2 h-2 ${depth.color} fill-current`} />
-          <span className={`text-xs font-medium ${depth.color}`}>{depth.count}</span>
+        {/* Depth indicator with better visibility */}
+        <div className="flex items-center gap-0.5 mb-1 px-1.5 py-0.5 rounded-full bg-white/90 shadow-sm border border-gray-200">
+          <Circle className={`w-2.5 h-2.5 ${depth.color} fill-current`} />
+          <span className={`text-xs font-bold ${depth.color}`}>{depth.count}</span>
         </div>
         
         {/* Position badge */}

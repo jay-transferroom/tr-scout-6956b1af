@@ -1073,6 +1073,21 @@ export type Database = {
         }
         Relationships: []
       }
+      squad_recommendations: {
+        Row: {
+          Position: string | null
+          Reason: string | null
+        }
+        Insert: {
+          Position?: string | null
+          Reason?: string | null
+        }
+        Update: {
+          Position?: string | null
+          Reason?: string | null
+        }
+        Relationships: []
+      }
       teams: {
         Row: {
           country: string
