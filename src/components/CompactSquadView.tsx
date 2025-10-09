@@ -120,7 +120,7 @@ const CompactSquadView = ({
 
   return (
     <div className="h-full">
-      <div className="pb-3 sticky top-16 bg-background z-40 pt-4 -mt-4">
+      <div className="pb-3">
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-lg font-semibold">
             <Users className="h-5 w-5" />
@@ -137,7 +137,7 @@ const CompactSquadView = ({
         </div>
       </div>
       
-      <div className="p-4 sticky top-28 bg-background z-30">
+      <div className="p-4">
         {!isMinimized ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Left Side: Pitch View or Position Player Selection */}
@@ -202,7 +202,7 @@ const CompactSquadView = ({
                   </div>
                 </>
               ) : (
-                <>
+                <div className="sticky top-20 self-start">
                   <div className="flex items-center gap-2 mb-2">
                     <LayoutGrid className="h-4 w-4 text-muted-foreground" />
                     <h3 className="font-medium text-sm">Formation View</h3>
@@ -224,7 +224,7 @@ const CompactSquadView = ({
                       onPlayerChange={onPlayerChange}
                     />
                   </div>
-                </>
+                </div>
               )}
             </div>
 
