@@ -226,23 +226,8 @@ const CompactSquadView = ({
                       onPositionClick={handlePositionClick}
                       selectedPosition={selectedPosition}
                       onPlayerChange={onPlayerChange}
+                      priorityPositions={recommendations.map(rec => rec.Position)}
                     />
-                    
-                    {/* Squad Recommendations Overlay */}
-                    {recommendations.length > 0 && recommendations.map((rec, index) => (
-                      <div 
-                        key={index}
-                        className="absolute top-4 left-4 right-4 bg-gradient-to-r from-amber-500/95 to-orange-500/95 text-white px-4 py-3 rounded-lg shadow-lg border-2 border-amber-600 animate-pulse z-20"
-                      >
-                        <div className="flex items-start gap-3">
-                          <AlertTriangle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="font-bold text-sm mb-1">Priority Position: {rec.Position}</div>
-                            <div className="text-xs opacity-90">{rec.Reason}</div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
                   </div>
                 </div>
               )}

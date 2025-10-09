@@ -16,6 +16,7 @@ interface CompactFootballPitchProps {
   onPositionClick?: (position: string) => void;
   selectedPosition?: string | null;
   onPlayerChange?: (position: string, playerId: string) => void;
+  priorityPositions?: string[];
 }
 
 // Simplified formation configurations for compact view - GK at bottom, attackers at top
@@ -68,7 +69,8 @@ const CompactFootballPitch = ({
   positionAssignments = [],
   onPositionClick,
   selectedPosition,
-  onPlayerChange
+  onPlayerChange,
+  priorityPositions = []
 }: CompactFootballPitchProps) => {
   // Get current formation positions
   const currentFormation = COMPACT_FORMATION_CONFIGS[formation] || COMPACT_FORMATION_CONFIGS['4-3-3'];
@@ -207,6 +209,7 @@ const CompactFootballPitch = ({
         const isSelected = selectedPosition === position;
         const eligiblePlayers = getEligiblePlayers(position);
         const depth = getPositionDepth(position);
+        const isPriority = priorityPositions.some(p => position.startsWith(p));
         
         return (
           <PositionSlot 
@@ -219,6 +222,7 @@ const CompactFootballPitch = ({
             onPositionClick={onPositionClick}
             onPlayerChange={onPlayerChange}
             depth={depth}
+            isPriority={isPriority}
           />
         );
       })}
@@ -235,7 +239,8 @@ const PositionSlot = ({
   eligiblePlayers,
   onPositionClick,
   onPlayerChange,
-  depth
+  depth,
+  isPriority
 }: {
   position: string;
   coords: { x: number; y: number };
@@ -245,29 +250,41 @@ const PositionSlot = ({
   onPositionClick?: (position: string) => void;
   onPlayerChange?: (position: string, playerId: string) => void;
   depth: { count: number; color: string };
+  isPriority: boolean;
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   return (
     <div
-      className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all cursor-pointer hover:scale-105 z-10"
+      className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all cursor-pointer hover:scale-105 z-10 ${
+        isPriority ? 'animate-pulse' : ''
+      }`}
       style={{
         left: `${coords.x}%`,
         top: `${coords.y}%`,
       }}
       onClick={() => onPositionClick?.(position)}
     >
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center relative">
+        {/* Priority indicator ring */}
+        {isPriority && (
+          <div className="absolute -inset-3 rounded-full border-2 border-amber-500 bg-amber-500/10 animate-pulse" />
+        )}
+        
         {/* Depth indicator with better visibility */}
-        <div className="flex items-center gap-0.5 mb-1 px-1.5 py-0.5 rounded-full bg-white/90 shadow-sm border border-gray-200">
-          <Circle className={`w-2.5 h-2.5 ${depth.color} fill-current`} />
-          <span className={`text-xs font-bold ${depth.color}`}>{depth.count}</span>
+        <div className={`flex items-center gap-0.5 mb-1 px-1.5 py-0.5 rounded-full shadow-md border-2 relative z-10 ${
+          isPriority ? 'bg-amber-500 border-amber-600' : 'bg-white border-gray-300'
+        }`}>
+          <Circle className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : depth.color} fill-current`} />
+          <span className={`text-xs font-bold ${isPriority ? 'text-white' : depth.color}`}>{depth.count}</span>
         </div>
         
         {/* Position badge */}
         <Badge 
           variant={isSelected ? "default" : "secondary"} 
-          className="text-xs mb-1 bg-white/90"
+          className={`text-xs mb-1 relative z-10 ${
+            isPriority ? 'bg-amber-500 text-white border-amber-600' : 'bg-white/90'
+          }`}
         >
           {position}
         </Badge>
