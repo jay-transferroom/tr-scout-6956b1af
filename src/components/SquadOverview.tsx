@@ -58,7 +58,6 @@ const SquadOverview = ({ selectedSquad, onSquadSelect, club, players, headCoach 
     { id: 'first-team', label: 'First Team', count: getSquadPlayerCount('first-team') },
     { id: 'u21', label: 'U21s', count: getSquadPlayerCount('u21') },
     { id: 'u18', label: 'U18s', count: getSquadPlayerCount('u18') },
-    { id: 'out-on-loan', label: 'Out on Loan', count: getSquadPlayerCount('out-on-loan') },
   ];
 
   return (
