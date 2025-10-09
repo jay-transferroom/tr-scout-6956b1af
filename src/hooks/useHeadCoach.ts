@@ -19,10 +19,13 @@ export const useHeadCoach = (clubName: string) => {
   return useQuery({
     queryKey: ['head-coach', clubName],
     queryFn: async (): Promise<HeadCoach | null> => {
+      // The database stores "Chelsea FC" without periods
+      const normalizedClubName = clubName.replace(/\./g, '').trim();
+      
       const { data, error } = await supabase
         .from('squad_coaches' as any)
         .select('*')
-        .eq('current_squad', clubName)
+        .eq('current_squad', normalizedClubName)
         .maybeSingle();
       
       if (error) throw error;
