@@ -35,23 +35,36 @@ const SquadOverview = ({ selectedSquad, onSquadSelect, club, players, headCoach 
       .slice(0, 2);
   };
 
+  const isEligibleForSeniorSquad = (player: Player) => {
+    // Exclude players under 21
+    if (player.age < 21) return false;
+    
+    // Exclude players on loan (club is not Chelsea-related)
+    const isOnLoan = player.club !== 'Chelsea FC' && 
+                     !player.club?.includes('Chelsea') && 
+                     player.club !== 'Unknown';
+    if (isOnLoan) return false;
+    
+    // Must be Chelsea-related club but not youth teams
+    const isChelsea = player.club === 'Chelsea FC' || 
+                     (player.club?.includes('Chelsea') && 
+                      !player.club?.includes('U21') && 
+                      !player.club?.includes('U18'));
+    
+    return isChelsea;
+  };
+
   const getSquadPlayerCount = (squadType: string): number => {
-    return players.filter(player => {
-      const age = player.age || 0;
-      
-      switch (squadType) {
-        case 'first-team':
-          return age >= 21;
-        case 'u21':
-          return age >= 18 && age < 21;
-        case 'u18':
-          return age < 18;
-        case 'out-on-loan':
-          return player.club?.toLowerCase().includes('on loan');
-        default:
-          return false;
-      }
-    }).length;
+    switch (squadType) {
+      case 'first-team':
+        return players.filter(isEligibleForSeniorSquad).length;
+      case 'u21':
+        return players.filter(player => player.club?.includes('U21')).length;
+      case 'u18':
+        return players.filter(player => player.club?.includes('U18')).length;
+      default:
+        return 0;
+    }
   };
 
   const squads = [
