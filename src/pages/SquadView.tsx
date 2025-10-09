@@ -10,7 +10,6 @@ import SquadRecommendations from "@/components/SquadRecommendations";
 import ProspectComparison from "@/components/ProspectComparison";
 import SquadFormationCard from "@/components/SquadFormationCard";
 import SquadTableView from "@/components/SquadTableView";
-import SquadSettingsButton from "@/components/SquadSettingsButton";
 import { useSquadData } from "@/hooks/useSquadData";
 import { useSquadMetrics } from "@/hooks/useSquadMetrics";
 import { useClubSettings } from "@/hooks/useClubSettings";
@@ -115,9 +114,6 @@ const SquadView = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <SquadSettingsButton clubName={userClub} />
-        </div>
       </div>
 
       {/* Squad Overview - Combined Squad Selector and Head Coach */}
@@ -127,6 +123,7 @@ const SquadView = () => {
         club={userClub} 
         players={clubPlayers}
         headCoach={headCoach}
+        currentFormation={currentFormation}
       />
 
       {/* Enhanced Football Pitch Visualization */}
