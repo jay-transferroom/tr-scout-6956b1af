@@ -9,6 +9,13 @@ import SquadRecommendations from "./SquadRecommendations";
 import { useNavigate } from "react-router-dom";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 interface CompactSquadViewProps {
   squadPlayers: Player[];
@@ -43,7 +50,7 @@ const CompactSquadView = ({
   const { data: recommendations = [] } = useSquadRecommendations();
 
   const handlePlayerClick = (player: Player) => {
-    setSelectedPlayer(selectedPlayer?.id === player.id ? null : player);
+    setSelectedPlayer(player);
   };
 
   const handlePositionClick = (position: string) => {
@@ -272,34 +279,95 @@ const CompactSquadView = ({
           </div>
         )}
 
-        {/* Selected Player Details */}
-        {selectedPlayer && (
-          <div className="mt-4 p-3 bg-muted rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="text-sm">
-                  <div className="font-medium">{selectedPlayer.name}</div>
-                  <div className="text-muted-foreground">
-                    Age {selectedPlayer.age} • {selectedPlayer.club} • {selectedPlayer.nationality}
+      </div>
+
+      {/* Player Details Slide-out */}
+      <Sheet open={!!selectedPlayer} onOpenChange={(open) => !open && setSelectedPlayer(null)}>
+        <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+          {selectedPlayer && (
+            <>
+              <SheetHeader>
+                <SheetTitle>{selectedPlayer.name}</SheetTitle>
+                <SheetDescription>
+                  {selectedPlayer.positions.join(", ")}
+                </SheetDescription>
+              </SheetHeader>
+
+              <div className="mt-6 space-y-6">
+                {/* Basic Info */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold">Player Information</h4>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <div className="text-muted-foreground">Age</div>
+                      <div className="font-medium">{selectedPlayer.age}</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground">Nationality</div>
+                      <div className="font-medium">{selectedPlayer.nationality}</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground">Club</div>
+                      <div className="font-medium">{selectedPlayer.club}</div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground">Contract Expiry</div>
+                      <div className="font-medium">
+                        {selectedPlayer.contractExpiry || "N/A"}
+                      </div>
+                    </div>
                   </div>
                 </div>
+
+                {/* Ratings */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold">Ratings</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    {selectedPlayer.transferroomRating && (
+                      <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                        <span className="text-sm text-muted-foreground">Overall</span>
+                        <Badge variant="secondary" className="text-base">
+                          {Math.round(selectedPlayer.transferroomRating)}
+                        </Badge>
+                      </div>
+                    )}
+                    {selectedPlayer.xtvScore && (
+                      <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                        <span className="text-sm text-muted-foreground">XTV</span>
+                        <Badge variant="secondary" className="text-base">
+                          {Math.round(selectedPlayer.xtvScore)}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Positions */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold">Positions</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedPlayer.positions.map((pos) => (
+                      <Badge key={pos} variant="outline">
+                        {pos}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="pt-4 space-y-2">
+                  <Button 
+                    className="w-full"
+                    onClick={() => handleViewPlayerProfile(selectedPlayer)}
+                  >
+                    View Full Profile
+                  </Button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary">
-                  Rating: {Math.round(selectedPlayer.transferroomRating || selectedPlayer.xtvScore || 0)}
-                </Badge>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleViewPlayerProfile(selectedPlayer)}
-                >
-                  View Profile
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
