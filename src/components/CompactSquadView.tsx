@@ -39,7 +39,7 @@ const CompactSquadView = ({
   selectedPosition,
   onPlayerChange 
 }: CompactSquadViewProps) => {
-  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [selectedPlayerForDetails, setSelectedPlayerForDetails] = useState<Player | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
   const navigate = useNavigate();
   
@@ -50,19 +50,16 @@ const CompactSquadView = ({
   const { data: recommendations = [] } = useSquadRecommendations();
 
   const handlePlayerClick = (player: Player) => {
-    setSelectedPlayer(player);
+    setSelectedPlayerForDetails(player);
   };
 
   const handlePositionClick = (position: string) => {
     onPositionClick?.(position);
-    // Clear selected player when clicking on position
-    setSelectedPlayer(null);
   };
 
   const handleViewFullPitch = () => {
     // You could navigate to a full pitch view or open a modal
     // For now, we'll just clear selections
-    setSelectedPlayer(null);
     onPositionClick?.('');
   };
 
@@ -150,126 +147,50 @@ const CompactSquadView = ({
       
       <div className="p-4">
         {!isMinimized ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Left Side: Pitch View or Position Player Selection */}
+          <div className="space-y-4">
+            {/* Pitch View */}
             <div className="space-y-2">
-              {selectedPosition ? (
-                <>
-                  <div className="flex items-center gap-2 mb-2">
-                    <List className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="font-medium text-sm">Select Player for {selectedPosition}</h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handlePositionClick('')}
-                      className="ml-auto text-xs"
-                    >
-                      <X className="h-3 w-3 mr-1" />
-                      Close
-                    </Button>
-                  </div>
-                  
-                  {/* Minimized Pitch Preview */}
-                  <div className="h-[120px] bg-muted rounded-lg p-2 mb-2 relative overflow-hidden">
-                    <div className="absolute inset-0 opacity-30">
-                      <CompactFootballPitch 
-                        players={squadPlayers}
-                        squadType={selectedSquad}
-                        formation={formation}
-                        positionAssignments={positionAssignments}
-                        onPositionClick={handlePositionClick}
-                        selectedPosition={selectedPosition}
-                        onPlayerChange={onPlayerChange}
-                      />
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handlePositionClick('')}
-                        className="text-xs"
-                      >
-                        <ChevronUp className="h-3 w-3 mr-1" />
-                        Expand Pitch
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Player Selection List */}
-                  <div>
-                    <SquadListView 
-                      players={positionEligiblePlayers}
-                      squadType={selectedSquad}
-                      formation={formation}
-                      positionAssignments={positionAssignments}
-                      onPlayerClick={(player) => {
-                        if (onPlayerChange && selectedPosition) {
-                          onPlayerChange(selectedPosition, player.id);
-                        }
-                        handlePlayerClick(player);
-                      }}
-                      selectedPlayer={selectedPlayer}
-                    />
-                  </div>
-                </>
-              ) : (
-                <div className="sticky top-20 self-start">
-                  <div className="flex items-center gap-2 mb-2">
-                    <LayoutGrid className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="font-medium text-sm">Formation View</h3>
-                    {formation && (
-                      <Badge variant="outline" className="text-xs">
-                        {formation}
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  <div className="aspect-[392/541] w-full relative">
-                    <CompactFootballPitch 
-                      players={squadPlayers}
-                      squadType={selectedSquad}
-                      formation={formation}
-                      positionAssignments={positionAssignments}
-                      onPositionClick={handlePositionClick}
-                      selectedPosition={selectedPosition}
-                      onPlayerChange={onPlayerChange}
-                      priorityPositions={recommendations.map(rec => rec.Position)}
-                    />
-                  </div>
-                </div>
-              )}
+              <div className="flex items-center gap-2 mb-2">
+                <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+                <h3 className="font-medium text-sm">Formation View</h3>
+                {formation && (
+                  <Badge variant="outline" className="text-xs">
+                    {formation}
+                  </Badge>
+                )}
+              </div>
+              
+              <div className="aspect-[392/541] w-full max-w-2xl mx-auto relative">
+                <CompactFootballPitch 
+                  players={squadPlayers}
+                  squadType={selectedSquad}
+                  formation={formation}
+                  positionAssignments={positionAssignments}
+                  onPositionClick={handlePositionClick}
+                  selectedPosition={selectedPosition}
+                  onPlayerChange={onPlayerChange}
+                  priorityPositions={recommendations.map(rec => rec.Position)}
+                />
+              </div>
             </div>
 
-            {/* Right Side: Squad Recommendations or Squad List */}
+            {/* Squad List */}
             <div className="space-y-2">
-              {selectedPosition ? (
-                <div>
-                  <SquadRecommendations 
-                    players={squadPlayers}
-                    selectedPosition={mapPositionToCategory(selectedPosition)}
-                    onPositionSelect={(pos) => handlePositionClick(pos)}
-                    allPlayers={allPlayers}
-                  />
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center gap-2 mb-2">
-                    <List className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="font-medium text-sm">Squad List</h3>
-                  </div>
-                  
-                  <div>
-                    <SquadListView 
-                      players={squadPlayers}
-                      squadType={selectedSquad}
-                      formation={formation}
-                      positionAssignments={positionAssignments}
-                      onPlayerClick={handlePlayerClick}
-                      selectedPlayer={selectedPlayer}
-                    />
-                  </div>
-                </>
-              )}
+              <div className="flex items-center gap-2 mb-2">
+                <List className="h-4 w-4 text-muted-foreground" />
+                <h3 className="font-medium text-sm">Squad List</h3>
+              </div>
+              
+              <div>
+                <SquadListView 
+                  players={squadPlayers}
+                  squadType={selectedSquad}
+                  formation={formation}
+                  positionAssignments={positionAssignments}
+                  onPlayerClick={handlePlayerClick}
+                  selectedPlayer={null}
+                />
+              </div>
             </div>
           </div>
         ) : (
@@ -281,15 +202,62 @@ const CompactSquadView = ({
 
       </div>
 
-      {/* Player Details Slide-out */}
-      <Sheet open={!!selectedPlayer} onOpenChange={(open) => !open && setSelectedPlayer(null)}>
-        <SheetContent side="right" className="w-[400px] sm:w-[540px]">
-          {selectedPlayer && (
+      {/* Position Selection Slide-out */}
+      <Sheet open={!!selectedPosition} onOpenChange={(open) => !open && handlePositionClick('')}>
+        <SheetContent side="right" className="w-[400px] sm:w-[540px] overflow-y-auto">
+          {selectedPosition && (
             <>
               <SheetHeader>
-                <SheetTitle>{selectedPlayer.name}</SheetTitle>
+                <SheetTitle>Select Player for {selectedPosition}</SheetTitle>
                 <SheetDescription>
-                  {selectedPlayer.positions.join(", ")}
+                  Choose from eligible players or view recommendations
+                </SheetDescription>
+              </SheetHeader>
+
+              <div className="mt-6 space-y-6">
+                {/* Eligible Players List */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold">Eligible Players</h4>
+                  <SquadListView 
+                    players={positionEligiblePlayers}
+                    squadType={selectedSquad}
+                    formation={formation}
+                    positionAssignments={positionAssignments}
+                    onPlayerClick={(player) => {
+                      if (onPlayerChange && selectedPosition) {
+                        onPlayerChange(selectedPosition, player.id);
+                      }
+                      handlePositionClick('');
+                    }}
+                    selectedPlayer={null}
+                  />
+                </div>
+
+                {/* Recommendations */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold">Recommendations</h4>
+                  <SquadRecommendations 
+                    players={squadPlayers}
+                    selectedPosition={mapPositionToCategory(selectedPosition)}
+                    onPositionSelect={(pos) => handlePositionClick(pos)}
+                    allPlayers={allPlayers}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Player Details Slide-out */}
+      <Sheet open={!!selectedPlayerForDetails} onOpenChange={(open) => !open && setSelectedPlayerForDetails(null)}>
+        <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+          {selectedPlayerForDetails && (
+            <>
+              <SheetHeader>
+                <SheetTitle>{selectedPlayerForDetails.name}</SheetTitle>
+                <SheetDescription>
+                  {selectedPlayerForDetails.positions.join(", ")}
                 </SheetDescription>
               </SheetHeader>
 
@@ -300,20 +268,20 @@ const CompactSquadView = ({
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <div className="text-muted-foreground">Age</div>
-                      <div className="font-medium">{selectedPlayer.age}</div>
+                      <div className="font-medium">{selectedPlayerForDetails.age}</div>
                     </div>
                     <div>
                       <div className="text-muted-foreground">Nationality</div>
-                      <div className="font-medium">{selectedPlayer.nationality}</div>
+                      <div className="font-medium">{selectedPlayerForDetails.nationality}</div>
                     </div>
                     <div>
                       <div className="text-muted-foreground">Club</div>
-                      <div className="font-medium">{selectedPlayer.club}</div>
+                      <div className="font-medium">{selectedPlayerForDetails.club}</div>
                     </div>
                     <div>
                       <div className="text-muted-foreground">Contract Expiry</div>
                       <div className="font-medium">
-                        {selectedPlayer.contractExpiry || "N/A"}
+                        {selectedPlayerForDetails.contractExpiry || "N/A"}
                       </div>
                     </div>
                   </div>
@@ -323,19 +291,19 @@ const CompactSquadView = ({
                 <div className="space-y-3">
                   <h4 className="text-sm font-semibold">Ratings</h4>
                   <div className="grid grid-cols-2 gap-3">
-                    {selectedPlayer.transferroomRating && (
+                    {selectedPlayerForDetails.transferroomRating && (
                       <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                         <span className="text-sm text-muted-foreground">Overall</span>
                         <Badge variant="secondary" className="text-base">
-                          {Math.round(selectedPlayer.transferroomRating)}
+                          {Math.round(selectedPlayerForDetails.transferroomRating)}
                         </Badge>
                       </div>
                     )}
-                    {selectedPlayer.xtvScore && (
+                    {selectedPlayerForDetails.xtvScore && (
                       <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                         <span className="text-sm text-muted-foreground">XTV</span>
                         <Badge variant="secondary" className="text-base">
-                          {Math.round(selectedPlayer.xtvScore)}
+                          {Math.round(selectedPlayerForDetails.xtvScore)}
                         </Badge>
                       </div>
                     )}
@@ -346,7 +314,7 @@ const CompactSquadView = ({
                 <div className="space-y-3">
                   <h4 className="text-sm font-semibold">Positions</h4>
                   <div className="flex flex-wrap gap-2">
-                    {selectedPlayer.positions.map((pos) => (
+                    {selectedPlayerForDetails.positions.map((pos) => (
                       <Badge key={pos} variant="outline">
                         {pos}
                       </Badge>
@@ -358,7 +326,7 @@ const CompactSquadView = ({
                 <div className="pt-4 space-y-2">
                   <Button 
                     className="w-full"
-                    onClick={() => handleViewPlayerProfile(selectedPlayer)}
+                    onClick={() => handleViewPlayerProfile(selectedPlayerForDetails)}
                   >
                     View Full Profile
                   </Button>
