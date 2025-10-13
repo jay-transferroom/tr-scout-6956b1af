@@ -210,92 +210,9 @@ const SquadRecommendations = ({
       .sort((a, b) => (b.transferroomRating || b.xtvScore || 0) - (a.transferroomRating || a.xtvScore || 0));
   };
 
-  // If a position is selected, show recruitment and shortlist recommendations
+  // If a position is selected, don't show separate container
   if (selectedPosition) {
-    const analysis = positionAnalysis.find(a => a.name === selectedPosition);
-    const recommendations = getRecruitmentRecommendations(selectedPosition);
-    const shortlistRecs = getShortlistRecommendations(selectedPosition);
-
-    if (!analysis) return null;
-
-    return (
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Target className="h-5 w-5" />
-              {analysis.displayName} - Recruitment
-            </CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => onPositionSelect('')}>
-              View All
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Recruitment Recommendations */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <h3 className="font-medium text-sm">Recommended Players</h3>
-              <Badge variant="outline" className="text-xs">
-                {recommendations.length} available
-              </Badge>
-            </div>
-
-            {recommendations.length > 0 ? (
-              <div className="space-y-1 overflow-y-auto">{/* Removed max-h to allow full scrolling */}
-                {recommendations.map((player, index) => (
-                  <div
-                    key={player.id}
-                    className="flex items-center gap-3 p-3 rounded-md hover:bg-muted/50 cursor-pointer transition-all"
-                    onClick={() => handlePlayerClick(player.id, player.isPrivatePlayer)}
-                  >
-                    <span className="text-muted-foreground w-6 text-sm">{index + 1}</span>
-                    
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={player.image} alt={player.name} />
-                      <AvatarFallback className="text-sm">
-                        {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate text-base">{player.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {player.club} • {player.age}y • {player.nationality}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {player.positions.slice(0, 2).map((pos, idx) => (
-                        <Badge key={idx} variant="outline" className="text-sm">
-                          {pos}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center gap-1">
-                      <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium text-base">
-                        {Math.round(player.transferroomRating || player.xtvScore || 0)}
-                      </span>
-                    </div>
-
-                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No recommendations available</p>
-                <p className="text-xs">All suitable players are already in the squad</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   // Default view: Show all positions
