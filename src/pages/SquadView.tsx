@@ -239,13 +239,7 @@ const SquadView = () => {
       <div className="w-full bg-muted/30 py-6">
         <div className="container mx-auto">
           <div className="space-y-3">
-            <div className="flex items-center gap-4">
-              <h3 className="text-sm font-medium text-muted-foreground">Select Squad</h3>
-              <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                Formation
-              </h3>
-            </div>
+            <h3 className="text-sm font-medium text-muted-foreground">Select Squad & Formation</h3>
             <div className="flex flex-wrap gap-2 items-center">
               {squadsList.map((squad) => (
                 <Button
