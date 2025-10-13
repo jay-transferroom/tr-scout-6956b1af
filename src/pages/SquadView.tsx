@@ -174,7 +174,7 @@ const SquadView = () => {
 
           {/* Head Coach Info and Squad Controls */}
           <Card className="border-0 rounded-none shadow-none">
-            <CardContent className="pt-6 pb-2">
+            <CardContent className="pt-6 pb-2 px-0">
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Head Coach Info */}
                 {headCoach && (
