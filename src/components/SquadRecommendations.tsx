@@ -237,41 +237,6 @@ const SquadRecommendations = ({
     return (
       <div className="space-y-4">
         <CardContent className="space-y-4 p-0">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Current Squad:</span>
-              <span className="font-medium">{analysis.current}/{analysis.needed} players</span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Quality:</span>
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Avg: {analysis.averageRating || 'N/A'}</span>
-                <span className="text-sm">•</span>
-                <span className="text-sm">Top: {analysis.topRating || 'N/A'}</span>
-              </div>
-            </div>
-            
-            {(analysis.contractRisks > 0 || analysis.ageRisks > 0) && (
-              <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 p-2 rounded">
-                <AlertTriangle className="h-4 w-4" />
-                <span>
-                  {analysis.contractRisks > 0 && `${analysis.contractRisks} contract expiring soon`}
-                  {analysis.contractRisks > 0 && analysis.ageRisks > 0 && ', '}
-                  {analysis.ageRisks > 0 && `${analysis.ageRisks} aging player${analysis.ageRisks > 1 ? 's' : ''}`}
-                </span>
-              </div>
-            )}
-            
-            <div className="p-3 bg-muted/50 rounded">
-              <p className="text-sm">{analysis.recommendation}</p>
-            </div>
-            
-            <div className="p-3 bg-primary/5 rounded">
-              <p className="text-sm"><strong>Suggestion:</strong> {analysis.recruitmentSuggestion}</p>
-            </div>
-          </div>
-
           {/* Current Players in Position */}
           {analysis.players.length > 0 && (
             <div>
