@@ -117,55 +117,53 @@ const SquadOverview = ({ selectedSquad, onSquadSelect, club, players, currentFor
       <Separator />
 
       {/* Squad Selection and Formation Controls */}
-      <div className="flex flex-col gap-4">
-        <div className="flex items-start justify-between gap-6 w-full">
-          <div className="flex-1">
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">Select Squad</h3>
-            <div className="flex flex-wrap gap-2">
-              {squadsList.map((squad) => (
-                <Button
-                  key={squad.id}
-                  onClick={() => onSquadSelect(squad.id)}
-                  variant={selectedSquad === squad.id ? "default" : "outline"}
-                  className="flex items-center gap-2"
-                >
-                  <span>{squad.label}</span>
-                  <Badge variant="secondary" className="ml-1">
-                    {squad.count}
-                  </Badge>
-                </Button>
-              ))}
-            </div>
+      <div className="space-y-4">
+        <div className="w-full">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Select Squad</h3>
+          <div className="flex flex-wrap gap-2">
+            {squadsList.map((squad) => (
+              <Button
+                key={squad.id}
+                onClick={() => onSquadSelect(squad.id)}
+                variant={selectedSquad === squad.id ? "default" : "outline"}
+                className="flex items-center gap-2"
+              >
+                <span>{squad.label}</span>
+                <Badge variant="secondary" className="ml-1">
+                  {squad.count}
+                </Badge>
+              </Button>
+            ))}
           </div>
+        </div>
 
-          {/* Formation Settings */}
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Formation
-            </h3>
-            <Select value={currentFormation} onValueChange={handleFormationChange}>
-              <SelectTrigger className="w-[200px] bg-background">
-                <SelectValue placeholder="Select formation" />
-              </SelectTrigger>
-              <SelectContent className="bg-background z-50">
-                {formations.map((formation) => (
-                  <SelectItem 
-                    key={formation.formation} 
-                    value={formation.formation || ''}
-                    className="cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <span>{formation.formation}</span>
-                      <Badge variant="secondary" className="text-xs">
-                        {formation.games} {formation.games === 1 ? 'game' : 'games'}
-                      </Badge>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        {/* Formation Settings */}
+        <div className="w-full">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Formation
+          </h3>
+          <Select value={currentFormation} onValueChange={handleFormationChange}>
+            <SelectTrigger className="w-[200px] bg-background">
+              <SelectValue placeholder="Select formation" />
+            </SelectTrigger>
+            <SelectContent className="bg-background z-50">
+              {formations.map((formation) => (
+                <SelectItem 
+                  key={formation.formation} 
+                  value={formation.formation || ''}
+                  className="cursor-pointer"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span>{formation.formation}</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {formation.games} {formation.games === 1 ? 'game' : 'games'}
+                    </Badge>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>
