@@ -285,7 +285,7 @@ const CompactFootballPitch = ({
   };
 
   return (
-    <div className="relative w-full h-full rounded-lg overflow-hidden z-0 isolate">
+    <div className="relative w-full h-full rounded-lg overflow-visible z-0 isolate">
       {/* Football pitch background */}
       <div 
         className="absolute inset-0 bg-cover bg-center pointer-events-none z-0"
