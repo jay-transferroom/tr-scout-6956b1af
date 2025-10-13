@@ -343,8 +343,8 @@ const CompactSquadView = ({
           <div className="w-1/2">
             <div className="space-y-2 sticky top-4">
               <div className="flex items-center gap-2 mb-2">
-                <LayoutGrid className="h-4 w-4 text-muted-foreground" />
-                <h3 className="font-medium text-sm">Formation View</h3>
+                <LayoutGrid className="h-5 w-5" />
+                <h3 className="text-lg font-semibold">Formation View</h3>
                 {formation && (
                   <Badge variant="outline" className="text-xs">
                     {formation}
