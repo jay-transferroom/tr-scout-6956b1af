@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Users, TrendingUp, Settings } from "lucide-react";
 import { Player } from "@/types/player";
 import { getSquadDisplayName } from "@/utils/squadUtils";
@@ -79,53 +80,56 @@ const SquadOverview = ({ selectedSquad, onSquadSelect, club, players, currentFor
   ];
 
   return (
-    <div className="flex items-center gap-6">
-      <div>
-        <h3 className="text-sm font-medium text-muted-foreground mb-3">Select Squad</h3>
-        <div className="flex flex-wrap gap-2">
-          {squads.map((squad) => (
-            <Button
-              key={squad.id}
-              onClick={() => onSquadSelect(squad.id)}
-              variant={selectedSquad === squad.id ? "default" : "outline"}
-              className="flex items-center gap-2"
-            >
-              <span>{squad.label}</span>
-              <Badge variant="secondary" className="ml-1">
-                {squad.count}
-              </Badge>
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {/* Formation Settings */}
-      <div>
-        <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
-          <Settings className="h-4 w-4" />
-          Formation
-        </h3>
-        <Select value={currentFormation} onValueChange={handleFormationChange}>
-          <SelectTrigger className="w-[200px] bg-background">
-            <SelectValue placeholder="Select formation" />
-          </SelectTrigger>
-          <SelectContent className="bg-background z-50">
-            {formations.map((formation) => (
-              <SelectItem 
-                key={formation.formation} 
-                value={formation.formation || ''}
-                className="cursor-pointer"
+    <div className="space-y-4">
+      <Separator />
+      <div className="flex items-center justify-between gap-6 w-full">
+        <div className="flex-1">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Select Squad</h3>
+          <div className="flex flex-wrap gap-2">
+            {squads.map((squad) => (
+              <Button
+                key={squad.id}
+                onClick={() => onSquadSelect(squad.id)}
+                variant={selectedSquad === squad.id ? "default" : "outline"}
+                className="flex items-center gap-2"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <span>{formation.formation}</span>
-                  <Badge variant="secondary" className="text-xs">
-                    {formation.games} {formation.games === 1 ? 'game' : 'games'}
-                  </Badge>
-                </div>
-              </SelectItem>
+                <span>{squad.label}</span>
+                <Badge variant="secondary" className="ml-1">
+                  {squad.count}
+                </Badge>
+              </Button>
             ))}
-          </SelectContent>
-        </Select>
+          </div>
+        </div>
+
+        {/* Formation Settings */}
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Formation
+          </h3>
+          <Select value={currentFormation} onValueChange={handleFormationChange}>
+            <SelectTrigger className="w-[200px] bg-background">
+              <SelectValue placeholder="Select formation" />
+            </SelectTrigger>
+            <SelectContent className="bg-background z-50">
+              {formations.map((formation) => (
+                <SelectItem 
+                  key={formation.formation} 
+                  value={formation.formation || ''}
+                  className="cursor-pointer"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span>{formation.formation}</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {formation.games} {formation.games === 1 ? 'game' : 'games'}
+                    </Badge>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
   );
