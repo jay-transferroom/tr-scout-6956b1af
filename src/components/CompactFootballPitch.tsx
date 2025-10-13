@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Player } from "@/types/player";
-import { Plus, Hash } from "lucide-react";
+import { Plus, Hash, AlertTriangle, Clock } from "lucide-react";
 import pitchBackground from "@/assets/pitch.svg";
+import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
 
 interface CompactFootballPitchProps {
   players: Player[];
@@ -75,6 +76,46 @@ const CompactFootballPitch = ({
   // Get current formation positions
   const currentFormation = COMPACT_FORMATION_CONFIGS[formation] || COMPACT_FORMATION_CONFIGS['4-3-3'];
   const assignedPlayers = new Set<string>();
+  
+  // Get database recommendations
+  const { data: dbRecommendations } = useSquadRecommendations();
+  
+  // Map position codes to position groups for recommendations
+  const getPositionGroup = (position: string): string => {
+    if (position.startsWith('GK')) return 'Goalkeeper';
+    if (position.startsWith('CB')) return 'Centre Back';
+    if (position.startsWith('LB') || position.startsWith('RB')) return 'Full Back';
+    if (position.includes('CM') || position.includes('CDM') || position.includes('CAM')) return 'Central Midfield';
+    if (position.includes('W') || position.includes('LM') || position.includes('RM')) return 'Winger';
+    if (position.includes('ST')) return 'Striker';
+    return '';
+  };
+  
+  // Check if position has a database recommendation
+  const hasRecommendation = (position: string): boolean => {
+    const group = getPositionGroup(position);
+    return dbRecommendations?.some(rec => rec.Position === group) || false;
+  };
+  
+  // Helper to check if player has warnings
+  const getPlayerWarnings = (player: Player | null): { hasWarning: boolean; isContract: boolean; isInjury: boolean } => {
+    if (!player) return { hasWarning: false, isContract: false, isInjury: false };
+    
+    let isContract = false;
+    let isInjury = false;
+    
+    // Check contract expiry
+    if (player.contractExpiry) {
+      const expiryDate = new Date(player.contractExpiry);
+      const oneYearFromNow = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+      isContract = expiryDate < oneYearFromNow;
+    }
+    
+    // Check injury (would come from real data, placeholder for now)
+    // isInjury = player.injuryStatus === 'injured';
+    
+    return { hasWarning: isContract || isInjury, isContract, isInjury };
+  };
 
   // Helper function to get eligible players for a position
   const getEligiblePlayers = (position: string): Player[] => {
@@ -216,6 +257,8 @@ const CompactFootballPitch = ({
         const eligiblePlayers = getEligiblePlayers(position);
         const depth = getPositionDepth(position);
         const isPriority = priorityPositions.some(p => position.startsWith(p));
+        const hasDbRecommendation = hasRecommendation(position);
+        const warnings = getPlayerWarnings(player);
         
         return (
           <PositionSlot 
@@ -229,6 +272,8 @@ const CompactFootballPitch = ({
             onPlayerChange={onPlayerChange}
             depth={depth}
             isPriority={isPriority}
+            hasRecommendation={hasDbRecommendation}
+            warnings={warnings}
           />
         );
       })}
@@ -246,7 +291,9 @@ const PositionSlot = ({
   onPositionClick,
   onPlayerChange,
   depth,
-  isPriority
+  isPriority,
+  hasRecommendation,
+  warnings
 }: {
   position: string;
   coords: { x: number; y: number };
@@ -257,6 +304,8 @@ const PositionSlot = ({
   onPlayerChange?: (position: string, playerId: string) => void;
   depth: { count: number; color: string; avgRating: number };
   isPriority: boolean;
+  hasRecommendation: boolean;
+  warnings: { hasWarning: boolean; isContract: boolean; isInjury: boolean };
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -274,7 +323,7 @@ const PositionSlot = ({
       <div className="flex flex-col items-center relative">
         {/* Large subtle position label in background */}
         <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 -translate-y-full z-0">
-          <span className="text-4xl font-bold text-green-800/20">
+          <span className={`text-4xl font-bold ${hasRecommendation ? 'text-purple-600/40' : 'text-green-800/20'}`}>
             {position}
           </span>
         </div>
@@ -306,7 +355,9 @@ const PositionSlot = ({
         {player ? (
           <div className="relative" onMouseEnter={() => setShowDropdown(true)} onMouseLeave={() => setShowDropdown(false)}>
             <Avatar 
-              className="w-12 h-12 border-2 border-white shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+              className={`w-12 h-12 border-2 shadow-md cursor-pointer hover:shadow-lg transition-shadow ${
+                warnings.hasWarning ? 'border-orange-500' : 'border-white'
+              }`}
               onClick={() => onPositionClick?.(position)}
             >
               <AvatarImage 
@@ -318,6 +369,17 @@ const PositionSlot = ({
                 {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
               </AvatarFallback>
             </Avatar>
+            
+            {/* Warning icon for injuries or contract expiry */}
+            {warnings.hasWarning && (
+              <div className="absolute -top-2 -left-2 bg-orange-500 text-white rounded-full w-5 h-5 flex items-center justify-center border border-white z-10">
+                {warnings.isContract ? (
+                  <Clock className="w-3 h-3" />
+                ) : (
+                  <AlertTriangle className="w-3 h-3" />
+                )}
+              </div>
+            )}
             
             {/* Rating */}
             <div className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold border border-white">
