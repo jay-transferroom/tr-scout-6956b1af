@@ -81,41 +81,6 @@ const SquadOverview = ({ selectedSquad, onSquadSelect, club, players, currentFor
 
   return (
     <div className="space-y-4">
-      {/* Squad Rating Comparison - Top Section */}
-      {isLoadingRatings ? (
-        <Skeleton className="h-24 w-full" />
-      ) : chelseaSquad && squads ? (
-        <div className="p-4 bg-primary/5 rounded-lg border">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold">Overall Squad Rating</h3>
-            <div className="flex items-center gap-3">
-              <Badge variant="secondary" className="text-xs">
-                #{chelseaRank + 1} of {squads.length}
-              </Badge>
-              <Badge variant="default" className="text-lg px-3 py-1">
-                {chelseaSquad.average_starter_rating?.toFixed(1)}
-              </Badge>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>League Average: {leagueAvg.toFixed(1)}</span>
-            {chelseaSquad.average_starter_rating > leagueAvg ? (
-              <div className="flex items-center gap-1 text-green-600">
-                <TrendingUp className="h-3 w-3" />
-                <span>Above average</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-amber-600">
-                <TrendingDown className="h-3 w-3" />
-                <span>Below average</span>
-              </div>
-            )}
-          </div>
-        </div>
-      ) : null}
-
-      <Separator />
-
       {/* Squad Selection and Formation Controls */}
       <div className="space-y-4">
         <div className="w-full">
@@ -166,6 +131,41 @@ const SquadOverview = ({ selectedSquad, onSquadSelect, club, players, currentFor
           </Select>
         </div>
       </div>
+
+      <Separator />
+
+      {/* Squad Rating Comparison */}
+      {isLoadingRatings ? (
+        <Skeleton className="h-24 w-full" />
+      ) : chelseaSquad && squads ? (
+        <div className="p-4 bg-primary/5 rounded-lg border">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-semibold">Overall Squad Rating</h3>
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary" className="text-xs">
+                #{chelseaRank + 1} of {squads.length}
+              </Badge>
+              <Badge variant="default" className="text-lg px-3 py-1">
+                {chelseaSquad.average_starter_rating?.toFixed(1)}
+              </Badge>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>League Average: {leagueAvg.toFixed(1)}</span>
+            {chelseaSquad.average_starter_rating > leagueAvg ? (
+              <div className="flex items-center gap-1 text-green-600">
+                <TrendingUp className="h-3 w-3" />
+                <span>Above average</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 text-amber-600">
+                <TrendingDown className="h-3 w-3" />
+                <span>Below average</span>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };
