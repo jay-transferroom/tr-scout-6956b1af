@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, LayoutGrid, List, Eye, Minimize2, Maximize2, X, ChevronUp, AlertTriangle, TrendingDown, Target, Star, TrendingUp } from "lucide-react";
+import { Users, LayoutGrid, List, Eye, Minimize2, Maximize2, X, ChevronUp, AlertTriangle, TrendingDown, Target, Star, TrendingUp, ArrowRight } from "lucide-react";
 import { Player } from "@/types/player";
 import CompactFootballPitch from "./CompactFootballPitch";
 import SquadListView from "./SquadListView";
@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
 import { useShortlists } from "@/hooks/useShortlists";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Sheet,
   SheetContent,
@@ -81,6 +82,14 @@ const CompactSquadView = ({
     }
   };
 
+  const handleShortlistPlayerClick = (playerId: string, isPrivate: boolean = false) => {
+    if (isPrivate) {
+      navigate(`/private-player/${playerId}`);
+    } else {
+      navigate(`/player/${playerId}`);
+    }
+  };
+
   // Map specific pitch positions to general position categories
   const mapPositionToCategory = (position: string): string => {
     if (position === 'GK') return 'GK';
@@ -140,21 +149,27 @@ const CompactSquadView = ({
   const shortlistedPlayers = useMemo(() => {
     if (!selectedPosition) return [];
     
-    const positionCategory = mapPositionToCategory(selectedPosition);
-    const allowedPositions = getPositionEligiblePlayers(selectedPosition).map(p => p.id);
+    const category = mapPositionToCategory(selectedPosition);
     
-    // Get all player IDs from all shortlists
-    const shortlistedPlayerIds = new Set(
-      shortlists.flatMap(shortlist => shortlist.playerIds || [])
-    );
+    const positionConfig: Record<string, string[]> = {
+      'GK': ['GK'],
+      'CB': ['CB'],
+      'FB': ['LB', 'RB', 'LWB', 'RWB'],
+      'CM': ['CM', 'CDM', 'CAM'],
+      'W': ['LW', 'RW', 'LM', 'RM', 'W'],
+      'ST': ['ST', 'CF', 'F', 'FW']
+    };
+
+    const requiredPositions = positionConfig[category] || [];
     
-    // Filter allPlayers to get those that are shortlisted and eligible for this position
-    return allPlayers.filter(player => 
-      shortlistedPlayerIds.has(player.id) &&
-      player.positions.some(pos => {
-        const mapping = getPositionEligiblePlayers(selectedPosition);
-        return mapping.some(mp => mp.id === player.id);
-      })
+    // Get all player IDs from shortlists
+    const shortlistPlayerIds = shortlists.flatMap(s => s.playerIds || []);
+    
+    // Filter players from all database that are in shortlists and match this position
+    return allPlayers.filter(p => 
+      shortlistPlayerIds.includes(p.id) &&
+      p.positions.some(pos => requiredPositions.includes(pos)) &&
+      !squadPlayers.some(squadPlayer => squadPlayer.id === p.id) // Exclude current squad players
     ).sort((a, b) => {
       const ratingA = a.transferroomRating || a.xtvScore || 0;
       const ratingB = b.transferroomRating || b.xtvScore || 0;
@@ -433,19 +448,56 @@ const CompactSquadView = ({
                   <TabsContent value="shortlists" className="mt-6">
                     <div className="space-y-3">
                       {shortlistedPlayers.length > 0 ? (
-                        <SquadListView 
-                          players={shortlistedPlayers}
-                          squadType={selectedSquad}
-                          formation={formation}
-                          positionAssignments={positionAssignments}
-                          onPlayerClick={(player) => {
-                            if (onPlayerChange && selectedPosition) {
-                              onPlayerChange(selectedPosition, player.id);
-                            }
-                            handlePositionClick('');
-                          }}
-                          selectedPlayer={null}
-                        />
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Star className="h-4 w-4 text-muted-foreground" />
+                            <h3 className="font-medium text-sm">From Shortlists</h3>
+                            <Badge variant="outline" className="text-xs">
+                              {shortlistedPlayers.length} player{shortlistedPlayers.length !== 1 ? 's' : ''}
+                            </Badge>
+                          </div>
+
+                          <div className="space-y-1">
+                            {shortlistedPlayers.map((player) => (
+                              <div
+                                key={player.id}
+                                className="flex items-center gap-3 p-3 rounded-md bg-muted/30 hover:bg-muted/50 cursor-pointer transition-all"
+                                onClick={() => handleShortlistPlayerClick(player.id, player.isPrivatePlayer)}
+                              >
+                                <Avatar className="h-12 w-12">
+                                  <AvatarImage src={player.image} alt={player.name} />
+                                  <AvatarFallback className="text-sm">
+                                    {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                                  </AvatarFallback>
+                                </Avatar>
+
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium truncate text-base">{player.name}</div>
+                                  <div className="text-sm text-muted-foreground">
+                                    {player.club} • {player.age}y • {player.nationality}
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                  {player.positions.slice(0, 2).map((pos, idx) => (
+                                    <Badge key={idx} variant="outline" className="text-sm">
+                                      {pos}
+                                    </Badge>
+                                  ))}
+                                </div>
+
+                                <div className="flex items-center gap-1">
+                                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                                  <span className="font-medium text-base">
+                                    {Math.round(player.transferroomRating || player.xtvScore || 0)}
+                                  </span>
+                                </div>
+
+                                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-8">
                           No shortlisted players available for {selectedPosition} position
