@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlayersData } from "@/hooks/usePlayersData";
@@ -10,11 +10,13 @@ import SquadRecommendations from "@/components/SquadRecommendations";
 import ProspectComparison from "@/components/ProspectComparison";
 import SquadFormationCard from "@/components/SquadFormationCard";
 import SquadTableView from "@/components/SquadTableView";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import SquadComparisonChart from "@/components/SquadComparisonChart";
 import { useSquadData } from "@/hooks/useSquadData";
 import { useSquadMetrics } from "@/hooks/useSquadMetrics";
-import { useClubSettings } from "@/hooks/useClubSettings";
+import { useClubSettings, useUpdateClubSettings } from "@/hooks/useClubSettings";
+import { useMarescaFormations } from "@/hooks/useMarescaFormations";
 import { useHeadCoach } from "@/hooks/useHeadCoach";
 import { getSquadDisplayName } from "@/utils/squadUtils";
 import { ClubBadge } from "@/components/ui/club-badge";
@@ -49,6 +51,10 @@ const SquadView = () => {
     data: clubSettings
   } = useClubSettings(userClub);
   const currentFormation = clubSettings?.formation || '4-3-3';
+  
+  // Get formations list
+  const { data: formations = [] } = useMarescaFormations();
+  const updateClubSettings = useUpdateClubSettings();
 
   // Get head coach data
   const {
@@ -80,6 +86,50 @@ const SquadView = () => {
   } = useSquadData(clubPlayers, selectedSquad, allPositionAssignments);
   const squadMetrics = useSquadMetrics(squadPlayers, selectedSquad);
   const displayTitle = `${userClub} ${getSquadDisplayName(selectedSquad)} Analysis`;
+  
+  const handleFormationChange = async (formation: string) => {
+    try {
+      await updateClubSettings.mutateAsync({
+        club_name: userClub,
+        formation: formation,
+      });
+    } catch (error) {
+      console.error('Failed to update formation:', error);
+    }
+  };
+
+  const isEligibleForSeniorSquad = (player: any) => {
+    if (player.age < 21) return false;
+    const isOnLoan = player.club !== 'Chelsea FC' && 
+                     !player.club?.includes('Chelsea') && 
+                     player.club !== 'Unknown';
+    if (isOnLoan) return false;
+    const isChelsea = player.club === 'Chelsea FC' || 
+                     (player.club?.includes('Chelsea') && 
+                      !player.club?.includes('U21') && 
+                      !player.club?.includes('U18'));
+    return isChelsea;
+  };
+
+  const getSquadPlayerCount = (squadType: string): number => {
+    switch (squadType) {
+      case 'first-team':
+        return clubPlayers.filter(isEligibleForSeniorSquad).length;
+      case 'u21':
+        return clubPlayers.filter(player => player.club?.includes('U21')).length;
+      case 'u18':
+        return clubPlayers.filter(player => player.club?.includes('U18')).length;
+      default:
+        return 0;
+    }
+  };
+
+  const squadsList = [
+    { id: 'first-team', label: 'First Team', count: getSquadPlayerCount('first-team') },
+    { id: 'u21', label: 'U21s', count: getSquadPlayerCount('u21') },
+    { id: 'u18', label: 'U18s', count: getSquadPlayerCount('u18') },
+  ];
+  
   if (isLoading) {
     return <div className="container mx-auto py-8">
         <div className="flex items-center justify-center h-64">
@@ -187,6 +237,57 @@ const SquadView = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Squad Selection and Formation Controls */}
+      <div className="space-y-4">
+        <div className="w-full">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Select Squad</h3>
+          <div className="flex flex-wrap gap-2">
+            {squadsList.map((squad) => (
+              <Button
+                key={squad.id}
+                onClick={() => setSelectedSquad(squad.id)}
+                variant={selectedSquad === squad.id ? "default" : "outline"}
+                className="flex items-center gap-2"
+              >
+                <span>{squad.label}</span>
+                <Badge variant="secondary" className="ml-1">
+                  {squad.count}
+                </Badge>
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Formation Settings */}
+        <div className="w-full">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Formation
+          </h3>
+          <Select value={currentFormation} onValueChange={handleFormationChange}>
+            <SelectTrigger className="w-[200px] bg-background">
+              <SelectValue placeholder="Select formation" />
+            </SelectTrigger>
+            <SelectContent className="bg-background z-50">
+              {formations.map((formation) => (
+                <SelectItem 
+                  key={formation.formation} 
+                  value={formation.formation || ''}
+                  className="cursor-pointer"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span>{formation.formation}</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {formation.games} {formation.games === 1 ? 'game' : 'games'}
+                    </Badge>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Enhanced Football Pitch Visualization */}
