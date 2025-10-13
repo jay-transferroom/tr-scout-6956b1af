@@ -180,7 +180,7 @@ const SquadListView = ({
 
                     {/* Contract Status */}
                     {contractStatus && (
-                      <Badge className="text-sm flex-shrink-0 bg-orange-500 hover:bg-orange-600">
+                      <Badge variant="outline" className="text-xs flex-shrink-0 bg-orange-50 text-orange-700 border-orange-300">
                         <Clock className="w-3 h-3 mr-1" />
                         {contractStatus.status}
                       </Badge>
