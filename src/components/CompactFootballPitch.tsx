@@ -291,16 +291,10 @@ const PositionSlot = ({
         
         {/* Player avatar */}
         {player ? (
-          <div className="relative">
+          <div className="relative" onMouseEnter={() => setShowDropdown(true)} onMouseLeave={() => setShowDropdown(false)}>
             <Avatar 
               className="w-12 h-12 border-2 border-white shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => {
-                if (onPlayerChange && eligiblePlayers.length > 1) {
-                  setShowDropdown(!showDropdown);
-                } else {
-                  onPositionClick?.(position);
-                }
-              }}
+              onClick={() => onPositionClick?.(position)}
             >
               <AvatarImage 
                 src={player.image} 
@@ -317,114 +311,96 @@ const PositionSlot = ({
               {Math.round(player.transferroomRating || player.xtvScore || 0)}
             </div>
 
-            {/* Player selection dropdown */}
+            {/* Player selection dropdown (hover) */}
             {showDropdown && onPlayerChange && eligiblePlayers.length > 1 && (
-              <>
-                <div 
-                  className="fixed inset-0 z-[100]" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowDropdown(false);
-                  }}
-                />
-                <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-[101]">
-                  <div className="bg-white border border-gray-300 rounded-lg shadow-xl p-2 min-w-40 max-h-48 overflow-y-auto">
-                    <div className="text-xs font-semibold text-gray-600 mb-2 px-2">
-                      Select Player
-                    </div>
-                    {eligiblePlayers.map((eligiblePlayer) => (
-                      <div
-                        key={eligiblePlayer.id}
-                        className={`flex items-center gap-2 p-1 rounded cursor-pointer transition-colors ${
-                          eligiblePlayer.id === player.id 
-                            ? 'bg-blue-50 border border-blue-200' 
-                            : 'hover:bg-gray-50'
-                        }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onPlayerChange(position, eligiblePlayer.id);
-                          setShowDropdown(false);
-                        }}
-                      >
-                        <Avatar className="w-6 h-6">
-                          <AvatarImage 
-                            src={eligiblePlayer.image} 
-                            alt={eligiblePlayer.name}
-                          />
-                          <AvatarFallback className="bg-blue-600 text-white text-xs">
-                            {eligiblePlayer.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs font-medium truncate">{eligiblePlayer.name}</div>
-                          <div className="text-xs text-gray-500">
-                            {Math.round(eligiblePlayer.transferroomRating || eligiblePlayer.xtvScore || 0)}
-                          </div>
-                        </div>
-                        {eligiblePlayer.id === player.id && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        )}
-                      </div>
-                    ))}
+              <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-40">
+                <div className="bg-white border border-gray-300 rounded-lg shadow-xl p-2 min-w-40 max-h-48 overflow-y-auto">
+                  <div className="text-xs font-semibold text-gray-600 mb-2 px-2">
+                    Select Player
                   </div>
+                  {eligiblePlayers.map((eligiblePlayer) => (
+                    <div
+                      key={eligiblePlayer.id}
+                      className={`flex items-center gap-2 p-1 rounded cursor-pointer transition-colors ${
+                        eligiblePlayer.id === player.id 
+                          ? 'bg-blue-50 border border-blue-200' 
+                          : 'hover:bg-gray-50'
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onPlayerChange(position, eligiblePlayer.id);
+                        setShowDropdown(false);
+                      }}
+                    >
+                      <Avatar className="w-6 h-6">
+                        <AvatarImage 
+                          src={eligiblePlayer.image} 
+                          alt={eligiblePlayer.name}
+                        />
+                        <AvatarFallback className="bg-blue-600 text-white text-xs">
+                          {eligiblePlayer.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-medium truncate">{eligiblePlayer.name}</div>
+                        <div className="text-xs text-gray-500">
+                          {Math.round(eligiblePlayer.transferroomRating || eligiblePlayer.xtvScore || 0)}
+                        </div>
+                      </div>
+                      {eligiblePlayer.id === player.id && (
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              </>
+              </div>
             )}
           </div>
         ) : (
           <div 
             className="w-12 h-12 rounded-full border-2 border-dashed border-gray-400 bg-white/50 flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors"
-            onClick={() => {
-              if (onPlayerChange && eligiblePlayers.length > 0) {
-                setShowDropdown(!showDropdown);
-              } else {
-                onPositionClick?.(position);
-              }
-            }}
+            onClick={() => onPositionClick?.(position)}
+            onMouseEnter={() => setShowDropdown(true)}
+            onMouseLeave={() => setShowDropdown(false)}
           >
             <Plus className="h-4 w-4 text-gray-400" />
 
-            {/* Empty position dropdown */}
+            {/* Empty position dropdown (hover) */}
             {showDropdown && onPlayerChange && eligiblePlayers.length > 0 && (
-              <>
-                <div 
-                  className="fixed inset-0 z-[100]" 
-                  onClick={() => setShowDropdown(false)}
-                />
-                <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-[101]">
-                  <div className="bg-white border border-gray-300 rounded-lg shadow-xl p-2 min-w-40 max-h-48 overflow-y-auto">
-                    <div className="text-xs font-semibold text-gray-600 mb-2 px-2">
-                      Select Player
-                    </div>
-                    {eligiblePlayers.map((eligiblePlayer) => (
-                      <div
-                        key={eligiblePlayer.id}
-                        className="flex items-center gap-2 p-1 rounded cursor-pointer hover:bg-gray-50 transition-colors"
-                        onClick={() => {
-                          onPlayerChange(position, eligiblePlayer.id);
-                          setShowDropdown(false);
-                        }}
-                      >
-                        <Avatar className="w-6 h-6">
-                          <AvatarImage 
-                            src={eligiblePlayer.image} 
-                            alt={eligiblePlayer.name}
-                          />
-                          <AvatarFallback className="bg-blue-600 text-white text-xs">
-                            {eligiblePlayer.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs font-medium truncate">{eligiblePlayer.name}</div>
-                          <div className="text-xs text-gray-500">
-                            {Math.round(eligiblePlayer.transferroomRating || eligiblePlayer.xtvScore || 0)}
-                          </div>
+              <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-40">
+                <div className="bg-white border border-gray-300 rounded-lg shadow-xl p-2 min-w-40 max-h-48 overflow-y-auto">
+                  <div className="text-xs font-semibold text-gray-600 mb-2 px-2">
+                    Select Player
+                  </div>
+                  {eligiblePlayers.map((eligiblePlayer) => (
+                    <div
+                      key={eligiblePlayer.id}
+                      className="flex items-center gap-2 p-1 rounded cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onPlayerChange(position, eligiblePlayer.id);
+                        setShowDropdown(false);
+                      }}
+                    >
+                      <Avatar className="w-6 h-6">
+                        <AvatarImage 
+                          src={eligiblePlayer.image} 
+                          alt={eligiblePlayer.name}
+                        />
+                        <AvatarFallback className="bg-blue-600 text-white text-xs">
+                          {eligiblePlayer.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-medium truncate">{eligiblePlayer.name}</div>
+                        <div className="text-xs text-gray-500">
+                          {Math.round(eligiblePlayer.transferroomRating || eligiblePlayer.xtvScore || 0)}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              </>
+              </div>
             )}
           </div>
         )}
