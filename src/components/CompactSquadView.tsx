@@ -392,7 +392,7 @@ const CompactSquadView = ({
                     </div>
 
                     {(analysis.contractRisks > 0 || analysis.ageRisks > 0) && (
-                      <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/20 p-2 rounded">
+                      <div className="flex items-center gap-2 text-xs text-orange-700 bg-orange-50 dark:bg-orange-950/20 p-2 rounded">
                         <AlertTriangle className="h-3 w-3" />
                         <span>
                           {analysis.contractRisks > 0 && `${analysis.contractRisks} contract risk${analysis.contractRisks > 1 ? 's' : ''}`}
