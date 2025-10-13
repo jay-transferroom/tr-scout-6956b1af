@@ -285,8 +285,10 @@ const PositionSlot = ({
             {position}
           </span>
           <div className={`w-px h-3 ${isPriority ? 'bg-white/30' : 'bg-gray-300'}`} />
-          <Hash className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : 'text-gray-600'}`} />
-          <span className={`text-xs font-bold ${isPriority ? 'text-white' : 'text-gray-700'}`}>{depth.count}</span>
+          <div className="flex items-center">
+            <Hash className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : 'text-gray-600'}`} />
+            <span className={`text-xs font-bold ${isPriority ? 'text-white' : 'text-gray-700'}`}>{depth.count}</span>
+          </div>
           {depth.avgRating > 0 && (
             <>
               <div className={`w-px h-3 ${isPriority ? 'bg-white/30' : 'bg-gray-300'}`} />
