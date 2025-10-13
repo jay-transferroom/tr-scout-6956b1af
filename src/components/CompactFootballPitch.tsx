@@ -217,7 +217,7 @@ const CompactFootballPitch = ({
   };
 
   // Calculate depth for each position group
-  const getPositionDepth = (position: string): { count: number; color: string; avgRating: number } => {
+  const getPositionDepth = (position: string): { count: number; color: string; avgRating: number; warningCount: number } => {
     const allowedPositions = getPositionMapping(position);
     const availablePlayers = players.filter(player => 
       player.positions.some(pos => allowedPositions.includes(pos))
@@ -231,6 +231,19 @@ const CompactFootballPitch = ({
     }, 0);
     const avgRating = count > 0 ? totalRating / count : 0;
     
+    // Count players with warnings (contract expiry or aging)
+    const warningCount = availablePlayers.filter(player => {
+      // Check contract expiry
+      if (player.contractExpiry) {
+        const expiryDate = new Date(player.contractExpiry);
+        const oneYearFromNow = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+        if (expiryDate < oneYearFromNow) return true;
+      }
+      // Check age
+      if (player.age > 32) return true;
+      return false;
+    }).length;
+    
     // Traffic light system: Red (0-1), Amber (2), Green (3+)
     let color = 'text-red-500';
     if (count >= 3) {
@@ -239,7 +252,7 @@ const CompactFootballPitch = ({
       color = 'text-amber-500';
     }
     
-    return { count, color, avgRating };
+    return { count, color, avgRating, warningCount };
   };
 
   return (
@@ -302,7 +315,7 @@ const PositionSlot = ({
   eligiblePlayers: Player[];
   onPositionClick?: (position: string) => void;
   onPlayerChange?: (position: string, playerId: string) => void;
-  depth: { count: number; color: string; avgRating: number };
+  depth: { count: number; color: string; avgRating: number; warningCount: number };
   isPriority: boolean;
   hasRecommendation: boolean;
   warnings: { hasWarning: boolean; isContract: boolean; isInjury: boolean };
@@ -333,9 +346,9 @@ const PositionSlot = ({
           <div className="absolute -inset-2 rounded-full border-2 border-amber-500 bg-amber-500/10 animate-pulse" />
         )}
         
-        {/* Condensed info bar - count, rating */}
+        {/* Condensed info bar - count, rating, warnings */}
         <div className={`flex items-center gap-1 mb-1 px-2 py-0.5 rounded-full shadow-md border-2 relative z-10 ${
-          isPriority ? 'bg-amber-500 border-amber-600' : 'bg-white border-gray-300'
+          isPriority ? 'bg-amber-500 border-amber-600' : depth.warningCount > 0 ? 'bg-orange-100 border-orange-400' : 'bg-white border-gray-300'
         }`}>
           <div className="flex items-center">
             <Hash className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : 'text-gray-600'}`} />
@@ -347,6 +360,13 @@ const PositionSlot = ({
               <span className={`text-xs font-bold ${isPriority ? 'text-white' : 'text-gray-700'}`}>
                 {Math.round(depth.avgRating)}
               </span>
+            </>
+          )}
+          {depth.warningCount > 0 && (
+            <>
+              <div className={`w-px h-3 ${isPriority ? 'bg-white/30' : 'bg-gray-300'}`} />
+              <AlertTriangle className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : 'text-orange-600'}`} />
+              <span className={`text-xs font-bold ${isPriority ? 'text-white' : 'text-orange-600'}`}>{depth.warningCount}</span>
             </>
           )}
         </div>
