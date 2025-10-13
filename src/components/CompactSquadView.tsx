@@ -16,6 +16,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 interface CompactSquadViewProps {
   squadPlayers: Player[];
@@ -215,36 +221,50 @@ const CompactSquadView = ({
                 </SheetDescription>
               </SheetHeader>
 
-              <div className="mt-6 space-y-6">
-                {/* Eligible Players List */}
-                <div className="space-y-3">
-                  <h4 className="text-sm font-semibold">Eligible Players</h4>
-                  <SquadListView 
-                    players={positionEligiblePlayers}
-                    squadType={selectedSquad}
-                    formation={formation}
-                    positionAssignments={positionAssignments}
-                    onPlayerClick={(player) => {
-                      if (onPlayerChange && selectedPosition) {
-                        onPlayerChange(selectedPosition, player.id);
-                      }
-                      handlePositionClick('');
-                    }}
-                    selectedPlayer={null}
-                  />
-                </div>
+              <Tabs defaultValue="select" className="mt-6">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="select">Select Player</TabsTrigger>
+                  <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+                  <TabsTrigger value="shortlists">Shortlists</TabsTrigger>
+                </TabsList>
 
-                {/* Recommendations */}
-                <div className="space-y-3">
-                  <h4 className="text-sm font-semibold">Recommendations</h4>
-                  <SquadRecommendations 
-                    players={squadPlayers}
-                    selectedPosition={mapPositionToCategory(selectedPosition)}
-                    onPositionSelect={(pos) => handlePositionClick(pos)}
-                    allPlayers={allPlayers}
-                  />
-                </div>
-              </div>
+                <TabsContent value="select" className="mt-6">
+                  <div className="space-y-3">
+                    <SquadListView 
+                      players={positionEligiblePlayers}
+                      squadType={selectedSquad}
+                      formation={formation}
+                      positionAssignments={positionAssignments}
+                      onPlayerClick={(player) => {
+                        if (onPlayerChange && selectedPosition) {
+                          onPlayerChange(selectedPosition, player.id);
+                        }
+                        handlePositionClick('');
+                      }}
+                      selectedPlayer={null}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="recommendations" className="mt-6">
+                  <div className="space-y-3">
+                    <SquadRecommendations 
+                      players={squadPlayers}
+                      selectedPosition={mapPositionToCategory(selectedPosition)}
+                      onPositionSelect={(pos) => handlePositionClick(pos)}
+                      allPlayers={allPlayers}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="shortlists" className="mt-6">
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Shortlisted players for {selectedPosition} position will appear here.
+                    </p>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </>
           )}
         </SheetContent>
