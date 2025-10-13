@@ -209,18 +209,12 @@ const SquadView = () => {
                             {headCoach.Style}
                           </Badge>
                         )}
-                        {headCoach["Favourite Formation"] && (
-                          <Badge variant="outline" className="text-sm">
-                            {headCoach["Favourite Formation"]}
-                          </Badge>
-                        )}
-                        {headCoach.TrustInYouth !== null && headCoach.TrustInYouth !== undefined && (
-                          <Badge variant="outline" className="flex items-center gap-1 text-sm">
-                            <TrendingUp className="h-3.5 w-3.5" />
-                            Trust in Youth: {headCoach.TrustInYouth.toFixed(2)}
-                          </Badge>
-                        )}
-                      </div>
+                      {headCoach["Favourite Formation"] && (
+                        <Badge variant="outline" className="text-sm">
+                          {headCoach["Favourite Formation"]}
+                        </Badge>
+                      )}
+                    </div>
                     </div>
                   </div>
                 )}
