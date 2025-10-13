@@ -154,6 +154,12 @@ const SquadListView = ({
                       <div className="font-medium truncate text-base">{player.name}</div>
                       <div className="text-sm text-muted-foreground flex items-center gap-2">
                         <span>{player.club} • {player.age}y • {player.nationality}</span>
+                        {contractStatus && (
+                          <Badge variant="outline" className="text-xs flex-shrink-0 bg-orange-50 text-orange-700 border-orange-300">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {contractStatus.status}
+                          </Badge>
+                        )}
                         {agingPlayer && (
                           <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-300">
                             Aging
@@ -175,14 +181,6 @@ const SquadListView = ({
                     {assignment && (
                       <Badge variant="default" className="text-sm bg-green-600 flex-shrink-0">
                         {assignment.position}
-                      </Badge>
-                    )}
-
-                    {/* Contract Status */}
-                    {contractStatus && (
-                      <Badge variant="outline" className="text-xs flex-shrink-0 bg-orange-50 text-orange-700 border-orange-300">
-                        <Clock className="w-3 h-3 mr-1" />
-                        {contractStatus.status}
                       </Badge>
                     )}
 
