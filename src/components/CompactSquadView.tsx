@@ -371,8 +371,8 @@ const CompactSquadView = ({
           <div className="w-1/2 overflow-y-auto">
             <div className="space-y-2">
               <div className="flex items-center gap-2 mb-2">
-                <List className="h-4 w-4 text-muted-foreground" />
-                <h3 className="font-medium text-sm">Squad List</h3>
+                <List className="h-5 w-5" />
+                <h3 className="text-lg font-semibold">Squad List</h3>
               </div>
               
               <div>
