@@ -79,7 +79,7 @@ const SquadOverview = ({ selectedSquad, onSquadSelect, club, players, currentFor
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="flex items-center gap-6">
       <div>
         <h3 className="text-sm font-medium text-muted-foreground mb-3">Select Squad</h3>
         <div className="flex flex-wrap gap-2">
