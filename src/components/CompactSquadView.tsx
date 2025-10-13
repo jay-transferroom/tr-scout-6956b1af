@@ -402,10 +402,49 @@ const CompactSquadView = ({
                       </div>
                     )}
                     
-                    <div className="pt-2 border-t">
-                      <p className="text-sm font-medium mb-1">Recruitment Strategy:</p>
-                      <p className="text-sm text-muted-foreground">{analysis.recruitmentSuggestion}</p>
-                    </div>
+                    {/* Database Recommendation - Replaces Recruitment Strategy */}
+                    {(() => {
+                      const category = mapPositionToCategory(selectedPosition);
+                      const positionMap: Record<string, string> = {
+                        'GK': 'Goalkeeper',
+                        'CB': 'Centre Back',
+                        'FB': 'Full Back',
+                        'CM': 'Central Midfield',
+                        'W': 'Winger',
+                        'ST': 'Striker'
+                      };
+                      const displayName = positionMap[category];
+                      const dbRec = recommendations.find(rec => rec.Position === displayName);
+                      
+                      if (dbRec) {
+                        return (
+                          <div className="pt-2 border-t">
+                            <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                              <div className="flex items-start gap-3">
+                                <div className="p-1.5 bg-purple-100 rounded-full flex-shrink-0">
+                                  <Target className="h-4 w-4 text-purple-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-semibold text-purple-900 mb-1 text-sm">
+                                    Recruitment Priority Identified
+                                  </h4>
+                                  <p className="text-xs text-purple-700">
+                                    {dbRec.Reason}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <div className="pt-2 border-t">
+                          <p className="text-sm font-medium mb-1">Recruitment Strategy:</p>
+                          <p className="text-sm text-muted-foreground">{analysis.recruitmentSuggestion}</p>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </SheetHeader>
 

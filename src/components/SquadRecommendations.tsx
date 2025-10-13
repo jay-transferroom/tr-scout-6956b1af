@@ -248,26 +248,6 @@ const SquadRecommendations = ({
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Database Recommendation Alert */}
-          {dbRec && (
-            <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-purple-100 rounded-full">
-                  <Lightbulb className="h-5 w-5 text-purple-600" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-purple-900 mb-1">
-                    Recruitment Priority Identified
-                  </h4>
-                  <p className="text-sm text-purple-700">
-                    {dbRec.Reason}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Existing analysis content */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Current Squad:</span>
