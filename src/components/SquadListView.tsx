@@ -122,7 +122,7 @@ const SquadListView = ({
                   <div 
                     key={player.id} 
                     className={`flex items-center gap-3 p-3 rounded-md cursor-pointer transition-all hover:bg-muted/50 ${
-                      isSelected ? 'bg-muted' : ''
+                      isSelected ? 'bg-muted/80' : ''
                     }`}
                     onClick={() => onPlayerClick?.(player)}
                   >
