@@ -414,7 +414,19 @@ const CompactSquadView = ({
                         'ST': 'Striker'
                       };
                       const displayName = positionMap[category];
-                      const dbRec = recommendations.find(rec => rec.Position === displayName);
+                      
+                      // Find database recommendation with case-insensitive matching and specific position handling
+                      const dbRec = recommendations.find(rec => {
+                        const recPosition = rec.Position.toLowerCase();
+                        const expectedPosition = displayName?.toLowerCase();
+                        
+                        // Handle specific position names
+                        if (recPosition === 'right back' || recPosition === 'left back') {
+                          return expectedPosition === 'full back';
+                        }
+                        
+                        return recPosition === expectedPosition;
+                      });
                       
                       if (dbRec) {
                         return (
