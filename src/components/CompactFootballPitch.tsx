@@ -274,17 +274,19 @@ const PositionSlot = ({
       <div className="flex flex-col items-center relative">
         {/* Priority indicator ring */}
         {isPriority && (
-          <div className="absolute -inset-3 rounded-full border-2 border-amber-500 bg-amber-500/10 animate-pulse" />
+          <div className="absolute -inset-2 rounded-full border-2 border-amber-500 bg-amber-500/10 animate-pulse" />
         )}
         
-        {/* Depth indicator with better visibility */}
-        <div className={`flex items-center gap-1 mb-1 px-1.5 py-0.5 rounded-full shadow-md border-2 relative z-10 ${
+        {/* Condensed info bar - position, count, rating */}
+        <div className={`flex items-center gap-1 mb-1 px-2 py-0.5 rounded-full shadow-md border-2 relative z-10 ${
           isPriority ? 'bg-amber-500 border-amber-600' : 'bg-white border-gray-300'
         }`}>
-          <div className="flex items-center gap-0.5">
-            <Hash className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : depth.color}`} />
-            <span className={`text-xs font-bold ${isPriority ? 'text-white' : depth.color}`}>{depth.count}</span>
-          </div>
+          <span className={`text-xs font-bold ${isPriority ? 'text-white' : 'text-gray-700'}`}>
+            {position}
+          </span>
+          <div className={`w-px h-3 ${isPriority ? 'bg-white/30' : 'bg-gray-300'}`} />
+          <Hash className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : 'text-gray-600'}`} />
+          <span className={`text-xs font-bold ${isPriority ? 'text-white' : 'text-gray-700'}`}>{depth.count}</span>
           {depth.avgRating > 0 && (
             <>
               <div className={`w-px h-3 ${isPriority ? 'bg-white/30' : 'bg-gray-300'}`} />
@@ -294,16 +296,6 @@ const PositionSlot = ({
             </>
           )}
         </div>
-        
-        {/* Position badge */}
-        <Badge 
-          variant={isSelected ? "default" : "secondary"} 
-          className={`text-xs mb-1 relative z-10 ${
-            isPriority ? 'bg-amber-500 text-white border-amber-600' : 'bg-white/90'
-          }`}
-        >
-          {position}
-        </Badge>
         
         {/* Player avatar */}
         {player ? (
