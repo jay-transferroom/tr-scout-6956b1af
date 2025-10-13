@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 export const useAppInitialization = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [initializationStatus, setInitializationStatus] = useState<string>('Checking data...');
-  const { importPremierLeagueData } = useDataImport();
+  const { importPremierLeagueData, importLeagueData } = useDataImport();
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -14,11 +14,10 @@ export const useAppInitialization = () => {
         console.log('Starting app initialization...');
         setInitializationStatus('Checking existing data...');
         
-        // Check if we have any teams data
+        // Check if we have any teams data (any league) to avoid re-import loops
         const { data: existingTeams, error } = await supabase
           .from('teams')
           .select('id')
-          .eq('league', 'Premier League')
           .limit(1);
 
         console.log('Teams query result:', { existingTeams, error });
@@ -36,7 +35,7 @@ export const useAppInitialization = () => {
           console.log('No Premier League data found, starting import...');
           
           try {
-            const result = await importPremierLeagueData();
+            const result = await importLeagueData('Premier League', false);
             
             if (result.success) {
               setInitializationStatus(`Import complete! ${result.teams} teams, ${result.players} players imported.`);
