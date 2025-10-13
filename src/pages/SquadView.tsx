@@ -123,8 +123,8 @@ const SquadView = () => {
 
         {/* Head Coach Info */}
         {headCoach && (
-          <Card>
-            <CardContent className="pt-6">
+          <Card className="border-0 border-b rounded-none shadow-none">
+            <CardContent className="pt-6 pb-6">
               <div className="flex items-start gap-4">
                 <Avatar className="h-16 w-16">
                   <AvatarImage src={headCoach.Image || undefined} alt={headCoach.shortname || "Coach"} />
