@@ -9,6 +9,7 @@ import SquadRecommendations from "./SquadRecommendations";
 import { useNavigate } from "react-router-dom";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
+import { useShortlists } from "@/hooks/useShortlists";
 import {
   Sheet,
   SheetContent,
@@ -54,6 +55,9 @@ const CompactSquadView = ({
   
   // Fetch squad recommendations
   const { data: recommendations = [] } = useSquadRecommendations();
+  
+  // Fetch shortlists
+  const { shortlists } = useShortlists();
 
   const handlePlayerClick = (player: Player) => {
     setSelectedPlayerForDetails(player);
@@ -131,6 +135,32 @@ const CompactSquadView = ({
     if (!selectedPosition) return [];
     return getPositionEligiblePlayers(selectedPosition);
   }, [selectedPosition, squadPlayers]);
+
+  // Get shortlisted players for the selected position
+  const shortlistedPlayers = useMemo(() => {
+    if (!selectedPosition) return [];
+    
+    const positionCategory = mapPositionToCategory(selectedPosition);
+    const allowedPositions = getPositionEligiblePlayers(selectedPosition).map(p => p.id);
+    
+    // Get all player IDs from all shortlists
+    const shortlistedPlayerIds = new Set(
+      shortlists.flatMap(shortlist => shortlist.playerIds || [])
+    );
+    
+    // Filter allPlayers to get those that are shortlisted and eligible for this position
+    return allPlayers.filter(player => 
+      shortlistedPlayerIds.has(player.id) &&
+      player.positions.some(pos => {
+        const mapping = getPositionEligiblePlayers(selectedPosition);
+        return mapping.some(mp => mp.id === player.id);
+      })
+    ).sort((a, b) => {
+      const ratingA = a.transferroomRating || a.xtvScore || 0;
+      const ratingB = b.transferroomRating || b.xtvScore || 0;
+      return ratingB - ratingA;
+    });
+  }, [selectedPosition, shortlists, allPlayers, squadPlayers]);
 
   return (
     <div className="h-full">
@@ -259,9 +289,25 @@ const CompactSquadView = ({
 
                 <TabsContent value="shortlists" className="mt-6">
                   <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground">
-                      Shortlisted players for {selectedPosition} position will appear here.
-                    </p>
+                    {shortlistedPlayers.length > 0 ? (
+                      <SquadListView 
+                        players={shortlistedPlayers}
+                        squadType={selectedSquad}
+                        formation={formation}
+                        positionAssignments={positionAssignments}
+                        onPlayerClick={(player) => {
+                          if (onPlayerChange && selectedPosition) {
+                            onPlayerChange(selectedPosition, player.id);
+                          }
+                          handlePositionClick('');
+                        }}
+                        selectedPlayer={null}
+                      />
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-8">
+                        No shortlisted players available for {selectedPosition} position
+                      </p>
+                    )}
                   </div>
                 </TabsContent>
               </Tabs>

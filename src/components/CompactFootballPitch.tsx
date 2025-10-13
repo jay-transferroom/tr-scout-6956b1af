@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Player } from "@/types/player";
-import { Plus, Circle } from "lucide-react";
+import { Plus, Hash } from "lucide-react";
 import pitchBackground from "@/assets/pitch.svg";
 
 interface CompactFootballPitchProps {
@@ -176,13 +176,19 @@ const CompactFootballPitch = ({
   };
 
   // Calculate depth for each position group
-  const getPositionDepth = (position: string): { count: number; color: string } => {
+  const getPositionDepth = (position: string): { count: number; color: string; avgRating: number } => {
     const allowedPositions = getPositionMapping(position);
     const availablePlayers = players.filter(player => 
       player.positions.some(pos => allowedPositions.includes(pos))
     );
     
     const count = availablePlayers.length;
+    
+    // Calculate average rating
+    const totalRating = availablePlayers.reduce((sum, player) => {
+      return sum + (player.transferroomRating || player.xtvScore || 0);
+    }, 0);
+    const avgRating = count > 0 ? totalRating / count : 0;
     
     // Traffic light system: Red (0-1), Amber (2), Green (3+)
     let color = 'text-red-500';
@@ -192,7 +198,7 @@ const CompactFootballPitch = ({
       color = 'text-amber-500';
     }
     
-    return { count, color };
+    return { count, color, avgRating };
   };
 
   return (
@@ -249,7 +255,7 @@ const PositionSlot = ({
   eligiblePlayers: Player[];
   onPositionClick?: (position: string) => void;
   onPlayerChange?: (position: string, playerId: string) => void;
-  depth: { count: number; color: string };
+  depth: { count: number; color: string; avgRating: number };
   isPriority: boolean;
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -272,11 +278,21 @@ const PositionSlot = ({
         )}
         
         {/* Depth indicator with better visibility */}
-        <div className={`flex items-center gap-0.5 mb-1 px-1.5 py-0.5 rounded-full shadow-md border-2 relative z-10 ${
+        <div className={`flex items-center gap-1 mb-1 px-1.5 py-0.5 rounded-full shadow-md border-2 relative z-10 ${
           isPriority ? 'bg-amber-500 border-amber-600' : 'bg-white border-gray-300'
         }`}>
-          <Circle className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : depth.color} fill-current`} />
-          <span className={`text-xs font-bold ${isPriority ? 'text-white' : depth.color}`}>{depth.count}</span>
+          <div className="flex items-center gap-0.5">
+            <Hash className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : depth.color}`} />
+            <span className={`text-xs font-bold ${isPriority ? 'text-white' : depth.color}`}>{depth.count}</span>
+          </div>
+          {depth.avgRating > 0 && (
+            <>
+              <div className={`w-px h-3 ${isPriority ? 'bg-white/30' : 'bg-gray-300'}`} />
+              <span className={`text-xs font-bold ${isPriority ? 'text-white' : 'text-gray-700'}`}>
+                {Math.round(depth.avgRating)}
+              </span>
+            </>
+          )}
         </div>
         
         {/* Position badge */}
