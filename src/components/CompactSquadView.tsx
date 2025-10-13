@@ -343,7 +343,7 @@ const CompactSquadView = ({
                   formation={formation}
                   positionAssignments={positionAssignments}
                   onPlayerClick={handlePlayerClick}
-                  selectedPlayer={null}
+                  selectedPlayer={selectedPlayerForDetails}
                 />
               </div>
             </div>
@@ -480,7 +480,7 @@ const CompactSquadView = ({
                           }
                           handlePositionClick('');
                         }}
-                        selectedPlayer={null}
+                        selectedPlayer={positionEligiblePlayers.find(p => p.id === (positionAssignments.find(a => a.position === selectedPosition)?.player_id)) || null}
                       />
                     </div>
                   </TabsContent>
