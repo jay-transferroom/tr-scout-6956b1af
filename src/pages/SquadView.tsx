@@ -160,7 +160,7 @@ const SquadView = () => {
   };
   return <div className="space-y-4 p-6">
       {/* Header */}
-      <div className="container mx-auto">
+      <div className="container mx-auto px-0">
         <div className="space-y-6">
           <div className="flex items-center gap-4">
             <ClubBadge clubName={userClub} size="lg" />
