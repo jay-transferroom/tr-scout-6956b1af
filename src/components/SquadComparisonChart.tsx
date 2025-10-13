@@ -70,30 +70,6 @@ const SquadComparisonChart = ({ clubName = "Chelsea FC" }: { clubName?: string }
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Overall Rating */}
-        <div className="p-4 bg-primary/5 rounded-lg border">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold">Overall Squad Rating</h3>
-            <Badge variant="default" className="text-lg px-3 py-1">
-              {chelseaSquad.average_starter_rating?.toFixed(1)}
-            </Badge>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>League Average: {(squads.reduce((sum, s) => sum + (s.average_starter_rating || 0), 0) / squads.length).toFixed(1)}</span>
-            {chelseaSquad.average_starter_rating > (squads.reduce((sum, s) => sum + (s.average_starter_rating || 0), 0) / squads.length) ? (
-              <div className="flex items-center gap-1 text-green-600">
-                <TrendingUp className="h-3 w-3" />
-                <span>Above average</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 text-amber-600">
-                <TrendingDown className="h-3 w-3" />
-                <span>Below average</span>
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Position Breakdown */}
         <div>
           <h3 className="font-semibold mb-3">Position-by-Position Breakdown</h3>
