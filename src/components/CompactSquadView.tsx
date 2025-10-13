@@ -353,7 +353,7 @@ const CompactSquadView = ({
 
           {/* Right Side - Squad List (Scrollable) */}
           <div className="w-1/2 overflow-y-auto">
-            <div className="space-y-2">
+            <div className="space-y-2 bg-muted/30 p-4 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <List className="h-5 w-5" />
                 <h3 className="text-lg font-semibold">Squad List</h3>
