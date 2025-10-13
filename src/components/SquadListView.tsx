@@ -122,8 +122,8 @@ const SquadListView = ({
                   <div 
                     key={player.id} 
                     className={`flex items-center gap-3 p-3 rounded-md cursor-pointer transition-all hover:bg-muted/50 ${
-                      isSelected ? 'bg-primary/10 border border-primary/20' : ''
-                    } ${hasWarning ? 'border-l-4 border-l-orange-500' : ''}`}
+                      isSelected ? 'bg-muted' : ''
+                    }`}
                     onClick={() => onPlayerClick?.(player)}
                   >
                     {/* Player Avatar */}
