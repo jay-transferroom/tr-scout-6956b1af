@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/player";
-import { Users, Calendar, MapPin, TrendingUp } from "lucide-react";
+import { Users, Calendar, MapPin, TrendingUp, Clock, UserX } from "lucide-react";
 
 interface SquadListViewProps {
   players: Player[];
@@ -79,12 +79,18 @@ const SquadListView = ({
     const now = new Date();
     const monthsUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30));
     
-    if (monthsUntilExpiry <= 6) {
-      return { status: 'Expires Soon', variant: 'destructive' as const };
-    } else if (monthsUntilExpiry <= 12) {
-      return { status: `${monthsUntilExpiry}mo left`, variant: 'secondary' as const };
+    if (monthsUntilExpiry <= 12) {
+      return { 
+        status: `${monthsUntilExpiry}mo left`, 
+        variant: 'warning' as const,
+        isRisk: true 
+      };
     }
     return null;
+  };
+
+  const isAgingPlayer = (player: Player) => {
+    return player.age >= 30;
   };
 
   const categorizedPlayers = groupPlayersByCategory();
@@ -108,32 +114,51 @@ const SquadListView = ({
               {categoryPlayers.map((player) => {
                 const assignment = getPlayerAssignment(player.id);
                 const contractStatus = getContractStatus(player);
+                const agingPlayer = isAgingPlayer(player);
                 const isSelected = selectedPlayer?.id === player.id;
+                const hasWarning = contractStatus?.isRisk || agingPlayer;
                 
                 return (
                   <div 
                     key={player.id} 
                     className={`flex items-center gap-3 p-3 rounded-md cursor-pointer transition-all hover:bg-muted/50 ${
                       isSelected ? 'bg-primary/10 border border-primary/20' : ''
-                    }`}
+                    } ${hasWarning ? 'border-l-4 border-l-orange-500' : ''}`}
                     onClick={() => onPlayerClick?.(player)}
                   >
                     {/* Player Avatar */}
-                    <Avatar className="h-12 w-12 flex-shrink-0">
-                      <AvatarImage 
-                        src={player.image} 
-                        alt={player.name}
-                      />
-                      <AvatarFallback className="text-sm">
-                        {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="relative">
+                      <Avatar className={`h-12 w-12 flex-shrink-0 ${hasWarning ? 'ring-2 ring-orange-500' : ''}`}>
+                        <AvatarImage 
+                          src={player.image} 
+                          alt={player.name}
+                        />
+                        <AvatarFallback className="text-sm">
+                          {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      {contractStatus?.isRisk && (
+                        <div className="absolute -top-1 -right-1 bg-orange-500 text-white rounded-full w-5 h-5 flex items-center justify-center border border-white">
+                          <Clock className="w-3 h-3" />
+                        </div>
+                      )}
+                      {agingPlayer && !contractStatus?.isRisk && (
+                        <div className="absolute -top-1 -right-1 bg-orange-500 text-white rounded-full w-5 h-5 flex items-center justify-center border border-white">
+                          <UserX className="w-3 h-3" />
+                        </div>
+                      )}
+                    </div>
 
                     {/* Player Info */}
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate text-base">{player.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {player.club} • {player.age}y • {player.nationality}
+                      <div className="text-sm text-muted-foreground flex items-center gap-2">
+                        <span>{player.club} • {player.age}y • {player.nationality}</span>
+                        {agingPlayer && (
+                          <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-300">
+                            Aging
+                          </Badge>
+                        )}
                       </div>
                     </div>
 
@@ -155,7 +180,8 @@ const SquadListView = ({
 
                     {/* Contract Status */}
                     {contractStatus && (
-                      <Badge variant={contractStatus.variant} className="text-sm flex-shrink-0">
+                      <Badge className="text-sm flex-shrink-0 bg-orange-500 hover:bg-orange-600">
+                        <Clock className="w-3 h-3 mr-1" />
                         {contractStatus.status}
                       </Badge>
                     )}
