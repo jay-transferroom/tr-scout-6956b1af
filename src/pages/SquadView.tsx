@@ -158,143 +158,153 @@ const SquadView = () => {
       console.error('Failed to update player assignment:', error);
     }
   };
-  return <div className="container mx-auto py-8 space-y-8">
+  return <div className="space-y-8">
       {/* Header */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <ClubBadge clubName={userClub} size="lg" />
-          <div>
-            <h1 className="text-3xl font-bold">{displayTitle}</h1>
-            <p className="text-muted-foreground mt-2">
-              Manage squad formations, analyze depth, and identify recruitment opportunities
-            </p>
+      <div className="container mx-auto py-8">
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <ClubBadge clubName={userClub} size="lg" />
+            <div>
+              <h1 className="text-3xl font-bold">{displayTitle}</h1>
+              <p className="text-muted-foreground mt-2">
+                Manage squad formations, analyze depth, and identify recruitment opportunities
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Head Coach Info and Squad Controls */}
-        <Card className="border-0 border-b rounded-none shadow-none">
-          <CardContent className="pt-6 pb-6">
-            <div className="flex flex-col lg:flex-row gap-6">
-              {/* Head Coach Info */}
-              {headCoach && (
-                <div className="flex items-start gap-4 flex-1">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage src={headCoach.Image || undefined} alt={headCoach.shortname || "Coach"} />
-                    <AvatarFallback className="text-sm">
-                      {headCoach.shortname ? headCoach.shortname.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "HC"}
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-5 w-5 text-muted-foreground" />
-                      <span className="text-base font-medium text-muted-foreground">Head Coach</span>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-xl">{headCoach.shortname || "Unknown"}</h4>
-                      <p className="text-base text-muted-foreground">
-                        {headCoach.current_Role} {headCoach.age ? `• ${headCoach.age} years old` : ""}
-                      </p>
-                    </div>
+          {/* Head Coach Info and Squad Controls */}
+          <Card className="border-0 border-b rounded-none shadow-none">
+            <CardContent className="pt-6 pb-6">
+              <div className="flex flex-col lg:flex-row gap-6">
+                {/* Head Coach Info */}
+                {headCoach && (
+                  <div className="flex items-start gap-4 flex-1">
+                    <Avatar className="h-16 w-16">
+                      <AvatarImage src={headCoach.Image || undefined} alt={headCoach.shortname || "Coach"} />
+                      <AvatarFallback className="text-sm">
+                        {headCoach.shortname ? headCoach.shortname.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "HC"}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-muted-foreground" />
+                        <span className="text-base font-medium text-muted-foreground">Head Coach</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-xl">{headCoach.shortname || "Unknown"}</h4>
+                        <p className="text-base text-muted-foreground">
+                          {headCoach.current_Role} {headCoach.age ? `• ${headCoach.age} years old` : ""}
+                        </p>
+                      </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      {headCoach.rating && (
-                        <Badge variant="secondary" className="text-sm">
-                          Rating: {headCoach.rating}
-                        </Badge>
-                      )}
-                      {headCoach.Style && (
-                        <Badge variant="outline" className="text-sm">
-                          {headCoach.Style}
-                        </Badge>
-                      )}
-                      {headCoach["Favourite Formation"] && (
-                        <Badge variant="outline" className="text-sm">
-                          {headCoach["Favourite Formation"]}
-                        </Badge>
-                      )}
-                      {headCoach.TrustInYouth !== null && headCoach.TrustInYouth !== undefined && (
-                        <Badge variant="outline" className="flex items-center gap-1 text-sm">
-                          <TrendingUp className="h-3.5 w-3.5" />
-                          Trust in Youth: {headCoach.TrustInYouth.toFixed(2)}
-                        </Badge>
-                      )}
+                      <div className="flex flex-wrap gap-2">
+                        {headCoach.rating && (
+                          <Badge variant="secondary" className="text-sm">
+                            Rating: {headCoach.rating}
+                          </Badge>
+                        )}
+                        {headCoach.Style && (
+                          <Badge variant="outline" className="text-sm">
+                            {headCoach.Style}
+                          </Badge>
+                        )}
+                        {headCoach["Favourite Formation"] && (
+                          <Badge variant="outline" className="text-sm">
+                            {headCoach["Favourite Formation"]}
+                          </Badge>
+                        )}
+                        {headCoach.TrustInYouth !== null && headCoach.TrustInYouth !== undefined && (
+                          <Badge variant="outline" className="flex items-center gap-1 text-sm">
+                            <TrendingUp className="h-3.5 w-3.5" />
+                            Trust in Youth: {headCoach.TrustInYouth.toFixed(2)}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Squad Selector and Formation - with left border */}
-              <div className="lg:border-l lg:pl-6 flex-1">
-                <SquadOverview 
-                  selectedSquad={selectedSquad} 
-                  onSquadSelect={setSelectedSquad} 
-                  club={userClub} 
-                  players={clubPlayers}
-                  currentFormation={currentFormation}
-                />
+                {/* Squad Selector and Formation - with left border */}
+                <div className="lg:border-l lg:pl-6 flex-1">
+                  <SquadOverview 
+                    selectedSquad={selectedSquad} 
+                    onSquadSelect={setSelectedSquad} 
+                    club={userClub} 
+                    players={clubPlayers}
+                    currentFormation={currentFormation}
+                  />
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      {/* Squad Selection and Formation Controls */}
-      <div className="space-y-4">
-        <div className="w-full">
-          <h3 className="text-sm font-medium text-muted-foreground mb-3">Select Squad</h3>
-          <div className="flex flex-wrap gap-2">
-            {squadsList.map((squad) => (
-              <Button
-                key={squad.id}
-                onClick={() => setSelectedSquad(squad.id)}
-                variant={selectedSquad === squad.id ? "default" : "outline"}
-                className="flex items-center gap-2"
-              >
-                <span>{squad.label}</span>
-                <Badge variant="secondary" className="ml-1">
-                  {squad.count}
-                </Badge>
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Formation Settings */}
-        <div className="w-full">
-          <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Formation
-          </h3>
-          <Select value={currentFormation} onValueChange={handleFormationChange}>
-            <SelectTrigger className="w-[200px] bg-background">
-              <SelectValue placeholder="Select formation" />
-            </SelectTrigger>
-            <SelectContent className="bg-background z-50">
-              {formations.map((formation) => (
-                <SelectItem 
-                  key={formation.formation} 
-                  value={formation.formation || ''}
-                  className="cursor-pointer"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <span>{formation.formation}</span>
-                    <Badge variant="secondary" className="text-xs">
-                      {formation.games} {formation.games === 1 ? 'game' : 'games'}
+      {/* Squad Selection and Formation Controls - Full Width */}
+      <div className="w-full bg-muted/30 py-6">
+        <div className="container mx-auto">
+          <div className="space-y-4">
+            <div className="w-full">
+              <h3 className="text-sm font-medium text-muted-foreground mb-3">Select Squad</h3>
+              <div className="flex flex-wrap gap-2">
+                {squadsList.map((squad) => (
+                  <Button
+                    key={squad.id}
+                    onClick={() => setSelectedSquad(squad.id)}
+                    variant={selectedSquad === squad.id ? "default" : "outline"}
+                    className="flex items-center gap-2"
+                  >
+                    <span>{squad.label}</span>
+                    <Badge variant="secondary" className="ml-1">
+                      {squad.count}
                     </Badge>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Formation Settings */}
+            <div className="w-full">
+              <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Formation
+              </h3>
+              <Select value={currentFormation} onValueChange={handleFormationChange}>
+                <SelectTrigger className="w-[200px] bg-background">
+                  <SelectValue placeholder="Select formation" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  {formations.map((formation) => (
+                    <SelectItem 
+                      key={formation.formation} 
+                      value={formation.formation || ''}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span>{formation.formation}</span>
+                        <Badge variant="secondary" className="text-xs">
+                          {formation.games} {formation.games === 1 ? 'game' : 'games'}
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Enhanced Football Pitch Visualization */}
-      <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
+      <div className="container mx-auto">
+        <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
+      </div>
 
       {/* Squad Comparison */}
-      <SquadComparisonChart clubName={userClub} />
+      <div className="container mx-auto pb-8">
+        <SquadComparisonChart clubName={userClub} />
+      </div>
     </div>;
 };
 export default SquadView;
