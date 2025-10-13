@@ -320,22 +320,6 @@ const CompactSquadView = ({
 
   return (
     <div className="h-full">
-      <div className="pb-3">
-        <div className="flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-lg font-semibold">
-            <Users className="h-5 w-5" />
-            Squad Overview
-            {selectedSquad === 'shadow-squad' && (
-              <Badge variant="secondary" className="text-xs">
-                Depth View
-              </Badge>
-            )}
-          </h3>
-          <Badge variant="outline" className="text-xs">
-            {squadPlayers.length} players
-          </Badge>
-        </div>
-      </div>
       
       {!isMinimized ? (
         <div className="flex gap-4">
