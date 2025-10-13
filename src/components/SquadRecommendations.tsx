@@ -232,49 +232,6 @@ const SquadRecommendations = ({
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Position Analysis Summary */}
-          <div className="p-4 bg-muted/30 rounded-lg space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {getPriorityIcon(analysis.priority)}
-                <span className="font-medium">{analysis.displayName}</span>
-                <Badge variant={getPriorityColor(analysis.priority) as any}>
-                  {analysis.priority}
-                </Badge>
-              </div>
-              <span className="text-sm text-muted-foreground">
-                {analysis.current}/{analysis.needed} players
-              </span>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-muted-foreground">Avg Rating:</span>
-                <span className="ml-2 font-medium">{analysis.averageRating || 'N/A'}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Top Rating:</span>
-                <span className="ml-2 font-medium">{analysis.topRating || 'N/A'}</span>
-              </div>
-            </div>
-
-            {(analysis.contractRisks > 0 || analysis.ageRisks > 0) && (
-              <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/20 p-2 rounded">
-                <AlertTriangle className="h-3 w-3" />
-                <span>
-                  {analysis.contractRisks > 0 && `${analysis.contractRisks} contract risk${analysis.contractRisks > 1 ? 's' : ''}`}
-                  {analysis.contractRisks > 0 && analysis.ageRisks > 0 && ', '}
-                  {analysis.ageRisks > 0 && `${analysis.ageRisks} aging player${analysis.ageRisks > 1 ? 's' : ''}`}
-                </span>
-              </div>
-            )}
-            
-            <div className="pt-2 border-t">
-              <p className="text-sm font-medium mb-1">Recruitment Strategy:</p>
-              <p className="text-sm text-muted-foreground">{analysis.recruitmentSuggestion}</p>
-            </div>
-          </div>
-
           {/* Recruitment Recommendations */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
