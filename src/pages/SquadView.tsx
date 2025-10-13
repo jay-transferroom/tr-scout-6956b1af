@@ -289,7 +289,7 @@ const SquadView = () => {
       </div>
 
       {/* Squad Comparison */}
-      <div className="container mx-auto pb-8">
+      <div className="container mx-auto px-0 pb-8">
         <SquadComparisonChart clubName={userClub} />
       </div>
     </div>;
