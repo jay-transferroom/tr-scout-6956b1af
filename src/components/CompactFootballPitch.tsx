@@ -5,6 +5,7 @@ import { Player } from "@/types/player";
 import { Plus, Hash, AlertTriangle, Clock } from "lucide-react";
 import pitchBackground from "@/assets/pitch.svg";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
+import { useSquadAverageRatings } from "@/hooks/useSquadAverageRatings";
 
 interface CompactFootballPitchProps {
   players: Player[];
@@ -79,6 +80,10 @@ const CompactFootballPitch = ({
   
   // Get database recommendations
   const { data: dbRecommendations } = useSquadRecommendations();
+  
+  // Get squad average ratings from database
+  const { data: squadRatings } = useSquadAverageRatings("Premier League");
+  const chelseaRatings = squadRatings?.find(squad => squad.Squad?.toLowerCase().includes('chelsea'));
   
   // Map position codes to position groups for recommendations
   const getPositionGroup = (position: string): string => {
@@ -235,11 +240,25 @@ const CompactFootballPitch = ({
     
     const count = availablePlayers.length;
     
-    // Calculate average rating
-    const totalRating = availablePlayers.reduce((sum, player) => {
-      return sum + (player.transferroomRating || player.xtvScore || 0);
-    }, 0);
-    const avgRating = count > 0 ? totalRating / count : 0;
+    // Get average rating from database based on position
+    let avgRating = 0;
+    if (chelseaRatings) {
+      if (position.startsWith('GK')) {
+        avgRating = chelseaRatings.KeeperRating || 0;
+      } else if (position.startsWith('CB')) {
+        avgRating = chelseaRatings.CentreBackRating || 0;
+      } else if (position.startsWith('LB')) {
+        avgRating = chelseaRatings.LeftBackRating || 0;
+      } else if (position.startsWith('RB')) {
+        avgRating = chelseaRatings.RightBackRating || 0;
+      } else if (position.includes('CM') || position.includes('CDM') || position.includes('CAM')) {
+        avgRating = chelseaRatings.CentreMidfielderRating || 0;
+      } else if (position.includes('W') || position.includes('LM') || position.includes('RM')) {
+        avgRating = chelseaRatings.WingerRating || 0;
+      } else if (position.includes('ST')) {
+        avgRating = chelseaRatings.ForwardRating || 0;
+      }
+    }
     
     // Count players with warnings (contract expiry or aging)
     const warningCount = availablePlayers.filter(player => {
@@ -367,6 +386,7 @@ const PositionSlot = ({
           {depth.avgRating > 0 && (
             <>
               <div className={`w-px h-3 ${isPriority ? 'bg-white/30' : 'bg-gray-300'}`} />
+              <span className={`text-xs ${isPriority ? 'text-white/70' : 'text-gray-500'}`}>⌀</span>
               <span className={`text-xs font-bold ${isPriority ? 'text-white' : 'text-gray-700'}`}>
                 {Math.round(depth.avgRating)}
               </span>
