@@ -235,19 +235,8 @@ const SquadRecommendations = ({
     if (!analysis) return null;
     
     return (
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Target className="h-5 w-5" />
-              {analysis.displayName} Analysis
-            </CardTitle>
-            <Badge variant={getPriorityColor(analysis.priority) as any}>
-              {analysis.priority}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <div className="space-y-4">
+        <CardContent className="space-y-4 p-0">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Current Squad:</span>
@@ -294,19 +283,19 @@ const SquadRecommendations = ({
                     className="flex items-center gap-3 p-2 rounded hover:bg-muted/50 cursor-pointer transition-colors"
                     onClick={() => handlePlayerClick(player.id)}
                   >
-                    <Avatar className="w-8 h-8">
+                    <Avatar className="h-12 w-12 flex-shrink-0">
                       <AvatarImage src={player.image} alt={player.name} />
-                      <AvatarFallback className="bg-blue-600 text-white text-xs">
+                      <AvatarFallback className="text-sm">
                         {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{player.name}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="font-medium truncate text-base">{player.name}</div>
+                      <div className="text-sm text-muted-foreground">
                         Age {player.age} • {player.positions.join(', ')}
                       </div>
                     </div>
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="text-sm flex-shrink-0">
                       {Math.round(player.transferroomRating || player.xtvScore || 0)}
                     </Badge>
                   </div>
@@ -315,7 +304,7 @@ const SquadRecommendations = ({
             </div>
           )}
         </CardContent>
-      </Card>
+      </div>
     );
   }
 
