@@ -322,7 +322,7 @@ const CompactSquadView = ({
     <div className="h-full">
       
       {!isMinimized ? (
-        <div className="flex gap-4">
+        <div className="flex gap-4 w-full">
           {/* Left Side - Pitch View */}
           <div className="w-1/2">
             <div className="space-y-2 sticky top-4">
