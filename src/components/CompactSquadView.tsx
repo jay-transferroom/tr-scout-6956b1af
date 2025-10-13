@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, LayoutGrid, List, Eye, Minimize2, Maximize2, X, ChevronUp, AlertTriangle } from "lucide-react";
+import { Users, LayoutGrid, List, Eye, Minimize2, Maximize2, X, ChevronUp, AlertTriangle, TrendingDown, Target, Star, TrendingUp } from "lucide-react";
 import { Player } from "@/types/player";
 import CompactFootballPitch from "./CompactFootballPitch";
 import SquadListView from "./SquadListView";
@@ -162,6 +162,108 @@ const CompactSquadView = ({
     });
   }, [selectedPosition, shortlists, allPlayers, squadPlayers]);
 
+  // Get position analysis for header
+  const getPositionAnalysis = (position: string) => {
+    const category = mapPositionToCategory(position);
+    
+    const positionConfig: Record<string, { displayName: string; requiredPositions: string[]; needed: number }> = {
+      'GK': { displayName: 'Goalkeeper', requiredPositions: ['GK'], needed: 2 },
+      'CB': { displayName: 'Centre Back', requiredPositions: ['CB'], needed: 4 },
+      'FB': { displayName: 'Full Back', requiredPositions: ['LB', 'RB', 'LWB', 'RWB'], needed: 4 },
+      'CM': { displayName: 'Central Midfield', requiredPositions: ['CM', 'CDM', 'CAM'], needed: 6 },
+      'W': { displayName: 'Winger', requiredPositions: ['LW', 'RW', 'LM', 'RM', 'W'], needed: 4 },
+      'ST': { displayName: 'Striker', requiredPositions: ['ST', 'CF', 'F', 'FW'], needed: 3 }
+    };
+
+    const config = positionConfig[category] || { displayName: position, requiredPositions: [], needed: 1 };
+    
+    const positionPlayers = squadPlayers.filter(p => 
+      p.positions.some(playerPos => config.requiredPositions.includes(playerPos))
+    );
+
+    const current = positionPlayers.length;
+    const ratings = positionPlayers.map(p => p.transferroomRating || p.xtvScore || 0);
+    const averageRating = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : 'N/A';
+    const topRating = ratings.length > 0 ? Math.max(...ratings).toFixed(1) : 'N/A';
+
+    // Contract and age risk analysis
+    const contractRisks = positionPlayers.filter(p => {
+      if (!p.contractExpiry) return false;
+      const expiryDate = new Date(p.contractExpiry);
+      const now = new Date();
+      const monthsUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30));
+      return monthsUntilExpiry <= 12;
+    }).length;
+
+    const ageRisks = positionPlayers.filter(p => p.age >= 30).length;
+
+    // Determine priority
+    let priority: 'Critical' | 'High' | 'Medium' | 'Low' | 'Strong';
+    let recruitmentSuggestion: string;
+
+    if (current === 0) {
+      priority = 'Critical';
+      recruitmentSuggestion = 'Immediate recruitment required - consider multiple targets';
+    } else if (current < config.needed / 2) {
+      priority = 'Critical';
+      recruitmentSuggestion = 'Priority recruitment target - focus on proven quality';
+    } else if (current < config.needed) {
+      if (parseFloat(averageRating as string) < 65) {
+        priority = 'High';
+        recruitmentSuggestion = 'Target higher-rated players to improve squad depth and quality';
+      } else {
+        priority = 'Medium';
+        recruitmentSuggestion = 'Add depth with promising young players or experienced squad players';
+      }
+    } else if (current === config.needed) {
+      if (contractRisks > 0 || ageRisks > 0) {
+        priority = 'Medium';
+        recruitmentSuggestion = 'Monitor contract and age situations - consider succession planning';
+      } else if (parseFloat(averageRating as string) < 70) {
+        priority = 'Low';
+        recruitmentSuggestion = 'Adequate depth - consider quality upgrades opportunistically';
+      } else {
+        priority = 'Strong';
+        recruitmentSuggestion = 'Strong position - maintain quality through targeted additions';
+      }
+    } else {
+      priority = 'Strong';
+      recruitmentSuggestion = 'Excellent depth and quality';
+    }
+
+    return {
+      displayName: config.displayName,
+      current,
+      needed: config.needed,
+      averageRating,
+      topRating,
+      contractRisks,
+      ageRisks,
+      priority,
+      recruitmentSuggestion
+    };
+  };
+
+  const getPriorityIcon = (priority: 'Critical' | 'High' | 'Medium' | 'Low' | 'Strong') => {
+    switch (priority) {
+      case 'Critical': return <AlertTriangle className="h-4 w-4 text-red-500" />;
+      case 'High': return <TrendingDown className="h-4 w-4 text-orange-500" />;
+      case 'Medium': return <Target className="h-4 w-4 text-yellow-500" />;
+      case 'Strong': return <Star className="h-4 w-4 text-green-500" />;
+      default: return <TrendingUp className="h-4 w-4 text-blue-500" />;
+    }
+  };
+
+  const getPriorityColor = (priority: 'Critical' | 'High' | 'Medium' | 'Low' | 'Strong') => {
+    switch (priority) {
+      case 'Critical': return 'destructive';
+      case 'High': return 'destructive';
+      case 'Medium': return 'secondary';
+      case 'Strong': return 'default';
+      default: return 'outline';
+    }
+  };
+
   return (
     <div className="h-full">
       <div className="pb-3">
@@ -242,56 +344,67 @@ const CompactSquadView = ({
       {/* Position Selection Slide-out */}
       <Sheet open={!!selectedPosition} onOpenChange={(open) => !open && handlePositionClick('')}>
         <SheetContent side="right" className="w-[75vw] overflow-y-auto">
-          {selectedPosition && (
-            <>
-              <SheetHeader>
-                <SheetTitle>Select Player for {selectedPosition}</SheetTitle>
-                <SheetDescription>
-                  Choose from eligible players or view recommendations
-                </SheetDescription>
-              </SheetHeader>
+          {selectedPosition && (() => {
+            const analysis = getPositionAnalysis(selectedPosition);
+            
+            return (
+              <>
+                <SheetHeader className="space-y-4">
+                  {/* Position Analysis Summary as Header */}
+                  <div className="p-4 bg-muted/30 rounded-lg space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {getPriorityIcon(analysis.priority)}
+                        <span className="font-medium text-lg">{analysis.displayName}</span>
+                        <Badge variant={getPriorityColor(analysis.priority) as any}>
+                          {analysis.priority}
+                        </Badge>
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        {analysis.current}/{analysis.needed} players
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Avg Rating:</span>
+                        <span className="ml-2 font-medium">{analysis.averageRating}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Top Rating:</span>
+                        <span className="ml-2 font-medium">{analysis.topRating}</span>
+                      </div>
+                    </div>
 
-              <Tabs defaultValue="select" className="mt-6">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="select">Select Player</TabsTrigger>
-                  <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-                  <TabsTrigger value="shortlists">Shortlists</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="select" className="mt-6">
-                  <div className="space-y-3">
-                    <SquadListView 
-                      players={positionEligiblePlayers}
-                      squadType={selectedSquad}
-                      formation={formation}
-                      positionAssignments={positionAssignments}
-                      onPlayerClick={(player) => {
-                        if (onPlayerChange && selectedPosition) {
-                          onPlayerChange(selectedPosition, player.id);
-                        }
-                        handlePositionClick('');
-                      }}
-                      selectedPlayer={null}
-                    />
+                    {(analysis.contractRisks > 0 || analysis.ageRisks > 0) && (
+                      <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/20 p-2 rounded">
+                        <AlertTriangle className="h-3 w-3" />
+                        <span>
+                          {analysis.contractRisks > 0 && `${analysis.contractRisks} contract risk${analysis.contractRisks > 1 ? 's' : ''}`}
+                          {analysis.contractRisks > 0 && analysis.ageRisks > 0 && ', '}
+                          {analysis.ageRisks > 0 && `${analysis.ageRisks} aging player${analysis.ageRisks > 1 ? 's' : ''}`}
+                        </span>
+                      </div>
+                    )}
+                    
+                    <div className="pt-2 border-t">
+                      <p className="text-sm font-medium mb-1">Recruitment Strategy:</p>
+                      <p className="text-sm text-muted-foreground">{analysis.recruitmentSuggestion}</p>
+                    </div>
                   </div>
-                </TabsContent>
+                </SheetHeader>
 
-                <TabsContent value="recommendations" className="mt-6">
-                  <div className="space-y-3">
-                    <SquadRecommendations 
-                      players={squadPlayers}
-                      selectedPosition={mapPositionToCategory(selectedPosition)}
-                      onPositionSelect={(pos) => handlePositionClick(pos)}
-                      allPlayers={allPlayers}
-                    />
-                  </div>
-                </TabsContent>
+                <Tabs defaultValue="select" className="mt-6">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="select">Select Player</TabsTrigger>
+                    <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+                    <TabsTrigger value="shortlists">Shortlists</TabsTrigger>
+                  </TabsList>
 
-                <TabsContent value="shortlists" className="mt-6">
-                  <div className="space-y-3">
-                    {shortlistedPlayers.length > 0 ? (
+                  <TabsContent value="select" className="mt-6">
+                    <div className="space-y-3">
                       <SquadListView 
-                        players={shortlistedPlayers}
+                        players={positionEligiblePlayers}
                         squadType={selectedSquad}
                         formation={formation}
                         positionAssignments={positionAssignments}
@@ -303,16 +416,47 @@ const CompactSquadView = ({
                         }}
                         selectedPlayer={null}
                       />
-                    ) : (
-                      <p className="text-sm text-muted-foreground text-center py-8">
-                        No shortlisted players available for {selectedPosition} position
-                      </p>
-                    )}
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </>
-          )}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="recommendations" className="mt-6">
+                    <div className="space-y-3">
+                      <SquadRecommendations 
+                        players={squadPlayers}
+                        selectedPosition={mapPositionToCategory(selectedPosition)}
+                        onPositionSelect={(pos) => handlePositionClick(pos)}
+                        allPlayers={allPlayers}
+                      />
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="shortlists" className="mt-6">
+                    <div className="space-y-3">
+                      {shortlistedPlayers.length > 0 ? (
+                        <SquadListView 
+                          players={shortlistedPlayers}
+                          squadType={selectedSquad}
+                          formation={formation}
+                          positionAssignments={positionAssignments}
+                          onPlayerClick={(player) => {
+                            if (onPlayerChange && selectedPosition) {
+                              onPlayerChange(selectedPosition, player.id);
+                            }
+                            handlePositionClick('');
+                          }}
+                          selectedPlayer={null}
+                        />
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-8">
+                          No shortlisted players available for {selectedPosition} position
+                        </p>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </>
+            );
+          })()}
         </SheetContent>
       </Sheet>
 
