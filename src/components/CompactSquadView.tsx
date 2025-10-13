@@ -145,10 +145,10 @@ const CompactSquadView = ({
         </div>
       </div>
       
-      <div className="p-4">
-        {!isMinimized ? (
-          <div className="space-y-4">
-            {/* Pitch View */}
+      {!isMinimized ? (
+        <div className="flex gap-4 h-[calc(100vh-200px)]">
+          {/* Left Side - Pitch View (Fixed) */}
+          <div className="w-1/2 sticky top-0 h-fit">
             <div className="space-y-2">
               <div className="flex items-center gap-2 mb-2">
                 <LayoutGrid className="h-4 w-4 text-muted-foreground" />
@@ -173,8 +173,10 @@ const CompactSquadView = ({
                 />
               </div>
             </div>
+          </div>
 
-            {/* Squad List */}
+          {/* Right Side - Squad List (Scrollable) */}
+          <div className="w-1/2 overflow-y-auto">
             <div className="space-y-2">
               <div className="flex items-center gap-2 mb-2">
                 <List className="h-4 w-4 text-muted-foreground" />
@@ -193,18 +195,17 @@ const CompactSquadView = ({
               </div>
             </div>
           </div>
-        ) : (
-          <div className="text-center py-4 text-muted-foreground">
-            <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Squad view minimized - {squadPlayers.length} players available</p>
-          </div>
-        )}
-
-      </div>
+        </div>
+      ) : (
+        <div className="text-center py-4 text-muted-foreground">
+          <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+          <p className="text-sm">Squad view minimized - {squadPlayers.length} players available</p>
+        </div>
+      )}
 
       {/* Position Selection Slide-out */}
       <Sheet open={!!selectedPosition} onOpenChange={(open) => !open && handlePositionClick('')}>
-        <SheetContent side="right" className="w-[400px] sm:w-[540px] overflow-y-auto">
+        <SheetContent side="right" className="w-[75vw] overflow-y-auto">
           {selectedPosition && (
             <>
               <SheetHeader>
@@ -251,7 +252,7 @@ const CompactSquadView = ({
 
       {/* Player Details Slide-out */}
       <Sheet open={!!selectedPlayerForDetails} onOpenChange={(open) => !open && setSelectedPlayerForDetails(null)}>
-        <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+        <SheetContent side="right" className="w-[75vw]">
           {selectedPlayerForDetails && (
             <>
               <SheetHeader>
