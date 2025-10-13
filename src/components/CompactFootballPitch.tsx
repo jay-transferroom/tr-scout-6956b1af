@@ -272,19 +272,22 @@ const PositionSlot = ({
       onClick={() => onPositionClick?.(position)}
     >
       <div className="flex flex-col items-center relative">
+        {/* Large subtle position label in background */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0">
+          <span className="text-4xl font-bold text-green-800/20">
+            {position}
+          </span>
+        </div>
+
         {/* Priority indicator ring */}
         {isPriority && (
           <div className="absolute -inset-2 rounded-full border-2 border-amber-500 bg-amber-500/10 animate-pulse" />
         )}
         
-        {/* Condensed info bar - position, count, rating */}
+        {/* Condensed info bar - count, rating */}
         <div className={`flex items-center gap-1 mb-1 px-2 py-0.5 rounded-full shadow-md border-2 relative z-10 ${
           isPriority ? 'bg-amber-500 border-amber-600' : 'bg-white border-gray-300'
         }`}>
-          <span className={`text-xs font-bold ${isPriority ? 'text-white' : 'text-gray-700'}`}>
-            {position}
-          </span>
-          <div className={`w-px h-3 ${isPriority ? 'bg-white/30' : 'bg-gray-300'}`} />
           <div className="flex items-center">
             <Hash className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : 'text-gray-600'}`} />
             <span className={`text-xs font-bold ${isPriority ? 'text-white' : 'text-gray-700'}`}>{depth.count}</span>
