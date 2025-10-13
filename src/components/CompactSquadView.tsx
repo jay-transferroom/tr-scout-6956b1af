@@ -336,7 +336,7 @@ const CompactSquadView = ({
                 )}
               </div>
               
-              <div className="aspect-[392/541] w-full max-w-2xl mx-auto relative">
+              <div className="aspect-[392/541] w-full max-w-2xl mx-auto relative overflow-visible">
                 <CompactFootballPitch 
                   players={squadPlayers}
                   squadType={selectedSquad}
