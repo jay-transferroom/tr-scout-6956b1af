@@ -238,8 +238,8 @@ const SquadView = () => {
       {/* Squad Selection and Formation Controls - Full Width */}
       <div className="w-full bg-muted/30 py-6">
         <div className="container mx-auto">
-          <div className="space-y-4">
-            <div className="w-full">
+          <div className="flex flex-col md:flex-row gap-6 md:items-end">
+            <div className="flex-1">
               <h3 className="text-sm font-medium text-muted-foreground mb-3">Select Squad</h3>
               <div className="flex flex-wrap gap-2">
                 {squadsList.map((squad) => (
@@ -259,7 +259,7 @@ const SquadView = () => {
             </div>
 
             {/* Formation Settings */}
-            <div className="w-full">
+            <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Formation
