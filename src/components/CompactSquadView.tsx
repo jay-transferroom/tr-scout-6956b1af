@@ -319,7 +319,7 @@ const CompactSquadView = ({
   };
 
   return (
-    <div className="h-full">
+    <div className="h-full w-full">
       
       {!isMinimized ? (
         <div className="flex gap-4 w-full">
