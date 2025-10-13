@@ -10,7 +10,7 @@ import SquadRecommendations from "@/components/SquadRecommendations";
 import ProspectComparison from "@/components/ProspectComparison";
 import SquadFormationCard from "@/components/SquadFormationCard";
 import SquadTableView from "@/components/SquadTableView";
-import SquadLeagueRatings from "@/components/SquadLeagueRatings";
+
 import SquadComparisonChart from "@/components/SquadComparisonChart";
 import { useSquadData } from "@/hooks/useSquadData";
 import { useSquadMetrics } from "@/hooks/useSquadMetrics";
@@ -193,10 +193,7 @@ const SquadView = () => {
       <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
 
       {/* Squad Comparison */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <SquadComparisonChart clubName={userClub} />
-        <SquadLeagueRatings />
-      </div>
+      <SquadComparisonChart clubName={userClub} />
     </div>;
 };
 export default SquadView;
