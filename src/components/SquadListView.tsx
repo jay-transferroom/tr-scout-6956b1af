@@ -102,7 +102,7 @@ const SquadListView = ({
         
         return (
           <div key={category} className="space-y-1">
-            <div className="flex items-center gap-2 px-1 sticky top-0 bg-white backdrop-blur py-1">
+            <div className="flex items-center gap-2 px-1 sticky top-0 bg-white backdrop-blur py-1 z-50">
               <Users className="h-4 w-4 text-muted-foreground" />
               <h3 className="font-medium text-sm">{category}</h3>
               <Badge variant="outline" className="text-xs px-1 py-0">
