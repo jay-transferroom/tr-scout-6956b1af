@@ -94,7 +94,17 @@ const CompactFootballPitch = ({
   // Check if position has a database recommendation
   const hasRecommendation = (position: string): boolean => {
     const group = getPositionGroup(position);
-    return dbRecommendations?.some(rec => rec.Position === group) || false;
+    return dbRecommendations?.some(rec => {
+      const recPosition = rec.Position.toLowerCase();
+      const posGroup = group.toLowerCase();
+      
+      // Handle specific position names (e.g., "Right back" should match RB positions)
+      if (recPosition === 'right back' && position.startsWith('RB')) return true;
+      if (recPosition === 'left back' && position.startsWith('LB')) return true;
+      
+      // General matching
+      return recPosition === posGroup;
+    }) || false;
   };
   
   // Helper to check if player has warnings
