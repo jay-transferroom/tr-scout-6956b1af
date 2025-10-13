@@ -338,10 +338,10 @@ const CompactSquadView = ({
       </div>
       
       {!isMinimized ? (
-        <div className="flex gap-4 h-[calc(100vh-200px)]">
-          {/* Left Side - Pitch View (Fixed) */}
-          <div className="w-1/2 sticky top-0 h-fit">
-            <div className="space-y-2">
+        <div className="flex gap-4">
+          {/* Left Side - Pitch View */}
+          <div className="w-1/2">
+            <div className="space-y-2 sticky top-4">
               <div className="flex items-center gap-2 mb-2">
                 <LayoutGrid className="h-4 w-4 text-muted-foreground" />
                 <h3 className="font-medium text-sm">Formation View</h3>
