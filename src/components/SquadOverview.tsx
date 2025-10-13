@@ -9,27 +9,15 @@ import { getSquadDisplayName } from "@/utils/squadUtils";
 import { useMarescaFormations } from "@/hooks/useMarescaFormations";
 import { useUpdateClubSettings } from "@/hooks/useClubSettings";
 
-interface HeadCoach {
-  shortname: string | null;
-  Image: string | null;
-  current_Role: string | null;
-  age: number | null;
-  rating: number | null;
-  Style: string | null;
-  "Favourite Formation": string | null;
-  TrustInYouth: number | null;
-}
-
 interface SquadOverviewProps {
   selectedSquad: string;
   onSquadSelect: (squad: string) => void;
   club: string;
   players: Player[];
-  headCoach?: HeadCoach | null;
   currentFormation: string;
 }
 
-const SquadOverview = ({ selectedSquad, onSquadSelect, club, players, headCoach, currentFormation }: SquadOverviewProps) => {
+const SquadOverview = ({ selectedSquad, onSquadSelect, club, players, currentFormation }: SquadOverviewProps) => {
   const { data: formations = [] } = useMarescaFormations();
   const updateClubSettings = useUpdateClubSettings();
 
@@ -93,111 +81,55 @@ const SquadOverview = ({ selectedSquad, onSquadSelect, club, players, headCoach,
   return (
     <Card>
       <CardContent className="pt-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6">
-          {/* Squad Selector */}
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">Select Squad</h3>
-              <div className="flex flex-wrap gap-2">
-                {squads.map((squad) => (
-                  <Button
-                    key={squad.id}
-                    onClick={() => onSquadSelect(squad.id)}
-                    variant={selectedSquad === squad.id ? "default" : "outline"}
-                    className="flex items-center gap-2"
-                  >
-                    <span>{squad.label}</span>
-                    <Badge variant="secondary" className="ml-1">
-                      {squad.count}
-                    </Badge>
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Formation Settings */}
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                Formation
-              </h3>
-              <Select value={currentFormation} onValueChange={handleFormationChange}>
-                <SelectTrigger className="w-[200px] bg-background">
-                  <SelectValue placeholder="Select formation" />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  {formations.map((formation) => (
-                    <SelectItem 
-                      key={formation.formation} 
-                      value={formation.formation || ''}
-                      className="cursor-pointer"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span>{formation.formation}</span>
-                        <Badge variant="secondary" className="text-xs">
-                          {formation.games} {formation.games === 1 ? 'game' : 'games'}
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        {/* Squad Selector */}
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">Select Squad</h3>
+            <div className="flex flex-wrap gap-2">
+              {squads.map((squad) => (
+                <Button
+                  key={squad.id}
+                  onClick={() => onSquadSelect(squad.id)}
+                  variant={selectedSquad === squad.id ? "default" : "outline"}
+                  className="flex items-center gap-2"
+                >
+                  <span>{squad.label}</span>
+                  <Badge variant="secondary" className="ml-1">
+                    {squad.count}
+                  </Badge>
+                </Button>
+              ))}
             </div>
           </div>
 
-          {/* Head Coach Info */}
-          {headCoach && (
-            <div className="lg:border-l lg:pl-6">
-              <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                Head Coach
-              </h3>
-              <div className="flex items-start gap-3">
-                <Avatar className="h-14 w-14">
-                  <AvatarImage src={headCoach.Image || undefined} alt={headCoach.shortname || "Coach"} />
-                  <AvatarFallback className="text-sm">
-                    {headCoach.shortname ? getInitials(headCoach.shortname) : "HC"}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div className="flex-1 space-y-2">
-                  <div>
-                    <h4 className="font-semibold">{headCoach.shortname || "Unknown"}</h4>
-                    <p className="text-xs text-muted-foreground">
-                      {headCoach.current_Role} {headCoach.age ? `• ${headCoach.age} years old` : ""}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-1.5">
-                    {headCoach.rating && (
+          {/* Formation Settings */}
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Formation
+            </h3>
+            <Select value={currentFormation} onValueChange={handleFormationChange}>
+              <SelectTrigger className="w-[200px] bg-background">
+                <SelectValue placeholder="Select formation" />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-50">
+                {formations.map((formation) => (
+                  <SelectItem 
+                    key={formation.formation} 
+                    value={formation.formation || ''}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span>{formation.formation}</span>
                       <Badge variant="secondary" className="text-xs">
-                        Rating: {headCoach.rating}
+                        {formation.games} {formation.games === 1 ? 'game' : 'games'}
                       </Badge>
-                    )}
-                    {headCoach.Style && (
-                      <Badge variant="outline" className="text-xs">
-                        {headCoach.Style}
-                      </Badge>
-                    )}
-                    {headCoach["Favourite Formation"] && (
-                      <Badge variant="outline" className="text-xs">
-                        {headCoach["Favourite Formation"]}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {headCoach.TrustInYouth !== null && headCoach.TrustInYouth !== undefined && (
-                    <div className="flex items-center gap-1.5 text-xs">
-                      <TrendingUp className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-muted-foreground">
-                        Trust in Youth: <span className="font-medium text-foreground">{headCoach.TrustInYouth.toFixed(2)}</span>
-                      </span>
                     </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </CardContent>
     </Card>

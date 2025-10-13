@@ -18,6 +18,10 @@ import { useClubSettings } from "@/hooks/useClubSettings";
 import { useHeadCoach } from "@/hooks/useHeadCoach";
 import { getSquadDisplayName } from "@/utils/squadUtils";
 import { ClubBadge } from "@/components/ui/club-badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Users, TrendingUp } from "lucide-react";
 const SquadView = () => {
   const navigate = useNavigate();
   const {
@@ -106,7 +110,7 @@ const SquadView = () => {
   };
   return <div className="container mx-auto py-8 space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="space-y-6">
         <div className="flex items-center gap-4">
           <ClubBadge clubName={userClub} size="md" />
           <div>
@@ -116,15 +120,67 @@ const SquadView = () => {
             </p>
           </div>
         </div>
+
+        {/* Head Coach Info */}
+        {headCoach && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage src={headCoach.Image || undefined} alt={headCoach.shortname || "Coach"} />
+                  <AvatarFallback className="text-sm">
+                    {headCoach.shortname ? headCoach.shortname.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "HC"}
+                  </AvatarFallback>
+                </Avatar>
+                
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-muted-foreground">Head Coach</span>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-lg">{headCoach.shortname || "Unknown"}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {headCoach.current_Role} {headCoach.age ? `• ${headCoach.age} years old` : ""}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {headCoach.rating && (
+                      <Badge variant="secondary">
+                        Rating: {headCoach.rating}
+                      </Badge>
+                    )}
+                    {headCoach.Style && (
+                      <Badge variant="outline">
+                        {headCoach.Style}
+                      </Badge>
+                    )}
+                    {headCoach["Favourite Formation"] && (
+                      <Badge variant="outline">
+                        {headCoach["Favourite Formation"]}
+                      </Badge>
+                    )}
+                    {headCoach.TrustInYouth !== null && headCoach.TrustInYouth !== undefined && (
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        <TrendingUp className="h-3 w-3" />
+                        Trust in Youth: {headCoach.TrustInYouth.toFixed(2)}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
-      {/* Squad Overview - Combined Squad Selector and Head Coach */}
+      {/* Squad Overview - Squad Selector and Formation */}
       <SquadOverview 
         selectedSquad={selectedSquad} 
         onSquadSelect={setSelectedSquad} 
         club={userClub} 
         players={clubPlayers}
-        headCoach={headCoach}
         currentFormation={currentFormation}
       />
 
