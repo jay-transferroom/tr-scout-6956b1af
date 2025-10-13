@@ -2,17 +2,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Target, TrendingUp, TrendingDown, AlertTriangle, Star, Users, ArrowRight, Lightbulb } from "lucide-react";
+import { Target, TrendingUp, TrendingDown, AlertTriangle, Star, Users, ArrowRight, Lightbulb, Eye, ListPlus, UserPlus } from "lucide-react";
 import { Player } from "@/types/player";
 import { useNavigate } from "react-router-dom";
 import { useShortlists } from "@/hooks/useShortlists";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
+import { usePlayerScouts } from "@/hooks/usePlayerScouts";
 
 interface SquadRecommendationsProps {
   players: Player[];
   selectedPosition: string | null;
   onPositionSelect: (position: string) => void;
   allPlayers?: Player[];
+  onAddToShortlist?: (player: Player, e: React.MouseEvent) => void;
+  onAssignScout?: (player: Player, e: React.MouseEvent) => void;
+  onViewProfile?: (player: Player) => void;
 }
 
 interface PositionAnalysis {
@@ -36,7 +40,10 @@ const SquadRecommendations = ({
   players,
   selectedPosition,
   onPositionSelect,
-  allPlayers = []
+  allPlayers = [],
+  onAddToShortlist,
+  onAssignScout,
+  onViewProfile
 }: SquadRecommendationsProps) => {
   const navigate = useNavigate();
   const { shortlists } = useShortlists();
@@ -199,11 +206,13 @@ const SquadRecommendations = ({
       .slice(0, 10);
   };
 
-  const handlePlayerClick = (playerId: string, isPrivate: boolean = false) => {
-    if (isPrivate) {
-      navigate(`/private-player/${playerId}`);
+  const handlePlayerClick = (player: Player) => {
+    if (onViewProfile) {
+      onViewProfile(player);
+    } else if (player.isPrivatePlayer) {
+      navigate(`/private-player/${player.id}`);
     } else {
-      navigate(`/player/${playerId}`);
+      navigate(`/player/${player.id}`);
     }
   };
 
@@ -253,30 +262,72 @@ const SquadRecommendations = ({
             return (
               <div>
                 <h4 className="font-medium mb-2 text-sm">Recommended Players</h4>
-                <div className="space-y-0.5">
-                  {recommendations.map((player) => (
-                    <div
-                      key={player.id}
-                      className="flex items-center gap-3 p-3 rounded-md cursor-pointer transition-all hover:bg-muted/50"
-                      onClick={() => handlePlayerClick(player.id, player.isPrivatePlayer)}
-                    >
-                      <Avatar className="h-12 w-12 flex-shrink-0">
-                        <AvatarImage src={player.image} alt={player.name} />
-                        <AvatarFallback className="text-sm">
-                          {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium truncate text-base">{player.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {player.club} • Age {player.age} • {player.positions.join(', ')}
+                <div className="space-y-1">
+                  {recommendations.map((player) => {
+                    const { data: scouts = [] } = usePlayerScouts(player.id);
+                    const hasScout = scouts.length > 0;
+                    
+                    return (
+                      <div
+                        key={player.id}
+                        className="flex items-center gap-3 p-3 rounded-md transition-all hover:bg-muted/50 group"
+                      >
+                        <Avatar className="h-12 w-12 flex-shrink-0 cursor-pointer" onClick={() => handlePlayerClick(player)}>
+                          <AvatarImage src={player.image} alt={player.name} />
+                          <AvatarFallback className="text-sm">
+                            {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handlePlayerClick(player)}>
+                          <div className="font-medium truncate text-base">{player.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {player.club} • Age {player.age} • {player.positions.join(', ')}
+                          </div>
+                          {hasScout && (
+                            <div className="flex items-center gap-1 mt-1">
+                              <Badge variant="outline" className="text-xs">
+                                <UserPlus className="h-3 w-3 mr-1" />
+                                Scout assigned
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
+                        <Badge variant="secondary" className="text-sm flex-shrink-0">
+                          {Math.round(player.transferroomRating || player.xtvScore || 0)}
+                        </Badge>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handlePlayerClick(player)}
+                            title="View Profile"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          {onAddToShortlist && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => onAddToShortlist(player, e)}
+                              title="Add to Shortlist"
+                            >
+                              <ListPlus className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {onAssignScout && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => onAssignScout(player, e)}
+                              title="Assign Scout"
+                            >
+                              <UserPlus className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </div>
-                      <Badge variant="secondary" className="text-sm flex-shrink-0">
-                        {Math.round(player.transferroomRating || player.xtvScore || 0)}
-                      </Badge>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );

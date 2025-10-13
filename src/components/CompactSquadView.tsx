@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, LayoutGrid, List, Eye, Minimize2, Maximize2, X, ChevronUp, AlertTriangle, TrendingDown, Target, Star, TrendingUp, ArrowRight } from "lucide-react";
+import { Users, LayoutGrid, List, Eye, Minimize2, Maximize2, X, ChevronUp, AlertTriangle, TrendingDown, Target, Star, TrendingUp, ArrowRight, UserPlus, ListPlus, UserCheck } from "lucide-react";
 import { Player } from "@/types/player";
 import CompactFootballPitch from "./CompactFootballPitch";
 import SquadListView from "./SquadListView";
@@ -10,6 +10,9 @@ import { useNavigate } from "react-router-dom";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
 import { useShortlists } from "@/hooks/useShortlists";
+import AssignScoutDialog from "./AssignScoutDialog";
+import { usePlayerScouts } from "@/hooks/usePlayerScouts";
+import { toast } from "@/hooks/use-toast";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Sheet,
@@ -49,6 +52,7 @@ const CompactSquadView = ({
 }: CompactSquadViewProps) => {
   const [selectedPlayerForDetails, setSelectedPlayerForDetails] = useState<Player | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [playerToAssign, setPlayerToAssign] = useState<Player | null>(null);
   const navigate = useNavigate();
   
   // Fetch all players for recommendations
@@ -58,7 +62,7 @@ const CompactSquadView = ({
   const { data: recommendations = [] } = useSquadRecommendations();
   
   // Fetch shortlists
-  const { shortlists } = useShortlists();
+  const { shortlists, addPlayerToShortlist, getPlayerShortlists } = useShortlists();
 
   const handlePlayerClick = (player: Player) => {
     setSelectedPlayerForDetails(player);
@@ -88,6 +92,41 @@ const CompactSquadView = ({
     } else {
       navigate(`/player/${playerId}`);
     }
+  };
+
+  const handleAddToShortlist = async (player: Player, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    // Find first non-scouting shortlist or create one
+    const userShortlist = shortlists.find(s => !s.is_scouting_assignment_list);
+    
+    if (!userShortlist) {
+      toast({
+        title: "No shortlist available",
+        description: "Please create a shortlist first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      await addPlayerToShortlist(userShortlist.id, player.id);
+      toast({
+        title: "Added to shortlist",
+        description: `${player.name} has been added to ${userShortlist.name}`
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add player to shortlist",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAssignScout = (player: Player, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPlayerToAssign(player);
   };
 
   // Map specific pitch positions to general position categories
@@ -492,6 +531,9 @@ const CompactSquadView = ({
                         selectedPosition={mapPositionToCategory(selectedPosition)}
                         onPositionSelect={(pos) => handlePositionClick(pos)}
                         allPlayers={allPlayers}
+                        onAddToShortlist={handleAddToShortlist}
+                        onAssignScout={handleAssignScout}
+                        onViewProfile={handleViewPlayerProfile}
                       />
                     </div>
                   </TabsContent>
@@ -509,44 +551,77 @@ const CompactSquadView = ({
                           </div>
 
                           <div className="space-y-1">
-                            {shortlistedPlayers.map((player) => (
-                              <div
-                                key={player.id}
-                                className="flex items-center gap-3 p-3 rounded-md bg-muted/30 hover:bg-muted/50 cursor-pointer transition-all"
-                                onClick={() => handleShortlistPlayerClick(player.id, player.isPrivatePlayer)}
-                              >
-                                <Avatar className="h-12 w-12">
-                                  <AvatarImage src={player.image} alt={player.name} />
-                                  <AvatarFallback className="text-sm">
-                                    {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                                  </AvatarFallback>
-                                </Avatar>
+                            {shortlistedPlayers.map((player) => {
+                              const PlayerScoutsComponent = () => {
+                                const { data: scouts = [] } = usePlayerScouts(player.id);
+                                const hasScout = scouts.length > 0;
+                                
+                                return (
+                                  <div
+                                    key={player.id}
+                                    className="flex items-center gap-3 p-3 rounded-md bg-muted/30 hover:bg-muted/50 transition-all group"
+                                  >
+                                    <Avatar className="h-12 w-12 cursor-pointer" onClick={() => handleShortlistPlayerClick(player.id, player.isPrivatePlayer)}>
+                                      <AvatarImage src={player.image} alt={player.name} />
+                                      <AvatarFallback className="text-sm">
+                                        {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                                      </AvatarFallback>
+                                    </Avatar>
 
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-medium truncate text-base">{player.name}</div>
-                                  <div className="text-sm text-muted-foreground">
-                                    {player.club} • {player.age}y • {player.nationality}
+                                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleShortlistPlayerClick(player.id, player.isPrivatePlayer)}>
+                                      <div className="font-medium truncate text-base">{player.name}</div>
+                                      <div className="text-sm text-muted-foreground">
+                                        {player.club} • {player.age}y • {player.nationality}
+                                      </div>
+                                      {hasScout && (
+                                        <div className="flex items-center gap-1 mt-1">
+                                          <Badge variant="outline" className="text-xs">
+                                            <UserCheck className="h-3 w-3 mr-1" />
+                                            Scout assigned
+                                          </Badge>
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                      {player.positions.slice(0, 2).map((pos, idx) => (
+                                        <Badge key={idx} variant="outline" className="text-sm">
+                                          {pos}
+                                        </Badge>
+                                      ))}
+                                    </div>
+
+                                    <div className="flex items-center gap-1">
+                                      <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                                      <span className="font-medium text-base">
+                                        {Math.round(player.transferroomRating || player.xtvScore || 0)}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleShortlistPlayerClick(player.id, player.isPrivatePlayer)}
+                                        title="View Profile"
+                                      >
+                                        <Eye className="h-4 w-4" />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={(e) => handleAssignScout(player, e)}
+                                        title="Assign Scout"
+                                      >
+                                        <UserPlus className="h-4 w-4" />
+                                      </Button>
+                                    </div>
                                   </div>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                  {player.positions.slice(0, 2).map((pos, idx) => (
-                                    <Badge key={idx} variant="outline" className="text-sm">
-                                      {pos}
-                                    </Badge>
-                                  ))}
-                                </div>
-
-                                <div className="flex items-center gap-1">
-                                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                                  <span className="font-medium text-base">
-                                    {Math.round(player.transferroomRating || player.xtvScore || 0)}
-                                  </span>
-                                </div>
-
-                                <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                              </div>
-                            ))}
+                                );
+                              };
+                              
+                              return <PlayerScoutsComponent key={player.id} />;
+                            })}
                           </div>
                         </div>
                       ) : (
@@ -650,6 +725,15 @@ const CompactSquadView = ({
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Assign Scout Dialog */}
+      {playerToAssign && (
+        <AssignScoutDialog
+          isOpen={!!playerToAssign}
+          onClose={() => setPlayerToAssign(null)}
+          player={playerToAssign}
+        />
+      )}
     </div>
   );
 };
