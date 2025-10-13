@@ -121,68 +121,73 @@ const SquadView = () => {
           </div>
         </div>
 
-        {/* Head Coach Info */}
-        {headCoach && (
-          <Card className="border-0 border-b rounded-none shadow-none">
-            <CardContent className="pt-6 pb-6">
-              <div className="flex items-start gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={headCoach.Image || undefined} alt={headCoach.shortname || "Coach"} />
-                  <AvatarFallback className="text-sm">
-                    {headCoach.shortname ? headCoach.shortname.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "HC"}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium text-muted-foreground">Head Coach</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-lg">{headCoach.shortname || "Unknown"}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {headCoach.current_Role} {headCoach.age ? `• ${headCoach.age} years old` : ""}
-                    </p>
-                  </div>
+        {/* Head Coach Info and Squad Controls */}
+        <Card className="border-0 border-b rounded-none shadow-none">
+          <CardContent className="pt-6 pb-6">
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Head Coach Info */}
+              {headCoach && (
+                <div className="flex items-start gap-4 flex-1">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage src={headCoach.Image || undefined} alt={headCoach.shortname || "Coach"} />
+                    <AvatarFallback className="text-sm">
+                      {headCoach.shortname ? headCoach.shortname.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "HC"}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium text-muted-foreground">Head Coach</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-lg">{headCoach.shortname || "Unknown"}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {headCoach.current_Role} {headCoach.age ? `• ${headCoach.age} years old` : ""}
+                      </p>
+                    </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    {headCoach.rating && (
-                      <Badge variant="secondary">
-                        Rating: {headCoach.rating}
-                      </Badge>
-                    )}
-                    {headCoach.Style && (
-                      <Badge variant="outline">
-                        {headCoach.Style}
-                      </Badge>
-                    )}
-                    {headCoach["Favourite Formation"] && (
-                      <Badge variant="outline">
-                        {headCoach["Favourite Formation"]}
-                      </Badge>
-                    )}
-                    {headCoach.TrustInYouth !== null && headCoach.TrustInYouth !== undefined && (
-                      <Badge variant="outline" className="flex items-center gap-1">
-                        <TrendingUp className="h-3 w-3" />
-                        Trust in Youth: {headCoach.TrustInYouth.toFixed(2)}
-                      </Badge>
-                    )}
+                    <div className="flex flex-wrap gap-2">
+                      {headCoach.rating && (
+                        <Badge variant="secondary">
+                          Rating: {headCoach.rating}
+                        </Badge>
+                      )}
+                      {headCoach.Style && (
+                        <Badge variant="outline">
+                          {headCoach.Style}
+                        </Badge>
+                      )}
+                      {headCoach["Favourite Formation"] && (
+                        <Badge variant="outline">
+                          {headCoach["Favourite Formation"]}
+                        </Badge>
+                      )}
+                      {headCoach.TrustInYouth !== null && headCoach.TrustInYouth !== undefined && (
+                        <Badge variant="outline" className="flex items-center gap-1">
+                          <TrendingUp className="h-3 w-3" />
+                          Trust in Youth: {headCoach.TrustInYouth.toFixed(2)}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+              )}
 
-      {/* Squad Overview - Squad Selector and Formation */}
-      <SquadOverview 
-        selectedSquad={selectedSquad} 
-        onSquadSelect={setSelectedSquad} 
-        club={userClub} 
-        players={clubPlayers}
-        currentFormation={currentFormation}
-      />
+              {/* Squad Selector and Formation - with left border */}
+              <div className="lg:border-l lg:pl-6 flex-1">
+                <SquadOverview 
+                  selectedSquad={selectedSquad} 
+                  onSquadSelect={setSelectedSquad} 
+                  club={userClub} 
+                  players={clubPlayers}
+                  currentFormation={currentFormation}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Enhanced Football Pitch Visualization */}
       <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
