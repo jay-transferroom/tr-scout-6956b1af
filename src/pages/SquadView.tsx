@@ -160,7 +160,7 @@ const SquadView = () => {
   };
   return <div className="space-y-8">
       {/* Header */}
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto">
         <div className="space-y-6">
           <div className="flex items-center gap-4">
             <ClubBadge clubName={userClub} size="lg" />
@@ -173,7 +173,7 @@ const SquadView = () => {
           </div>
 
           {/* Head Coach Info and Squad Controls */}
-          <Card className="border-0 border-b rounded-none shadow-none">
+          <Card className="border-0 rounded-none shadow-none">
             <CardContent className="pt-6 pb-6">
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Head Coach Info */}
