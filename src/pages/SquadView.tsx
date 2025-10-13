@@ -158,7 +158,7 @@ const SquadView = () => {
       console.error('Failed to update player assignment:', error);
     }
   };
-  return <div className="space-y-8">
+  return <div className="space-y-4">
       {/* Header */}
       <div className="container mx-auto">
         <div className="space-y-6">
@@ -174,7 +174,7 @@ const SquadView = () => {
 
           {/* Head Coach Info and Squad Controls */}
           <Card className="border-0 rounded-none shadow-none">
-            <CardContent className="pt-6 pb-6">
+            <CardContent className="pt-6 pb-2">
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Head Coach Info */}
                 {headCoach && (
