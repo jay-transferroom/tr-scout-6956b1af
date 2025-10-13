@@ -238,32 +238,29 @@ const SquadView = () => {
       {/* Squad Selection and Formation Controls - Full Width */}
       <div className="w-full bg-muted/30 py-6">
         <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row gap-6 md:items-end">
-            <div className="flex-1">
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">Select Squad</h3>
-              <div className="flex flex-wrap gap-2">
-                {squadsList.map((squad) => (
-                  <Button
-                    key={squad.id}
-                    onClick={() => setSelectedSquad(squad.id)}
-                    variant={selectedSquad === squad.id ? "default" : "outline"}
-                    className="flex items-center gap-2"
-                  >
-                    <span>{squad.label}</span>
-                    <Badge variant="secondary" className="ml-1">
-                      {squad.count}
-                    </Badge>
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Formation Settings */}
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
+          <div className="space-y-3">
+            <div className="flex items-center gap-4">
+              <h3 className="text-sm font-medium text-muted-foreground">Select Squad</h3>
+              <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Formation
               </h3>
+            </div>
+            <div className="flex flex-wrap gap-2 items-center">
+              {squadsList.map((squad) => (
+                <Button
+                  key={squad.id}
+                  onClick={() => setSelectedSquad(squad.id)}
+                  variant={selectedSquad === squad.id ? "default" : "outline"}
+                  className="flex items-center gap-2"
+                >
+                  <span>{squad.label}</span>
+                  <Badge variant="secondary" className="ml-1">
+                    {squad.count}
+                  </Badge>
+                </Button>
+              ))}
+              
               <Select value={currentFormation} onValueChange={handleFormationChange}>
                 <SelectTrigger className="w-[200px] bg-background">
                   <SelectValue placeholder="Select formation" />
