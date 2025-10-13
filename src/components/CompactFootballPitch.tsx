@@ -202,10 +202,10 @@ const CompactFootballPitch = ({
   };
 
   return (
-    <div className="relative w-full h-full rounded-lg overflow-hidden">
+    <div className="relative w-full h-full rounded-lg overflow-hidden z-0 isolate">
       {/* Football pitch background */}
       <div 
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0 bg-cover bg-center pointer-events-none z-0"
         style={{ backgroundImage: `url(${pitchBackground})` }}
       />
 
@@ -321,7 +321,7 @@ const PositionSlot = ({
 
             {/* Player selection dropdown (hover) */}
             {showDropdown && onPlayerChange && eligiblePlayers.length > 1 && (
-              <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-40">
+              <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-[80]">
                 <div className="bg-white border border-gray-300 rounded-lg shadow-xl p-2 min-w-40 max-h-48 overflow-y-auto">
                   <div className="text-xs font-semibold text-gray-600 mb-2 px-2">
                     Select Player
@@ -375,7 +375,7 @@ const PositionSlot = ({
 
             {/* Empty position dropdown (hover) */}
             {showDropdown && onPlayerChange && eligiblePlayers.length > 0 && (
-              <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-40">
+              <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-[80]">
                 <div className="bg-white border border-gray-300 rounded-lg shadow-xl p-2 min-w-40 max-h-48 overflow-y-auto">
                   <div className="text-xs font-semibold text-gray-600 mb-2 px-2">
                     Select Player
