@@ -137,35 +137,35 @@ const SquadView = () => {
                   
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium text-muted-foreground">Head Coach</span>
+                      <Users className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-base font-medium text-muted-foreground">Head Coach</span>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-lg">{headCoach.shortname || "Unknown"}</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <h4 className="font-semibold text-xl">{headCoach.shortname || "Unknown"}</h4>
+                      <p className="text-base text-muted-foreground">
                         {headCoach.current_Role} {headCoach.age ? `• ${headCoach.age} years old` : ""}
                       </p>
                     </div>
 
                     <div className="flex flex-wrap gap-2">
                       {headCoach.rating && (
-                        <Badge variant="secondary">
+                        <Badge variant="secondary" className="text-sm">
                           Rating: {headCoach.rating}
                         </Badge>
                       )}
                       {headCoach.Style && (
-                        <Badge variant="outline">
+                        <Badge variant="outline" className="text-sm">
                           {headCoach.Style}
                         </Badge>
                       )}
                       {headCoach["Favourite Formation"] && (
-                        <Badge variant="outline">
+                        <Badge variant="outline" className="text-sm">
                           {headCoach["Favourite Formation"]}
                         </Badge>
                       )}
                       {headCoach.TrustInYouth !== null && headCoach.TrustInYouth !== undefined && (
-                        <Badge variant="outline" className="flex items-center gap-1">
-                          <TrendingUp className="h-3 w-3" />
+                        <Badge variant="outline" className="flex items-center gap-1 text-sm">
+                          <TrendingUp className="h-3.5 w-3.5" />
                           Trust in Youth: {headCoach.TrustInYouth.toFixed(2)}
                         </Badge>
                       )}
