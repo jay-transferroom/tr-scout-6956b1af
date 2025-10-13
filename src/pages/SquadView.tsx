@@ -282,8 +282,10 @@ const SquadView = () => {
       </div>
 
       {/* Enhanced Football Pitch Visualization */}
-      <div className="container mx-auto">
-        <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
+      <div className="w-full">
+        <div className="container mx-auto">
+          <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
+        </div>
       </div>
 
       {/* Squad Comparison */}
