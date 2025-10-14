@@ -23,8 +23,10 @@ import { ClubBadge } from "@/components/ui/club-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, TrendingUp } from "lucide-react";
+import { Users, TrendingUp, AlertTriangle, Lightbulb } from "lucide-react";
 import SquadPitchLegend from "@/components/SquadPitchLegend";
+import { Separator } from "@/components/ui/separator";
+import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
 const SquadView = () => {
   const navigate = useNavigate();
   const {
@@ -72,6 +74,9 @@ const SquadView = () => {
   } = useAllPlayerPositionAssignments(userClub, currentFormation);
   const updateAssignment = useUpdatePlayerPositionAssignment();
 
+  // Fetch squad recommendations from database
+  const { data: dbRecommendations = [] } = useSquadRecommendations();
+
   // Filter players based on Chelsea F.C. (including all squads and loans)
   const clubPlayers = useMemo(() => {
     return allPlayers.filter(player => {
@@ -80,6 +85,22 @@ const SquadView = () => {
       return club.includes('chelsea') || club === 'chelsea fc' || club === 'chelsea';
     });
   }, [allPlayers]);
+
+  // Get players with alerts (contract expiring soon or aging)
+  const alertPlayers = useMemo(() => {
+    return clubPlayers.filter(player => {
+      // Contract expiring within 12 months
+      if (player.contractExpiry) {
+        const expiryDate = new Date(player.contractExpiry);
+        const now = new Date();
+        const monthsUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30));
+        if (monthsUntilExpiry <= 12 && monthsUntilExpiry > 0) return true;
+      }
+      // Players aged 30 or above
+      if (player.age >= 30) return true;
+      return false;
+    });
+  }, [clubPlayers]);
 
   // Use custom hooks for data management
   const {
@@ -285,6 +306,83 @@ const SquadView = () => {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <Separator className="my-6" />
+
+          {/* Squad Recommendations and Alerts */}
+          <div className="space-y-6">
+            {/* Database Recommendations */}
+            {dbRecommendations.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4" />
+                  Squad Recommendations
+                </h3>
+                <div className="grid gap-2">
+                  {dbRecommendations.map((rec, index) => (
+                    <Card key={index} className="border-l-4 border-l-primary">
+                      <CardContent className="py-3 px-4">
+                        <div className="flex items-start gap-3">
+                          <Badge variant="secondary" className="mt-0.5">
+                            {rec.Position}
+                          </Badge>
+                          <p className="text-sm flex-1">{rec.Reason}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Players with Alerts */}
+            {alertPlayers.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  Players Requiring Attention ({alertPlayers.length})
+                </h3>
+                <div className="grid gap-2">
+                  {alertPlayers.map((player) => {
+                    const contractExpiringSoon = player.contractExpiry ? (() => {
+                      const expiryDate = new Date(player.contractExpiry);
+                      const now = new Date();
+                      const monthsUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30));
+                      return monthsUntilExpiry <= 12 && monthsUntilExpiry > 0;
+                    })() : false;
+                    const isAging = player.age >= 30;
+
+                    return (
+                      <Card key={player.id} className="border-l-4 border-l-amber-500">
+                        <CardContent className="py-3 px-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex-1">
+                              <div className="font-medium">{player.name}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {player.positions.join(', ')} • Age {player.age}
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5 justify-end">
+                              {contractExpiringSoon && (
+                                <Badge variant="outline" className="text-xs border-amber-500 text-amber-700">
+                                  Contract expiring
+                                </Badge>
+                              )}
+                              {isAging && (
+                                <Badge variant="outline" className="text-xs border-orange-500 text-orange-700">
+                                  Aging player
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
