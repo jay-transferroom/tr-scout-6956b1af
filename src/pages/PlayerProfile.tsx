@@ -86,7 +86,7 @@ const PlayerProfile = () => {
               </div>
               {/* Club Badge Overlay - positioned outside the overflow container */}
               <div className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1">
-                <ClubBadge clubName={player.club} className="w-8 h-8" />
+                <ClubBadge clubName={player.club} imgClassName="w-8 h-8" />
               </div>
             </div>
 
