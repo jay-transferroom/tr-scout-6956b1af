@@ -182,6 +182,19 @@ const SquadView = () => {
     }
   };
   return <div className="space-y-4 p-6">
+      {/* Header */}
+      <div className="container mx-auto px-0">
+        <div className="flex items-center gap-4">
+          <ClubBadge clubName={userClub} size="lg" />
+          <div>
+            <h1 className="text-3xl font-bold">{displayTitle}</h1>
+            <p className="text-muted-foreground mt-2">
+              Manage squad formations, analyze depth, and identify recruitment opportunities
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Squad Selection and Formation Controls - Full Width */}
       <div className="w-full bg-muted/30 py-6">
         <div className="container mx-auto">
@@ -312,80 +325,67 @@ const SquadView = () => {
         </div>
       </div>
 
-      {/* Header */}
+      {/* Head Coach Info and Squad Controls */}
       <div className="container mx-auto px-0">
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <ClubBadge clubName={userClub} size="lg" />
-            <div>
-              <h1 className="text-3xl font-bold">{displayTitle}</h1>
-              <p className="text-muted-foreground mt-2">
-                Manage squad formations, analyze depth, and identify recruitment opportunities
-              </p>
-            </div>
-          </div>
+        <Card className="border-0 rounded-none shadow-none">
+          <CardContent className="pt-6 pb-2 px-0">
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Head Coach Info */}
+              {headCoach && (
+                <div className="flex items-start gap-4 flex-1">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage src={headCoach.Image || undefined} alt={headCoach.shortname || "Coach"} />
+                    <AvatarFallback className="text-sm">
+                      {headCoach.shortname ? headCoach.shortname.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "HC"}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-base font-medium text-muted-foreground">Head Coach</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-xl">{headCoach.shortname || "Unknown"}</h4>
+                      <p className="text-base text-muted-foreground">
+                        {headCoach.current_Role} {headCoach.age ? `• ${headCoach.age} years old` : ""}
+                      </p>
+                    </div>
 
-          {/* Head Coach Info and Squad Controls */}
-          <Card className="border-0 rounded-none shadow-none">
-            <CardContent className="pt-6 pb-2 px-0">
-              <div className="flex flex-col lg:flex-row gap-6">
-                {/* Head Coach Info */}
-                {headCoach && (
-                  <div className="flex items-start gap-4 flex-1">
-                    <Avatar className="h-16 w-16">
-                      <AvatarImage src={headCoach.Image || undefined} alt={headCoach.shortname || "Coach"} />
-                      <AvatarFallback className="text-sm">
-                        {headCoach.shortname ? headCoach.shortname.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "HC"}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-muted-foreground" />
-                        <span className="text-base font-medium text-muted-foreground">Head Coach</span>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-xl">{headCoach.shortname || "Unknown"}</h4>
-                        <p className="text-base text-muted-foreground">
-                          {headCoach.current_Role} {headCoach.age ? `• ${headCoach.age} years old` : ""}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2">
-                        {headCoach.rating && (
-                          <Badge variant="secondary" className="text-sm">
-                            Rating: {headCoach.rating}
-                          </Badge>
-                        )}
-                        {headCoach.Style && (
-                          <Badge variant="outline" className="text-sm">
-                            {headCoach.Style}
-                          </Badge>
-                        )}
-                      {headCoach["Favourite Formation"] && (
-                        <Badge variant="outline" className="text-sm">
-                          {headCoach["Favourite Formation"]}
+                    <div className="flex flex-wrap gap-2">
+                      {headCoach.rating && (
+                        <Badge variant="secondary" className="text-sm">
+                          Rating: {headCoach.rating}
                         </Badge>
                       )}
-                    </div>
-                    </div>
+                      {headCoach.Style && (
+                        <Badge variant="outline" className="text-sm">
+                          {headCoach.Style}
+                        </Badge>
+                      )}
+                    {headCoach["Favourite Formation"] && (
+                      <Badge variant="outline" className="text-sm">
+                        {headCoach["Favourite Formation"]}
+                      </Badge>
+                    )}
                   </div>
-                )}
-
-                {/* Squad Selector and Formation - with left border */}
-                <div className="lg:border-l lg:pl-6 flex-1">
-                  <SquadOverview 
-                    selectedSquad={selectedSquad} 
-                    onSquadSelect={setSelectedSquad} 
-                    club={userClub} 
-                    players={clubPlayers}
-                    currentFormation={currentFormation}
-                  />
+                  </div>
                 </div>
+              )}
+
+              {/* Squad Selector and Formation - with left border */}
+              <div className="lg:border-l lg:pl-6 flex-1">
+                <SquadOverview 
+                  selectedSquad={selectedSquad} 
+                  onSquadSelect={setSelectedSquad} 
+                  club={userClub} 
+                  players={clubPlayers}
+                  currentFormation={currentFormation}
+                />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Squad Selection and Formation Controls - Full Width */}
