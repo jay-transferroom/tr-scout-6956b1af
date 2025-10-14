@@ -28,10 +28,17 @@ const AssignScoutDialog = ({ isOpen, onClose, player }: AssignScoutDialogProps) 
   const createAssignment = useCreateAssignment();
   const queryClient = useQueryClient();
 
-  // Find existing assignment for this player
-  const existingAssignment = player ? 
-    playerAssignments.find(assignment => assignment.player_id === player.id) : 
-    null;
+  // Find all existing assignments for this player
+  const existingAssignments = player ? 
+    playerAssignments
+      .filter(assignment => assignment.player_id === player.id)
+      .map(assignment => ({
+        id: assignment.assigned_to_scout_id,
+        first_name: assignment.assigned_to_scout?.first_name,
+        last_name: assignment.assigned_to_scout?.last_name,
+        email: assignment.assigned_to_scout?.email || ''
+      })) : 
+    [];
 
   // Combine current user with other scouts for the dropdown
   const allScoutOptions = [
@@ -59,7 +66,7 @@ const AssignScoutDialog = ({ isOpen, onClose, player }: AssignScoutDialogProps) 
       console.log("=== ASSIGNMENT SUBMISSION START ===");
       console.log("Player ID:", player.id, "type:", typeof player.id);
       console.log("Selected Scout ID:", formData.selectedScout);
-      console.log("Existing assignment:", existingAssignment);
+      console.log("Existing assignments:", existingAssignments);
       
       // Use the players_new ID directly as a string in the assignment
       await createAssignment.mutateAsync({
@@ -135,12 +142,12 @@ const AssignScoutDialog = ({ isOpen, onClose, player }: AssignScoutDialogProps) 
           <div className="space-y-4">
             <PlayerInfoCard 
               player={player} 
-              existingAssignment={existingAssignment} 
+              existingAssignments={existingAssignments} 
             />
             
             <ScoutSelectionForm
               allScoutOptions={allScoutOptions}
-              existingAssignment={existingAssignment}
+              existingAssignments={existingAssignments}
               isOpen={isOpen}
               onSubmit={handleSubmit}
               onCancel={handleClose}

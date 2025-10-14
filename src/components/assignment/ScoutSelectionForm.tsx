@@ -16,14 +16,9 @@ interface Scout {
   email: string;
 }
 
-interface ExistingAssignment {
-  assigned_to_scout_id: string;
-  priority: "High" | "Medium" | "Low";
-}
-
 interface ScoutSelectionFormProps {
   allScoutOptions: Scout[];
-  existingAssignment: ExistingAssignment | null;
+  existingAssignments?: Scout[];
   isOpen: boolean;
   onSubmit: (formData: {
     selectedScout: string;
@@ -38,7 +33,7 @@ interface ScoutSelectionFormProps {
 
 const ScoutSelectionForm = ({ 
   allScoutOptions, 
-  existingAssignment, 
+  existingAssignments = [],
   isOpen, 
   onSubmit, 
   onCancel, 
