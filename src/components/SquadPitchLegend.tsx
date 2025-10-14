@@ -22,7 +22,7 @@ const SquadPitchLegend = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-blue-500" />
+          <Badge variant="secondary" className="text-xs px-2 py-0.5">ø 86</Badge>
           <span className="text-muted-foreground">Average player rating</span>
         </div>
       </div>
