@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, TrendingUp, Hash, AlertCircle } from "lucide-react";
+import { Users, TrendingUp, Hash, TriangleAlert } from "lucide-react";
 
 const SquadPitchLegend = () => {
   return (
@@ -12,7 +12,7 @@ const SquadPitchLegend = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 text-orange-500" />
+          <TriangleAlert className="h-4 w-4 text-orange-500" />
           <span className="text-muted-foreground">Alert (injury, contract expiry, or ageing player)</span>
         </div>
         
