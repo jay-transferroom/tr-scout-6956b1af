@@ -12,7 +12,7 @@ const SquadPitchLegend = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-orange-500" />
+          <AlertCircle className="h-4 w-4 text-orange-500" />
           <span className="text-muted-foreground">Alert (injury, contract expiry, or ageing player)</span>
         </div>
         
