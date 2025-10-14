@@ -86,9 +86,14 @@ const SquadView = () => {
     });
   }, [allPlayers]);
 
-  // Get players with alerts (contract expiring soon or aging)
+  // Use custom hooks for data management
+  const {
+    squadPlayers
+  } = useSquadData(clubPlayers, selectedSquad, allPositionAssignments);
+
+  // Get players with alerts (contract expiring soon or aging) - filtered by selected squad
   const alertPlayers = useMemo(() => {
-    return clubPlayers.filter(player => {
+    return squadPlayers.filter(player => {
       // Contract expiring within 12 months
       if (player.contractExpiry) {
         const expiryDate = new Date(player.contractExpiry);
@@ -100,12 +105,8 @@ const SquadView = () => {
       if (player.age >= 30) return true;
       return false;
     });
-  }, [clubPlayers]);
+  }, [squadPlayers]);
 
-  // Use custom hooks for data management
-  const {
-    squadPlayers
-  } = useSquadData(clubPlayers, selectedSquad, allPositionAssignments);
   const squadMetrics = useSquadMetrics(squadPlayers, selectedSquad);
   const displayTitle = `${userClub} ${getSquadDisplayName(selectedSquad)} Analysis`;
   
