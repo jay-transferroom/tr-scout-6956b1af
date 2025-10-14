@@ -13,7 +13,7 @@ const SquadPitchLegend = () => {
         
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-full bg-orange-500" />
-          <span className="text-muted-foreground">Insufficient depth at position</span>
+          <span className="text-muted-foreground">Alert (injury, contract expiry, or ageing player)</span>
         </div>
         
         <div className="flex items-center gap-2">
