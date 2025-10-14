@@ -2,7 +2,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ClubBadge } from "@/components/ui/club-badge";
 import { Player } from "@/types/player";
 import { Star, ArrowUpDown, ArrowDown } from "lucide-react";
 
@@ -105,9 +104,18 @@ const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, o
                 <TableCell>
                   <div className="flex items-center gap-2">
                     {teamLogo && (
-                      <div className="shrink-0">
-                        <ClubBadge clubName={player.club} logoUrl={teamLogo} size="sm" />
-                      </div>
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage 
+                          src={teamLogo} 
+                          alt={`${player.club} logo`}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                        <AvatarFallback className="bg-gradient-to-br from-green-500 to-blue-600 text-white text-xs font-semibold">
+                          {player.club.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                     )}
                     <span>{player.club}</span>
                   </div>
