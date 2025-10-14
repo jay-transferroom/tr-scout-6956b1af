@@ -365,7 +365,7 @@ const PositionSlot = ({
       <div className="flex flex-col items-center relative">
         {/* Large subtle position label in background */}
         <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 -translate-y-full z-0">
-          <span className={`text-4xl font-bold ${hasRecommendation ? 'text-purple-600/40' : 'text-green-800/20'}`}>
+          <span className={`text-4xl font-bold ${hasRecommendation ? 'text-blue-600/40' : 'text-green-800/20'}`}>
             {position}
           </span>
         </div>
