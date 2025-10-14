@@ -182,6 +182,136 @@ const SquadView = () => {
     }
   };
   return <div className="space-y-4 p-6">
+      {/* Squad Selection and Formation Controls - Full Width */}
+      <div className="w-full bg-muted/30 py-6">
+        <div className="container mx-auto">
+          <div className="flex flex-col md:flex-row gap-6 items-start">
+            {/* Select Squad Section */}
+            <div className="flex-1 space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground">Select Squad</h3>
+              <div className="flex flex-wrap gap-2">
+                {squadsList.map((squad) => (
+                  <Button
+                    key={squad.id}
+                    onClick={() => setSelectedSquad(squad.id)}
+                    variant={selectedSquad === squad.id ? "default" : "outline"}
+                    className="flex items-center gap-2"
+                  >
+                    <span>{squad.label}</span>
+                    <Badge variant="secondary" className="ml-1">
+                      {squad.count}
+                    </Badge>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Formation Section */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground">Formation</h3>
+              <Select value={currentFormation} onValueChange={handleFormationChange}>
+                <SelectTrigger className="w-[200px] bg-background">
+                  <SelectValue placeholder="Select formation" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  {formations.map((formation) => (
+                    <SelectItem 
+                      key={formation.formation} 
+                      value={formation.formation || ''}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span>{formation.formation}</span>
+                        <Badge variant="secondary" className="text-xs">
+                          {formation.games} {formation.games === 1 ? 'game' : 'games'}
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <Separator className="my-6" />
+
+          {/* Squad Recommendations and Alerts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Database Recommendations */}
+            {dbRecommendations.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4" />
+                  Squad Recommendations
+                </h3>
+                <div className="grid gap-2">
+                  {dbRecommendations.map((rec, index) => (
+                    <Card key={index} className="border-l-4 border-l-primary">
+                      <CardContent className="py-3 px-4">
+                        <div className="flex items-start gap-3">
+                          <Badge variant="secondary" className="mt-0.5">
+                            {rec.Position}
+                          </Badge>
+                          <p className="text-sm flex-1">{rec.Reason}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Players with Alerts */}
+            {alertPlayers.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  Players Requiring Attention ({alertPlayers.length})
+                </h3>
+                <div className="grid gap-2">
+                  {alertPlayers.map((player) => {
+                    const contractExpiringSoon = player.contractExpiry ? (() => {
+                      const expiryDate = new Date(player.contractExpiry);
+                      const now = new Date();
+                      const monthsUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30));
+                      return monthsUntilExpiry <= 12 && monthsUntilExpiry > 0;
+                    })() : false;
+                    const isAging = player.age >= 30;
+
+                    return (
+                      <Card key={player.id} className="border-l-4 border-l-amber-500">
+                        <CardContent className="py-3 px-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex-1">
+                              <div className="font-medium text-sm">{player.name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {player.positions.join(', ')} • Age {player.age}
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5 justify-end">
+                              {contractExpiringSoon && (
+                                <Badge variant="outline" className="text-[10px] border-amber-500 text-amber-700">
+                                  Contract expiring
+                                </Badge>
+                              )}
+                              {isAging && (
+                                <Badge variant="outline" className="text-[10px] border-orange-500 text-orange-700">
+                                  Aging player
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="container mx-auto px-0">
         <div className="space-y-6">
