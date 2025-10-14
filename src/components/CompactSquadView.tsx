@@ -454,16 +454,16 @@ const CompactSquadView = ({
                       if (dbRec) {
                         return (
                           <div className="pt-2 border-t">
-                            <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                               <div className="flex items-start gap-3">
-                                <div className="p-1.5 bg-purple-100 rounded-full flex-shrink-0">
-                                  <Target className="h-4 w-4 text-purple-600" />
+                                <div className="p-1.5 bg-blue-100 rounded-full flex-shrink-0">
+                                  <Target className="h-4 w-4 text-blue-600" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="font-semibold text-purple-900 mb-1 text-sm">
+                                  <h4 className="font-semibold text-blue-900 mb-1 text-sm">
                                     Recruitment Priority Identified
                                   </h4>
-                                  <p className="text-xs text-purple-700">
+                                  <p className="text-xs text-blue-700">
                                     {dbRec.Reason}
                                   </p>
                                 </div>
