@@ -359,19 +359,19 @@ const SquadView = () => {
                         <CardContent className="py-3 px-4">
                           <div className="flex items-center justify-between gap-3">
                             <div className="flex-1">
-                              <div className="font-medium">{player.name}</div>
-                              <div className="text-sm text-muted-foreground">
+                              <div className="font-medium text-sm">{player.name}</div>
+                              <div className="text-xs text-muted-foreground">
                                 {player.positions.join(', ')} • Age {player.age}
                               </div>
                             </div>
                             <div className="flex flex-wrap gap-1.5 justify-end">
                               {contractExpiringSoon && (
-                                <Badge variant="outline" className="text-xs border-amber-500 text-amber-700">
+                                <Badge variant="outline" className="text-[10px] border-amber-500 text-amber-700">
                                   Contract expiring
                                 </Badge>
                               )}
                               {isAging && (
-                                <Badge variant="outline" className="text-xs border-orange-500 text-orange-700">
+                                <Badge variant="outline" className="text-[10px] border-orange-500 text-orange-700">
                                   Aging player
                                 </Badge>
                               )}
