@@ -16,6 +16,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { ClubBadge } from "@/components/ui/club-badge";
 
 const HeaderSearch = () => {
   const { data: players = [] } = useUnifiedPlayersData();
@@ -192,18 +193,9 @@ const HeaderSearch = () => {
                         </div>
                         
                         {teamLogo && (
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage 
-                              src={teamLogo} 
-                              alt={`${player.club} logo`}
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
-                              }}
-                            />
-                            <AvatarFallback className="bg-gradient-to-br from-green-500 to-blue-600 text-white text-xs font-semibold">
-                              {player.club.substring(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
+                          <div className="shrink-0">
+                            <ClubBadge clubName={player.club} logoUrl={teamLogo} size="sm" />
+                          </div>
                         )}
                       </div>
                     </CommandItem>
@@ -257,18 +249,9 @@ const HeaderSearch = () => {
                         </div>
                         
                         {teamLogo && (
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage 
-                              src={teamLogo} 
-                              alt={`${player.club} logo`}
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
-                              }}
-                            />
-                            <AvatarFallback className="bg-gradient-to-br from-green-500 to-blue-600 text-white text-xs font-semibold">
-                              {player.club.substring(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
+                          <div className="shrink-0">
+                            <ClubBadge clubName={player.club} logoUrl={teamLogo} size="sm" />
+                          </div>
                         )}
                       </div>
                     </CommandItem>

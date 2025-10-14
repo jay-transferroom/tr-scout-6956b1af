@@ -38,7 +38,7 @@ const ClubBadge = ({
   const currentSize = sizeClasses[size];
   return (
     <div className={cn(
-      "relative inline-flex items-center justify-center overflow-visible z-10",
+      "relative inline-flex items-center justify-center shrink-0",
       currentSize.container,
       currentSize.logo,
       className
@@ -47,10 +47,10 @@ const ClubBadge = ({
         <img
           src={teamLogoUrl}
           alt={`${clubName} logo`}
-          className="w-full h-full rounded-full object-cover block"
+          className="w-full h-full object-contain block"
         />
       ) : (
-        <div className="w-full h-full rounded-full bg-muted flex items-center justify-center">
+        <div className="w-full h-full rounded bg-muted flex items-center justify-center">
           <span className={cn("font-medium text-muted-foreground", currentSize.fallbackText)}>
             {clubName.charAt(0).toUpperCase()}
           </span>
