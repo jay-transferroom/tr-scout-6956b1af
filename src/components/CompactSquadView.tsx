@@ -6,6 +6,7 @@ import { Player } from "@/types/player";
 import CompactFootballPitch from "./CompactFootballPitch";
 import SquadListView from "./SquadListView";
 import SquadRecommendations from "./SquadRecommendations";
+import SquadPitchLegend from "./SquadPitchLegend";
 import { useNavigate } from "react-router-dom";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
@@ -326,14 +327,17 @@ const CompactSquadView = ({
           {/* Left Side - Pitch View */}
           <div className="w-1/2">
             <div className="space-y-2 sticky top-4">
-              <div className="flex items-center gap-2 mb-2">
-                <LayoutGrid className="h-5 w-5" />
-                <h3 className="text-lg font-semibold">Formation View</h3>
-                {formation && (
-                  <Badge variant="outline" className="text-xs">
-                    {formation}
-                  </Badge>
-                )}
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <LayoutGrid className="h-5 w-5" />
+                  <h3 className="text-lg font-semibold">Formation View</h3>
+                  {formation && (
+                    <Badge variant="outline" className="text-xs">
+                      {formation}
+                    </Badge>
+                  )}
+                </div>
+                <SquadPitchLegend />
               </div>
               
               <div className="aspect-[392/541] w-full max-w-2xl mx-auto relative overflow-visible">

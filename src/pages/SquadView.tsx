@@ -391,7 +391,6 @@ const SquadView = () => {
       {/* Enhanced Football Pitch Visualization */}
       <div className="w-full py-6">
         <div className="container mx-auto px-0">
-          <SquadPitchLegend />
           <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
         </div>
       </div>
