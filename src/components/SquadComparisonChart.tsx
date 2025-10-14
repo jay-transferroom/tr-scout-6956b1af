@@ -200,7 +200,7 @@ const SquadComparisonChart = ({ clubName = "Chelsea FC" }: { clubName?: string }
                       <img 
                         src={getTeamLogoUrl(team.squad)} 
                         alt={team.squad}
-                        className="h-6 w-6 object-contain flex-shrink-0"
+                        className="h-8 w-8 object-contain flex-shrink-0"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
                         }}
