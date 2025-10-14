@@ -185,9 +185,9 @@ const SquadView = () => {
       {/* Header */}
       <div className="container mx-auto px-0">
         <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <ClubBadge clubName={userClub} imgClassName="h-16 w-16" />
-            <div className="flex flex-col justify-center">
+          <div className="relative pl-28 md:pl-32 py-2">
+            <ClubBadge clubName={userClub} className="absolute left-0 top-1/2 -translate-y-1/2" imgClassName="h-24 w-24 md:h-28 md:w-28" />
+            <div>
               <h1 className="text-3xl font-bold leading-tight">{displayTitle}</h1>
               <p className="text-muted-foreground mt-1 leading-snug">
                 Manage squad formations, analyze depth, and identify recruitment opportunities
