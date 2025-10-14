@@ -239,23 +239,30 @@ const SquadView = () => {
       {/* Squad Selection and Formation Controls - Full Width */}
       <div className="w-full bg-muted/30 py-6">
         <div className="container mx-auto">
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-muted-foreground">Select Squad & Formation</h3>
-            <div className="flex flex-wrap gap-2 items-center">
-              {squadsList.map((squad) => (
-                <Button
-                  key={squad.id}
-                  onClick={() => setSelectedSquad(squad.id)}
-                  variant={selectedSquad === squad.id ? "default" : "outline"}
-                  className="flex items-center gap-2"
-                >
-                  <span>{squad.label}</span>
-                  <Badge variant="secondary" className="ml-1">
-                    {squad.count}
-                  </Badge>
-                </Button>
-              ))}
-              
+          <div className="flex flex-col md:flex-row gap-6 items-start">
+            {/* Select Squad Section */}
+            <div className="flex-1 space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground">Select Squad</h3>
+              <div className="flex flex-wrap gap-2">
+                {squadsList.map((squad) => (
+                  <Button
+                    key={squad.id}
+                    onClick={() => setSelectedSquad(squad.id)}
+                    variant={selectedSquad === squad.id ? "default" : "outline"}
+                    className="flex items-center gap-2"
+                  >
+                    <span>{squad.label}</span>
+                    <Badge variant="secondary" className="ml-1">
+                      {squad.count}
+                    </Badge>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Formation Section */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground">Formation</h3>
               <Select value={currentFormation} onValueChange={handleFormationChange}>
                 <SelectTrigger className="w-[200px] bg-background">
                   <SelectValue placeholder="Select formation" />
