@@ -197,11 +197,11 @@ const SquadComparisonChart = ({ clubName = "Chelsea FC" }: { clubName?: string }
                   <TableCell className="font-medium">{team.position}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <div className="h-6 w-6 flex-shrink-0 flex items-center justify-center">
+                      <div className="h-6 w-6 flex-shrink-0">
                         <img 
                           src={getTeamLogoUrl(team.squad)} 
                           alt={team.squad}
-                          className="max-h-6 max-w-6 object-contain"
+                          className="h-6 w-6 object-contain"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}
