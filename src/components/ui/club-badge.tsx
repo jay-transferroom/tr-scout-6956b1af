@@ -11,7 +11,7 @@ const ClubBadge = ({
   clubName,
   logoUrl,
   className,
-  size = 'sm'
+  size,
 }: ClubBadgeProps) => {
   // Use provided logoUrl or get from storage
   const teamLogoUrl = logoUrl || getTeamLogoUrl(clubName);
@@ -35,12 +35,11 @@ const ClubBadge = ({
       fallbackText: "text-lg"
     }
   };
-  const currentSize = sizeClasses[size];
+  const currentSize = size ? sizeClasses[size] : undefined;
   return (
     <div className={cn(
       "relative inline-flex items-center justify-center shrink-0",
-      currentSize.container,
-      currentSize.logo,
+      currentSize?.logo,
       className
     )}>
       {teamLogoUrl ? (
@@ -51,7 +50,7 @@ const ClubBadge = ({
         />
       ) : (
         <div className="w-full h-full rounded bg-muted flex items-center justify-center">
-          <span className={cn("font-medium text-muted-foreground", currentSize.fallbackText)}>
+          <span className={cn("font-medium text-muted-foreground", currentSize?.fallbackText)}>
             {clubName.charAt(0).toUpperCase()}
           </span>
         </div>
