@@ -17,6 +17,7 @@ import { useShortlists } from "@/hooks/useShortlists";
 import { useAuth } from "@/contexts/AuthContext";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
 import ViewToggle from "@/components/ViewToggle";
+import { ScoutAvatars } from "@/components/ui/scout-avatars";
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -716,9 +717,15 @@ const Calendar = () => {
                                 </span>
                               </div>
                               <div className="space-y-2">
-                                {displayedShortlistedPlayers.map(player => {
-                                  // Check if this shortlisted player has a scout assignment
-                                  const playerAssignment = assignments.find(a => a.player_id === player.id.toString());
+                                 {displayedShortlistedPlayers.map(player => {
+                                  // Get all scouts assigned to this player
+                                  const playerAssignments = assignments.filter(a => a.player_id === player.id.toString());
+                                  const assignedScouts = playerAssignments.map(assignment => ({
+                                    id: assignment.assigned_to_scout_id,
+                                    first_name: scouts.find(s => s.id === assignment.assigned_to_scout_id)?.first_name,
+                                    last_name: scouts.find(s => s.id === assignment.assigned_to_scout_id)?.last_name,
+                                    email: scouts.find(s => s.id === assignment.assigned_to_scout_id)?.email || ''
+                                  }));
                                   
                                   return (
                                     <div key={player.id} className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded px-2 py-1">
@@ -731,9 +738,9 @@ const Calendar = () => {
                                             {player.age && ` • ${player.age}y`}
                                             {player.transferroomRating && ` • ${player.transferroomRating}/100`}
                                           </div>
-                                          {playerAssignment && (
-                                            <div className="text-xs text-blue-600 font-medium mt-1">
-                                              Assigned to: {scouts.find(s => s.id === playerAssignment.assigned_to_scout_id)?.first_name} {scouts.find(s => s.id === playerAssignment.assigned_to_scout_id)?.last_name}
+                                          {assignedScouts.length > 0 && (
+                                            <div className="mt-1">
+                                              <ScoutAvatars scouts={assignedScouts} maxVisible={3} size="sm" />
                                             </div>
                                           )}
                                         </div>
@@ -744,13 +751,13 @@ const Calendar = () => {
                                             <Star className="h-3 w-3 mr-1" />
                                             Shortlisted
                                           </Badge>
-                                          {playerAssignment && (
+                                          {assignedScouts.length > 0 && (
                                             <Badge variant="outline" className="bg-blue-50 text-blue-700 text-xs">
-                                              Scout Assigned
+                                              {assignedScouts.length} Scout{assignedScouts.length > 1 ? 's' : ''}
                                             </Badge>
                                           )}
                                         </div>
-                                        {canAssignScouts && !playerAssignment && (
+                                        {canAssignScouts && (
                                           <Button
                                             size="sm"
                                             variant="outline"
@@ -792,14 +799,20 @@ const Calendar = () => {
               <div className="space-y-2">
                 {displayedRecommendedPlayers.map(player => {
                   const isShortlisted = allShortlistedPlayerIds.has(player.id.toString());
-                  const playerAssignment = assignments.find(a => a.player_id === player.id.toString());
-                  const assignedScout = playerAssignment ? scouts.find(s => s.id === playerAssignment.assigned_to_scout_id) : null;
+                  // Get all scouts assigned to this player
+                  const playerAssignments = assignments.filter(a => a.player_id === player.id.toString());
+                  const assignedScouts = playerAssignments.map(assignment => ({
+                    id: assignment.assigned_to_scout_id,
+                    first_name: scouts.find(s => s.id === assignment.assigned_to_scout_id)?.first_name,
+                    last_name: scouts.find(s => s.id === assignment.assigned_to_scout_id)?.last_name,
+                    email: scouts.find(s => s.id === assignment.assigned_to_scout_id)?.email || ''
+                  }));
                   
                   return (
                     <div key={player.id} className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded px-2 py-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-1">
                         <ClubBadge clubName={player.club} size="sm" />
-                        <div>
+                        <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <div className="text-sm font-medium">{player.name}</div>
                           {isShortlisted && (
@@ -807,9 +820,9 @@ const Calendar = () => {
                               <Star className="h-3 w-3 mr-1" /> Shortlisted
                             </Badge>
                           )}
-                          {playerAssignment && (
+                          {assignedScouts.length > 0 && (
                             <Badge variant="outline" className="bg-blue-50 text-blue-700 h-5">
-                              Scout: {assignedScout ? `${assignedScout.first_name} ${assignedScout.last_name}` : 'Assigned'}
+                              {assignedScouts.length} Scout{assignedScouts.length > 1 ? 's' : ''}
                             </Badge>
                           )}
                         </div>
@@ -819,6 +832,11 @@ const Calendar = () => {
                             {player.transferroomRating && ` • ${player.transferroomRating}/100`}
                             {player.xtvScore && ` • €${(player.xtvScore / 1000000).toFixed(1)}M`}
                           </div>
+                          {assignedScouts.length > 0 && (
+                            <div className="mt-1">
+                              <ScoutAvatars scouts={assignedScouts} maxVisible={3} size="sm" />
+                            </div>
+                          )}
                         </div>
                       </div>
                        {canAssignScouts && (
