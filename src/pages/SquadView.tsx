@@ -312,7 +312,7 @@ const SquadView = () => {
           <Separator className="my-6" />
 
           {/* Squad Recommendations and Alerts */}
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Database Recommendations */}
             {dbRecommendations.length > 0 && (
               <div className="space-y-3">
