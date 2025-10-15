@@ -181,9 +181,9 @@ const SquadView = () => {
       console.error('Failed to update player assignment:', error);
     }
   };
-  return <div className="space-y-4 p-6">
+  return <div className="container mx-auto py-8 max-w-7xl">
       {/* Header */}
-      <div className="container mx-auto px-0">
+      <div className="space-y-6">
         <div className="flex items-center gap-4">
           <ClubBadge clubName={userClub} size="lg" />
           <div>
@@ -196,8 +196,8 @@ const SquadView = () => {
       </div>
 
       {/* Squad Selection and Formation Controls - Full Width */}
-      <div className="w-full bg-muted/30 py-6">
-        <div className="container mx-auto">
+      <div className="w-full -mx-[50vw] left-1/2 right-1/2 relative bg-muted/30 py-6">
+        <div className="container mx-auto max-w-7xl px-6">
           <div className="flex flex-col md:flex-row gap-6 items-start">
             {/* Select Squad Section */}
             <div className="flex-1 space-y-3">
@@ -326,7 +326,7 @@ const SquadView = () => {
       </div>
 
       {/* Head Coach Info and Squad Controls */}
-      <div className="container mx-auto px-0">
+      <div>
         <Card className="border-0 rounded-none shadow-none">
           <CardContent className="pt-6 pb-2 px-0">
             <div className="flex flex-col lg:flex-row gap-6">
@@ -390,14 +390,12 @@ const SquadView = () => {
 
 
       {/* Enhanced Football Pitch Visualization */}
-      <div className="w-full py-6">
-        <div className="container mx-auto px-0">
-          <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
-        </div>
+      <div className="py-6">
+        <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
       </div>
 
       {/* Squad Comparison */}
-      <div className="container mx-auto px-0 pb-8">
+      <div>
         <SquadComparisonChart clubName={userClub} />
       </div>
     </div>;
