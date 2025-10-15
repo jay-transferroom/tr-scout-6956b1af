@@ -15,7 +15,7 @@ const TEAM_LOGO_MAP: Record<string, string> = {
   "Chelsea F.C.": "/badges/chelsea.svg",
   "Crystal Palace": "/badges/crystal-palace.svg",
   "Everton": "/badges/everton.svg",
-  "Leeds United": "leeds united.svg",
+  "Leeds United": "/badges/leeds-united.svg",
   "Leicester City": "leicester city.svg",
   "Liverpool": "/badges/liverpool.svg",
   "Manchester City": "/badges/manchester-city.svg",
