@@ -197,9 +197,9 @@ const SquadView = () => {
         </div>
       </div>
 
-      {/* Squad Selection and Formation Controls - Full Width */}
-      <div className="w-full bg-muted/30 py-6">
-        <div className="container mx-auto max-w-7xl px-6 lg:px-8">
+      {/* Squad Selection and Formation Controls */}
+      <div className="container mx-auto max-w-7xl">
+        <div className="bg-muted/30 py-6 px-6 lg:px-8 rounded-lg">
           <div className="flex flex-col md:flex-row gap-6 items-start">
             {/* Select Squad Section */}
             <div className="flex-1 space-y-3">
