@@ -5,7 +5,7 @@ const SUPABASE_STORAGE_URL = "https://xtdrmhrmcmjcrkqtzbxe.supabase.co/storage/v
 // Map of team names to their logo files in storage
 const TEAM_LOGO_MAP: Record<string, string> = {
   // Premier League
-  "Arsenal": "arsenal.svg",
+  "Arsenal": "/badges/arsenal.svg",
   "Aston Villa": "aston villa.svg", 
   "Brighton & Hove Albion": "brighton & hove albion.svg",
   "Brighton": "brighton & hove albion.svg",
