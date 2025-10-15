@@ -270,7 +270,7 @@ const SquadRecommendations = ({
                     return (
                       <div
                         key={player.id}
-                        className="flex items-center gap-3 p-3 rounded-md transition-all hover:bg-muted/50 group"
+                        className="flex items-center gap-3 p-3 rounded-md bg-muted/30 hover:bg-muted/50 transition-all group"
                       >
                         <Avatar className="h-12 w-12 flex-shrink-0 cursor-pointer" onClick={() => handlePlayerClick(player)}>
                           <AvatarImage src={player.image} alt={player.name} />
@@ -281,7 +281,7 @@ const SquadRecommendations = ({
                         <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handlePlayerClick(player)}>
                           <div className="font-medium truncate text-base">{player.name}</div>
                           <div className="text-sm text-muted-foreground">
-                            {player.club} • Age {player.age} • {player.positions.join(', ')}
+                            {player.club} • {player.age}y • {player.nationality}
                           </div>
                           {hasScout && (
                             <div className="flex items-center gap-1 mt-1">
@@ -292,9 +292,22 @@ const SquadRecommendations = ({
                             </div>
                           )}
                         </div>
-                        <Badge variant="secondary" className="text-sm flex-shrink-0">
-                          {Math.round(player.transferroomRating || player.xtvScore || 0)}
-                        </Badge>
+
+                        <div className="flex items-center gap-2">
+                          {player.positions.slice(0, 2).map((pos, idx) => (
+                            <Badge key={idx} variant="outline" className="text-sm">
+                              {pos}
+                            </Badge>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium text-base">
+                            {Math.round(player.transferroomRating || player.xtvScore || 0)}
+                          </span>
+                        </div>
+
                         <div className="flex items-center gap-1">
                           <Button
                             variant="ghost"

@@ -19,7 +19,7 @@ const SquadPitchLegend = () => {
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded-full bg-purple-500/20 border-2 border-purple-500 flex-shrink-0" />
+            <div className="w-6 h-6 rounded-full bg-blue-500/20 border-2 border-blue-500 flex-shrink-0" />
             <span className="text-sm">Recommended position to strengthen</span>
           </div>
           
