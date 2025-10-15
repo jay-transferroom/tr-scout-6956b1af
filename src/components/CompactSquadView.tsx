@@ -385,7 +385,7 @@ const CompactSquadView = ({
 
       {/* Position Selection Slide-out */}
       <Sheet open={!!selectedPosition} onOpenChange={(open) => !open && handlePositionClick('')}>
-        <SheetContent side="right" className="w-[75vw] overflow-y-auto">
+        <SheetContent side="right" className="w-[50vw] overflow-y-auto">
           {selectedPosition && (() => {
             const analysis = getPositionAnalysis(selectedPosition);
             
@@ -586,7 +586,7 @@ const CompactSquadView = ({
                                       </span>
                                     </div>
 
-                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex items-center gap-1">
                                       <Button
                                         variant="ghost"
                                         size="sm"
@@ -628,7 +628,7 @@ const CompactSquadView = ({
 
       {/* Player Details Slide-out */}
       <Sheet open={!!selectedPlayerForDetails} onOpenChange={(open) => !open && setSelectedPlayerForDetails(null)}>
-        <SheetContent side="right" className="w-[75vw]">
+        <SheetContent side="right" className="w-[50vw]">
           {selectedPlayerForDetails && (
             <>
               <SheetHeader>
