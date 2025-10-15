@@ -181,23 +181,25 @@ const SquadView = () => {
       console.error('Failed to update player assignment:', error);
     }
   };
-  return <div className="container mx-auto py-8 max-w-7xl">
-      {/* Header */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <ClubBadge clubName={userClub} size="lg" />
-          <div>
-            <h1 className="text-3xl font-bold">{displayTitle}</h1>
-            <p className="text-muted-foreground mt-2">
-              Manage squad formations, analyze depth, and identify recruitment opportunities
-            </p>
+  return <>
+      <div className="container mx-auto py-8 max-w-7xl">
+        {/* Header */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <ClubBadge clubName={userClub} size="lg" />
+            <div>
+              <h1 className="text-3xl font-bold">{displayTitle}</h1>
+              <p className="text-muted-foreground mt-2">
+                Manage squad formations, analyze depth, and identify recruitment opportunities
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Squad Selection and Formation Controls - Full Width */}
-      <div className="w-full -mx-[50vw] left-1/2 right-1/2 relative bg-muted/30 py-6">
-        <div className="container mx-auto max-w-7xl px-6">
+      <div className="w-full bg-muted/30 py-6">
+        <div className="container mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex flex-col md:flex-row gap-6 items-start">
             {/* Select Squad Section */}
             <div className="flex-1 space-y-3">
@@ -325,8 +327,9 @@ const SquadView = () => {
         </div>
       </div>
 
-      {/* Head Coach Info and Squad Controls */}
-      <div>
+      <div className="container mx-auto py-6 max-w-7xl">
+        {/* Head Coach Info and Squad Controls */}
+        <div>
         <Card className="border-0 rounded-none shadow-none">
           <CardContent className="pt-6 pb-2 px-0">
             <div className="flex flex-col lg:flex-row gap-6">
@@ -398,6 +401,7 @@ const SquadView = () => {
       <div>
         <SquadComparisonChart clubName={userClub} />
       </div>
-    </div>;
+    </div>
+  </>;
 };
 export default SquadView;
