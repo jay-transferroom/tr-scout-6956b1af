@@ -419,14 +419,16 @@ const Calendar = () => {
                     <div className="divide-y">
                       {datesWithFixturesInWeek.map(({ date, fixtures: dayFixtures }) => {
                         const isSelected = selectedDate && isSameDay(date, selectedDate);
-                        const totalWorkload = selectedScout === "all" 
-                          ? assignments.filter(a => a.deadline && isSameDay(new Date(a.deadline), date)).length
-                          : getScoutWorkloadForDate(date, selectedScout);
                         
                         const totalShortlisted = dayFixtures.reduce((sum, f) => sum + (f.shortlistedPlayers?.length || 0), 0);
+                        
+                        // Get unique scouts assigned to players in these fixtures
+                        const fixturePlayerIds = dayFixtures.flatMap(f => 
+                          f.playersInFixture.map(p => p.id.toString())
+                        );
                         const uniqueScouts = new Set(
                           assignments
-                            .filter(a => a.deadline && isSameDay(new Date(a.deadline), date))
+                            .filter(a => fixturePlayerIds.includes(a.player_id))
                             .map(a => a.assigned_to_scout_id)
                         ).size;
                         
@@ -569,14 +571,16 @@ const Calendar = () => {
                       const isCurrentMonth = isSameMonth(day, currentDate);
                       const isSelected = selectedDate && isSameDay(day, selectedDate);
                       const isTodayDate = isToday(day);
-                      const totalWorkload = selectedScout === "all" 
-                        ? assignments.filter(a => a.deadline && isSameDay(new Date(a.deadline), day)).length
-                        : getScoutWorkloadForDate(day, selectedScout);
                       
                       const totalShortlisted = dayFixtures.reduce((sum, f) => sum + (f.shortlistedPlayers?.length || 0), 0);
+                      
+                      // Get unique scouts assigned to players in these fixtures
+                      const fixturePlayerIds = dayFixtures.flatMap(f => 
+                        f.playersInFixture.map(p => p.id.toString())
+                      );
                       const uniqueScouts = new Set(
                         assignments
-                          .filter(a => a.deadline && isSameDay(new Date(a.deadline), day))
+                          .filter(a => fixturePlayerIds.includes(a.player_id))
                           .map(a => a.assigned_to_scout_id)
                       ).size;
                       
