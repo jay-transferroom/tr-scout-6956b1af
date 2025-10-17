@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ClubBadge } from "@/components/ui/club-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Calendar as CalendarIcon, Clock, MapPin, Users, UserCheck, Plus, Search, Star, Target } from "lucide-react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday, addWeeks, subWeeks, isSameWeek } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -27,7 +28,7 @@ const Calendar = () => {
   const [playerSearchTerm, setPlayerSearchTerm] = useState("");
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
 
   const { profile } = useAuth();
   const { data: fixtures = [] } = useFixturesData();
@@ -564,45 +565,68 @@ const Calendar = () => {
                         ? assignments.filter(a => a.deadline && isSameDay(new Date(a.deadline), day)).length
                         : getScoutWorkloadForDate(day, selectedScout);
                       
+                      const totalShortlisted = dayFixtures.reduce((sum, f) => sum + (f.shortlistedPlayers?.length || 0), 0);
+                      const uniqueScouts = new Set(
+                        assignments
+                          .filter(a => a.deadline && isSameDay(new Date(a.deadline), day))
+                          .map(a => a.assigned_to_scout_id)
+                      ).size;
+                      
                       return (
-                        <button
-                          key={day.toISOString()}
-                          onClick={() => hasFixtures && setSelectedDate(day)}
-                          disabled={!hasFixtures}
-                          className={cn(
-                            "relative p-2 rounded-lg border text-sm transition-colors min-h-[90px] flex flex-col items-start",
-                            !isCurrentMonth && "text-muted-foreground opacity-50 border-muted",
-                            isCurrentMonth && !hasFixtures && "hover:bg-muted/30 cursor-default border-border",
-                            hasFixtures && "hover:bg-muted cursor-pointer border-border",
-                            isSelected && "bg-primary/10 border-2 border-primary",
-                            isTodayDate && !isSelected && "bg-accent border-accent-foreground/20"
-                          )}
-                        >
-                          <div className="font-semibold mb-2">{format(day, 'd')}</div>
-                          {hasFixtures && (
-                            <div className="space-y-1.5 w-full">
-                              <Badge variant="secondary" className="text-xs font-normal">
-                                <CalendarIcon className="h-3 w-3 mr-1" />
-                                {dayFixtures.length}
-                              </Badge>
-                              {(() => {
-                                const totalShortlisted = dayFixtures.reduce((sum, f) => sum + (f.shortlistedPlayers?.length || 0), 0);
-                                return totalShortlisted > 0 && (
-                                  <div className="flex items-center gap-1 text-xs text-yellow-600">
-                                    <Star className="h-3 w-3 fill-current" />
-                                    <span>{totalShortlisted}</span>
+                        <TooltipProvider key={day.toISOString()}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={() => hasFixtures && setSelectedDate(day)}
+                                disabled={!hasFixtures}
+                                className={cn(
+                                  "relative p-2 rounded-lg border text-sm transition-colors min-h-[90px] flex flex-col items-start",
+                                  !isCurrentMonth && "text-muted-foreground opacity-50 border-muted",
+                                  isCurrentMonth && !hasFixtures && "hover:bg-muted/30 cursor-default border-border",
+                                  hasFixtures && "hover:bg-muted cursor-pointer border-border",
+                                  isSelected && "bg-primary/10 border-2 border-primary",
+                                  isTodayDate && !isSelected && "bg-accent border-accent-foreground/20"
+                                )}
+                              >
+                                <div className="font-semibold mb-2">{format(day, 'd')}</div>
+                                {hasFixtures && (
+                                  <div className="space-y-1.5 w-full">
+                                    <Badge variant="secondary" className="text-xs font-normal">
+                                      <CalendarIcon className="h-3 w-3 mr-1" />
+                                      {dayFixtures.length}
+                                    </Badge>
+                                    {totalShortlisted > 0 && (
+                                      <div className="flex items-center gap-1 text-xs text-yellow-600">
+                                        <Star className="h-3 w-3 fill-current" />
+                                        <span>{totalShortlisted}</span>
+                                      </div>
+                                    )}
+                                    {uniqueScouts > 0 && (
+                                      <div className="flex items-center gap-1 text-xs text-blue-600">
+                                        <UserCheck className="h-3 w-3" />
+                                        <span>{uniqueScouts}</span>
+                                      </div>
+                                    )}
                                   </div>
-                                );
-                              })()}
-                              {totalWorkload > 0 && (
-                                <div className="flex items-center gap-1 text-xs text-blue-600">
-                                  <Users className="h-3 w-3" />
-                                  <span>{totalWorkload}</span>
+                                )}
+                              </button>
+                            </TooltipTrigger>
+                            {hasFixtures && (
+                              <TooltipContent side="top" className="max-w-xs">
+                                <div className="space-y-1 text-xs">
+                                  <p className="font-semibold">{format(day, 'EEEE, MMMM d')}</p>
+                                  <p>{dayFixtures.length} {dayFixtures.length === 1 ? 'event' : 'events'}</p>
+                                  {totalShortlisted > 0 && (
+                                    <p>{totalShortlisted} shortlisted {totalShortlisted === 1 ? 'player' : 'players'}</p>
+                                  )}
+                                  {uniqueScouts > 0 && (
+                                    <p>{uniqueScouts} {uniqueScouts === 1 ? 'scout' : 'scouts'} assigned</p>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                          )}
-                        </button>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
                       );
                     });
                   })()}
