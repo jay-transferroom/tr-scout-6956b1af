@@ -128,7 +128,7 @@ export const ShortlistsTabs = ({
               </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-background border shadow-md z-50 w-[280px]">
+          <DropdownMenuContent align="start" className="bg-background border shadow-md z-50 w-[280px]">
             {filteredShortlists.map((list) => {
               const playerCount = getPlayerCount(list);
               const isSelected = selectedList === list.id;
