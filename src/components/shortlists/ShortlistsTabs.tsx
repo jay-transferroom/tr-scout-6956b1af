@@ -138,12 +138,19 @@ export const ShortlistsTabs = ({
                   <DropdownMenuItem
                     onClick={() => onSelectList(list.id)}
                     className={cn(
-                      "flex-1 flex items-center justify-between cursor-pointer",
+                      "flex-1 flex items-start justify-between cursor-pointer",
                       isSelected && "bg-accent"
                     )}
                   >
-                    <span>{list.name}</span>
-                    <Badge variant="secondary" className="text-xs ml-2">
+                    <div className="flex flex-col gap-0.5 flex-1">
+                      <span className="font-medium">{list.name}</span>
+                      {list.description && (
+                        <span className="text-xs text-muted-foreground line-clamp-1">
+                          {list.description}
+                        </span>
+                      )}
+                    </div>
+                    <Badge variant="secondary" className="text-xs ml-2 shrink-0">
                       {playerCount}
                     </Badge>
                   </DropdownMenuItem>
