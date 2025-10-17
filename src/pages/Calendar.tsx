@@ -603,10 +603,10 @@ const Calendar = () => {
                                 <div className="font-semibold mb-2">{format(day, 'd')}</div>
                                 {hasFixtures && (
                                   <div className="space-y-1.5 w-full">
-                                    <Badge variant="outline" className="text-xs font-normal">
-                                      <CalendarIcon className="h-3 w-3 mr-1" />
+                                    <div className="flex items-center gap-1 text-xs">
+                                      <CalendarIcon className="h-3 w-3" />
                                       {dayFixtures.length}
-                                    </Badge>
+                                    </div>
                                     {totalShortlisted > 0 && (
                                       <div className="flex items-center gap-1 text-xs text-yellow-600">
                                         <Star className="h-3 w-3 fill-current" />
