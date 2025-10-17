@@ -299,68 +299,71 @@ const Calendar = () => {
   return (
     <div className="container mx-auto py-8 max-w-7xl">
       <div className="mb-8">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold">Scout Calendar</h1>
             <p className="text-muted-foreground mt-2">
               View fixtures and manage scout assignments with intelligent recommendations
             </p>
           </div>
-          <ViewToggle 
-            currentView={viewMode} 
-            onViewChange={setViewMode}
-          />
         </div>
       </div>
 
       {/* Filters */}
       <div className="mb-6 space-y-4">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2">
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Scout:</span>
-          </div>
-          <Select value={selectedScout} onValueChange={setSelectedScout}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select scout" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Scouts</SelectItem>
-              {scouts.map((scout) => (
-                <SelectItem key={scout.id} value={scout.id}>
-                  {scout.first_name} {scout.last_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex flex-wrap items-center gap-4 justify-between">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <UserCheck className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Scout:</span>
+            </div>
+            <Select value={selectedScout} onValueChange={setSelectedScout}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Select scout" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Scouts</SelectItem>
+                {scouts.map((scout) => (
+                  <SelectItem key={scout.id} value={scout.id}>
+                    {scout.first_name} {scout.last_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <div className="flex items-center gap-2">
-            <Star className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Shortlist:</span>
-          </div>
-          <Select value={selectedShortlist} onValueChange={setSelectedShortlist}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select shortlist" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Players</SelectItem>
-              {shortlists.map((shortlist) => (
-                <SelectItem key={shortlist.id} value={shortlist.id}>
-                  {shortlist.name} ({shortlist.playerIds?.length || 0})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Shortlist:</span>
+            </div>
+            <Select value={selectedShortlist} onValueChange={setSelectedShortlist}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Select shortlist" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Players</SelectItem>
+                {shortlists.map((shortlist) => (
+                  <SelectItem key={shortlist.id} value={shortlist.id}>
+                    {shortlist.name} ({shortlist.playerIds?.length || 0})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <div className="flex items-center gap-2">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Player:</span>
+            <div className="flex items-center gap-2">
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Player:</span>
+            </div>
+            <Input
+              placeholder="Search players..."
+              value={playerSearchTerm}
+              onChange={(e) => setPlayerSearchTerm(e.target.value)}
+              className="w-[200px]"
+            />
           </div>
-          <Input
-            placeholder="Search players..."
-            value={playerSearchTerm}
-            onChange={(e) => setPlayerSearchTerm(e.target.value)}
-            className="w-[200px]"
+          
+          <ViewToggle 
+            currentView={viewMode} 
+            onViewChange={setViewMode}
           />
         </div>
       </div>
