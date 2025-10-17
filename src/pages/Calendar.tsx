@@ -423,6 +423,13 @@ const Calendar = () => {
                           ? assignments.filter(a => a.deadline && isSameDay(new Date(a.deadline), date)).length
                           : getScoutWorkloadForDate(date, selectedScout);
                         
+                        const totalShortlisted = dayFixtures.reduce((sum, f) => sum + (f.shortlistedPlayers?.length || 0), 0);
+                        const uniqueScouts = new Set(
+                          assignments
+                            .filter(a => a.deadline && isSameDay(new Date(a.deadline), date))
+                            .map(a => a.assigned_to_scout_id)
+                        ).size;
+                        
                         return (
                           <button
                             key={date.toISOString()}
@@ -441,8 +448,22 @@ const Calendar = () => {
                                   <Badge variant="secondary" className="mt-1">Today</Badge>
                                 )}
                               </div>
-                              <div className="text-right text-sm text-muted-foreground">
-                                {dayFixtures.length} {dayFixtures.length === 1 ? 'match' : 'matches'}
+                              <div className="flex items-center gap-4">
+                                {totalShortlisted > 0 && (
+                                  <div className="flex items-center gap-1 text-sm text-yellow-600">
+                                    <Star className="h-4 w-4 fill-current" />
+                                    <span>{totalShortlisted}</span>
+                                  </div>
+                                )}
+                                {uniqueScouts > 0 && (
+                                  <div className="flex items-center gap-1 text-sm text-blue-600">
+                                    <UserCheck className="h-4 w-4" />
+                                    <span>{uniqueScouts}</span>
+                                  </div>
+                                )}
+                                <div className="text-sm text-muted-foreground">
+                                  {dayFixtures.length} {dayFixtures.length === 1 ? 'match' : 'matches'}
+                                </div>
                               </div>
                             </div>
                             
@@ -472,12 +493,6 @@ const Calendar = () => {
                                           {fixture.home_score}-{fixture.away_score}
                                         </span>
                                       )}
-                                      {fixture.shortlistedPlayers?.length > 0 && (
-                                        <div className="flex items-center gap-1 ml-2">
-                                          <Star className="h-3 w-3 text-yellow-500" />
-                                          <span className="text-xs">{fixture.shortlistedPlayers.length}</span>
-                                        </div>
-                                      )}
                                     </div>
                                   </div>
                                 );
@@ -488,13 +503,6 @@ const Calendar = () => {
                                 </div>
                               )}
                             </div>
-                            
-                            {totalWorkload > 0 && (
-                              <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-                                <Users className="h-3 w-3" />
-                                <span>{totalWorkload} scout {totalWorkload === 1 ? 'assignment' : 'assignments'}</span>
-                              </div>
-                            )}
                           </button>
                         );
                       })}
