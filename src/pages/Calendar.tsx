@@ -603,7 +603,7 @@ const Calendar = () => {
                                 <div className="font-semibold mb-2">{format(day, 'd')}</div>
                                 {hasFixtures && (
                                   <div className="space-y-1.5 w-full">
-                                    <Badge variant="secondary" className="text-xs font-normal">
+                                    <Badge variant="outline" className="text-xs font-normal">
                                       <CalendarIcon className="h-3 w-3 mr-1" />
                                       {dayFixtures.length}
                                     </Badge>
