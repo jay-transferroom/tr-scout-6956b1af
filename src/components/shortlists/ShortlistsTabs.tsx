@@ -128,7 +128,7 @@ export const ShortlistsTabs = ({
               </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-background border shadow-md z-50 min-w-[200px]">
+          <DropdownMenuContent className="bg-background border shadow-md z-50 w-[280px]">
             {filteredShortlists.map((list) => {
               const playerCount = getPlayerCount(list);
               const isSelected = selectedList === list.id;
@@ -145,7 +145,7 @@ export const ShortlistsTabs = ({
                     <div className="flex flex-col gap-0.5 flex-1">
                       <span className="font-medium">{list.name}</span>
                       {list.description && (
-                        <span className="text-xs text-muted-foreground line-clamp-1">
+                        <span className="text-xs text-muted-foreground line-clamp-2">
                           {list.description}
                         </span>
                       )}
