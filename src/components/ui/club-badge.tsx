@@ -47,10 +47,10 @@ const ClubBadge = ({
         <img
           src={teamLogoUrl}
           alt={`${clubName} logo`}
-          className="w-full h-full rounded-full object-cover block"
+          className="w-full h-full object-contain block"
         />
       ) : (
-        <div className="w-full h-full rounded-full bg-muted flex items-center justify-center">
+        <div className="w-full h-full bg-muted flex items-center justify-center">
           <span className={cn("font-medium text-muted-foreground", currentSize.fallbackText)}>
             {clubName.charAt(0).toUpperCase()}
           </span>
