@@ -106,144 +106,150 @@ export const ShortlistsTabs = ({
     return publicPlayersForList.length + privatePlayersForList.length;
   };
 
+  const selectedShortlist = filteredShortlists.find(list => list.id === selectedList);
+  const selectedPlayerCount = selectedShortlist ? getPlayerCount(selectedShortlist) : 0;
+
   return (
     <div className="mb-6">
-      {/* Horizontal scrollable tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-4">
-        <div className="flex items-center gap-2 min-w-max">
-          {/* Shortlist tabs */}
-          {filteredShortlists.map((list) => {
-            const playerCount = getPlayerCount(list);
-            const isSelected = selectedList === list.id;
-            
-            return (
-              <div key={list.id} className="flex items-center gap-1">
-                <Button
-                  variant={isSelected ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => onSelectList(list.id)}
-                  className={cn(
-                    "flex items-center gap-2 whitespace-nowrap",
-                    isSelected && "bg-primary text-primary-foreground"
-                  )}
-                >
-                  <ScrollText className="h-4 w-4" />
-                  <span>{list.name}</span>
-                  <Badge 
-                    variant={isSelected ? "secondary" : "default"} 
+      <div className="flex items-center gap-2">
+        {/* Shortlist dropdown selector */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-2 min-w-[200px] justify-between">
+              <div className="flex items-center gap-2">
+                <ScrollText className="h-4 w-4" />
+                <span>{selectedShortlist?.name || "Select Shortlist"}</span>
+              </div>
+              <Badge variant="secondary" className="text-xs">
+                {selectedPlayerCount}
+              </Badge>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="bg-background border shadow-md z-50 min-w-[200px]">
+            {filteredShortlists.map((list) => {
+              const playerCount = getPlayerCount(list);
+              const isSelected = selectedList === list.id;
+              
+              return (
+                <div key={list.id} className="flex items-center gap-1">
+                  <DropdownMenuItem
+                    onClick={() => onSelectList(list.id)}
                     className={cn(
-                      "text-xs",
-                      isSelected && "bg-primary-foreground text-primary"
+                      "flex-1 flex items-center justify-between cursor-pointer",
+                      isSelected && "bg-accent"
                     )}
                   >
-                    {playerCount}
-                  </Badge>
-                </Button>
-                
-                {/* Dropdown menu for each shortlist */}
-                {canManageShortlists && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-background border shadow-md z-50">
-                      <DropdownMenuItem onClick={() => handleEditShortlist(list)}>
-                        <Edit2 className="h-4 w-4 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Shortlist</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete "{list.name}"? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction 
-                              onClick={() => handleDeleteShortlist(list)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
+                    <span>{list.name}</span>
+                    <Badge variant="secondary" className="text-xs ml-2">
+                      {playerCount}
+                    </Badge>
+                  </DropdownMenuItem>
+                  
+                  {/* Edit/Delete actions for each shortlist */}
+                  {canManageShortlists && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-background border shadow-md z-50">
+                        <DropdownMenuItem onClick={() => handleEditShortlist(list)}>
+                          <Edit2 className="h-4 w-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                              <Trash2 className="h-4 w-4 mr-2" />
                               Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </div>
-            );
-          })}
-
-          {/* Create new shortlist button */}
-          {canManageShortlists && (
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center gap-2 whitespace-nowrap">
-                  <Plus className="h-4 w-4" />
-                  Create Shortlist
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New Shortlist</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="shortlist-name">Shortlist Name</Label>
-                    <Input
-                      id="shortlist-name"
-                      value={newShortlistName}
-                      onChange={(e) => setNewShortlistName(e.target.value)}
-                      placeholder="Enter shortlist name..."
-                      onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleCreateShortlist()}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="shortlist-description">Description (Optional)</Label>
-                    <Textarea
-                      id="shortlist-description"
-                      value={newShortlistDescription}
-                      onChange={(e) => setNewShortlistDescription(e.target.value)}
-                      placeholder="Enter shortlist description..."
-                      rows={3}
-                    />
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleCreateShortlist} disabled={!newShortlistName.trim()}>
-                      Create Shortlist
-                    </Button>
-                  </div>
+                            </DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Shortlist</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{list.name}"? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => handleDeleteShortlist(list)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
-              </DialogContent>
-            </Dialog>
-          )}
+              );
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-          {/* Add private player button */}
-          {canManageShortlists && (
-            <AddPrivatePlayerDialog
-              trigger={
-                <Button variant="outline" size="sm" className="flex items-center gap-2 whitespace-nowrap">
-                  <Plus className="h-4 w-4" />
-                  Add Private Player
-                </Button>
-              }
-            />
-          )}
-        </div>
+        {/* Create new shortlist button */}
+        {canManageShortlists && (
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-2 whitespace-nowrap">
+                <Plus className="h-4 w-4" />
+                Create Shortlist
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Shortlist</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="shortlist-name">Shortlist Name</Label>
+                  <Input
+                    id="shortlist-name"
+                    value={newShortlistName}
+                    onChange={(e) => setNewShortlistName(e.target.value)}
+                    placeholder="Enter shortlist name..."
+                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleCreateShortlist()}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="shortlist-description">Description (Optional)</Label>
+                  <Textarea
+                    id="shortlist-description"
+                    value={newShortlistDescription}
+                    onChange={(e) => setNewShortlistDescription(e.target.value)}
+                    placeholder="Enter shortlist description..."
+                    rows={3}
+                  />
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleCreateShortlist} disabled={!newShortlistName.trim()}>
+                    Create Shortlist
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* Add private player button */}
+        {canManageShortlists && (
+          <AddPrivatePlayerDialog
+            trigger={
+              <Button variant="outline" size="sm" className="flex items-center gap-2 whitespace-nowrap">
+                <Plus className="h-4 w-4" />
+                Add Private Player
+              </Button>
+            }
+          />
+        )}
       </div>
 
       {/* Edit Shortlist Dialog */}
