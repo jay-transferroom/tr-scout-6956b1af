@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, MoreHorizontal, Edit2, Trash2, ScrollText } from "lucide-react";
+import { Plus, MoreHorizontal, Edit2, Trash2, ScrollText, ChevronDown } from "lucide-react";
 import { Player } from "@/types/player";
 import AddPrivatePlayerDialog from "@/components/AddPrivatePlayerDialog";
 import { useAuth } from "@/contexts/AuthContext";
@@ -120,9 +120,12 @@ export const ShortlistsTabs = ({
                 <ScrollText className="h-4 w-4" />
                 <span>{selectedShortlist?.name || "Select Shortlist"}</span>
               </div>
-              <Badge variant="secondary" className="text-xs">
-                {selectedPlayerCount}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="text-xs">
+                  {selectedPlayerCount}
+                </Badge>
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </div>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="bg-background border shadow-md z-50 min-w-[200px]">
