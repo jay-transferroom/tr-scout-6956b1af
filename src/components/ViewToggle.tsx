@@ -17,7 +17,7 @@ const ViewToggle = ({
         className="flex items-center gap-2"
       >
         <Calendar className="h-4 w-4" />
-        Squad
+        Cal
       </Button>
       <Button
         variant={currentView === 'list' ? "default" : "ghost"}
