@@ -17,11 +17,11 @@ interface PlayerCardProps {
 const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: PlayerCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'shortlisted': return 'bg-white border-grey-200';
-      case 'assigned': return 'bg-white border-warning-500';
-      case 'in_progress': return 'bg-white border-warning-500';
-      case 'completed': return 'bg-white border-success-500';
-      default: return 'bg-white border-grey-200';
+      case 'shortlisted': return 'shadow-[0_0_0_2px_hsl(var(--grey-200))]';
+      case 'assigned': return 'shadow-[0_0_0_2px_hsl(var(--warning-500))]';
+      case 'in_progress': return 'shadow-[0_0_0_2px_hsl(var(--warning-500))]';
+      case 'completed': return 'shadow-[0_0_0_2px_hsl(var(--success-500))]';
+      default: return 'shadow-[0_0_0_2px_hsl(var(--grey-200))]';
     }
   };
 
@@ -36,7 +36,7 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
     console.log('PlayerCard completed debug', { playerId: player.playerId, templateName: player.templateName, lastStatusChange: player.lastStatusChange });
   }
   return (
-    <Card className={`mb-2 hover:shadow-md transition-all duration-200 border-2 ${getStatusColor(player.status)}`}>
+    <Card className={`mb-2 hover:shadow-md transition-all duration-200 ${getStatusColor(player.status)}`}>
       <CardContent className="p-3">
         {/* Compact horizontal player info */}
         <div className="flex items-center gap-2 mb-3">
