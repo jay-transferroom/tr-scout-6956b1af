@@ -131,32 +131,44 @@ export const transformToAssignmentBased = (
     const kanbanStatus = getAssignmentKanbanStatus(statusInfo);
     const scoutName = statusInfo.scoutName || 'Unknown Scout';
 
-    // Find the report for this assignment if completed
+  // Find the report for this assignment if completed
   const scoutReport = reports.find(report =>
       String(report.playerId) === String(assignment.player_id) &&
       String(report.scoutId) === String(assignment.assigned_to_scout_id)
     );
 
-    const assignmentData = {
-      id: assignment.id,
-      playerName,
-      club,
-      position: playerData.positions?.[0] || 'Unknown',
-      rating: playerData.transferroomRating?.toFixed(1) || 'N/A',
-      assignedTo: scoutName,
-      updatedAt: getUpdatedTime(statusInfo.status),
-      lastStatusChange: getLastStatusChange(statusInfo.status, assignment.updated_at || new Date().toISOString()),
-      avatar: playerData.image || `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=48&h=48&fit=crop&crop=face&auto=format`,
-      priority: assignment.priority || null,
-      deadline: assignment.deadline || null,
-      scoutId: assignment.assigned_to_scout_id,
-      status: statusInfo.status,
-      playerId: assignment.player_id,
-      assignmentId: assignment.id,
-      templateName: scoutReport?.templateName || null
-    };
+  const templateName = scoutReport?.templateName || null;
 
-    kanbanData[kanbanStatus].push(assignmentData);
+  if (kanbanStatus === 'completed') {
+    console.log('Kanban completed row debug', {
+      playerId: assignment.player_id,
+      scoutId: assignment.assigned_to_scout_id,
+      foundReport: !!scoutReport,
+      templateName,
+      lastStatusChange: getLastStatusChange(statusInfo.status, assignment.updated_at || new Date().toISOString())
+    });
+  }
+
+  const assignmentData = {
+    id: assignment.id,
+    playerName,
+    club,
+    position: playerData.positions?.[0] || 'Unknown',
+    rating: playerData.transferroomRating?.toFixed(1) || 'N/A',
+    assignedTo: scoutName,
+    updatedAt: getUpdatedTime(statusInfo.status),
+    lastStatusChange: getLastStatusChange(statusInfo.status, assignment.updated_at || new Date().toISOString()),
+    avatar: playerData.image || `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=48&h=48&fit=crop&crop=face&auto=format`,
+    priority: assignment.priority || null,
+    deadline: assignment.deadline || null,
+    scoutId: assignment.assigned_to_scout_id,
+    status: statusInfo.status,
+    playerId: assignment.player_id,
+    assignmentId: assignment.id,
+    templateName
+  };
+
+  kanbanData[kanbanStatus].push(assignmentData);
   });
 
   // Add players marked for scouting (but not assigned) to shortlisted column

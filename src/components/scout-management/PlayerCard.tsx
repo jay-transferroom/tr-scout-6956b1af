@@ -31,6 +31,10 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
     ? `/private-player/${player.playerId.replace('private-', '')}`
     : `/player/${player.playerId}`;
 
+  // Debug: log completed cards to verify template presence
+  if (player?.status === 'completed') {
+    console.log('PlayerCard completed debug', { playerId: player.playerId, templateName: player.templateName, lastStatusChange: player.lastStatusChange });
+  }
   return (
     <Card className={`mb-2 hover:shadow-md transition-all duration-200 border-2 ${getStatusColor(player.status)}`}>
       <CardContent className="p-3">

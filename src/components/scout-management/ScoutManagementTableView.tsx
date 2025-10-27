@@ -36,7 +36,9 @@ const ScoutManagementTableView = ({
 
   const PlayerRow = ({ assignment }: { assignment: any }) => {
     // No need to fetch scouts here since each row represents one assignment
-    
+    if (assignment?.status === 'completed') {
+      console.log('TableView completed debug', { playerId: assignment.playerId, templateName: assignment.templateName, lastStatusChange: assignment.lastStatusChange });
+    }
     return (
       <tr key={`${assignment.playerId}-${assignment.scoutId || 'unassigned'}`} className="border-b hover:bg-muted/30">
         <td className="p-4">
