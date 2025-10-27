@@ -71,7 +71,7 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
         <div className="space-y-2 mb-3">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">
-              {player.status === 'shortlisted' ? 'Available for assignment' : `Assigned to ${player.assignedTo}`}
+              {player.status === 'shortlisted' ? 'Available for assignment' : player.assignedTo === 'Unassigned' ? 'Unassigned' : `Assigned to ${player.assignedTo}`}
             </span>
             {player.priority && (
               <Badge 
