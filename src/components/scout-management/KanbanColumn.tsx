@@ -45,7 +45,7 @@ const KanbanColumn = ({
       </div>
 
       {/* Column Content */}
-      <div className="flex-1 min-h-[400px] rounded-lg p-3 bg-muted/20 border-2 border-transparent">
+      <div className="flex-1 min-h-[400px] rounded-lg p-3 bg-muted/50 border-2 border-transparent">
         {players.length > 0 ? (
           players.map((player) => (
             <PlayerCard 
