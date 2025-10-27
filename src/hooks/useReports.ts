@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ReportWithPlayer, Report } from '@/types/report';
 import { useAuth } from '@/contexts/AuthContext';
 import { DEFAULT_TEMPLATES } from '@/data/defaultTemplates';
+import { mockTemplates } from '@/data/mockTemplates';
 
 export const useReports = () => {
   const [reports, setReports] = useState<ReportWithPlayer[]>([]);
@@ -42,8 +43,11 @@ export const useReports = () => {
           if (t?.id && t?.name) templatesById[t.id] = t.name;
         });
       }
-      // Fallback to default templates
+      // Fallback to default templates and mocks
       DEFAULT_TEMPLATES.forEach((t) => {
+        if (t?.id && t?.name && !templatesById[t.id]) templatesById[t.id] = t.name;
+      });
+      mockTemplates.forEach((t) => {
         if (t?.id && t?.name && !templatesById[t.id]) templatesById[t.id] = t.name;
       });
 
