@@ -17,11 +17,11 @@ interface PlayerCardProps {
 const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: PlayerCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'shortlisted': return 'bg-white border-gray-200';
-      case 'assigned': return 'bg-orange-100 border-orange-200';
-      case 'in_progress': return 'bg-orange-100 border-orange-200';
-      case 'completed': return 'bg-green-100 border-green-200';
-      default: return 'bg-white border-gray-200';
+      case 'shortlisted': return 'bg-white border-grey-200';
+      case 'assigned': return 'bg-white border-warning-500';
+      case 'in_progress': return 'bg-white border-warning-500';
+      case 'completed': return 'bg-white border-success-500';
+      default: return 'bg-white border-grey-200';
     }
   };
 
@@ -34,103 +34,116 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
   return (
     <Card className={`mb-2 hover:shadow-md transition-all duration-200 border-2 ${getStatusColor(player.status)}`}>
       <CardContent className="p-3">
-        <div className="flex items-start gap-3">
-          <Avatar className="h-10 w-10 flex-shrink-0">
+        {/* Compact horizontal player info */}
+        <div className="flex items-center gap-2 mb-3">
+          <Avatar className="h-8 w-8 flex-shrink-0">
             <AvatarImage 
               src={player.avatar} 
               alt={player.playerName}
               className="object-cover"
               loading="lazy"
             />
-            <AvatarFallback className="h-10 w-10 flex items-center justify-center">
+            <AvatarFallback className="h-8 w-8 flex items-center justify-center text-xs">
               {player.playerName.split(' ').map((n: string) => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
           
           <div className="flex-1 min-w-0">
             <h4 className="font-medium text-sm truncate">{player.playerName}</h4>
-            <div className="mt-1">
+            <div className="flex items-center gap-2 mt-0.5">
               <ClubBadge clubName={player.club} size="sm" />
+              <span className="text-xs text-muted-foreground">{player.position}</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">{player.position}</p>
-            
-            {player.rating && player.rating !== 'N/A' && (
-              <div className="flex items-center justify-end mt-1">
-                <span className="text-lg font-bold text-primary">{player.rating}</span>
-              </div>
-            )}
-            
-            <div className="mt-2 space-y-1">
-              <p className="text-xs text-muted-foreground">
-                {player.status === 'shortlisted' ? 'Available for assignment' : `Assigned to ${player.assignedTo}`}
-              </p>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3" />
-                <span>{player.lastStatusChange}</span>
-              </div>
-              {player.priority && (
-                <Badge 
-                  variant={player.priority === 'High' ? 'destructive' : player.priority === 'Medium' ? 'default' : 'secondary'}
-                  className="text-xs"
-                >
-                  {player.priority}
-                </Badge>
-              )}
-            </div>
+          </div>
 
-            <div className="mt-2 space-y-1">
-              {player.status === 'shortlisted' && onAssignScout && (
+          {player.rating && player.rating !== 'N/A' && (
+            <Badge variant="rating" className="text-sm shrink-0">
+              {player.rating}
+            </Badge>
+          )}
+        </div>
+
+        {/* Status and metadata */}
+        <div className="space-y-2 mb-3">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">
+              {player.status === 'shortlisted' ? 'Available for assignment' : `Assigned to ${player.assignedTo}`}
+            </span>
+            {player.priority && (
+              <Badge 
+                variant={player.priority === 'High' ? 'error' : player.priority === 'Medium' ? 'warning' : 'neutral'}
+                className="text-xs"
+              >
+                {player.priority}
+              </Badge>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Clock className="h-3 w-3" />
+            <span>{player.lastStatusChange}</span>
+          </div>
+
+          {/* Show template name for completed reports */}
+          {player.status === 'completed' && player.templateName && (
+            <div className="text-xs text-muted-foreground">
+              <span className="font-medium">Report:</span> {player.templateName}
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="space-y-1.5">
+          {player.status === 'shortlisted' && onAssignScout && (
+            <Button 
+              size="sm" 
+              className="w-full"
+              onClick={() => onAssignScout(player)}
+            >
+              <UserPlus className="h-3 w-3 mr-1" />
+              Assign Scout
+            </Button>
+          )}
+          
+          {player.status === 'completed' && (
+            <div className="space-y-1.5">
+              {onViewReport && (
                 <Button 
                   size="sm" 
                   className="w-full"
-                  onClick={() => onAssignScout(player)}
+                  onClick={() => onViewReport(player)}
                 >
-                  <UserPlus className="h-3 w-3 mr-1" />
-                  Assign Scout
+                  <FileText className="h-3 w-3 mr-1" />
+                  View Report
                 </Button>
               )}
               
-              {player.status === 'completed' && (
-                <div className="space-y-2">
-                  {onViewReport && (
-                    <Button 
-                      size="sm" 
-                      className="w-full"
-                      onClick={() => onViewReport(player)}
-                    >
-                      <FileText className="h-3 w-3 mr-1" />
-                      View Report
-                    </Button>
-                  )}
-                  
-                  {onMarkAsReviewed && (
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className="w-full bg-white hover:bg-accent"
-                      onClick={() => onMarkAsReviewed(player)}
-                    >
-                      <Check className="h-3 w-3 mr-1" />
-                      Mark as Reviewed
-                    </Button>
-                  )}
-                </div>
-              )}
-              
-              {player.playerId && (
-                <Link to={profilePath} className="block">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full bg-white hover:bg-accent"
-                  >
-                    <User className="h-3 w-3 mr-1" />
-                    View Profile
-                  </Button>
-                </Link>
+              {onMarkAsReviewed && (
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className="w-full hover:bg-accent"
+                  onClick={() => onMarkAsReviewed(player)}
+                >
+                  <Check className="h-3 w-3 mr-1" />
+                  Mark as Reviewed
+                </Button>
               )}
             </div>
-          </div>
+          )}
+          
+          {player.playerId && (
+            <Link to={profilePath} className="block">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full hover:bg-accent"
+              >
+                <User className="h-3 w-3 mr-1" />
+                View Profile
+              </Button>
+            </Link>
+          )}
         </div>
       </CardContent>
     </Card>
