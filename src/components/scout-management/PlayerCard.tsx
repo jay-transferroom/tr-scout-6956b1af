@@ -36,7 +36,7 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
     console.log('PlayerCard completed debug', { playerId: player.playerId, templateName: player.templateName, lastStatusChange: player.lastStatusChange });
   }
   return (
-    <Card className={`mb-2 hover:shadow-md transition-all duration-200 ${getStatusColor(player.status)}`}>
+    <Card className={`mb-2 bg-muted/30 hover:shadow-md transition-all duration-200 ${getStatusColor(player.status)}`}>
       <CardContent className="p-3">
         {/* Compact horizontal player info */}
         <div className="flex items-center gap-2 mb-3">
