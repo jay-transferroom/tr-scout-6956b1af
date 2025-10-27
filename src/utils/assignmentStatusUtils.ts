@@ -130,6 +130,11 @@ export const transformToAssignmentBased = (
     const kanbanStatus = getAssignmentKanbanStatus(statusInfo);
     const scoutName = statusInfo.scoutName || 'Unknown Scout';
 
+    // Find the report for this assignment if completed
+    const scoutReport = reports.find(report => 
+      report.playerId === assignment.player_id && report.scoutId === assignment.assigned_to_scout_id
+    );
+
     const assignmentData = {
       id: assignment.id,
       playerName,
@@ -145,7 +150,8 @@ export const transformToAssignmentBased = (
       scoutId: assignment.assigned_to_scout_id,
       status: statusInfo.status,
       playerId: assignment.player_id,
-      assignmentId: assignment.id
+      assignmentId: assignment.id,
+      templateName: scoutReport?.templateName || null
     };
 
     kanbanData[kanbanStatus].push(assignmentData);
