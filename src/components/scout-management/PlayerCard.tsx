@@ -81,15 +81,12 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
           
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" />
-            <span>{player.lastStatusChange}</span>
+            <span>
+              {player.status === 'completed' && player.templateName 
+                ? `${player.templateName} • ${player.lastStatusChange}`
+                : player.lastStatusChange}
+            </span>
           </div>
-
-          {/* Show template name for completed reports */}
-          {player.status === 'completed' && player.templateName && (
-            <div className="text-xs text-muted-foreground">
-              <span className="font-medium">Report:</span> {player.templateName}
-            </div>
-          )}
         </div>
 
         {/* Actions */}
