@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ReportWithPlayer, Report } from '@/types/report';
 import { useAuth } from '@/contexts/AuthContext';
+import { DEFAULT_TEMPLATES } from '@/data/defaultTemplates';
 
 export const useReports = () => {
   const [reports, setReports] = useState<ReportWithPlayer[]>([]);
@@ -29,6 +30,23 @@ export const useReports = () => {
 
       const { data, error } = await query;
 
+      // Gather template names for the fetched reports
+      const templateIds = Array.from(new Set(((data as any[]) || []).map((r: any) => r.template_id).filter(Boolean)));
+      const templatesById: Record<string, string> = {};
+      if (templateIds.length > 0) {
+        const { data: templatesData } = await supabase
+          .from('report_templates')
+          .select('id, name')
+          .in('id', templateIds);
+        (templatesData || []).forEach((t: any) => {
+          if (t?.id && t?.name) templatesById[t.id] = t.name;
+        });
+      }
+      // Fallback to default templates
+      DEFAULT_TEMPLATES.forEach((t) => {
+        if (t?.id && t?.name && !templatesById[t.id]) templatesById[t.id] = t.name;
+      });
+
       if (error) throw error;
 
       console.log('Raw reports data from database:', data);
@@ -36,7 +54,7 @@ export const useReports = () => {
       console.log('User profile role:', profile?.role);
 
       // Transform the data and fetch player data for each report
-      const transformedReports: ReportWithPlayer[] = await Promise.all(
+      const transformedReports: any[] = await Promise.all(
         (data || []).map(async (report: any) => {
           console.log(`Processing report ${report.id}:`, {
             scoutId: report.scout_id,
@@ -145,6 +163,7 @@ export const useReports = () => {
             id: report.id,
             playerId: report.player_id,
             templateId: report.template_id,
+            templateName: templatesById[report.template_id],
             scoutId: report.scout_id,
             createdAt: new Date(report.created_at),
             updatedAt: new Date(report.updated_at),
