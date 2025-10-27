@@ -83,12 +83,10 @@ const ScoutManagementTableView = ({
           <div className="text-sm">
             <div>{assignment.updatedAt}</div>
             {assignment.lastStatusChange && (
-              <div className="text-muted-foreground">{assignment.lastStatusChange}</div>
-            )}
-            {assignment.status === 'completed' && assignment.templateName && (
-              <div className="text-muted-foreground flex items-center gap-1">
-                <FileText className="h-4 w-4" />
-                <span>{assignment.templateName}</span>
+              <div className="text-muted-foreground">
+                {assignment.status === 'completed' && assignment.templateName
+                  ? `${assignment.templateName} ${assignment.lastStatusChange.replace(/^Completed/, 'completed')}`
+                  : assignment.lastStatusChange}
               </div>
             )}
           </div>
