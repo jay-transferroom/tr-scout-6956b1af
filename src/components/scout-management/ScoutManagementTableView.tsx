@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Eye, UserPlus, CheckCircle } from "lucide-react";
+import { Eye, UserPlus, CheckCircle, FileText } from "lucide-react";
 import { ClubBadge } from "@/components/ui/club-badge";
 
 interface TableViewProps {
@@ -84,6 +84,12 @@ const ScoutManagementTableView = ({
             <div>{assignment.updatedAt}</div>
             {assignment.lastStatusChange && (
               <div className="text-muted-foreground">{assignment.lastStatusChange}</div>
+            )}
+            {assignment.status === 'completed' && assignment.templateName && (
+              <div className="text-muted-foreground flex items-center gap-1">
+                <FileText className="h-4 w-4" />
+                <span>{assignment.templateName}</span>
+              </div>
             )}
           </div>
         </td>
