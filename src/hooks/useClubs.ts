@@ -6,9 +6,9 @@ import { getTeamLogoUrl } from "@/utils/teamLogos";
 interface Club {
   id: string;
   name: string;
-  league: string | null;
-  country: string | null;
-  logo_url: string | null;
+  slug: string;
+  badge_url: string | null;
+  badge_storage_path: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -17,16 +17,17 @@ export const useClubs = () => {
   return useQuery({
     queryKey: ['clubs'],
     queryFn: async (): Promise<Club[]> => {
-      // Since clubs table doesn't exist, return hardcoded Chelsea data
-      return [{
-        id: 'chelsea',
-        name: 'Chelsea F.C.',
-        league: 'Premier League',
-        country: 'England',
-        logo_url: getTeamLogoUrl('Chelsea F.C.'),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }];
+      const { data, error } = await supabase
+        .from('clubs')
+        .select('*')
+        .order('name');
+
+      if (error) {
+        console.error('Error fetching clubs:', error);
+        throw error;
+      }
+
+      return data || [];
     },
   });
 };

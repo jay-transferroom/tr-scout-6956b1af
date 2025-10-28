@@ -86,6 +86,36 @@ export type Database = {
         }
         Relationships: []
       }
+      clubs: {
+        Row: {
+          badge_storage_path: string | null
+          badge_url: string | null
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          badge_storage_path?: string | null
+          badge_url?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          badge_storage_path?: string | null
+          badge_url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       fixtures: {
         Row: {
           away_score: number | null
@@ -179,21 +209,6 @@ export type Database = {
           source?: string | null
           status?: string | null
           venue?: string | null
-        }
-        Relationships: []
-      }
-      kv_store_0b058238: {
-        Row: {
-          key: string
-          value: Json
-        }
-        Insert: {
-          key: string
-          value: Json
-        }
-        Update: {
-          key?: string
-          value?: Json
         }
         Relationships: []
       }
@@ -1167,12 +1182,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_current_user_role: { Args: never; Returns: string }
       get_fixtures_data: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           away_score: number
           away_team: string
