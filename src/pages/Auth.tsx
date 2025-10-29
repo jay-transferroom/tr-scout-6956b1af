@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Loader2, User, Shield, Star } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import PasswordResetDialog from '@/components/PasswordResetDialog';
 import { SlidingToggle } from "@/components/ui/sliding-toggle";
 import { ScoutLogo } from '@/components/ScoutLogo';
@@ -77,25 +77,19 @@ const Auth = () => {
       name: "Oliver Smith - Scout",
       email: "scout@demo.com",
       password: "demo123",
-      role: "Scout",
-      icon: User,
-      color: "text-blue-500"
+      role: "Scout"
     },
     {
       name: "Emma Johnson - Scout",
       email: "scout2@demo.com",
       password: "demo123",
-      role: "Scout",
-      icon: User,
-      color: "text-purple-500"
+      role: "Scout"
     },
     {
       name: "James Wilson - Manager", 
       email: "manager@demo.com",
       password: "demo123",
-      role: "Recruitment Manager",
-      icon: Shield,
-      color: "text-green-500"
+      role: "Recruitment Manager"
     }
   ];
 
@@ -276,7 +270,6 @@ const Auth = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               {demoAccounts.map((account, index) => {
-                const Icon = account.icon;
                 return (
                   <Button
                     key={index}
@@ -285,7 +278,7 @@ const Auth = () => {
                     onClick={() => handleDemoLogin(account)}
                     disabled={loading}
                   >
-                    <Icon className={`h-5 w-5 ${account.color}`} />
+                    <img src="/badges/chelsea.svg" alt="Chelsea" className="h-8 w-8" />
                     <div className="text-left">
                       <div className="font-medium">{account.name}</div>
                       <div className="text-sm text-muted-foreground">{account.email}</div>
