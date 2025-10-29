@@ -118,7 +118,13 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
+      {/* Logo Header */}
+      <div className="flex justify-center items-center gap-6 mb-8">
+        <h1 className="text-3xl font-bold text-foreground">TransferRoom</h1>
+        <ScoutLogo size="lg" />
+      </div>
+
       <div className="w-full max-w-md">
         {/* View Toggle */}
         <div className="mb-6 flex justify-center">
@@ -142,10 +148,6 @@ const Auth = () => {
         {viewMode === "login" && (
           <Card>
             <CardHeader className="text-center">
-              <div className="flex justify-center items-center gap-3 mb-4">
-                <h1 className="text-3xl font-bold text-foreground">TransferRoom</h1>
-                <ScoutLogo size="lg" />
-              </div>
               <CardDescription>Sign in to your account or create a new one</CardDescription>
             </CardHeader>
             <CardContent>
