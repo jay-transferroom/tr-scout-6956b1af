@@ -38,7 +38,6 @@ import PlayerPitches from "@/pages/transfers/PlayerPitches";
 import DataImport from "@/pages/transfers/DataImport";
 import SavedConversations from "@/pages/SavedChats";
 import MatchScouting from "@/pages/MatchScouting";
-import AppInitializer from "@/components/AppInitializer";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -53,8 +52,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <AppInitializer>
-          <Router>
+        <Router>
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route element={<Layout />}>
@@ -95,7 +93,6 @@ function App() {
             <Toaster />
             <SonnerToaster />
           </Router>
-        </AppInitializer>
       </AuthProvider>
     </QueryClientProvider>
   );
