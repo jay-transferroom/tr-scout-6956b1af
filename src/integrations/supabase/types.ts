@@ -1202,6 +1202,7 @@ export type Database = {
           venue: string
         }[]
       }
+      setup_demo_director_profile: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
