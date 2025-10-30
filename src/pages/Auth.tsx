@@ -86,7 +86,7 @@ const Auth = () => {
       role: "Scout"
     },
     {
-      name: "James Wilson - Manager", 
+      name: "Dave Chester - Manager", 
       email: "manager@demo.com",
       password: "demo123",
       role: "Recruitment Manager"
