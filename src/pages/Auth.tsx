@@ -74,22 +74,25 @@ const Auth = () => {
 
   const demoAccounts = [
     {
-      name: "Oliver Smith - Scout",
+      name: "Oliver Smith",
       email: "scout@demo.com",
       password: "demo123",
-      role: "Scout"
+      role: "Scout",
+      dbRole: "scout"
     },
     {
-      name: "Emma Johnson - Scout",
+      name: "Emma Johnson",
       email: "scout2@demo.com",
       password: "demo123",
-      role: "Scout"
+      role: "Scout",
+      dbRole: "scout"
     },
     {
-      name: "Dave Chester - Manager", 
+      name: "Dave Chester", 
       email: "manager@demo.com",
       password: "demo123",
-      role: "Recruitment Manager"
+      role: "Recruitment Manager",
+      dbRole: "recruitment"
     }
   ];
 
@@ -279,9 +282,12 @@ const Auth = () => {
                     disabled={loading}
                   >
                     <img src="/badges/chelsea.svg" alt="Chelsea" className="h-8 w-8" />
-                    <div className="text-left">
+                    <div className="text-left flex-1">
                       <div className="font-medium">{account.name}</div>
                       <div className="text-sm text-muted-foreground">{account.email}</div>
+                    </div>
+                    <div className="text-xs font-medium text-muted-foreground px-2 py-1 bg-muted rounded">
+                      {account.role}
                     </div>
                   </Button>
                 );
