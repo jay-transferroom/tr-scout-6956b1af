@@ -13,11 +13,13 @@ export interface Shortlist {
   updated_at?: string;
   requirement_id?: string; // For director users
   is_scouting_assignment_list?: boolean; // For the dedicated scouting assignment list
+  club_id?: string; // Club association for data isolation
+  user_id?: string; // User who created the shortlist
 }
 
 export const useShortlists = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [shortlists, setShortlists] = useState<Shortlist[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,10 +32,12 @@ export const useShortlists = () => {
     }
 
     try {
-      // Fetch all shortlists (visible to everyone)
+      // Fetch shortlists filtered by club_id or user_id
+      // Users see: their own shortlists + club shortlists + scouting assignment list
       const { data: shortlistsData, error: shortlistsError } = await supabase
         .from('shortlists')
         .select('*')
+        .or(`user_id.eq.${user.id},club_id.eq.${profile?.club_id || 'null'},is_scouting_assignment_list.eq.true`)
         .order('created_at', { ascending: true });
 
       if (shortlistsError) throw shortlistsError;
@@ -87,7 +91,7 @@ export const useShortlists = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, toast]);
+  }, [user, profile, toast]);
 
   // Load shortlists when user changes
   useEffect(() => {
@@ -105,11 +109,12 @@ export const useShortlists = () => {
     }
 
     try {
-      // Create the shortlist
+      // Create the shortlist with club_id from user's profile
       const { data: shortlistData, error: shortlistError } = await supabase
         .from('shortlists')
         .insert({
           user_id: user.id,
+          club_id: profile?.club_id || null,
           name,
           description: description || `Custom shortlist: ${name}`,
           color: "bg-gray-500",
@@ -156,7 +161,7 @@ export const useShortlists = () => {
       });
       return null;
     }
-  }, [user, toast]);
+  }, [user, profile, toast]);
 
   const addPlayerToShortlist = useCallback(async (shortlistId: string, playerId: string) => {
     try {
@@ -330,6 +335,7 @@ export const useShortlists = () => {
             .from('shortlists')
             .insert({
               user_id: user.id,
+              club_id: profile?.club_id || null,
               name: 'Marked for Scouting',
               description: 'Players assigned by scout managers for scouting assessment',
               color: 'bg-orange-500',
@@ -356,7 +362,7 @@ export const useShortlists = () => {
       console.error('Error getting scouting assignment list:', error);
       return null;
     }
-  }, [user]);
+  }, [user, profile]);
 
   const addPlayerToScoutingAssignment = useCallback(async (playerId: string) => {
     const scoutingList = await getScoutingAssignmentList();
