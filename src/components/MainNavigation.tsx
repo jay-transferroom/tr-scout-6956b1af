@@ -44,13 +44,13 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
   const location = useLocation();
   const { profile, signOut } = useAuth();
   const { data: permissions } = useMyPermissions();
-  const { isMobile, setOpen } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
   const { data: notifications = [] } = useNotifications();
   const unreadCount = notifications.filter(n => !n.read).length;
   
   const handleNavClick = () => {
     if (isMobile) {
-      setOpen(false);
+      setOpenMobile(false);
     }
   };
   
@@ -213,8 +213,8 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                 .map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                    <Link to={item.url} onClick={handleNavClick} className={cn(isMobile && "text-base py-3")}>
-                      <item.icon className={cn("h-4 w-4", isMobile && "h-5 w-5")} />
+                    <Link to={item.url} onClick={handleNavClick} className={cn(isMobile && "text-lg py-3")}>
+                      <item.icon className={cn("h-4 w-4", isMobile && "h-6 w-6")} />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -231,8 +231,8 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
               {accountItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                    <Link to={item.url} onClick={handleNavClick} className={cn(isMobile && "text-base py-3")}>
-                      <item.icon className={cn("h-4 w-4", isMobile && "h-5 w-5")} />
+                    <Link to={item.url} onClick={handleNavClick} className={cn(isMobile && "text-lg py-3")}>
+                      <item.icon className={cn("h-4 w-4", isMobile && "h-6 w-6")} />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -241,8 +241,8 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
               {/* Mobile-only: Sign Out */}
               {isMobile && (
                 <SidebarMenuItem>
-                  <SidebarMenuButton onClick={signOut} tooltip="Sign out" className="text-base py-3">
-                    <LogOut className="h-5 w-5" />
+                  <SidebarMenuButton onClick={signOut} tooltip="Sign out" className="text-lg py-3">
+                    <LogOut className="h-6 w-6" />
                     <span>Sign out</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -268,11 +268,11 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                     className={({ isActive }) => 
                       cn(
                         isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "",
-                        isMobile && "text-base py-3"
+                        isMobile && "text-lg py-3"
                       )
                     }
                   >
-                    <MessageSquare className={cn("h-4 w-4", isMobile && "h-5 w-5")} />
+                    <MessageSquare className={cn("h-4 w-4", isMobile && "h-6 w-6")} />
                     <span>Saved Conversations</span>
                   </NavLink>
                 </SidebarMenuButton>
@@ -284,9 +284,9 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                     onAIAssistantClick?.();
                     handleNavClick();
                   }}
-                  className={cn("w-full", isMobile && "text-base py-3")}
+                  className={cn("w-full", isMobile && "text-lg py-3")}
                 >
-                  <Sparkles className={cn("h-4 w-4 text-blue-600", isMobile && "h-5 w-5")} />
+                  <Sparkles className={cn("h-4 w-4 text-blue-600", isMobile && "h-6 w-6")} />
                   <span>AI Scout Assistant</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
