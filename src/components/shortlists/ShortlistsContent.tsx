@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ClubBadge } from "@/components/ui/club-badge";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { usePlayerScouts } from "@/hooks/usePlayerScouts";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ShortlistsContentProps {
   currentList: any;
@@ -60,6 +61,7 @@ export const ShortlistsContent = ({
 }: ShortlistsContentProps) => {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const { profile } = useAuth();
+  const isMobile = useIsMobile();
 
   // Check if user can manage shortlists (director or recruitment)
   const canManageShortlists = profile?.role === 'director' || profile?.role === 'recruitment';
@@ -294,53 +296,82 @@ export const ShortlistsContent = ({
           </div>
         )}
 
-        {/* Players Table */}
-        <div className="rounded-md border overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Player</TableHead>
-                <TableHead>Age</TableHead>
-                <TableHead>Positions</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Potential</TableHead>
-                <TableHead>XTV (£M)</TableHead>
-                <TableHead>EU/GBE</TableHead>
-                <TableHead>Scouts</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedPlayers.length > 0 ? (
-                sortedPlayers.map((player) => {
-                  const assignmentBadgeProps = getAssignmentBadge(player.id.toString());
-                  const euGbeBadgeProps = getEuGbeBadge(player.euGbeStatus || 'Pass');
-                  
-                  return (
-                    <ShortlistPlayerRow 
-                      key={player.id}
-                      player={player}
-                      assignmentBadgeProps={assignmentBadgeProps}
-                      euGbeBadgeProps={euGbeBadgeProps}
-                      formatXtvScore={formatXtvScore}
-                      handleCreateReport={handleCreateReport}
-                      onAssignScout={onAssignScout}
-                      onRemovePlayer={onRemovePlayer}
-                      canManageShortlists={canManageShortlists}
-                    />
-                  );
-                })
-              ) : (
+        {/* Players Table - Desktop or Mobile Card View */}
+        {isMobile ? (
+          <div className="space-y-3">
+            {sortedPlayers.length > 0 ? (
+              sortedPlayers.map((player) => {
+                const assignmentBadgeProps = getAssignmentBadge(player.id.toString());
+                const euGbeBadgeProps = getEuGbeBadge(player.euGbeStatus || 'Pass');
+                
+                return (
+                  <ShortlistPlayerCard
+                    key={player.id}
+                    player={player}
+                    assignmentBadgeProps={assignmentBadgeProps}
+                    euGbeBadgeProps={euGbeBadgeProps}
+                    formatXtvScore={formatXtvScore}
+                    handleCreateReport={handleCreateReport}
+                    onAssignScout={onAssignScout}
+                    onRemovePlayer={onRemovePlayer}
+                    canManageShortlists={canManageShortlists}
+                  />
+                );
+              })
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                No players found matching your criteria.
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="rounded-md border overflow-x-auto">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
-                    No players found matching your criteria.
-                  </TableCell>
+                  <TableHead>Player</TableHead>
+                  <TableHead>Age</TableHead>
+                  <TableHead>Positions</TableHead>
+                  <TableHead>Rating</TableHead>
+                  <TableHead>Potential</TableHead>
+                  <TableHead>XTV (£M)</TableHead>
+                  <TableHead>EU/GBE</TableHead>
+                  <TableHead>Scouts</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {sortedPlayers.length > 0 ? (
+                  sortedPlayers.map((player) => {
+                    const assignmentBadgeProps = getAssignmentBadge(player.id.toString());
+                    const euGbeBadgeProps = getEuGbeBadge(player.euGbeStatus || 'Pass');
+                    
+                    return (
+                      <ShortlistPlayerRow 
+                        key={player.id}
+                        player={player}
+                        assignmentBadgeProps={assignmentBadgeProps}
+                        euGbeBadgeProps={euGbeBadgeProps}
+                        formatXtvScore={formatXtvScore}
+                        handleCreateReport={handleCreateReport}
+                        onAssignScout={onAssignScout}
+                        onRemovePlayer={onRemovePlayer}
+                        canManageShortlists={canManageShortlists}
+                      />
+                    );
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
+                      No players found matching your criteria.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </CardContent>
 
       {/* Player Search Dialog */}
@@ -487,5 +518,163 @@ const ShortlistPlayerRow = ({
         </DropdownMenu>
       </TableCell>
     </TableRow>
+  );
+};
+
+// Mobile card component for shortlist players
+const ShortlistPlayerCard = ({
+  player,
+  assignmentBadgeProps,
+  euGbeBadgeProps,
+  formatXtvScore,
+  handleCreateReport,
+  onAssignScout,
+  onRemovePlayer,
+  canManageShortlists
+}: {
+  player: any;
+  assignmentBadgeProps: any;
+  euGbeBadgeProps: any;
+  formatXtvScore: (score: number) => string;
+  handleCreateReport: (player: any) => void;
+  onAssignScout: (player: any) => void;
+  onRemovePlayer: (playerId: string) => void;
+  canManageShortlists: boolean;
+}) => {
+  const { data: scouts = [] } = usePlayerScouts(player.id.toString());
+
+  return (
+    <Card>
+      <CardContent className="p-4">
+        {/* Player Header */}
+        <div className="flex items-start gap-3 mb-3">
+          <Avatar className="h-12 w-12">
+            <AvatarImage src={player.image} alt={player.name} />
+            <AvatarFallback>
+              {player.name.split(' ').map((n: string) => n[0]).join('')}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <Link to={player.profilePath} className="font-medium hover:underline">
+              {player.name}
+            </Link>
+            <div className="mt-1">
+              <ClubBadge clubName={player.club} size="sm" />
+            </div>
+            {player.isPrivate && (
+              <Badge variant="secondary" className="text-xs mt-1">Private</Badge>
+            )}
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link to={player.profilePath}>
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleCreateReport(player)}>
+                <FileText className="h-4 w-4 mr-2" />
+                Create Report
+              </DropdownMenuItem>
+              {!player.isPrivate && (
+                <DropdownMenuItem onClick={() => onAssignScout(player)}>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  {scouts.length > 0 ? "Assign Another Scout" : "Assign Scout"}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem>
+                <Bookmark className="h-4 w-4 mr-2" />
+                Move to list
+              </DropdownMenuItem>
+              {canManageShortlists && (
+                <DropdownMenuItem 
+                  className="text-destructive"
+                  onClick={() => onRemovePlayer(player.id.toString())}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Remove from list
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <div>
+            <div className="text-xs text-muted-foreground mb-1">Age</div>
+            <div className="font-medium">{player.age || 'N/A'}</div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground mb-1">Positions</div>
+            <div className="flex gap-1">
+              {player.positions?.slice(0, 2).map((pos: string, idx: number) => (
+                <Badge key={idx} variant="outline" className="text-xs">
+                  {pos}
+                </Badge>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground mb-1">Rating</div>
+            <div className="font-medium">
+              {player.transferroomRating ? player.transferroomRating.toFixed(1) : 'N/A'}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground mb-1">Potential</div>
+            <div className="font-medium">
+              {player.futureRating ? player.futureRating.toFixed(1) : 'N/A'}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground mb-1">XTV (£M)</div>
+            <div className="font-medium">
+              {player.xtvScore ? formatXtvScore(player.xtvScore) : 'N/A'}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground mb-1">EU/GBE</div>
+            <div>
+              {!player.isPrivate ? (
+                <Badge {...euGbeBadgeProps} className="text-xs" />
+              ) : (
+                <span className="text-xs">N/A</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Scouts and Status */}
+        <div className="flex items-center justify-between pt-3 border-t">
+          <div>
+            <div className="text-xs text-muted-foreground mb-1">Scouts</div>
+            {!player.isPrivate && scouts.length > 0 ? (
+              <ScoutAvatars scouts={scouts} size="sm" maxVisible={3} />
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                {player.isPrivate ? 'Private' : 'Unassigned'}
+              </span>
+            )}
+          </div>
+          <div className="text-right">
+            <div className="text-xs text-muted-foreground mb-1">Status</div>
+            {!player.isPrivate ? (
+              <Badge {...assignmentBadgeProps} className="text-xs" />
+            ) : (
+              <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                Private
+              </Badge>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
