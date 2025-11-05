@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Calendar as CalendarIcon, Clock, MapPin, Users, UserCheck, Plus, Search, Star, Target } from "lucide-react";
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday, addWeeks, subWeeks, isSameWeek } from "date-fns";
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday, addWeeks, subWeeks, isSameWeek, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useFixturesData } from "@/hooks/useFixturesData";
 import { useScoutUsers } from "@/hooks/useScoutUsers";
@@ -378,8 +378,89 @@ const Calendar = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 px-2 sm:px-0">
         {/* Dates List or Calendar Grid */}
         <div>
-          {viewMode === 'list' ? (
+          {/* Mobile: 3-day view */}
+          <div className="lg:hidden">
             <Card className="h-fit">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between text-base">
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon className="h-4 w-4" />
+                    3-Day View
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentDate(addDays(currentDate, -3))}
+                      className="h-8 px-2 text-xs"
+                    >
+                      Prev
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentDate(new Date())}
+                      className="h-8 px-2 text-xs"
+                    >
+                      Today
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentDate(addDays(currentDate, 3))}
+                      className="h-8 px-2 text-xs"
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="divide-y">
+                  {eachDayOfInterval({
+                    start: currentDate,
+                    end: addDays(currentDate, 2)
+                  }).map((date) => {
+                    const dayFixtures = getScoutRelevantFixtures(date);
+                    const isSelected = selectedDate && isSameDay(date, selectedDate);
+                    const totalShortlisted = dayFixtures.reduce((sum, f) => sum + (f.shortlistedPlayers?.length || 0), 0);
+
+                    return (
+                      <button
+                        key={date.toString()}
+                        onClick={() => setSelectedDate(date)}
+                        className={cn(
+                          "w-full text-left p-3 hover:bg-accent transition-colors",
+                          isSelected && "bg-accent"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-sm">
+                              {format(date, 'EEE, MMM d')}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-0.5">
+                              {dayFixtures.length} {dayFixtures.length === 1 ? 'match' : 'matches'}
+                            </div>
+                          </div>
+                          {totalShortlisted > 0 && (
+                            <Badge variant="secondary" className="text-xs">
+                              <Star className="h-3 w-3 mr-1" />
+                              {totalShortlisted}
+                            </Badge>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Desktop: List or Grid view */}
+          {viewMode === 'list' ? (
+            <Card className="h-fit hidden lg:block">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -520,7 +601,7 @@ const Calendar = () => {
               </CardContent>
             </Card>
           ) : (
-            <Card className="h-fit">
+            <Card className="hidden lg:block">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
