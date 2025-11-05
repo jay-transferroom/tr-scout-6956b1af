@@ -298,68 +298,74 @@ const Calendar = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-7xl">
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
+    <div className="max-w-7xl mx-auto py-4 sm:py-8">
+      <div className="mb-6 sm:mb-8 px-2 sm:px-0">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Scout Calendar</h1>
-            <p className="text-muted-foreground mt-2">
-              View fixtures and manage scout assignments with intelligent recommendations
+            <h1 className="text-2xl sm:text-3xl font-bold">Scout Calendar</h1>
+            <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
+              View fixtures and manage scout assignments
             </p>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="mb-6 space-y-4">
-        <div className="flex flex-wrap items-center gap-4 justify-between">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-              <UserCheck className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Scout:</span>
+      <div className="mb-4 sm:mb-6 space-y-3 px-2 sm:px-0">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 sm:justify-between">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center gap-2 shrink-0">
+                <UserCheck className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Scout:</span>
+              </div>
+              <Select value={selectedScout} onValueChange={setSelectedScout}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Select scout" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Scouts</SelectItem>
+                  {scouts.map((scout) => (
+                    <SelectItem key={scout.id} value={scout.id}>
+                      {scout.first_name} {scout.last_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={selectedScout} onValueChange={setSelectedScout}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select scout" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Scouts</SelectItem>
-                {scouts.map((scout) => (
-                  <SelectItem key={scout.id} value={scout.id}>
-                    {scout.first_name} {scout.last_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
 
-            <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Shortlist:</span>
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center gap-2 shrink-0">
+                <Star className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Shortlist:</span>
+              </div>
+              <Select value={selectedShortlist} onValueChange={setSelectedShortlist}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Select shortlist" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Players</SelectItem>
+                  {shortlists.map((shortlist) => (
+                    <SelectItem key={shortlist.id} value={shortlist.id}>
+                      {shortlist.name} ({shortlist.playerIds?.length || 0})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={selectedShortlist} onValueChange={setSelectedShortlist}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select shortlist" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Players</SelectItem>
-                {shortlists.map((shortlist) => (
-                  <SelectItem key={shortlist.id} value={shortlist.id}>
-                    {shortlist.name} ({shortlist.playerIds?.length || 0})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
 
-            <div className="flex items-center gap-2">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Player:</span>
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center gap-2 shrink-0">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Player:</span>
+              </div>
+              <Input
+                placeholder="Search players..."
+                value={playerSearchTerm}
+                onChange={(e) => setPlayerSearchTerm(e.target.value)}
+                className="w-full sm:w-[180px]"
+              />
             </div>
-            <Input
-              placeholder="Search players..."
-              value={playerSearchTerm}
-              onChange={(e) => setPlayerSearchTerm(e.target.value)}
-              className="w-[200px]"
-            />
           </div>
           
           <ViewToggle 
@@ -369,7 +375,7 @@ const Calendar = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 px-2 sm:px-0">
         {/* Dates List or Calendar Grid */}
         <div>
           {viewMode === 'list' ? (
@@ -591,36 +597,36 @@ const Calendar = () => {
                               <button
                                 onClick={() => hasFixtures && setSelectedDate(day)}
                                 disabled={!hasFixtures}
-                                className={cn(
-                                  "relative p-2 rounded-lg border text-sm transition-colors min-h-[90px] flex flex-col items-start",
-                                  !isCurrentMonth && "text-muted-foreground opacity-50 border-muted",
-                                  isCurrentMonth && !hasFixtures && "hover:bg-muted/30 cursor-default border-border",
-                                  hasFixtures && "hover:bg-muted cursor-pointer border-border",
-                                  isSelected && "bg-primary/10 border-2 border-primary",
-                                  isTodayDate && !isSelected && "bg-accent border-accent-foreground/20"
-                                )}
+                                 className={cn(
+                                   "relative p-1 sm:p-2 rounded-lg border text-xs sm:text-sm transition-colors min-h-[60px] sm:min-h-[90px] flex flex-col items-start",
+                                   !isCurrentMonth && "text-muted-foreground opacity-50 border-muted",
+                                   isCurrentMonth && !hasFixtures && "hover:bg-muted/30 cursor-default border-border",
+                                   hasFixtures && "hover:bg-muted cursor-pointer border-border",
+                                   isSelected && "bg-primary/10 border-2 border-primary",
+                                   isTodayDate && !isSelected && "bg-accent border-accent-foreground/20"
+                                 )}
                               >
-                                <div className="font-semibold mb-2">{format(day, 'd')}</div>
-                                {hasFixtures && (
-                                  <div className="space-y-1.5 w-full">
-                                    <div className="flex items-center gap-1 text-xs">
-                                      <CalendarIcon className="h-3 w-3" />
-                                      {dayFixtures.length}
-                                    </div>
-                                    {totalShortlisted > 0 && (
-                                      <div className="flex items-center gap-1 text-xs text-yellow-600">
-                                        <Star className="h-3 w-3 fill-current" />
-                                        <span>{totalShortlisted}</span>
-                                      </div>
-                                    )}
-                                    {uniqueScouts > 0 && (
-                                      <div className="flex items-center gap-1 text-xs text-blue-600">
-                                        <UserCheck className="h-3 w-3" />
-                                        <span>{uniqueScouts}</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
+                                 <div className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">{format(day, 'd')}</div>
+                                 {hasFixtures && (
+                                   <div className="space-y-0.5 sm:space-y-1.5 w-full">
+                                     <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs">
+                                       <CalendarIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                                       {dayFixtures.length}
+                                     </div>
+                                     {totalShortlisted > 0 && (
+                                       <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs text-yellow-600">
+                                         <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-current" />
+                                         <span>{totalShortlisted}</span>
+                                       </div>
+                                     )}
+                                     {uniqueScouts > 0 && (
+                                       <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs text-blue-600">
+                                         <UserCheck className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                                         <span>{uniqueScouts}</span>
+                                       </div>
+                                     )}
+                                   </div>
+                                 )}
                               </button>
                             </TooltipTrigger>
                             {hasFixtures && (
