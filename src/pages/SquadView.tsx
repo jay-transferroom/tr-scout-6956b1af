@@ -71,11 +71,8 @@ const SquadView = () => {
   // Fetch squad recommendations from database
   const { data: dbRecommendations = [] } = useSquadRecommendations();
 
-  // Redirect if not recruitment or director role - AFTER all hooks are called
-  if (profile?.role !== 'recruitment' && profile?.role !== 'director') {
-    navigate('/');
-    return null;
-  }
+  // Role check moved below all hooks to preserve hook order
+
 
   // Filter players based on Chelsea F.C. (including all squads and loans)
   const clubPlayers = useMemo(() => {
@@ -109,6 +106,12 @@ const SquadView = () => {
 
   const squadMetrics = useSquadMetrics(squadPlayers, selectedSquad);
   const displayTitle = `${userClub} ${getSquadDisplayName(selectedSquad)} Analysis`;
+  
+  // Redirect if not recruitment or director role - AFTER all hooks and memos
+  if (profile?.role !== 'recruitment' && profile?.role !== 'director') {
+    navigate('/');
+    return null;
+  }
   
   const handleFormationChange = async (formation: string) => {
     try {
