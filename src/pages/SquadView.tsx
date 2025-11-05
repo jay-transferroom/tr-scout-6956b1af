@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -107,10 +107,17 @@ const SquadView = () => {
   const squadMetrics = useSquadMetrics(squadPlayers, selectedSquad);
   const displayTitle = `${userClub} ${getSquadDisplayName(selectedSquad)} Analysis`;
   
-  // Redirect if not recruitment or director role - AFTER all hooks and memos
-  if (profile?.role !== 'recruitment' && profile?.role !== 'director') {
-    navigate('/');
-    return null;
+  // Auth/role guard via effect to avoid altering hook order during render
+  const isAuthorized = profile?.role === 'recruitment' || profile?.role === 'director';
+  useEffect(() => {
+    if (profile && !isAuthorized) {
+      navigate('/');
+    }
+  }, [profile, isAuthorized, navigate]);
+  
+  // Optional: show lightweight placeholder while redirecting unauthorized users
+  if (profile && !isAuthorized) {
+    return <div className="container mx-auto py-8 px-4">Redirecting…</div>;
   }
   
   const handleFormationChange = async (formation: string) => {
