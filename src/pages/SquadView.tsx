@@ -154,16 +154,16 @@ const SquadView = () => {
   ];
   
   if (isLoading) {
-    return <div className="container mx-auto py-8">
+    return <div className="container mx-auto py-4 sm:py-8 px-4">
         <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Loading squad data...</div>
+          <div className="text-base sm:text-lg">Loading squad data...</div>
         </div>
       </div>;
   }
   if (error) {
-    return <div className="container mx-auto py-8">
+    return <div className="container mx-auto py-4 sm:py-8 px-4">
         <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-red-600">Error loading squad data. Please try again.</div>
+          <div className="text-base sm:text-lg text-red-600">Error loading squad data. Please try again.</div>
         </div>
       </div>;
   }
@@ -182,14 +182,14 @@ const SquadView = () => {
     }
   };
   return <>
-      <div className="container mx-auto py-8 max-w-7xl">
+      <div className="container mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 max-w-7xl">
         {/* Header */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <ClubBadge clubName={userClub} size="lg" />
-            <div>
-              <h1 className="text-3xl font-bold">{displayTitle}</h1>
-              <p className="text-muted-foreground mt-2">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+            <ClubBadge clubName={userClub} size="lg" className="shrink-0" />
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">{displayTitle}</h1>
+              <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
                 Manage squad formations, analyze depth, and identify recruitment opportunities
               </p>
             </div>
@@ -198,22 +198,23 @@ const SquadView = () => {
       </div>
 
       {/* Squad Selection and Formation Controls */}
-      <div className="container mx-auto max-w-7xl">
-        <div className="bg-muted/30 py-6 px-6 lg:px-8 rounded-lg">
-          <div className="flex flex-col md:flex-row gap-6 items-start">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="bg-muted/30 py-4 sm:py-6 px-4 sm:px-6 lg:px-8 rounded-lg">
+          <div className="flex flex-col md:flex-row gap-4 sm:gap-6 items-start">
             {/* Select Squad Section */}
-            <div className="flex-1 space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">Select Squad</h3>
+            <div className="flex-1 space-y-2 sm:space-y-3 w-full">
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Select Squad</h3>
               <div className="flex flex-wrap gap-2">
                 {squadsList.map((squad) => (
                   <Button
                     key={squad.id}
                     onClick={() => setSelectedSquad(squad.id)}
                     variant={selectedSquad === squad.id ? "default" : "outline"}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base"
+                    size="sm"
                   >
                     <span>{squad.label}</span>
-                    <Badge variant="secondary" className="ml-1">
+                    <Badge variant="secondary" className="ml-0.5 sm:ml-1 text-xs">
                       {squad.count}
                     </Badge>
                   </Button>
@@ -222,10 +223,10 @@ const SquadView = () => {
             </div>
 
             {/* Formation Section */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">Formation</h3>
+            <div className="space-y-2 sm:space-y-3 w-full md:w-auto">
+              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Formation</h3>
               <Select value={currentFormation} onValueChange={handleFormationChange}>
-                <SelectTrigger className="w-[200px] bg-background">
+                <SelectTrigger className="w-full md:w-[200px] bg-background">
                   <SelectValue placeholder="Select formation" />
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
@@ -236,7 +237,7 @@ const SquadView = () => {
                       className="cursor-pointer"
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <span>{formation.formation}</span>
+                        <span className="text-sm">{formation.formation}</span>
                         <Badge variant="secondary" className="text-xs">
                           {formation.games} {formation.games === 1 ? 'game' : 'games'}
                         </Badge>
@@ -248,26 +249,26 @@ const SquadView = () => {
             </div>
           </div>
 
-          <Separator className="my-6" />
+          <Separator className="my-4 sm:my-6" />
 
           {/* Squad Recommendations and Alerts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Database Recommendations */}
             {dbRecommendations.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <Lightbulb className="h-4 w-4" />
+              <div className="space-y-2 sm:space-y-3">
+                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <Lightbulb className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   Squad Recommendations
                 </h3>
                 <div className="grid gap-2">
                   {dbRecommendations.map((rec, index) => (
                     <Card key={index} className="border-l-4 border-l-primary">
-                      <CardContent className="py-3 px-4">
-                        <div className="flex items-start gap-3">
-                          <Badge variant="secondary" className="mt-0.5">
+                      <CardContent className="py-2.5 sm:py-3 px-3 sm:px-4">
+                        <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-3">
+                          <Badge variant="secondary" className="text-xs shrink-0">
                             {rec.Position}
                           </Badge>
-                          <p className="text-sm flex-1">{rec.Reason}</p>
+                          <p className="text-xs sm:text-sm flex-1">{rec.Reason}</p>
                         </div>
                       </CardContent>
                     </Card>
@@ -278,9 +279,9 @@ const SquadView = () => {
 
             {/* Players with Alerts */}
             {alertPlayers.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4" />
+              <div className="space-y-2 sm:space-y-3">
+                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   Players Requiring Attention ({alertPlayers.length})
                 </h3>
                 <div className="grid gap-2">
@@ -295,22 +296,22 @@ const SquadView = () => {
 
                     return (
                       <Card key={player.id} className="border-l-4 border-l-amber-500">
-                        <CardContent className="py-3 px-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="flex-1">
-                              <div className="font-medium text-sm">{player.name}</div>
-                              <div className="text-xs text-muted-foreground">
+                        <CardContent className="py-2.5 sm:py-3 px-3 sm:px-4">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-xs sm:text-sm truncate">{player.name}</div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground truncate">
                                 {player.positions.join(', ')} • Age {player.age}
                               </div>
                             </div>
-                            <div className="flex flex-wrap gap-1.5 justify-end">
+                            <div className="flex flex-wrap gap-1.5 self-start sm:self-auto">
                               {contractExpiringSoon && (
-                                <Badge variant="outline" className="text-[10px] border-amber-500 text-amber-700">
+                                <Badge variant="outline" className="text-[9px] sm:text-[10px] border-amber-500 text-amber-700">
                                   Contract expiring
                                 </Badge>
                               )}
                               {isAging && (
-                                <Badge variant="outline" className="text-[10px] border-orange-500 text-orange-700">
+                                <Badge variant="outline" className="text-[9px] sm:text-[10px] border-orange-500 text-orange-700">
                                   Aging player
                                 </Badge>
                               )}
@@ -327,47 +328,47 @@ const SquadView = () => {
         </div>
       </div>
 
-      <div className="container mx-auto py-6 max-w-7xl">
+      <div className="container mx-auto py-4 sm:py-6 max-w-7xl px-4 sm:px-6">
         {/* Head Coach Info and Squad Controls */}
         <div>
         <Card className="border-0 rounded-none shadow-none">
-          <CardContent className="pt-6 pb-2 px-0">
-            <div className="flex flex-col lg:flex-row gap-6">
+          <CardContent className="pt-4 sm:pt-6 pb-2 px-0">
+            <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
               {/* Head Coach Info */}
               {headCoach && (
-                <div className="flex items-start gap-4 flex-1">
-                  <Avatar className="h-16 w-16">
+                <div className="flex items-start gap-3 sm:gap-4 flex-1">
+                  <Avatar className="h-12 w-12 sm:h-16 sm:w-16 shrink-0">
                     <AvatarImage src={headCoach.Image || undefined} alt={headCoach.shortname || "Coach"} />
-                    <AvatarFallback className="text-sm">
+                    <AvatarFallback className="text-xs sm:text-sm">
                       {headCoach.shortname ? headCoach.shortname.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "HC"}
                     </AvatarFallback>
                   </Avatar>
                   
-                  <div className="flex-1 space-y-2">
+                  <div className="flex-1 space-y-1.5 sm:space-y-2 min-w-0">
                     <div className="flex items-center gap-2">
-                      <Users className="h-5 w-5 text-muted-foreground" />
-                      <span className="text-base font-medium text-muted-foreground">Head Coach</span>
+                      <Users className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground shrink-0" />
+                      <span className="text-xs sm:text-base font-medium text-muted-foreground">Head Coach</span>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-xl">{headCoach.shortname || "Unknown"}</h4>
-                      <p className="text-base text-muted-foreground">
+                      <h4 className="font-semibold text-base sm:text-xl truncate">{headCoach.shortname || "Unknown"}</h4>
+                      <p className="text-sm sm:text-base text-muted-foreground truncate">
                         {headCoach.current_Role} {headCoach.age ? `• ${headCoach.age} years old` : ""}
                       </p>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {headCoach.rating && (
-                        <Badge variant="secondary" className="text-sm">
+                        <Badge variant="secondary" className="text-xs sm:text-sm">
                           Rating: {headCoach.rating}
                         </Badge>
                       )}
                       {headCoach.Style && (
-                        <Badge variant="outline" className="text-sm">
+                        <Badge variant="outline" className="text-xs sm:text-sm">
                           {headCoach.Style}
                         </Badge>
                       )}
                     {headCoach["Favourite Formation"] && (
-                      <Badge variant="outline" className="text-sm">
+                      <Badge variant="outline" className="text-xs sm:text-sm">
                         {headCoach["Favourite Formation"]}
                       </Badge>
                     )}
@@ -393,15 +394,16 @@ const SquadView = () => {
 
 
       {/* Enhanced Football Pitch Visualization */}
-      <div className="py-6">
+      <div className="py-4 sm:py-6 px-4 sm:px-0">
         <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
       </div>
 
       {/* Squad Comparison */}
-      <div>
+      <div className="px-4 sm:px-0">
         <SquadComparisonChart clubName={userClub} />
       </div>
     </div>
   </>;
 };
+
 export default SquadView;
