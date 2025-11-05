@@ -34,10 +34,14 @@ export const useShortlists = () => {
     try {
       // Fetch shortlists filtered by club_id or user_id
       // Users see: their own shortlists + club shortlists + scouting assignment list
+      const clubFilter = profile?.club_id 
+        ? `user_id.eq.${user.id},club_id.eq.${profile.club_id},is_scouting_assignment_list.eq.true`
+        : `user_id.eq.${user.id},is_scouting_assignment_list.eq.true`;
+      
       const { data: shortlistsData, error: shortlistsError } = await supabase
         .from('shortlists')
         .select('*')
-        .or(`user_id.eq.${user.id},club_id.eq.${profile?.club_id || 'null'},is_scouting_assignment_list.eq.true`)
+        .or(clubFilter)
         .order('created_at', { ascending: true });
 
       if (shortlistsError) throw shortlistsError;
