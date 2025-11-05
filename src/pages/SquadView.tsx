@@ -35,13 +35,7 @@ const SquadView = () => {
   const [selectedSquad, setSelectedSquad] = useState<string>('first-team');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
 
-  // Redirect if not recruitment or director role
-  if (profile?.role !== 'recruitment' && profile?.role !== 'director') {
-    navigate('/');
-    return null;
-  }
-
-  // Fetch real players data
+  // Fetch real players data - MUST be called before any conditional returns
   const {
     data: allPlayers = [],
     isLoading,
@@ -76,6 +70,12 @@ const SquadView = () => {
 
   // Fetch squad recommendations from database
   const { data: dbRecommendations = [] } = useSquadRecommendations();
+
+  // Redirect if not recruitment or director role - AFTER all hooks are called
+  if (profile?.role !== 'recruitment' && profile?.role !== 'director') {
+    navigate('/');
+    return null;
+  }
 
   // Filter players based on Chelsea F.C. (including all squads and loans)
   const clubPlayers = useMemo(() => {
