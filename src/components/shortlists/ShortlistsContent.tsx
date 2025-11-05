@@ -296,82 +296,79 @@ export const ShortlistsContent = ({
           </div>
         )}
 
-        {/* Players Table - Desktop or Mobile Card View */}
-        {isMobile ? (
-          <div className="space-y-3">
-            {sortedPlayers.length > 0 ? (
-              sortedPlayers.map((player) => {
-                const assignmentBadgeProps = getAssignmentBadge(player.id.toString());
-                const euGbeBadgeProps = getEuGbeBadge(player.euGbeStatus || 'Pass');
-                
-                return (
-                  <ShortlistPlayerCard
-                    key={player.id}
-                    player={player}
-                    assignmentBadgeProps={assignmentBadgeProps}
-                    euGbeBadgeProps={euGbeBadgeProps}
-                    formatXtvScore={formatXtvScore}
-                    handleCreateReport={handleCreateReport}
-                    onAssignScout={onAssignScout}
-                    onRemovePlayer={onRemovePlayer}
-                    canManageShortlists={canManageShortlists}
-                  />
-                );
-              })
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                No players found matching your criteria.
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="rounded-md border overflow-x-auto">
-            <Table>
-              <TableHeader>
+        {/* Players - Mobile cards and desktop table */}
+        <div className="block md:hidden space-y-3">
+          {sortedPlayers.length > 0 ? (
+            sortedPlayers.map((player) => {
+              const assignmentBadgeProps = getAssignmentBadge(player.id.toString());
+              const euGbeBadgeProps = getEuGbeBadge(player.euGbeStatus || 'Pass');
+              return (
+                <ShortlistPlayerCard
+                  key={player.id}
+                  player={player}
+                  assignmentBadgeProps={assignmentBadgeProps}
+                  euGbeBadgeProps={euGbeBadgeProps}
+                  formatXtvScore={formatXtvScore}
+                  handleCreateReport={handleCreateReport}
+                  onAssignScout={onAssignScout}
+                  onRemovePlayer={onRemovePlayer}
+                  canManageShortlists={canManageShortlists}
+                />
+              );
+            })
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">
+              No players found matching your criteria.
+            </div>
+          )}
+        </div>
+
+        <div className="hidden md:block rounded-md border overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Player</TableHead>
+                <TableHead>Age</TableHead>
+                <TableHead>Positions</TableHead>
+                <TableHead>Rating</TableHead>
+                <TableHead>Potential</TableHead>
+                <TableHead>XTV (£M)</TableHead>
+                <TableHead>EU/GBE</TableHead>
+                <TableHead>Scouts</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedPlayers.length > 0 ? (
+                sortedPlayers.map((player) => {
+                  const assignmentBadgeProps = getAssignmentBadge(player.id.toString());
+                  const euGbeBadgeProps = getEuGbeBadge(player.euGbeStatus || 'Pass');
+                  
+                  return (
+                    <ShortlistPlayerRow 
+                      key={player.id}
+                      player={player}
+                      assignmentBadgeProps={assignmentBadgeProps}
+                      euGbeBadgeProps={euGbeBadgeProps}
+                      formatXtvScore={formatXtvScore}
+                      handleCreateReport={handleCreateReport}
+                      onAssignScout={onAssignScout}
+                      onRemovePlayer={onRemovePlayer}
+                      canManageShortlists={canManageShortlists}
+                    />
+                  );
+                })
+              ) : (
                 <TableRow>
-                  <TableHead>Player</TableHead>
-                  <TableHead>Age</TableHead>
-                  <TableHead>Positions</TableHead>
-                  <TableHead>Rating</TableHead>
-                  <TableHead>Potential</TableHead>
-                  <TableHead>XTV (£M)</TableHead>
-                  <TableHead>EU/GBE</TableHead>
-                  <TableHead>Scouts</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
+                    No players found matching your criteria.
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sortedPlayers.length > 0 ? (
-                  sortedPlayers.map((player) => {
-                    const assignmentBadgeProps = getAssignmentBadge(player.id.toString());
-                    const euGbeBadgeProps = getEuGbeBadge(player.euGbeStatus || 'Pass');
-                    
-                    return (
-                      <ShortlistPlayerRow 
-                        key={player.id}
-                        player={player}
-                        assignmentBadgeProps={assignmentBadgeProps}
-                        euGbeBadgeProps={euGbeBadgeProps}
-                        formatXtvScore={formatXtvScore}
-                        handleCreateReport={handleCreateReport}
-                        onAssignScout={onAssignScout}
-                        onRemovePlayer={onRemovePlayer}
-                        canManageShortlists={canManageShortlists}
-                      />
-                    );
-                  })
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
-                      No players found matching your criteria.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
 
       {/* Player Search Dialog */}
