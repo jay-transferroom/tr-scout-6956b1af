@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -38,25 +37,22 @@ import PlayerPitches from "@/pages/transfers/PlayerPitches";
 import DataImport from "@/pages/transfers/DataImport";
 import SavedConversations from "@/pages/SavedChats";
 import MatchScouting from "@/pages/MatchScouting";
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
+      refetchOnWindowFocus: false
+    }
+  }
 });
-
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
+  return <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route element={<Layout />}>
-                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} className="my-1000" />
                 <Route path="/player/:id" element={<ProtectedRoute><PlayerProfile /></ProtectedRoute>} />
                 <Route path="/private-player/:id" element={<ProtectedRoute><PrivatePlayerProfile /></ProtectedRoute>} />
                 <Route path="/report-builder" element={<ProtectedRoute><ReportBuilder /></ProtectedRoute>} />
@@ -94,8 +90,6 @@ function App() {
             <SonnerToaster />
           </Router>
       </AuthProvider>
-    </QueryClientProvider>
-  );
+    </QueryClientProvider>;
 }
-
 export default App;
