@@ -354,7 +354,7 @@ const Calendar = () => {
               </Select>
             </div>
 
-            <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
               <div className="flex items-center gap-2 shrink-0">
                 <Search className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Player:</span>
@@ -368,10 +368,13 @@ const Calendar = () => {
             </div>
           </div>
           
-          <ViewToggle 
-            currentView={viewMode} 
-            onViewChange={setViewMode}
-          />
+          {/* View Toggle - Desktop only */}
+          <div className="hidden lg:block">
+            <ViewToggle 
+              currentView={viewMode} 
+              onViewChange={setViewMode}
+            />
+          </div>
         </div>
       </div>
 
