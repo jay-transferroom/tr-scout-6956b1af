@@ -213,8 +213,8 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                 .map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                    <Link to={item.url} onClick={handleNavClick}>
-                      <item.icon className="h-4 w-4" />
+                    <Link to={item.url} onClick={handleNavClick} className={cn(isMobile && "text-base py-3")}>
+                      <item.icon className={cn("h-4 w-4", isMobile && "h-5 w-5")} />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -231,8 +231,8 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
               {accountItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                    <Link to={item.url} onClick={handleNavClick}>
-                      <item.icon className="h-4 w-4" />
+                    <Link to={item.url} onClick={handleNavClick} className={cn(isMobile && "text-base py-3")}>
+                      <item.icon className={cn("h-4 w-4", isMobile && "h-5 w-5")} />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -241,8 +241,8 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
               {/* Mobile-only: Sign Out */}
               {isMobile && (
                 <SidebarMenuItem>
-                  <SidebarMenuButton onClick={signOut} tooltip="Sign out">
-                    <LogOut className="h-4 w-4" />
+                  <SidebarMenuButton onClick={signOut} tooltip="Sign out" className="text-base py-3">
+                    <LogOut className="h-5 w-5" />
                     <span>Sign out</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -266,10 +266,13 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                     to="/saved-conversations"
                     onClick={handleNavClick}
                     className={({ isActive }) => 
-                      isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""
+                      cn(
+                        isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "",
+                        isMobile && "text-base py-3"
+                      )
                     }
                   >
-                    <MessageSquare className="h-4 w-4" />
+                    <MessageSquare className={cn("h-4 w-4", isMobile && "h-5 w-5")} />
                     <span>Saved Conversations</span>
                   </NavLink>
                 </SidebarMenuButton>
@@ -277,10 +280,13 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
               <SidebarMenuItem>
                 <SidebarMenuButton 
                   tooltip="AI Scout Assistant"
-                  onClick={onAIAssistantClick}
-                  className="w-full"
+                  onClick={() => {
+                    onAIAssistantClick?.();
+                    handleNavClick();
+                  }}
+                  className={cn("w-full", isMobile && "text-base py-3")}
                 >
-                  <Sparkles className="h-4 w-4 text-blue-600" />
+                  <Sparkles className={cn("h-4 w-4 text-blue-600", isMobile && "h-5 w-5")} />
                   <span>AI Scout Assistant</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
