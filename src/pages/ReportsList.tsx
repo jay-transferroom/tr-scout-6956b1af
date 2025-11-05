@@ -177,13 +177,13 @@ const ReportsList = () => {
   }
 
   return (
-    <div className="container mx-auto pt-8 pb-16 max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Player Reports</h1>
-        <p className="text-muted-foreground">View and manage scouting reports</p>
+    <div className="container mx-auto pt-4 sm:pt-8 pb-16 max-w-7xl px-2 sm:px-4">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Player Reports</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">View and manage scouting reports</p>
       </div>
 
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex flex-col sm:flex-row items-start justify-between mb-4 gap-4">
         <ReportsTabNavigation onTabChange={setActiveTab} activeTab={activeTab} />
         
         <SlidingToggle

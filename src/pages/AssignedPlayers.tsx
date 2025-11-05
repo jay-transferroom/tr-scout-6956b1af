@@ -46,7 +46,7 @@ const AssignedPlayers = () => {
   );
 
   return (
-    <div className="container mx-auto py-8 max-w-7xl">
+    <div className="container mx-auto py-4 sm:py-8 max-w-7xl px-2 sm:px-4">
       <AssignedPlayersHeader />
       
       <AssignmentStatsCards stats={stats} />

@@ -784,18 +784,18 @@ const Calendar = () => {
                         </div>
                         
                         <div className="text-center mb-3">
-                          <div className="flex items-center justify-center gap-4">
-                            <div className="text-right flex-1 flex items-center justify-end gap-2">
-                              <div className="font-semibold text-lg">{fixture.home_team}</div>
+                          <div className="flex items-center justify-center gap-2 sm:gap-4">
+                            <div className="text-right flex-1 flex items-center justify-end gap-1 sm:gap-2">
+                              <div className="font-semibold text-sm sm:text-base lg:text-lg">{fixture.home_team}</div>
                               <ClubBadge clubName={fixture.home_team} size="md" />
                             </div>
                             <div className="flex flex-col items-center gap-1">
                               {hasScore ? (
-                                <div className="text-2xl font-bold">
+                                <div className="text-xl sm:text-2xl font-bold">
                                   {fixture.home_score} - {fixture.away_score}
                                 </div>
                               ) : (
-                                <div className="text-lg text-muted-foreground">vs</div>
+                                <div className="text-base sm:text-lg text-muted-foreground">vs</div>
                               )}
                               {fixture.status && (
                                 <div className="text-xs text-muted-foreground uppercase">
@@ -803,9 +803,9 @@ const Calendar = () => {
                                 </div>
                               )}
                             </div>
-                            <div className="text-left flex-1 flex items-center justify-start gap-2">
+                            <div className="text-left flex-1 flex items-center justify-start gap-1 sm:gap-2">
                               <ClubBadge clubName={fixture.away_team} size="md" />
-                              <div className="font-semibold text-lg">{fixture.away_team}</div>
+                              <div className="font-semibold text-sm sm:text-base lg:text-lg">{fixture.away_team}</div>
                             </div>
                           </div>
                         </div>

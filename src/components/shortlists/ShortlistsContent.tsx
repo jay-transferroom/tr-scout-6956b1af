@@ -143,20 +143,20 @@ export const ShortlistsContent = ({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            {currentList.name}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <span>{currentList.name}</span>
             <Badge variant="secondary">{sortedPlayers.length} players</Badge>
           </CardTitle>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={onExportList}>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button variant="outline" size="sm" onClick={onExportList} className="flex-1 sm:flex-none">
               <Download className="h-4 w-4 mr-2" />
-              Export
+              <span className="hidden sm:inline">Export</span>
             </Button>
             {canManageShortlists && (
-              <Button size="sm" onClick={() => setIsSearchDialogOpen(true)}>
+              <Button size="sm" onClick={() => setIsSearchDialogOpen(true)} className="flex-1 sm:flex-none">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Player
+                <span className="hidden sm:inline">Add Player</span>
               </Button>
             )}
           </div>
@@ -183,9 +183,9 @@ export const ShortlistsContent = ({
             />
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Select value={sortBy} onValueChange={onSortByChange}>
-              <SelectTrigger className="w-40">
+              <SelectTrigger className="w-full sm:w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -198,16 +198,18 @@ export const ShortlistsContent = ({
               </SelectContent>
             </Select>
             
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={onSortOrderChange}
-            >
-              <ArrowUpDown className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={onSortOrderChange}
+                className="shrink-0"
+              >
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
 
-            <Select value={euGbeFilter} onValueChange={onEuGbeFilterChange}>
-              <SelectTrigger className="w-32">
+              <Select value={euGbeFilter} onValueChange={onEuGbeFilterChange}>
+                <SelectTrigger className="w-full sm:w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -216,7 +218,8 @@ export const ShortlistsContent = ({
                 <SelectItem value="fail">Fail</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
               </SelectContent>
-            </Select>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -292,7 +295,7 @@ export const ShortlistsContent = ({
         )}
 
         {/* Players Table */}
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
