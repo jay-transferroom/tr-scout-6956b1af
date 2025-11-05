@@ -77,25 +77,25 @@ const SquadComparisonChart = ({ clubName = "Chelsea FC" }: { clubName?: string }
   };
 
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {/* Left side - Position comparison */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-              <CardTitle>League Position Comparison</CardTitle>
-              <CardDescription>How your squad compares to the Premier League</CardDescription>
+              <CardTitle className="text-base sm:text-lg">League Position Comparison</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">How your squad compares to the Premier League</CardDescription>
             </div>
-            <Badge variant="secondary" className="text-lg">
+            <Badge variant="secondary" className="text-sm sm:text-lg">
               #{chelseaRank} of {squads.length}
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6">
           {/* Position Breakdown */}
           <div>
-            <h3 className="font-semibold mb-3">Position-by-Position Breakdown</h3>
-            <div className="space-y-3">
+            <h3 className="font-semibold mb-3 text-sm sm:text-base">Position-by-Position Breakdown</h3>
+            <div className="space-y-2 sm:space-y-3">
               {positionCategories.map(({ key, label, short }) => {
                 const comparison = getPositionComparison(key as keyof SquadAverageRating);
                 const rank = getPositionRank(key as keyof SquadAverageRating);
@@ -105,23 +105,23 @@ const SquadComparisonChart = ({ clubName = "Chelsea FC" }: { clubName?: string }
                 return (
                   <div 
                     key={key} 
-                    className={`border rounded-lg p-3 cursor-pointer transition-all ${
+                    className={`border rounded-lg p-2 sm:p-3 cursor-pointer transition-all ${
                       selectedPosition === key ? 'bg-primary/10 border-primary ring-2 ring-primary/20' : 'hover:bg-grey-50'
                     }`}
                     onClick={() => setSelectedPosition(key as keyof SquadAverageRating)}
                   >
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <Badge variant="outline" className="text-[10px] sm:text-xs">
                         {short}
                       </Badge>
-                      <span className="text-sm font-medium">{label}</span>
+                      <span className="text-xs sm:text-sm font-medium truncate">{label}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">
+                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                      <Badge variant="secondary" className="text-[10px] sm:text-xs">
                         #{rank}
                       </Badge>
-                      <span className="font-semibold">{comparison.value.toFixed(1)}</span>
+                      <span className="font-semibold text-xs sm:text-base">{comparison.value.toFixed(1)}</span>
                     </div>
                   </div>
                   
@@ -144,22 +144,22 @@ const SquadComparisonChart = ({ clubName = "Chelsea FC" }: { clubName?: string }
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between mt-1 text-xs text-muted-foreground">
-                    <span>League avg: {comparison.avg.toFixed(1)}</span>
-                    <div className="flex items-center gap-1">
+                  <div className="flex items-center justify-between mt-1 text-[10px] sm:text-xs text-muted-foreground">
+                    <span className="truncate">League avg: {comparison.avg.toFixed(1)}</span>
+                    <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                       {isEqual ? (
                         <>
-                          <Minus className="h-3 w-3 text-amber-500" />
+                          <Minus className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-amber-500" />
                           <span className="text-amber-600">Equal</span>
                         </>
                       ) : isAboveAvg ? (
                         <>
-                          <TrendingUp className="h-3 w-3 text-green-500" />
+                          <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-500" />
                           <span className="text-green-600">+{comparison.diff.toFixed(1)}</span>
                         </>
                       ) : (
                         <>
-                          <TrendingDown className="h-3 w-3 text-red-500" />
+                          <TrendingDown className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-red-500" />
                           <span className="text-red-600">{comparison.diff.toFixed(1)}</span>
                         </>
                       )}
@@ -176,45 +176,51 @@ const SquadComparisonChart = ({ clubName = "Chelsea FC" }: { clubName?: string }
       {/* Right side - League table */}
       <Card>
         <CardHeader>
-          <CardTitle>{selectedPositionLabel} Rankings</CardTitle>
-          <CardDescription>Premier League standings by position rating</CardDescription>
+          <CardTitle className="text-base sm:text-lg">{selectedPositionLabel} Rankings</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">Premier League standings by position rating</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12">#</TableHead>
-                <TableHead>Team</TableHead>
-                <TableHead className="text-right">Rating</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rankedTeams.map((team) => (
-                <TableRow 
-                  key={team.squad}
-                  className={team.isChelsea ? 'bg-primary/10 font-medium' : ''}
-                >
-                  <TableCell className="font-medium">{team.position}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="h-6 w-6 flex-shrink-0 flex items-center justify-center">
-                        <img 
-                          src={getTeamLogoUrl(team.squad)} 
-                          alt={team.squad}
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      </div>
-                      <span className="text-sm">{team.squad}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right font-semibold">{team.rating.toFixed(1)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <div className="overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12 text-xs sm:text-sm">#</TableHead>
+                      <TableHead className="text-xs sm:text-sm">Team</TableHead>
+                      <TableHead className="text-right text-xs sm:text-sm">Rating</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {rankedTeams.map((team) => (
+                      <TableRow 
+                        key={team.squad}
+                        className={team.isChelsea ? 'bg-primary/10 font-medium' : ''}
+                      >
+                        <TableCell className="font-medium text-xs sm:text-sm">{team.position}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <div className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 flex items-center justify-center">
+                              <img 
+                                src={getTeamLogoUrl(team.squad)} 
+                                alt={team.squad}
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            </div>
+                            <span className="text-xs sm:text-sm truncate">{team.squad}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right font-semibold text-xs sm:text-sm">{team.rating.toFixed(1)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
