@@ -285,7 +285,7 @@ const CompactFootballPitch = ({
   };
 
   return (
-    <div className="relative w-full h-full rounded-lg overflow-visible z-0 isolate">
+    <div className="relative w-full h-full rounded-lg overflow-hidden sm:overflow-visible z-0 isolate">
       {/* Football pitch background */}
       <div 
         className="absolute inset-0 bg-cover bg-center pointer-events-none z-0"
@@ -372,7 +372,7 @@ const PositionSlot = ({
 
         {/* Priority indicator ring */}
         {isPriority && (
-          <div className="absolute -inset-2 rounded-full border-2 border-amber-500 bg-amber-500/10 animate-pulse" />
+          <div className="absolute -inset-1 sm:-inset-2 rounded-full border-2 border-amber-500 bg-amber-500/10 animate-pulse" />
         )}
         
         {/* Condensed info bar - count, rating, warnings */}
@@ -405,7 +405,7 @@ const PositionSlot = ({
         {player ? (
           <div className="relative" onMouseEnter={() => setShowDropdown(true)} onMouseLeave={() => setShowDropdown(false)}>
             <Avatar 
-              className={`w-12 h-12 border-2 shadow-md cursor-pointer hover:shadow-lg transition-shadow ${
+              className={`w-10 h-10 sm:w-12 sm:h-12 border-2 shadow-md cursor-pointer hover:shadow-lg transition-shadow ${
                 warnings.hasWarning ? 'border-orange-500' : 'border-white'
               }`}
               onClick={() => onPositionClick?.(position)}
