@@ -324,56 +324,22 @@ const CompactSquadView = ({
       
       {!isMinimized ? (
         <>
-          {/* Mobile/Tablet: Tabs switcher */}
+          {/* Mobile/Tablet: Squad List Only */}
           <div className="lg:hidden">
-            <Tabs defaultValue="pitch" className="w-full">
-              <TabsList className="grid grid-cols-2 w-full">
-                <TabsTrigger value="pitch">Pitch</TabsTrigger>
-                <TabsTrigger value="list">Squad</TabsTrigger>
-              </TabsList>
-              <TabsContent value="pitch" className="mt-3">
-                <div className="w-full">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <LayoutGrid className="h-5 w-5" />
-                      <h3 className="text-base font-semibold">Formation View</h3>
-                      {formation && (
-                        <Badge variant="outline" className="text-xs">{formation}</Badge>
-                      )}
-                    </div>
-                    <SquadPitchLegend />
-                  </div>
-                  <div className="aspect-[392/541] w-full mx-auto relative overflow-hidden rounded-lg">
-                    <CompactFootballPitch
-                      players={squadPlayers}
-                      squadType={selectedSquad}
-                      formation={formation}
-                      positionAssignments={positionAssignments}
-                      onPositionClick={handlePositionClick}
-                      selectedPosition={selectedPosition}
-                      onPlayerChange={onPlayerChange}
-                      priorityPositions={recommendations.map(rec => rec.Position)}
-                    />
-                  </div>
-                </div>
-              </TabsContent>
-              <TabsContent value="list" className="mt-3">
-                <div className="space-y-2 bg-muted/30 p-3 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <List className="h-5 w-5" />
-                    <h3 className="text-base font-semibold">Squad List</h3>
-                  </div>
-                  <SquadListView
-                    players={squadPlayers}
-                    squadType={selectedSquad}
-                    formation={formation}
-                    positionAssignments={positionAssignments}
-                    onPlayerClick={handlePlayerClick}
-                    selectedPlayer={selectedPlayerForDetails}
-                  />
-                </div>
-              </TabsContent>
-            </Tabs>
+            <div className="space-y-2 bg-muted/30 p-3 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <List className="h-5 w-5" />
+                <h3 className="text-base font-semibold">Squad List</h3>
+              </div>
+              <SquadListView
+                players={squadPlayers}
+                squadType={selectedSquad}
+                formation={formation}
+                positionAssignments={positionAssignments}
+                onPlayerClick={handlePlayerClick}
+                selectedPlayer={selectedPlayerForDetails}
+              />
+            </div>
           </div>
 
           {/* Desktop: split view */}
