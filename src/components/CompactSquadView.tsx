@@ -323,48 +323,97 @@ const CompactSquadView = ({
     <div className="h-full w-full">
       
       {!isMinimized ? (
-        <div className="flex flex-col lg:flex-row gap-4 w-full px-0">
-          {/* Left Side - Pitch View */}
-          <div className="w-full lg:w-1/2">
-            <div className="space-y-2 lg:sticky lg:top-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <LayoutGrid className="h-5 w-5" />
-                  <h3 className="text-base sm:text-lg font-semibold">Formation View</h3>
-                  {formation && (
-                    <Badge variant="outline" className="text-xs">
-                      {formation}
-                    </Badge>
-                  )}
+        <>
+          {/* Mobile/Tablet: Tabs switcher */}
+          <div className="lg:hidden">
+            <Tabs defaultValue="pitch" className="w-full">
+              <TabsList className="grid grid-cols-2 w-full">
+                <TabsTrigger value="pitch">Pitch</TabsTrigger>
+                <TabsTrigger value="list">Squad</TabsTrigger>
+              </TabsList>
+              <TabsContent value="pitch" className="mt-3">
+                <div className="w-full">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <LayoutGrid className="h-5 w-5" />
+                      <h3 className="text-base font-semibold">Formation View</h3>
+                      {formation && (
+                        <Badge variant="outline" className="text-xs">{formation}</Badge>
+                      )}
+                    </div>
+                    <SquadPitchLegend />
+                  </div>
+                  <div className="aspect-[392/541] w-full mx-auto relative overflow-hidden rounded-lg">
+                    <CompactFootballPitch
+                      players={squadPlayers}
+                      squadType={selectedSquad}
+                      formation={formation}
+                      positionAssignments={positionAssignments}
+                      onPositionClick={handlePositionClick}
+                      selectedPosition={selectedPosition}
+                      onPlayerChange={onPlayerChange}
+                      priorityPositions={recommendations.map(rec => rec.Position)}
+                    />
+                  </div>
                 </div>
-                <SquadPitchLegend />
-              </div>
-              
-              <div className="aspect-[392/541] w-full mx-auto relative overflow-hidden sm:overflow-visible rounded-lg">
-                <CompactFootballPitch 
-                  players={squadPlayers}
-                  squadType={selectedSquad}
-                  formation={formation}
-                  positionAssignments={positionAssignments}
-                  onPositionClick={handlePositionClick}
-                  selectedPosition={selectedPosition}
-                  onPlayerChange={onPlayerChange}
-                  priorityPositions={recommendations.map(rec => rec.Position)}
-                />
-              </div>
-            </div>
+              </TabsContent>
+              <TabsContent value="list" className="mt-3">
+                <div className="space-y-2 bg-muted/30 p-3 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <List className="h-5 w-5" />
+                    <h3 className="text-base font-semibold">Squad List</h3>
+                  </div>
+                  <SquadListView
+                    players={squadPlayers}
+                    squadType={selectedSquad}
+                    formation={formation}
+                    positionAssignments={positionAssignments}
+                    onPlayerClick={handlePlayerClick}
+                    selectedPlayer={selectedPlayerForDetails}
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
 
-          {/* Right Side - Squad List (Scrollable) */}
-          <div className="w-full lg:w-1/2 lg:overflow-y-auto lg:max-h-[calc(100vh-160px)]">
-            <div className="space-y-2 bg-muted/30 p-3 sm:p-4 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <List className="h-5 w-5" />
-                <h3 className="text-base sm:text-lg font-semibold">Squad List</h3>
+          {/* Desktop: split view */}
+          <div className="hidden lg:flex flex-col lg:flex-row gap-4 w-full px-0">
+            {/* Left Side - Pitch View */}
+            <div className="w-full lg:w-1/2">
+              <div className="space-y-2 lg:sticky lg:top-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <LayoutGrid className="h-5 w-5" />
+                    <h3 className="text-lg font-semibold">Formation View</h3>
+                    {formation && (
+                      <Badge variant="outline" className="text-xs">{formation}</Badge>
+                    )}
+                  </div>
+                  <SquadPitchLegend />
+                </div>
+                <div className="aspect-[392/541] w-full mx-auto relative overflow-visible rounded-lg">
+                  <CompactFootballPitch
+                    players={squadPlayers}
+                    squadType={selectedSquad}
+                    formation={formation}
+                    positionAssignments={positionAssignments}
+                    onPositionClick={handlePositionClick}
+                    selectedPosition={selectedPosition}
+                    onPlayerChange={onPlayerChange}
+                    priorityPositions={recommendations.map(rec => rec.Position)}
+                  />
+                </div>
               </div>
-              
-              <div>
-                <SquadListView 
+            </div>
+
+            {/* Right Side - Squad List (Scrollable) */}
+            <div className="w-full lg:w-1/2 lg:overflow-y-auto lg:max-h-[calc(100vh-160px)]">
+              <div className="space-y-2 bg-muted/30 p-4 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <List className="h-5 w-5" />
+                  <h3 className="text-lg font-semibold">Squad List</h3>
+                </div>
+                <SquadListView
                   players={squadPlayers}
                   squadType={selectedSquad}
                   formation={formation}
@@ -375,7 +424,7 @@ const CompactSquadView = ({
               </div>
             </div>
           </div>
-        </div>
+        </>
       ) : (
         <div className="text-center py-4 text-muted-foreground">
           <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
