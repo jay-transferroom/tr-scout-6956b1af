@@ -286,7 +286,7 @@ const ScoutManagement = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-7xl">
+    <div className="container mx-auto py-4 md:py-8 px-4 max-w-7xl">
       <ScoutManagementHeader />
 
       <ScoutPerformanceGrid
@@ -304,9 +304,9 @@ const ScoutManagement = () => {
         scouts={scouts}
       />
 
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-4">
-          <h2 className="text-xl font-semibold">Assignment Status</h2>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <h2 className="text-lg sm:text-xl font-semibold">Assignment Status</h2>
           <ScoutManagementViewToggle 
             currentView={currentView} 
             onViewChange={handleViewChange} 
@@ -315,7 +315,8 @@ const ScoutManagement = () => {
         <Button 
           variant="outline" 
           onClick={handleViewReviewedAssignments}
-          className="gap-2"
+          className="gap-2 w-full sm:w-auto"
+          size="sm"
         >
           View Reviewed ({reviewedAssignments.length})
         </Button>

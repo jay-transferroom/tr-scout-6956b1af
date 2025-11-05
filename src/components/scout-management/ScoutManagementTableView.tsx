@@ -170,9 +170,9 @@ const ScoutManagementTableView = ({
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex gap-4 items-center">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full sm:w-48">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -187,12 +187,12 @@ const ScoutManagementTableView = ({
           placeholder="Search players, clubs, or scouts..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
+          className="w-full sm:max-w-sm"
         />
       </div>
 
-      {/* Table */}
-      <div className="border rounded-lg">
+      {/* Desktop Table View - hidden on mobile */}
+      <div className="hidden md:block border rounded-lg">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-muted/50">
@@ -216,6 +216,107 @@ const ScoutManagementTableView = ({
         
         {filteredAssignments.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
+            No assignments found matching the current filters.
+          </div>
+        )}
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        {filteredAssignments.length > 0 ? (
+          filteredAssignments.map((assignment) => (
+            <div key={`${assignment.playerId}-${assignment.scoutId || 'unassigned'}`} className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <Avatar className="h-12 w-12 flex-shrink-0">
+                  <AvatarImage 
+                    src={assignment.avatar} 
+                    alt={assignment.playerName}
+                    loading="lazy"
+                    className="object-cover"
+                  />
+                  <AvatarFallback>
+                    {assignment.playerName.split(' ').map(n => n[0]).join('')}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium truncate">{assignment.playerName}</div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <ClubBadge clubName={assignment.club} size="sm" />
+                    <span className="text-sm text-muted-foreground">{assignment.position}</span>
+                  </div>
+                  {assignment.rating && assignment.rating !== 'N/A' && (
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Rating: {assignment.rating}
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  {getStatusBadge(assignment.status)}
+                  {getPriorityBadge(assignment.priority)}
+                </div>
+                
+                <div>
+                  <span className="text-muted-foreground">Scout: </span>
+                  {assignment.assignedTo !== 'Unassigned' ? (
+                    <span className="font-medium">{assignment.assignedTo}</span>
+                  ) : (
+                    <span className="text-muted-foreground">Unassigned</span>
+                  )}
+                </div>
+                
+                {assignment.lastStatusChange && (
+                  <div className="text-muted-foreground text-xs">
+                    {assignment.status === 'completed' && assignment.templateName
+                      ? `${assignment.templateName} ${assignment.lastStatusChange.replace(/^Completed/, 'completed')}`
+                      : assignment.lastStatusChange}
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex gap-2 pt-2">
+                {assignment.status === 'shortlisted' && onAssignScout && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => onAssignScout(assignment)}
+                  >
+                    <UserPlus className="h-4 w-4 mr-1" />
+                    Assign
+                  </Button>
+                )}
+                
+                {assignment.status === 'completed' && onViewReport && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => onViewReport(assignment)}
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    View
+                  </Button>
+                )}
+                
+                {assignment.status === 'completed' && onMarkAsReviewed && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => onMarkAsReviewed(assignment)}
+                  >
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    Review
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-8 text-muted-foreground border rounded-lg">
             No assignments found matching the current filters.
           </div>
         )}

@@ -68,48 +68,48 @@ const ScoutPerformanceCard = ({
       }`}
       onClick={() => onScoutClick(scout.id)}
     >
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm flex items-center justify-between">
+      <CardHeader className="pb-2 md:pb-3">
+        <CardTitle className="text-xs sm:text-sm flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Avatar className="h-8 w-8">
+            <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
               <AvatarFallback className="text-xs">
                 {scout.first_name?.[0]}{scout.last_name?.[0]}
               </AvatarFallback>
             </Avatar>
             <div>
-              <div className="font-medium">{scout.first_name} {scout.last_name}</div>
+              <div className="font-medium text-xs sm:text-sm truncate">{scout.first_name} {scout.last_name}</div>
               <div className="text-xs text-muted-foreground font-normal">Scout</div>
             </div>
           </div>
-          <TrendingUp className={`h-4 w-4 ${getPerformanceColor(completionRate)}`} />
+          <TrendingUp className={`h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 ${getPerformanceColor(completionRate)}`} />
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="space-y-2">
+        <div className="space-y-1.5 md:space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground flex items-center gap-1">
-              <Target className="h-3 w-3" />
+            <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+              <Target className="h-3 w-3 flex-shrink-0" />
               Total tasks:
             </span>
-            <span className="font-semibold">{scoutAssignments.length}</span>
+            <span className="font-semibold text-xs sm:text-sm">{scoutAssignments.length}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Completed:</span>
-            <span className="font-semibold text-green-600">{completedCount}</span>
+            <span className="text-xs sm:text-sm text-muted-foreground">Completed:</span>
+            <span className="font-semibold text-xs sm:text-sm text-green-600">{completedCount}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Success rate:</span>
-            <span className={`font-semibold ${getPerformanceColor(completionRate)}`}>
+            <span className="text-xs sm:text-sm text-muted-foreground">Success rate:</span>
+            <span className={`font-semibold text-xs sm:text-sm ${getPerformanceColor(completionRate)}`}>
               {completionRate}%
             </span>
           </div>
           {completedCount > 0 && (
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground flex items-center gap-1">
-                <Clock className="h-3 w-3" />
+              <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+                <Clock className="h-3 w-3 flex-shrink-0" />
                 Avg. time:
               </span>
-              <span className="font-semibold text-blue-600">
+              <span className="font-semibold text-xs sm:text-sm text-blue-600">
                 {avgCompletionDays}d
               </span>
             </div>

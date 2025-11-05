@@ -50,8 +50,8 @@ const ScoutPerformanceGrid = ({
 
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-semibold mb-3">Scout Performance Overview</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <h3 className="text-base md:text-lg font-semibold mb-3">Scout Performance Overview</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {sortedScouts.map(({ scout }) => (
           <ScoutPerformanceCard
             key={scout.id}
