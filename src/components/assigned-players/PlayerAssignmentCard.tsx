@@ -75,17 +75,17 @@ const PlayerAssignmentCard = ({ assignment }: PlayerAssignmentCardProps) => {
   };
 
   return (
-    <Card className="p-6">
-      <div className="flex items-start gap-4 mb-4">
-        <Avatar className="h-12 w-12">
+    <Card className="p-4 sm:p-6">
+      <div className="flex items-start gap-3 sm:gap-4 mb-4">
+        <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
           <AvatarImage src={assignment.players?.imageUrl || undefined} />
           <AvatarFallback>
             {assignment.players?.name.split(' ').map(n => n[0]).join('')}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-lg">{assignment.players?.name}</h3>
-          <p className="text-muted-foreground">{assignment.players?.club}</p>
+          <h3 className="font-semibold text-base sm:text-lg">{assignment.players?.name}</h3>
+          <p className="text-sm text-muted-foreground">{assignment.players?.club}</p>
           <div className="flex items-center gap-2 mt-1">
             <p className="text-sm text-muted-foreground">
               {assignment.players?.positions.join(', ')}
@@ -133,22 +133,24 @@ const PlayerAssignmentCard = ({ assignment }: PlayerAssignmentCardProps) => {
         )}
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         {assignment.status !== 'completed' && assignment.status !== 'reviewed' ? (
           <Link to={`/report-builder?playerId=${assignment.player_id}&assignmentId=${assignment.id}`} className="flex-1">
-            <Button className="w-full">
+            <Button className="w-full" size="sm">
               <FileText className="h-4 w-4 mr-2" />
-              Write Report
+              <span className="hidden sm:inline">Write Report</span>
+              <span className="sm:hidden">Report</span>
             </Button>
           </Link>
         ) : (
-          <Button variant="default" className="flex-1">
+          <Button variant="default" className="flex-1" size="sm">
             <Eye className="h-4 w-4 mr-2" />
-            View Report
+            <span className="hidden sm:inline">View Report</span>
+            <span className="sm:hidden">View</span>
           </Button>
         )}
-        <Link to={`/player/${assignment.player_id}`}>
-          <Button variant="outline">
+        <Link to={`/player/${assignment.player_id}`} className="flex-1 sm:flex-none">
+          <Button variant="outline" className="w-full" size="sm">
             <User className="h-4 w-4 mr-2" />
             Profile
           </Button>

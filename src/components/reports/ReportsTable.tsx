@@ -16,7 +16,8 @@ const ReportsTable = ({ reports, onViewReport, onEditReport, onDeleteReport }: R
   const { user } = useAuth();
 
   return (
-    <Table>
+    <div className="overflow-x-auto">
+      <Table>
       <ReportsTableHeader />
       <TableBody>
         {reports.length > 0 ? (
@@ -42,7 +43,8 @@ const ReportsTable = ({ reports, onViewReport, onEditReport, onDeleteReport }: R
           </TableRow>
         )}
       </TableBody>
-    </Table>
+      </Table>
+    </div>
   );
 };
 

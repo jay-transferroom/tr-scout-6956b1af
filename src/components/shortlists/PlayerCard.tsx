@@ -46,10 +46,10 @@ export const PlayerCard = ({
   const euGbeBadgeProps = getEuGbeBadge(player.euGbeStatus || 'Pass');
 
   return (
-    <div className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
-      <div className="flex items-start gap-4">
+    <div className="border rounded-lg p-3 sm:p-4 hover:bg-muted/50 transition-colors">
+      <div className="flex items-start gap-3 sm:gap-4">
         {/* Player Avatar */}
-        <Avatar className="h-16 w-16">
+        <Avatar className="h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0">
           <AvatarImage src={player.image} alt={player.name} />
           <AvatarFallback>
             {player.name.split(' ').map((n: string) => n[0]).join('')}
@@ -57,37 +57,37 @@ export const PlayerCard = ({
         </Avatar>
 
         {/* Player Info */}
-        <div className="flex-1">
-          <div className="flex items-start justify-between mb-2">
+        <div className="flex-1 min-w-0">
+          <div className="mb-2">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold text-lg">{player.name}</h3>
+              <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-1">
+                <h3 className="font-semibold text-base sm:text-lg">{player.name}</h3>
                 {player.isPrivate && (
                   <Badge variant="secondary">Private Player</Badge>
                 )}
                 {!player.isPrivate && <Badge {...assignmentBadgeProps} />}
                 {!player.isPrivate && <Badge {...euGbeBadgeProps} />}
               </div>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-2">
                 <span className="flex items-center gap-1">
                   <MapPin className="h-3 w-3" />
                   {player.club}
                 </span>
                 <span>{player.positions.join(', ')}</span>
                 {player.age && <span>{player.age} years</span>}
-                <span>{player.nationality}</span>
+                <span className="hidden sm:inline">{player.nationality}</span>
               </div>
               {!player.isPrivate && (
-                <div className="flex items-center gap-4 text-sm">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
                   {player.transferroomRating && (
                     <span className="flex items-center gap-1">
                       <Star className="h-3 w-3 text-yellow-500" />
-                      Rating: {player.transferroomRating}
+                      <span className="hidden sm:inline">Rating: </span>{player.transferroomRating}
                     </span>
                   )}
                   {player.futureRating && (
                     <span className="text-green-600">
-                      Potential: {player.futureRating}
+                      <span className="hidden sm:inline">Potential: </span>{player.futureRating}
                     </span>
                   )}
                   {player.xtvScore && (
@@ -98,7 +98,7 @@ export const PlayerCard = ({
                   {player.contractExpiry && (
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      Contract: {new Date(player.contractExpiry).getFullYear()}
+                      <span className="hidden sm:inline">Contract: </span>{new Date(player.contractExpiry).getFullYear()}
                     </span>
                   )}
                 </div>
@@ -114,33 +114,36 @@ export const PlayerCard = ({
           )}
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {!player.isPrivate && (
               <Button 
                 size="sm" 
                 variant="outline"
                 onClick={() => onAssignScout(player)}
+                className="text-xs sm:text-sm"
               >
-                <UserPlus className="h-4 w-4 mr-1" />
-                {scouts.length > 0 ? "Assign Another Scout" : "Assign Scout"}
+                <UserPlus className="h-4 w-4 sm:mr-1" />
+                <span className="hidden sm:inline">{scouts.length > 0 ? "Assign Another Scout" : "Assign Scout"}</span>
               </Button>
             )}
             <Link to={player.profilePath}>
               <Button 
                 size="sm" 
                 variant="outline"
+                className="text-xs sm:text-sm"
               >
-                <Eye className="h-4 w-4 mr-1" />
-                View Profile
+                <Eye className="h-4 w-4 sm:mr-1" />
+                <span className="hidden sm:inline">View Profile</span>
               </Button>
             </Link>
             <Button 
               size="sm" 
               variant="outline"
               onClick={handleCreateReport}
+              className="text-xs sm:text-sm"
             >
-              <FileText className="h-4 w-4 mr-1" />
-              Report
+              <FileText className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">Report</span>
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

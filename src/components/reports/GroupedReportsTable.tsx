@@ -187,7 +187,8 @@ const GroupedReportsTable = ({ reports, onViewReport, onEditReport, onDeleteRepo
   const groupedReports = groupReportsByPlayer(reports);
 
   return (
-    <Table>
+    <div className="overflow-x-auto">
+      <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Player</TableHead>
@@ -232,7 +233,8 @@ const GroupedReportsTable = ({ reports, onViewReport, onEditReport, onDeleteRepo
           </TableRow>
         )}
       </TableBody>
-    </Table>
+      </Table>
+    </div>
   );
 };
 
