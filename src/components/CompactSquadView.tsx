@@ -323,14 +323,14 @@ const CompactSquadView = ({
     <div className="h-full w-full">
       
       {!isMinimized ? (
-        <div className="flex gap-4 w-full px-0">
+        <div className="flex flex-col lg:flex-row gap-4 w-full px-0">
           {/* Left Side - Pitch View */}
-          <div className="w-1/2">
-            <div className="space-y-2 sticky top-4">
+          <div className="w-full lg:w-1/2">
+            <div className="space-y-2 lg:sticky lg:top-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <LayoutGrid className="h-5 w-5" />
-                  <h3 className="text-lg font-semibold">Formation View</h3>
+                  <h3 className="text-base sm:text-lg font-semibold">Formation View</h3>
                   {formation && (
                     <Badge variant="outline" className="text-xs">
                       {formation}
@@ -340,7 +340,7 @@ const CompactSquadView = ({
                 <SquadPitchLegend />
               </div>
               
-              <div className="aspect-[392/541] w-full max-w-2xl mx-auto relative overflow-visible">
+              <div className="aspect-[392/541] w-full mx-auto relative overflow-visible">
                 <CompactFootballPitch 
                   players={squadPlayers}
                   squadType={selectedSquad}
@@ -356,11 +356,11 @@ const CompactSquadView = ({
           </div>
 
           {/* Right Side - Squad List (Scrollable) */}
-          <div className="w-1/2 overflow-y-auto">
-            <div className="space-y-2 bg-muted/30 p-4 rounded-lg">
+          <div className="w-full lg:w-1/2 lg:overflow-y-auto lg:max-h-[calc(100vh-160px)]">
+            <div className="space-y-2 bg-muted/30 p-3 sm:p-4 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <List className="h-5 w-5" />
-                <h3 className="text-lg font-semibold">Squad List</h3>
+                <h3 className="text-base sm:text-lg font-semibold">Squad List</h3>
               </div>
               
               <div>
@@ -385,7 +385,7 @@ const CompactSquadView = ({
 
       {/* Position Selection Slide-out */}
       <Sheet open={!!selectedPosition} onOpenChange={(open) => !open && handlePositionClick('')}>
-        <SheetContent side="right" className="w-[50vw] overflow-y-auto">
+        <SheetContent side="right" className="w-full sm:w-[420px] md:w-[50vw] overflow-y-auto">
           {selectedPosition && (() => {
             const analysis = getPositionAnalysis(selectedPosition);
             
