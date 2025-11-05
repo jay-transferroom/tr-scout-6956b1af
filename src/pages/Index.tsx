@@ -223,21 +223,21 @@ const Index = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-7xl">
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+    <div className="container mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 max-w-7xl">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">
+            <h1 className="text-2xl sm:text-3xl font-bold">
               {profile?.role === 'recruitment' ? 'Scout Management Dashboard' : 'Scout Dashboard'}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground">
               Welcome back, {getUserDisplayName()}. Here's your scouting overview.
             </p>
           </div>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             
@@ -247,9 +247,9 @@ const Index = () => {
                 className="cursor-pointer hover:bg-accent transition-colors"
                 onClick={() => navigate(stat.route)}
               >
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-6">
                   <div className="space-y-1">
-                    <CardTitle className="text-sm font-medium">
+                    <CardTitle className="text-xs sm:text-sm font-medium">
                       {stat.title}
                     </CardTitle>
                     {stat.subtitle && (
@@ -258,10 +258,10 @@ const Index = () => {
                       </p>
                     )}
                   </div>
-                  <Icon className="h-4 w-4 text-muted-foreground" />
+                  <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
+                <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+                  <div className="text-xl sm:text-2xl font-bold">{stat.value}</div>
                   <p className="text-xs text-muted-foreground">
                     {stat.description}
                   </p>
@@ -275,9 +275,9 @@ const Index = () => {
         </div>
 
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Left Column */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Quick Actions Bar */}
             <QuickActionsBar />
 
@@ -286,7 +286,7 @@ const Index = () => {
           </div>
 
           {/* Right Column */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Upcoming Matches */}
             <UpcomingMatches />
           </div>
@@ -294,35 +294,37 @@ const Index = () => {
 
         {/* Recent Reports - Full width section */}
         <div>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4">
             <div>
-              <h2 className="text-xl font-semibold">Recent Reports</h2>
-              <p className="text-sm text-muted-foreground">
+              <h2 className="text-lg sm:text-xl font-semibold">Recent Reports</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {profile?.role === 'recruitment' 
                   ? 'Latest submitted reports from all scouts'
                   : 'Your most recent scouting activity'
                 }
               </p>
             </div>
-            <Badge variant="secondary">{recentReportsToShow.length} of {profile?.role === 'recruitment' ? reports.length : myReports.length}</Badge>
+            <Badge variant="secondary" className="self-start sm:self-auto">{recentReportsToShow.length} of {profile?.role === 'recruitment' ? reports.length : myReports.length}</Badge>
           </div>
           {loading ? (
             <p className="text-center text-muted-foreground py-8">Loading reports...</p>
           ) : recentReportsToShow.length > 0 ? (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Player</TableHead>
-                    <TableHead>Club</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Rating</TableHead>
-                    <TableHead>Verdict</TableHead>
-                    <TableHead>Scout</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="min-w-[180px]">Player</TableHead>
+                        <TableHead className="hidden md:table-cell">Club</TableHead>
+                        <TableHead className="hidden sm:table-cell">Date</TableHead>
+                        <TableHead className="hidden lg:table-cell">Status</TableHead>
+                        <TableHead>Rating</TableHead>
+                        <TableHead className="hidden xl:table-cell">Verdict</TableHead>
+                        <TableHead className="hidden xl:table-cell">Scout</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
                 <TableBody>
                   {recentReportsToShow.map((report) => (
                     <RecentReportTableRow 
@@ -334,6 +336,8 @@ const Index = () => {
                   ))}
                 </TableBody>
               </Table>
+                </div>
+              </div>
               <div className="mt-4">
                 <Button
                   variant="outline"
@@ -385,25 +389,28 @@ const RecentReportTableRow = ({ report, profile, navigate }) => {
       className="cursor-pointer hover:bg-accent transition-colors"
       onClick={() => navigate(`/report/${report.id}`)}
     >
-      <TableCell>
-        <div className="flex items-center gap-3">
+      <TableCell className="min-w-[180px]">
+        <div className="flex items-center gap-2 sm:gap-3">
           <PlayerAvatar 
             playerName={playerName}
             avatarUrl={playerData?.image}
             size="sm"
           />
-          <span className="font-medium">{playerName}</span>
+          <div className="min-w-0">
+            <span className="font-medium text-sm sm:text-base block truncate">{playerName}</span>
+            <div className="md:hidden text-xs text-muted-foreground truncate">{playerClub}</div>
+          </div>
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden md:table-cell">
         <ClubBadge clubName={playerClub} size="sm" />
       </TableCell>
-      <TableCell>
-        <div className="text-sm text-muted-foreground">
+      <TableCell className="hidden sm:table-cell">
+        <div className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
           {formatDate(report.createdAt)}
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden lg:table-cell">
         <div className="flex items-center gap-2">
           <Badge variant={report.status === "submitted" ? "success" : "neutral"} className="text-xs font-medium">
             {report.status === "draft" ? "Draft" : "Submitted"}
@@ -417,14 +424,14 @@ const RecentReportTableRow = ({ report, profile, navigate }) => {
           <span className="text-muted-foreground text-sm">-</span>
         )}
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden xl:table-cell">
         {verdict ? (
           <VerdictBadge verdict={verdict} />
         ) : (
           <span className="text-muted-foreground text-sm">-</span>
         )}
       </TableCell>
-      <TableCell>
+      <TableCell className="hidden xl:table-cell">
         <div className="text-sm text-muted-foreground">
           {profile?.role === 'recruitment' ? getScoutName(report) : 'You'}
         </div>

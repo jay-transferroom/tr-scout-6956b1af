@@ -10,26 +10,26 @@ const QuickActionsBar = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Quick Actions</CardTitle>
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="text-base sm:text-lg">Quick Actions</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="flex gap-3">
+      <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <AddPrivatePlayerDialog
             trigger={
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" className="flex items-center gap-2 justify-center w-full sm:w-auto">
                 <UserPlus className="h-4 w-4" />
-                Add Private Player
+                <span className="text-sm sm:text-base">Add Private Player</span>
               </Button>
             }
           />
           <Button
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 justify-center w-full sm:w-auto"
             onClick={() => navigate("/transfers/data-import")}
           >
             <Upload className="h-4 w-4" />
-            Import Data
+            <span className="text-sm sm:text-base">Import Data</span>
           </Button>
         </div>
       </CardContent>
