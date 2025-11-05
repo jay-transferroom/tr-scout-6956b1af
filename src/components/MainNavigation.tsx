@@ -44,9 +44,15 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
   const location = useLocation();
   const { profile, signOut } = useAuth();
   const { data: permissions } = useMyPermissions();
-  const { isMobile } = useSidebar();
+  const { isMobile, setOpen } = useSidebar();
   const { data: notifications = [] } = useNotifications();
   const unreadCount = notifications.filter(n => !n.read).length;
+  
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpen(false);
+    }
+  };
   
   const isActive = (path: string) => {
     return location.pathname.startsWith(path);
@@ -170,7 +176,7 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                 </div>
 
                 {/* Notifications */}
-                <Link to="/notifications" className="block">
+                <Link to="/notifications" className="block" onClick={handleNavClick}>
                   <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex items-center gap-3">
                       <Bell className="h-5 w-5" />
@@ -207,7 +213,7 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                 .map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                    <Link to={item.url}>
+                    <Link to={item.url} onClick={handleNavClick}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
@@ -225,7 +231,7 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
               {accountItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                    <Link to={item.url}>
+                    <Link to={item.url} onClick={handleNavClick}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
@@ -258,6 +264,7 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                 >
                   <NavLink 
                     to="/saved-conversations"
+                    onClick={handleNavClick}
                     className={({ isActive }) => 
                       isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""
                     }
