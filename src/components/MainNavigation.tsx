@@ -10,6 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { 
   Home, 
@@ -25,15 +26,27 @@ import {
   MessageSquare,
   Kanban,
   UserCheck,
-  Bookmark
+  Bookmark,
+  Bell,
+  LogOut
 } from "lucide-react";
 import { useMyPermissions } from "@/hooks/useUserPermissions";
 import { useAuth } from "@/contexts/AuthContext";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import UnifiedPlayerSearch from "./UnifiedPlayerSearch";
+import { ClubBadge } from "@/components/ui/club-badge";
+import NotificationsDropdown from "./NotificationsDropdown";
+import { useNotifications } from "@/hooks/useNotifications";
+import { Badge } from "@/components/ui/badge";
 
 const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => void }) => {
   const location = useLocation();
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
   const { data: permissions } = useMyPermissions();
+  const { isMobile } = useSidebar();
+  const { data: notifications = [] } = useNotifications();
+  const unreadCount = notifications.filter(n => !n.read).length;
   
   const isActive = (path: string) => {
     return location.pathname.startsWith(path);
@@ -113,10 +126,69 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
       icon: Settings,
     }
   ];
+
+  const getInitials = () => {
+    const firstName = profile?.first_name;
+    const lastName = profile?.last_name;
+    return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase();
+  };
   
   return (
     <Sidebar collapsible="icon" className="border-r z-40">
-      <SidebarContent className="pt-20 pb-4">
+      <SidebarContent className={cn("pt-20 pb-4", isMobile && "pt-4")}>
+        {/* Mobile-only: Search, Club, User Profile Section at Top */}
+        {isMobile && (
+          <>
+            <SidebarGroup>
+              <SidebarGroupContent className="px-2">
+                {/* User Profile */}
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 mb-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback>{getInitials()}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm truncate">
+                      {profile?.first_name} {profile?.last_name}
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {profile?.email}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Club Badge */}
+                <div className="mb-3">
+                  <ClubBadge clubName="Chelsea F.C." size="md" />
+                </div>
+
+                {/* Search */}
+                <div className="mb-3">
+                  <UnifiedPlayerSearch 
+                    variant="header"
+                    placeholder="Search players..."
+                  />
+                </div>
+
+                {/* Notifications */}
+                <Link to="/notifications" className="block">
+                  <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <Bell className="h-5 w-5" />
+                      <span className="text-sm font-medium">Notifications</span>
+                    </div>
+                    {unreadCount > 0 && (
+                      <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center text-xs px-1.5">
+                        {unreadCount}
+                      </Badge>
+                    )}
+                  </div>
+                </Link>
+              </SidebarGroupContent>
+            </SidebarGroup>
+            <Separator className="my-2" />
+          </>
+        )}
+
         <SidebarGroup>
           <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -160,6 +232,15 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              {/* Mobile-only: Sign Out */}
+              {isMobile && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={signOut} tooltip="Sign out">
+                    <LogOut className="h-4 w-4" />
+                    <span>Sign out</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
