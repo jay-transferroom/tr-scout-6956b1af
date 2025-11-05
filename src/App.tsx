@@ -52,7 +52,7 @@ function App() {
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route element={<Layout />}>
-                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} className="my-1000" />
+                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                 <Route path="/player/:id" element={<ProtectedRoute><PlayerProfile /></ProtectedRoute>} />
                 <Route path="/private-player/:id" element={<ProtectedRoute><PrivatePlayerProfile /></ProtectedRoute>} />
                 <Route path="/report-builder" element={<ProtectedRoute><ReportBuilder /></ProtectedRoute>} />

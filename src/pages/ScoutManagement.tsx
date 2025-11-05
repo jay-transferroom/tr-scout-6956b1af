@@ -286,7 +286,7 @@ const ScoutManagement = () => {
   }
 
   return (
-    <div className="container mx-auto py-4 md:py-8 px-4 max-w-7xl">
+    <div className="container mx-auto pb-4 md:pb-8 px-4 max-w-7xl">
       <ScoutManagementHeader />
 
       <ScoutPerformanceGrid

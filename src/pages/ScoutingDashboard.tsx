@@ -59,7 +59,7 @@ const ScoutingDashboard = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="container mx-auto pb-8 max-w-7xl px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="flex justify-between items-start mb-8">
         <div>
