@@ -32,7 +32,9 @@ const Layout = () => {
         <MainNavigation onAIAssistantClick={openNewChat} />
         <SidebarInset>
           <Header />
-          <main className="flex-1 p-2 sm:p-6 pt-16">
+          {/* Spacer to offset the fixed header height */}
+          <div className="h-16" aria-hidden="true" />
+          <main className="flex-1 p-2 sm:p-6">
             <Outlet />
           </main>
         </SidebarInset>
