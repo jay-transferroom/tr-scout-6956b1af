@@ -7,11 +7,14 @@ import AssignmentFilters from "@/components/assigned-players/AssignmentFilters";
 import PlayerAssignmentCard from "@/components/assigned-players/PlayerAssignmentCard";
 import AssignmentsTableView from "@/components/assigned-players/AssignmentsTableView";
 import ViewToggle from "@/components/ViewToggle";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const AssignedPlayers = () => {
   const { data: assignments = [], isLoading } = useMyScoutingTasks();
+  const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  // Force grid view on mobile, allow toggle on desktop
   const [currentView, setCurrentView] = useState<'grid' | 'list'>('list');
 
   const filteredAssignments = assignments.filter(assignment => {
@@ -38,12 +41,13 @@ const AssignedPlayers = () => {
     );
   }
 
-  const viewToggle = (
+  // Only show view toggle on desktop
+  const viewToggle = !isMobile ? (
     <ViewToggle 
       currentView={currentView} 
       onViewChange={setCurrentView} 
     />
-  );
+  ) : null;
 
   return (
     <div className="container mx-auto py-4 sm:py-8 max-w-7xl px-2 sm:px-4">
@@ -59,8 +63,8 @@ const AssignedPlayers = () => {
         viewToggle={viewToggle}
       />
 
-      {/* Conditional View Rendering */}
-      {currentView === 'grid' ? (
+      {/* Conditional View Rendering - Force grid on mobile */}
+      {(isMobile || currentView === 'grid') ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredAssignments.length > 0 ? (
             filteredAssignments.map((assignment) => (
