@@ -121,42 +121,73 @@ const SquadListView = ({
                 return (
                   <div 
                     key={player.id} 
-                    className={`flex items-center gap-3 p-3 rounded-md bg-muted/30 cursor-pointer transition-all hover:bg-muted/50 ${
+                    className={`flex items-start sm:items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-md bg-muted/30 cursor-pointer transition-all hover:bg-muted/50 ${
                       isSelected ? 'ring-2 ring-primary border-2 border-primary' : ''
                     }`}
                     onClick={() => onPlayerClick?.(player)}
                   >
                     {/* Player Avatar */}
-                    <div className="relative">
-                      <Avatar className={`h-12 w-12 flex-shrink-0 ${hasWarning ? 'ring-2 ring-orange-500' : ''}`}>
+                    <div className="relative flex-shrink-0">
+                      <Avatar className={`h-10 w-10 sm:h-12 sm:w-12 ${hasWarning ? 'ring-2 ring-orange-500' : ''}`}>
                         <AvatarImage 
                           src={player.image} 
                           alt={player.name}
                         />
-                        <AvatarFallback className="text-sm">
+                        <AvatarFallback className="text-xs sm:text-sm">
                           {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                       {contractStatus?.isRisk && (
-                        <div className="absolute -top-1 -right-1 bg-orange-500 text-white rounded-full w-5 h-5 flex items-center justify-center border border-white">
-                          <Clock className="w-3 h-3" />
+                        <div className="absolute -top-1 -right-1 bg-orange-500 text-white rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center border border-white">
+                          <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                         </div>
                       )}
                       {agingPlayer && !contractStatus?.isRisk && (
-                        <div className="absolute -top-1 -right-1 bg-orange-500 text-white rounded-full w-5 h-5 flex items-center justify-center border border-white">
-                          <UserX className="w-3 h-3" />
+                        <div className="absolute -top-1 -right-1 bg-orange-500 text-white rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center border border-white">
+                          <UserX className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                         </div>
                       )}
                     </div>
 
-                    {/* Player Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate text-base">{player.name}</div>
-                      <div className="text-sm text-muted-foreground flex items-center gap-2">
-                        <span>{player.club} • {player.age}y • {player.nationality}</span>
+                    {/* Player Info - takes remaining space and wraps on mobile */}
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="font-medium truncate text-sm sm:text-base">{player.name}</div>
+                        {/* Rating - moved to top right on mobile */}
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <TrendingUp className="h-3 w-3 text-muted-foreground" />
+                          <span className="font-medium text-sm">
+                            {formatValue(player.transferroomRating || player.xtvScore)}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Player details - wrap on mobile */}
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-muted-foreground">
+                        <span className="truncate max-w-[150px] sm:max-w-none">{player.club}</span>
+                        <span>•</span>
+                        <span>{player.age}y</span>
+                        <span className="hidden sm:inline">•</span>
+                        <span className="hidden sm:inline truncate">{player.nationality}</span>
+                        
+                        {/* Positions */}
+                        {player.positions.slice(0, 2).map((position, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs">
+                            {position}
+                          </Badge>
+                        ))}
+                        
+                        {/* Assignment */}
+                        {assignment && (
+                          <Badge variant="default" className="text-xs bg-green-600">
+                            {assignment.position}
+                          </Badge>
+                        )}
+                        
+                        {/* Warning badges */}
                         {contractStatus && (
-                          <Badge variant="outline" className="text-xs flex-shrink-0 bg-orange-50 text-orange-700 border-orange-300">
-                            <Clock className="w-3 h-3 mr-1" />
+                          <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-300">
+                            <Clock className="w-2.5 h-2.5 mr-1" />
                             {contractStatus.status}
                           </Badge>
                         )}
@@ -166,30 +197,6 @@ const SquadListView = ({
                           </Badge>
                         )}
                       </div>
-                    </div>
-
-                    {/* Positions */}
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      {player.positions.slice(0, 2).map((position, idx) => (
-                        <Badge key={idx} variant="outline" className="text-sm">
-                          {position}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    {/* Assignment */}
-                    {assignment && (
-                      <Badge variant="default" className="text-sm bg-green-600 flex-shrink-0">
-                        {assignment.position}
-                      </Badge>
-                    )}
-
-                    {/* Rating */}
-                    <div className="flex items-center gap-1 ml-auto flex-shrink-0">
-                      <TrendingUp className="h-3 w-3 text-muted-foreground" />
-                      <span className="font-medium">
-                        {formatValue(player.transferroomRating || player.xtvScore)}
-                      </span>
                     </div>
                   </div>
                 );

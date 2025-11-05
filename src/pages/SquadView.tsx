@@ -192,24 +192,27 @@ const SquadView = () => {
     }
   };
   return <>
-      <div className="container mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 max-w-7xl">
-        {/* Header */}
-        <div className="space-y-4 sm:space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-            <ClubBadge clubName={userClub} size="lg" className="shrink-0" />
-            <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">{displayTitle}</h1>
-              <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
-                Manage squad formations, analyze depth, and identify recruitment opportunities
-              </p>
+      <div className="w-full max-w-full overflow-x-hidden">
+        <div className="container mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 max-w-7xl">
+          {/* Header */}
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+              <ClubBadge clubName={userClub} size="lg" className="shrink-0" />
+              <div className="min-w-0 w-full">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold truncate">{displayTitle}</h1>
+                <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
+                  Manage squad formations, analyze depth, and identify recruitment opportunities
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Squad Selection and Formation Controls */}
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="bg-muted/30 py-4 sm:py-6 px-4 sm:px-6 lg:px-8 rounded-lg">
+      <div className="w-full max-w-full overflow-x-hidden">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="bg-muted/30 py-4 sm:py-6 px-4 sm:px-6 lg:px-8 rounded-lg">
           <div className="flex flex-col md:flex-row gap-4 sm:gap-6 items-start">
             {/* Select Squad Section */}
             <div className="flex-1 space-y-2 sm:space-y-3 w-full">
@@ -337,8 +340,10 @@ const SquadView = () => {
           </div>
         </div>
       </div>
+      </div>
 
-      <div className="container mx-auto py-4 sm:py-6 max-w-7xl px-4 sm:px-6">
+      <div className="w-full max-w-full overflow-x-hidden">
+        <div className="container mx-auto py-4 sm:py-6 max-w-7xl px-4 sm:px-6">
         {/* Head Coach Info and Squad Controls */}
         <div>
         <Card className="border-0 rounded-none shadow-none">
@@ -400,19 +405,24 @@ const SquadView = () => {
             </div>
           </CardContent>
         </Card>
+        </div>
+      </div>
       </div>
 
 
       {/* Enhanced Football Pitch Visualization */}
-      <div className="py-4 sm:py-6 px-4 sm:px-0">
-        <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
+      <div className="w-full max-w-full overflow-x-hidden">
+        <div className="container mx-auto max-w-7xl py-4 sm:py-6 px-4 sm:px-6">
+          <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
+        </div>
       </div>
 
       {/* Squad Comparison */}
-      <div className="px-4 sm:px-0">
-        <SquadComparisonChart clubName={userClub} />
+      <div className="w-full max-w-full overflow-x-hidden">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6">
+          <SquadComparisonChart clubName={userClub} />
+        </div>
       </div>
-    </div>
   </>;
 };
 
