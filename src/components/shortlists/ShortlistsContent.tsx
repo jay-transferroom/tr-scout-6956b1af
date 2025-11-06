@@ -143,14 +143,14 @@ export const ShortlistsContent = ({
   }
 
   return (
-    <Card className="max-w-full overflow-hidden">
-      <CardHeader className="max-w-full overflow-hidden">
+    <Card className="w-full max-w-full overflow-hidden">
+      <CardHeader className="w-full max-w-full overflow-hidden">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 max-w-full">
           <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center gap-2 min-w-0 max-w-full">
             <span className="break-words max-w-full">{currentList.name}</span>
             <Badge variant="secondary" className="shrink-0">{sortedPlayers.length} players</Badge>
           </CardTitle>
-          <div className="flex gap-2 w-full sm:w-auto">
+          <div className="flex gap-2 w-full sm:w-auto min-w-0">
             <Button variant="outline" size="sm" onClick={onExportList} className="flex-1 sm:flex-none">
               <Download className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Export</span>
@@ -167,14 +167,14 @@ export const ShortlistsContent = ({
       
       {/* Shortlist Description */}
       {currentList.description && (
-        <div className="px-4 sm:px-6 pb-4 max-w-full overflow-hidden">
+        <div className="px-4 sm:px-6 pb-4 w-full max-w-full overflow-hidden">
           <p className="text-sm text-muted-foreground break-words">{currentList.description}</p>
         </div>
       )}
       
-      <CardContent className="max-w-full overflow-hidden px-4 sm:px-6">
+      <CardContent className="w-full max-w-full overflow-hidden px-4 sm:px-6">
         {/* Search and Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6 max-w-full">
+        <div className="flex flex-col md:flex-row gap-4 mb-6 w-full max-w-full min-w-0">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -185,7 +185,7 @@ export const ShortlistsContent = ({
             />
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-2 max-w-full">
+          <div className="flex flex-col sm:flex-row gap-2 w-full max-w-full min-w-0">
             <Select value={sortBy} onValueChange={onSortByChange}>
               <SelectTrigger className="w-full sm:w-40 max-w-full">
                 <SelectValue />
@@ -200,7 +200,7 @@ export const ShortlistsContent = ({
               </SelectContent>
             </Select>
             
-            <div className="flex gap-2 w-full sm:w-auto">
+            <div className="flex gap-2 w-full sm:w-auto min-w-0">
               <Button 
                 variant="outline" 
                 size="icon"
@@ -227,7 +227,7 @@ export const ShortlistsContent = ({
 
         {/* Auto-suggestions section */}
         {canManageShortlists && suggestedPlayers.length > 0 && (
-          <div className="mb-6 p-4 bg-muted/50 rounded-lg border max-w-full overflow-hidden">
+          <div className="mb-6 p-4 bg-muted/50 rounded-lg border w-full max-w-full overflow-hidden">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Wand2 className="h-4 w-4 text-primary" />
@@ -297,7 +297,7 @@ export const ShortlistsContent = ({
         )}
 
         {/* Players - Mobile cards and desktop table */}
-        <div className="block md:hidden space-y-3 max-w-full overflow-hidden">
+        <div className="block md:hidden space-y-3 w-full max-w-full overflow-hidden">
           {sortedPlayers.length > 0 ? (
             sortedPlayers.map((player) => {
               const assignmentBadgeProps = getAssignmentBadge(player.id.toString());
@@ -481,7 +481,7 @@ const ShortlistPlayerRow = ({
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="max-w-[calc(100vw-16px)]">
             <DropdownMenuItem asChild>
               <Link to={player.profilePath}>
                 <Eye className="h-4 w-4 mr-2" />
@@ -541,10 +541,10 @@ const ShortlistPlayerCard = ({
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
 
   return (
-    <Card className="max-w-full overflow-hidden">
-      <CardContent className="p-3 sm:p-4 max-w-full overflow-hidden">
+    <Card className="w-full max-w-full overflow-hidden">
+      <CardContent className="p-3 sm:p-4 w-full max-w-full overflow-hidden">
         {/* Player Header */}
-        <div className="flex items-start gap-2 sm:gap-3 mb-3 max-w-full overflow-hidden">
+        <div className="flex items-start gap-2 sm:gap-3 mb-3 w-full max-w-full overflow-hidden">
           <Avatar className="h-10 w-10 sm:h-12 sm:w-12 shrink-0">
             <AvatarImage src={player.image} alt={player.name} />
             <AvatarFallback className="text-xs">
@@ -568,7 +568,7 @@ const ShortlistPlayerCard = ({
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="max-w-[calc(100vw-16px)]">
               <DropdownMenuItem asChild>
                 <Link to={player.profilePath}>
                   <Eye className="h-4 w-4 mr-2" />
@@ -649,7 +649,7 @@ const ShortlistPlayerCard = ({
         </div>
 
         {/* Scouts and Status */}
-        <div className="flex items-start justify-between pt-3 border-t gap-2 max-w-full overflow-hidden">
+        <div className="flex items-start justify-between pt-3 border-t gap-2 w-full max-w-full overflow-hidden">
           <div className="min-w-0 flex-1 overflow-hidden">
             <div className="text-xs text-muted-foreground mb-1">Scouts</div>
             {!player.isPrivate && scouts.length > 0 ? (

@@ -32,7 +32,7 @@ const Layout = () => {
         <MainNavigation onAIAssistantClick={openNewChat} />
         <SidebarInset>
           <Header />
-          <main className="flex-1 p-2 sm:p-6">
+          <main className="flex-1 p-2 sm:p-6 overflow-x-hidden max-w-full">
             <Outlet />
           </main>
         </SidebarInset>
