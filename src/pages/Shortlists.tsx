@@ -128,7 +128,7 @@ const Shortlists = () => {
   }
 
   return (
-    <div className="container mx-auto py-4 sm:py-8 max-w-7xl px-2 sm:px-4">
+    <div className="container mx-auto py-4 sm:py-8 max-w-7xl px-2 sm:px-4 w-full overflow-x-hidden">
       <ShortlistsHeader />
 
       {/* Horizontal Shortlist Tabs */}

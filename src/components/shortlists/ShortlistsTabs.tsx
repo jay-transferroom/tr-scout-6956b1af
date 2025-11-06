@@ -111,11 +111,11 @@ export const ShortlistsTabs = ({
 
   return (
     <div className="mb-6">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2 sm:flex-nowrap">
         {/* Shortlist dropdown selector */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2 min-w-[200px] justify-between">
+            <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto sm:min-w-[200px] justify-between max-w-full">
               <div className="flex items-center gap-2">
                 <ScrollText className="h-4 w-4" />
                 <span>{selectedShortlist?.name || "Select Shortlist"}</span>
@@ -206,7 +206,7 @@ export const ShortlistsTabs = ({
         {canManageShortlists && (
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="flex items-center gap-2 whitespace-nowrap">
+              <Button variant="outline" size="sm" className="flex items-center gap-2 whitespace-nowrap w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
                 Create Shortlist
               </Button>
@@ -253,7 +253,7 @@ export const ShortlistsTabs = ({
         {canManageShortlists && (
           <AddPrivatePlayerDialog
             trigger={
-              <Button variant="outline" size="sm" className="flex items-center gap-2 whitespace-nowrap">
+              <Button variant="outline" size="sm" className="flex items-center gap-2 whitespace-nowrap w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
                 Add Private Player
               </Button>
