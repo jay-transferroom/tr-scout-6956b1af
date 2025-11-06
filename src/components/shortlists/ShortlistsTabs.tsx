@@ -110,17 +110,17 @@ export const ShortlistsTabs = ({
   const selectedPlayerCount = selectedShortlist ? getPlayerCount(selectedShortlist) : 0;
 
   return (
-    <div className="mb-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2 sm:flex-nowrap">
+    <div className="mb-6 max-w-full overflow-hidden">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2 sm:flex-wrap">
         {/* Shortlist dropdown selector */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto sm:min-w-[200px] justify-between max-w-full">
-              <div className="flex items-center gap-2">
-                <ScrollText className="h-4 w-4" />
-                <span>{selectedShortlist?.name || "Select Shortlist"}</span>
+            <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto sm:min-w-[200px] justify-between max-w-full overflow-hidden">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <ScrollText className="h-4 w-4 shrink-0" />
+                <span className="truncate">{selectedShortlist?.name || "Select Shortlist"}</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <Badge variant="secondary" className="text-xs">
                   {selectedPlayerCount}
                 </Badge>
@@ -128,7 +128,7 @@ export const ShortlistsTabs = ({
               </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="bg-background border shadow-md z-50 w-[280px]">
+          <DropdownMenuContent align="start" className="bg-background border shadow-md z-50 w-[min(280px,calc(100vw-16px))]">
             {filteredShortlists.map((list) => {
               const playerCount = getPlayerCount(list);
               const isSelected = selectedList === list.id;

@@ -143,12 +143,12 @@ export const ShortlistsContent = ({
   }
 
   return (
-    <Card className="max-w-full overflow-x-hidden">
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-            <span>{currentList.name}</span>
-            <Badge variant="secondary">{sortedPlayers.length} players</Badge>
+    <Card className="max-w-full overflow-hidden">
+      <CardHeader className="max-w-full overflow-hidden">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 max-w-full">
+          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center gap-2 min-w-0 max-w-full">
+            <span className="break-words max-w-full">{currentList.name}</span>
+            <Badge variant="secondary" className="shrink-0">{sortedPlayers.length} players</Badge>
           </CardTitle>
           <div className="flex gap-2 w-full sm:w-auto">
             <Button variant="outline" size="sm" onClick={onExportList} className="flex-1 sm:flex-none">
@@ -167,14 +167,14 @@ export const ShortlistsContent = ({
       
       {/* Shortlist Description */}
       {currentList.description && (
-        <div className="px-6 pb-4">
-          <p className="text-sm text-muted-foreground">{currentList.description}</p>
+        <div className="px-4 sm:px-6 pb-4 max-w-full overflow-hidden">
+          <p className="text-sm text-muted-foreground break-words">{currentList.description}</p>
         </div>
       )}
       
-      <CardContent>
+      <CardContent className="max-w-full overflow-hidden px-4 sm:px-6">
         {/* Search and Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4 mb-6 max-w-full">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -185,9 +185,9 @@ export const ShortlistsContent = ({
             />
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 max-w-full">
             <Select value={sortBy} onValueChange={onSortByChange}>
-              <SelectTrigger className="w-full sm:w-40">
+              <SelectTrigger className="w-full sm:w-40 max-w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -211,7 +211,7 @@ export const ShortlistsContent = ({
               </Button>
 
               <Select value={euGbeFilter} onValueChange={onEuGbeFilterChange}>
-                <SelectTrigger className="w-full sm:w-32">
+                <SelectTrigger className="w-full sm:w-32 max-w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -227,7 +227,7 @@ export const ShortlistsContent = ({
 
         {/* Auto-suggestions section */}
         {canManageShortlists && suggestedPlayers.length > 0 && (
-          <div className="mb-6 p-4 bg-muted/50 rounded-lg border">
+          <div className="mb-6 p-4 bg-muted/50 rounded-lg border max-w-full overflow-hidden">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Wand2 className="h-4 w-4 text-primary" />
@@ -297,7 +297,7 @@ export const ShortlistsContent = ({
         )}
 
         {/* Players - Mobile cards and desktop table */}
-        <div className="block md:hidden space-y-3">
+        <div className="block md:hidden space-y-3 max-w-full overflow-hidden">
           {sortedPlayers.length > 0 ? (
             sortedPlayers.map((player) => {
               const assignmentBadgeProps = getAssignmentBadge(player.id.toString());
@@ -541,18 +541,18 @@ const ShortlistPlayerCard = ({
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
 
   return (
-    <Card>
-      <CardContent className="p-4">
+    <Card className="max-w-full overflow-hidden">
+      <CardContent className="p-3 sm:p-4 max-w-full overflow-hidden">
         {/* Player Header */}
-        <div className="flex items-start gap-3 mb-3">
-          <Avatar className="h-12 w-12">
+        <div className="flex items-start gap-2 sm:gap-3 mb-3 max-w-full overflow-hidden">
+          <Avatar className="h-10 w-10 sm:h-12 sm:w-12 shrink-0">
             <AvatarImage src={player.image} alt={player.name} />
-            <AvatarFallback>
+            <AvatarFallback className="text-xs">
               {player.name.split(' ').map((n: string) => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 min-w-0">
-            <Link to={player.profilePath} className="font-medium hover:underline">
+          <div className="flex-1 min-w-0 overflow-hidden">
+            <Link to={player.profilePath} className="font-medium hover:underline text-sm sm:text-base block truncate">
               {player.name}
             </Link>
             <div className="mt-1">
@@ -603,16 +603,16 @@ const ShortlistPlayerCard = ({
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-3 mb-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-3 max-w-full">
           <div>
             <div className="text-xs text-muted-foreground mb-1">Age</div>
             <div className="font-medium">{player.age || 'N/A'}</div>
           </div>
-          <div>
+          <div className="overflow-hidden">
             <div className="text-xs text-muted-foreground mb-1">Positions</div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-wrap">
               {player.positions?.slice(0, 2).map((pos: string, idx: number) => (
-                <Badge key={idx} variant="outline" className="text-xs">
+                <Badge key={idx} variant="outline" className="text-xs shrink-0">
                   {pos}
                 </Badge>
               ))}
@@ -649,23 +649,25 @@ const ShortlistPlayerCard = ({
         </div>
 
         {/* Scouts and Status */}
-        <div className="flex items-center justify-between pt-3 border-t">
-          <div>
+        <div className="flex items-start justify-between pt-3 border-t gap-2 max-w-full overflow-hidden">
+          <div className="min-w-0 flex-1 overflow-hidden">
             <div className="text-xs text-muted-foreground mb-1">Scouts</div>
             {!player.isPrivate && scouts.length > 0 ? (
-              <ScoutAvatars scouts={scouts} size="sm" maxVisible={3} />
+              <div className="overflow-hidden">
+                <ScoutAvatars scouts={scouts} size="sm" maxVisible={2} />
+              </div>
             ) : (
               <span className="text-xs text-muted-foreground">
                 {player.isPrivate ? 'Private' : 'Unassigned'}
               </span>
             )}
           </div>
-          <div className="text-right">
+          <div className="text-right shrink-0">
             <div className="text-xs text-muted-foreground mb-1">Status</div>
             {!player.isPrivate ? (
-              <Badge {...assignmentBadgeProps} className="text-xs" />
+              <Badge {...assignmentBadgeProps} className="text-xs whitespace-nowrap" />
             ) : (
-              <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+              <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200 whitespace-nowrap">
                 Private
               </Badge>
             )}
