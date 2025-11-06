@@ -28,11 +28,11 @@ const Layout = () => {
   
   return (
     <SidebarProvider defaultOpen={false}>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full min-w-0 overflow-x-hidden">
         <MainNavigation onAIAssistantClick={openNewChat} />
-        <SidebarInset>
+        <SidebarInset className="w-full max-w-full min-w-0 overflow-x-hidden">
           <Header />
-          <main className="flex-1 p-2 sm:p-6 overflow-x-hidden max-w-full">
+          <main className="w-full max-w-full min-w-0 flex-1 p-2 sm:p-6 overflow-x-hidden">
             <Outlet />
           </main>
         </SidebarInset>
