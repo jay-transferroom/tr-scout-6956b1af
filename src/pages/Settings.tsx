@@ -28,33 +28,28 @@ const Settings = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className={isAdmin ? "w-full md:grid md:grid-cols-5" : "w-full md:grid md:grid-cols-3"}>
-          <TabsTrigger value="preferences" className="flex items-center gap-1 sm:gap-2">
-            <SettingsIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden xs:inline">Preferences</span>
-            <span className="xs:hidden">Prefs</span>
+        <TabsList>
+          <TabsTrigger value="preferences" className="flex items-center gap-2">
+            <SettingsIcon className="h-4 w-4" />
+            Preferences
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="flex items-center gap-1 sm:gap-2">
-            <Bell className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden xs:inline">Notifications</span>
-            <span className="xs:hidden">Notif</span>
+          <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            Notifications
           </TabsTrigger>
-          <TabsTrigger value="import" className="flex items-center gap-1 sm:gap-2">
-            <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden xs:inline">Import Data</span>
-            <span className="xs:hidden">Import</span>
+          <TabsTrigger value="import" className="flex items-center gap-2">
+            <Upload className="h-4 w-4" />
+            Import Data
           </TabsTrigger>
           {isAdmin && (
             <>
-              <TabsTrigger value="user-management" className="flex items-center gap-1 sm:gap-2">
-                <Users className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden xs:inline">User Management</span>
-                <span className="xs:hidden">Users</span>
+              <TabsTrigger value="user-management" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                User Management
               </TabsTrigger>
-              <TabsTrigger value="templates" className="flex items-center gap-1 sm:gap-2">
-                <FileText className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Templates</span>
-                <span className="sm:hidden">Temps</span>
+              <TabsTrigger value="templates" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Templates
               </TabsTrigger>
             </>
           )}
