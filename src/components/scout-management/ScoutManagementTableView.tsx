@@ -344,7 +344,9 @@ const ScoutManagementTableView = ({
               </tr>
             </thead>
             <tbody>
-              {filteredAndSortedAssignments.map((assignment) => (
+              {filteredAndSortedAssignments
+                .filter(a => statusFilter === "all" || a.kanbanColumn === statusFilter)
+                .map((assignment) => (
                 <PlayerRow key={`${assignment.playerId}-${assignment.scoutId || 'unassigned'}`} assignment={assignment} />
               ))}
             </tbody>
@@ -360,8 +362,12 @@ const ScoutManagementTableView = ({
 
       {/* Mobile Card View */}
       <div className="md:hidden space-y-3">
-        {filteredAndSortedAssignments.length > 0 ? (
-          filteredAndSortedAssignments.map((assignment) => (
+        {filteredAndSortedAssignments
+          .filter(a => statusFilter === "all" || a.kanbanColumn === statusFilter)
+          .length > 0 ? (
+          filteredAndSortedAssignments
+            .filter(a => statusFilter === "all" || a.kanbanColumn === statusFilter)
+            .map((assignment) => (
             <div key={`${assignment.playerId}-${assignment.scoutId || 'unassigned'}`} className="border rounded-lg p-4 space-y-3">
               <div className="flex items-start gap-3">
                 <Avatar className="h-12 w-12 flex-shrink-0">
