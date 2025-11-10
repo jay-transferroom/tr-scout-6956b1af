@@ -161,7 +161,7 @@ export const transformToAssignmentBased = (
     position: playerData.positions?.[0] || 'Unknown',
     rating: playerData.transferroomRating?.toFixed(1) || 'N/A',
     assignedTo: scoutName,
-    updatedAt: getUpdatedTime(statusInfo.status),
+    updatedAt: getTimeAgo(assignment.updated_at || new Date().toISOString()),
     lastStatusChange: getLastStatusChange(statusInfo.status, assignment.updated_at || new Date().toISOString()),
     avatar: playerData.image || `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=48&h=48&fit=crop&crop=face&auto=format`,
     priority: assignment.priority || null,
@@ -223,7 +223,7 @@ export const transformToAssignmentBased = (
       position: playerData.positions?.[0] || 'Unknown',
       rating: playerData.transferroomRating?.toFixed(1) || 'N/A',
       assignedTo: scoutName,
-      updatedAt: getUpdatedTime('completed'),
+      updatedAt: getTimeAgo(report.updatedAt?.toISOString() || new Date().toISOString()),
       lastStatusChange: getLastStatusChange('completed', report.updatedAt?.toISOString() || new Date().toISOString()),
       avatar: playerData.image || `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=48&h=48&fit=crop&crop=face&auto=format`,
       priority: null,
@@ -277,7 +277,7 @@ export const transformToAssignmentBased = (
       position: playerData.positions?.[0] || 'Unknown',
       rating: playerData.transferroomRating?.toFixed(1) || 'N/A',
       assignedTo: 'Unassigned',
-      updatedAt: '1 day ago',
+      updatedAt: 'N/A',
       lastStatusChange: 'Marked for scouting',
       avatar: playerData.image || `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=48&h=48&fit=crop&crop=face&auto=format`,
       priority: null,
@@ -294,14 +294,18 @@ export const transformToAssignmentBased = (
   return kanbanData;
 };
 
-const getUpdatedTime = (status: string) => {
-  const times = {
-    'assigned': '2 days ago',
-    'in_progress': '5 hours ago', 
-    'completed': '1 week ago',
-    'reviewed': '3 days ago'
-  };
-  return times[status as keyof typeof times] || '1 day ago';
+const getTimeAgo = (updatedAt: string) => {
+  const timeDiff = new Date().getTime() - new Date(updatedAt).getTime();
+  const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+  const hoursDiff = Math.floor(timeDiff / (1000 * 3600));
+  
+  if (daysDiff > 0) {
+    return `${daysDiff} day${daysDiff > 1 ? 's' : ''} ago`;
+  } else if (hoursDiff > 0) {
+    return `${hoursDiff} hour${hoursDiff > 1 ? 's' : ''} ago`;
+  } else {
+    return 'Just now';
+  }
 };
 
 const getLastStatusChange = (status: string, updatedAt: string) => {
