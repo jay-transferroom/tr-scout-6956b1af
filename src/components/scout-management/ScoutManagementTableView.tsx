@@ -140,14 +140,24 @@ const ScoutManagementTableView = ({
 
   // Apply filters and sorting
   const filteredAndSortedAssignments = useMemo(() => {
-    const filtered = allAssignments.filter(assignment => {
-      const matchesStatus = statusFilter === "all" || assignment.kanbanColumn === statusFilter;
+    // Choose the source list by status first to avoid any mismatch
+    let source: any[] = [];
+    if (statusFilter === "all") {
+      source = allAssignments;
+    } else if (statusFilter === "shortlisted") {
+      source = kanbanData.shortlisted.map(p => ({ ...p, kanbanColumn: 'shortlisted' }));
+    } else if (statusFilter === "assigned") {
+      source = kanbanData.assigned.map(p => ({ ...p, kanbanColumn: 'assigned' }));
+    } else if (statusFilter === "completed") {
+      source = kanbanData.completed.map(p => ({ ...p, kanbanColumn: 'completed' }));
+    }
+
+    const filtered = source.filter(assignment => {
       const matchesSearch = searchTerm === "" || 
         assignment.playerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         assignment.club.toLowerCase().includes(searchTerm.toLowerCase()) ||
         assignment.assignedTo.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      return matchesStatus && matchesSearch;
+      return matchesSearch;
     });
 
     // Sort the filtered results
@@ -200,7 +210,7 @@ const ScoutManagementTableView = ({
       if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
       return 0;
     });
-  }, [allAssignments, statusFilter, searchTerm, sortColumn, sortDirection]);
+  }, [kanbanData, allAssignments, statusFilter, searchTerm, sortColumn, sortDirection]);
 
   const handleSort = (column: string) => {
     if (sortColumn === column) {
