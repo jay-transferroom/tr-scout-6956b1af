@@ -23,14 +23,17 @@ export const useFixturesData = () => {
   return useQuery({
     queryKey: ['fixtures'],
     queryFn: async (): Promise<Fixture[]> => {
-      const { data, error } = await supabase.rpc('get_fixtures_data');
+      const { data, error } = await supabase
+        .from('fixtures_results_2526')
+        .select('*')
+        .order('match_date_utc', { ascending: false });
 
       if (error) {
         console.error('Error fetching fixtures:', error);
         throw error;
       }
 
-      return data || [];
+      return (data || []) as Fixture[];
     },
   });
 };
