@@ -62,14 +62,14 @@ const PlayerProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-[1400px] mx-auto px-6 py-8">
+      <div className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
         {/* Player Header Section */}
-        <div className="mb-8">
+        <div className="mb-4 sm:mb-6 md:mb-8">
           {/* Player Basic Info */}
-          <div className="flex items-center gap-6 mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 mb-4 sm:mb-6">
             {/* Player Avatar with Club Badge Overlay */}
             <div className="relative flex-shrink-0">
-              <div className="w-24 h-24 rounded-full bg-muted overflow-hidden">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-muted overflow-hidden">
                 {player.image ? (
                   <img 
                     src={player.image} 
@@ -78,7 +78,7 @@ const PlayerProfile = () => {
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-primary">
+                    <span className="text-lg sm:text-xl md:text-2xl font-bold text-primary">
                       {player.name.split(' ').map(n => n[0]).join('')}
                     </span>
                   </div>
@@ -86,18 +86,18 @@ const PlayerProfile = () => {
               </div>
               {/* Club Badge Overlay - positioned outside the overflow container */}
               <div className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1">
-                <ClubBadge clubName={player.club} className="w-8 h-8" />
+                <ClubBadge clubName={player.club} className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
               </div>
             </div>
 
             {/* Player Details */}
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
+            <div className="flex-1 w-full">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div className="flex-1">
-                  <h1 className="text-4xl font-bold text-foreground mb-2">{player.name}</h1>
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-lg font-medium text-muted-foreground">{player.club}</span>
-                    <div className="flex flex-wrap gap-2">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1 sm:mb-2">{player.name}</h1>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <span className="text-sm sm:text-base md:text-lg font-medium text-muted-foreground">{player.club}</span>
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {player.positions?.map((position) => (
                         <Badge key={position} variant="outline" className="bg-gray-50 text-gray-600 border-gray-200 text-xs">
                           {position}
@@ -107,32 +107,30 @@ const PlayerProfile = () => {
                   </div>
                 </div>
 
-                <div className="text-right">
-                  <div className="flex items-center gap-4 mb-2">
-                    <div className="text-right">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm text-muted-foreground">Rating (Potential)</span>
-                        <Info className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-bold text-blue-600">
-                          {player.transferroomRating?.toFixed(1) || 'N/A'}
-                        </span>
-                        <span className="text-xl text-muted-foreground">
-                          ({player.futureRating?.toFixed(1) || 'N/A'})
-                        </span>
-                      </div>
+                <div className="flex gap-3 sm:gap-4">
+                  <div className="text-left sm:text-right">
+                    <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                      <span className="text-xs sm:text-sm text-muted-foreground">Rating (Pot)</span>
+                      <Info className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                     </div>
-                    
-                    <div className="text-right">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm text-muted-foreground">xTV</span>
-                        <Info className="w-4 h-4 text-muted-foreground" />
-                      </div>
-                      <span className="text-3xl font-bold text-blue-600">
-                        {player.xtvScore ? `€${player.xtvScore.toLocaleString()}` : 'N/A'}
+                    <div className="flex items-baseline gap-1.5 sm:gap-2">
+                      <span className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-600">
+                        {player.transferroomRating?.toFixed(1) || 'N/A'}
+                      </span>
+                      <span className="text-base sm:text-lg md:text-xl text-muted-foreground">
+                        ({player.futureRating?.toFixed(1) || 'N/A'})
                       </span>
                     </div>
+                  </div>
+                  
+                  <div className="text-left sm:text-right">
+                    <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                      <span className="text-xs sm:text-sm text-muted-foreground">xTV</span>
+                      <Info className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
+                    </div>
+                    <span className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-600">
+                      {player.xtvScore ? `€${player.xtvScore.toLocaleString()}` : 'N/A'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -148,7 +146,7 @@ const PlayerProfile = () => {
 
 
           {/* Summary Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
             {/* Player Summary */}
             <Card className="relative">
               <CardHeader className="pb-4">
@@ -273,14 +271,14 @@ const PlayerProfile = () => {
 
         {/* Navigation Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-7 mb-8">
-            <TabsTrigger value="career" className="text-sm">Career</TabsTrigger>
-            <TabsTrigger value="financials" className="text-sm">Financials</TabsTrigger>
-            <TabsTrigger value="impact" className="text-sm">Impact</TabsTrigger>
-            <TabsTrigger value="playing-style" className="text-sm">Playing Style</TabsTrigger>
-            <TabsTrigger value="injuries" className="text-sm">Injuries</TabsTrigger>
-            <TabsTrigger value="match-history" className="text-sm">Match History</TabsTrigger>
-            <TabsTrigger value="alternatives" className="text-sm">Alternatives</TabsTrigger>
+          <TabsList className="mb-4 sm:mb-6 md:mb-8">
+            <TabsTrigger value="career" className="text-xs sm:text-sm">Career</TabsTrigger>
+            <TabsTrigger value="financials" className="text-xs sm:text-sm">Financials</TabsTrigger>
+            <TabsTrigger value="impact" className="text-xs sm:text-sm">Impact</TabsTrigger>
+            <TabsTrigger value="playing-style" className="text-xs sm:text-sm">Playing Style</TabsTrigger>
+            <TabsTrigger value="injuries" className="text-xs sm:text-sm">Injuries</TabsTrigger>
+            <TabsTrigger value="match-history" className="text-xs sm:text-sm">Match History</TabsTrigger>
+            <TabsTrigger value="alternatives" className="text-xs sm:text-sm">Alternatives</TabsTrigger>
           </TabsList>
 
           <TabsContent value="career">
