@@ -94,7 +94,7 @@ const ScoutManagementTableView = ({
                   : assignment.lastStatusChange}
               </div>
             )}
-            {assignment.matchContext && (
+            {assignment.matchContext && assignment.matchContext.opposition && (
               <div className="text-muted-foreground mt-1">
                 vs {assignment.matchContext.opposition} • {assignment.matchContext.competition}
               </div>
@@ -402,7 +402,7 @@ const ScoutManagementTableView = ({
                   </div>
                 )}
                 
-                {assignment.matchContext && (
+                {assignment.matchContext && assignment.matchContext.opposition && (
                   <div className="text-muted-foreground text-xs">
                     Match: vs {assignment.matchContext.opposition} • {assignment.matchContext.competition}
                   </div>
