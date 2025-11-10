@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Eye, UserPlus, CheckCircle, FileText } from "lucide-react";
+import { Eye, UserPlus, CheckCircle, FileText, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { ClubBadge } from "@/components/ui/club-badge";
 
 interface TableViewProps {
@@ -26,6 +26,8 @@ const ScoutManagementTableView = ({
 }: TableViewProps) => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortColumn, setSortColumn] = useState<string>("updatedAt");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   
   // Combine all assignments from different columns
   const allAssignments = [
@@ -135,16 +137,87 @@ const ScoutManagementTableView = ({
     );
   };
 
-  // Apply filters
-  const filteredAssignments = allAssignments.filter(assignment => {
-    const matchesStatus = statusFilter === "all" || assignment.status === statusFilter;
-    const matchesSearch = searchTerm === "" || 
-      assignment.playerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      assignment.club.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      assignment.assignedTo.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    return matchesStatus && matchesSearch;
-  });
+  // Apply filters and sorting
+  const filteredAndSortedAssignments = useMemo(() => {
+    const filtered = allAssignments.filter(assignment => {
+      const matchesStatus = statusFilter === "all" || assignment.status === statusFilter;
+      const matchesSearch = searchTerm === "" || 
+        assignment.playerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        assignment.club.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        assignment.assignedTo.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      return matchesStatus && matchesSearch;
+    });
+
+    // Sort the filtered results
+    return filtered.sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortColumn) {
+        case "player":
+          aValue = a.playerName.toLowerCase();
+          bValue = b.playerName.toLowerCase();
+          break;
+        case "club":
+          aValue = a.club.toLowerCase();
+          bValue = b.club.toLowerCase();
+          break;
+        case "position":
+          aValue = a.position.toLowerCase();
+          bValue = b.position.toLowerCase();
+          break;
+        case "status":
+          aValue = a.status;
+          bValue = b.status;
+          break;
+        case "scout":
+          aValue = a.assignedTo.toLowerCase();
+          bValue = b.assignedTo.toLowerCase();
+          break;
+        case "rating":
+          aValue = a.rating === 'N/A' ? 0 : parseFloat(a.rating);
+          bValue = b.rating === 'N/A' ? 0 : parseFloat(b.rating);
+          break;
+        case "updatedAt":
+        default:
+          // Parse the time ago strings to get actual time values for proper sorting
+          const parseTimeAgo = (timeStr: string) => {
+            if (!timeStr || timeStr === 'N/A' || timeStr === 'Just now') return 0;
+            const match = timeStr.match(/(\d+)\s+(day|hour)/);
+            if (!match) return 0;
+            const value = parseInt(match[1]);
+            const unit = match[2];
+            return unit === 'day' ? value * 24 : value;
+          };
+          aValue = parseTimeAgo(a.updatedAt);
+          bValue = parseTimeAgo(b.updatedAt);
+          break;
+      }
+
+      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [allAssignments, statusFilter, searchTerm, sortColumn, sortDirection]);
+
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("desc");
+    }
+  };
+
+  const SortIcon = ({ column }: { column: string }) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="h-4 w-4 ml-1 opacity-50" />;
+    }
+    return sortDirection === "asc" ? 
+      <ArrowUp className="h-4 w-4 ml-1" /> : 
+      <ArrowDown className="h-4 w-4 ml-1" />;
+  };
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -202,24 +275,72 @@ const ScoutManagementTableView = ({
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr className="border-b">
-                <th className="text-left p-4 font-medium">Player</th>
-                <th className="text-left p-4 font-medium">Club</th>
-                <th className="text-left p-4 font-medium">Position</th>
-                <th className="text-left p-4 font-medium">Status</th>
-                <th className="text-left p-4 font-medium">Scout</th>
-                <th className="text-left p-4 font-medium">Last Update</th>
+                <th className="text-left p-4 font-medium">
+                  <button 
+                    onClick={() => handleSort("player")}
+                    className="flex items-center hover:text-foreground transition-colors"
+                  >
+                    Player
+                    <SortIcon column="player" />
+                  </button>
+                </th>
+                <th className="text-left p-4 font-medium">
+                  <button 
+                    onClick={() => handleSort("club")}
+                    className="flex items-center hover:text-foreground transition-colors"
+                  >
+                    Club
+                    <SortIcon column="club" />
+                  </button>
+                </th>
+                <th className="text-left p-4 font-medium">
+                  <button 
+                    onClick={() => handleSort("position")}
+                    className="flex items-center hover:text-foreground transition-colors"
+                  >
+                    Position
+                    <SortIcon column="position" />
+                  </button>
+                </th>
+                <th className="text-left p-4 font-medium">
+                  <button 
+                    onClick={() => handleSort("status")}
+                    className="flex items-center hover:text-foreground transition-colors"
+                  >
+                    Status
+                    <SortIcon column="status" />
+                  </button>
+                </th>
+                <th className="text-left p-4 font-medium">
+                  <button 
+                    onClick={() => handleSort("scout")}
+                    className="flex items-center hover:text-foreground transition-colors"
+                  >
+                    Scout
+                    <SortIcon column="scout" />
+                  </button>
+                </th>
+                <th className="text-left p-4 font-medium">
+                  <button 
+                    onClick={() => handleSort("updatedAt")}
+                    className="flex items-center hover:text-foreground transition-colors"
+                  >
+                    Last Update
+                    <SortIcon column="updatedAt" />
+                  </button>
+                </th>
                 <th className="text-left p-4 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredAssignments.map((assignment) => (
+              {filteredAndSortedAssignments.map((assignment) => (
                 <PlayerRow key={`${assignment.playerId}-${assignment.scoutId || 'unassigned'}`} assignment={assignment} />
               ))}
             </tbody>
           </table>
         </div>
         
-        {filteredAssignments.length === 0 && (
+        {filteredAndSortedAssignments.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             No assignments found matching the current filters.
           </div>
@@ -228,8 +349,8 @@ const ScoutManagementTableView = ({
 
       {/* Mobile Card View */}
       <div className="md:hidden space-y-3">
-        {filteredAssignments.length > 0 ? (
-          filteredAssignments.map((assignment) => (
+        {filteredAndSortedAssignments.length > 0 ? (
+          filteredAndSortedAssignments.map((assignment) => (
             <div key={`${assignment.playerId}-${assignment.scoutId || 'unassigned'}`} className="border rounded-lg p-4 space-y-3">
               <div className="flex items-start gap-3">
                 <Avatar className="h-12 w-12 flex-shrink-0">
