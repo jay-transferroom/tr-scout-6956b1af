@@ -68,6 +68,7 @@ export const useReportBuilder = () => {
         templateId: template?.id || "",
         status,
         sections: report.sections,
+        matchContext: report.matchContext, // Include match context
       };
 
       console.log('Saving report with data:', reportData);

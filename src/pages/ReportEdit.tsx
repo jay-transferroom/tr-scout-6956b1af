@@ -8,6 +8,8 @@ import { ReportWithPlayer } from "@/types/report";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import ReportEditSection from "@/components/ReportEditSection";
+import FixtureSelector from "@/components/report-builder/FixtureSelector";
+import { Fixture } from "@/hooks/useFixturesData";
 import { useReportEdit } from "@/hooks/useReportEdit";
 import { useReportPlayerData } from "@/hooks/useReportPlayerData";
 import { DEFAULT_TEMPLATES } from "@/data/defaultTemplates";
@@ -145,6 +147,51 @@ const ReportEdit = () => {
     }
   };
 
+  const handleFixtureSelect = (fixture: Fixture | null) => {
+    if (!report || !report.player) return;
+
+    if (!fixture) {
+      setReport({
+        ...report,
+        matchContext: undefined,
+      });
+      return;
+    }
+
+    const buildFixtureId = (f: Fixture) => `${f.home_team}-${f.away_team}-${f.match_date_utc}`;
+    const normalize = (name: string) => name
+      .toLowerCase()
+      .replace(/\./g, "")
+      .replace(/\bf\.?c\.?\b/g, "")
+      .replace(/football club/g, "")
+      .replace(/[^a-z0-9&\s-]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const isHome = normalize(fixture.home_team) === normalize(report.player.club);
+
+    setReport({
+      ...report,
+      matchContext: {
+        fixtureId: buildFixtureId(fixture),
+        date: fixture.match_date_utc,
+        opposition: isHome ? fixture.away_team : fixture.home_team,
+        competition: fixture.competition || "Unknown",
+        minutesPlayed: report.matchContext?.minutesPlayed || 0,
+      },
+    });
+  };
+
+  const getSelectedFixtureId = () => {
+    if (!report) return undefined;
+    const ctx: any = report.matchContext;
+    if (!ctx) return undefined;
+    if (ctx.fixtureId) return ctx.fixtureId as string;
+    if (!ctx.date || !ctx.opposition) return undefined;
+    // Fallback (legacy): assume player club was home
+    return `${report.player?.club}-${ctx.opposition}-${ctx.date}`;
+  };
+
   if (loading || playerLoading) {
     return (
       <div className="container mx-auto py-8 flex items-center justify-center">
@@ -202,6 +249,14 @@ const ReportEdit = () => {
           </p>
         </CardHeader>
       </Card>
+
+      <div className="bg-card p-4 rounded-md mb-6 border">
+        <FixtureSelector
+          player={report.player}
+          selectedFixtureId={getSelectedFixtureId()}
+          onFixtureSelect={handleFixtureSelect}
+        />
+      </div>
 
       <div className="space-y-6">
         {report.sections.map((section) => {
