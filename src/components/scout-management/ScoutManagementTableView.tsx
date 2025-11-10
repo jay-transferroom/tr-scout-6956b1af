@@ -30,15 +30,16 @@ const ScoutManagementTableView = ({
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   
   // Combine all assignments from different columns
+  // Keep the original status and add a kanbanColumn property for filtering
   const allAssignments = [
-    ...kanbanData.shortlisted.map(p => ({ ...p, status: 'shortlisted' })),
-    ...kanbanData.assigned.map(p => ({ ...p, status: 'assigned' })),
-    ...kanbanData.completed.map(p => ({ ...p, status: 'completed' }))
+    ...kanbanData.shortlisted.map(p => ({ ...p, kanbanColumn: 'shortlisted' })),
+    ...kanbanData.assigned.map(p => ({ ...p, kanbanColumn: 'assigned' })),
+    ...kanbanData.completed.map(p => ({ ...p, kanbanColumn: 'completed' }))
   ];
 
   const PlayerRow = ({ assignment }: { assignment: any }) => {
     // No need to fetch scouts here since each row represents one assignment
-    if (assignment?.status === 'completed') {
+    if (assignment?.kanbanColumn === 'completed') {
       console.log('TableView completed debug', { playerId: assignment.playerId, templateName: assignment.templateName, lastStatusChange: assignment.lastStatusChange });
     }
     return (
@@ -72,7 +73,7 @@ const ScoutManagementTableView = ({
         <td className="p-4">{assignment.position}</td>
         <td className="p-4">
           <div className="flex items-center">
-            {getStatusBadge(assignment.status)}
+            {getStatusBadge(assignment.kanbanColumn)}
             {getPriorityBadge(assignment.priority)}
           </div>
         </td>
@@ -88,7 +89,7 @@ const ScoutManagementTableView = ({
             <div>{assignment.updatedAt}</div>
             {assignment.lastStatusChange && (
               <div className="text-muted-foreground">
-                {assignment.status === 'completed' && assignment.templateName
+                {assignment.kanbanColumn === 'completed' && assignment.templateName
                   ? `${assignment.templateName} ${assignment.lastStatusChange.replace(/^Completed/, 'completed')}`
                   : assignment.lastStatusChange}
               </div>
@@ -102,7 +103,7 @@ const ScoutManagementTableView = ({
         </td>
         <td className="p-4">
           <div className="flex gap-2">
-            {assignment.status === 'shortlisted' && onAssignScout && (
+            {assignment.kanbanColumn === 'shortlisted' && onAssignScout && (
               <Button
                 variant="outline"
                 size="sm"
@@ -112,7 +113,7 @@ const ScoutManagementTableView = ({
               </Button>
             )}
             
-            {assignment.status === 'completed' && onViewReport && (
+            {assignment.kanbanColumn === 'completed' && onViewReport && (
               <Button
                 variant="outline"
                 size="sm"
@@ -122,7 +123,7 @@ const ScoutManagementTableView = ({
               </Button>
             )}
             
-            {assignment.status === 'completed' && onMarkAsReviewed && (
+            {assignment.kanbanColumn === 'completed' && onMarkAsReviewed && (
               <Button
                 variant="outline"
                 size="sm"
@@ -140,7 +141,7 @@ const ScoutManagementTableView = ({
   // Apply filters and sorting
   const filteredAndSortedAssignments = useMemo(() => {
     const filtered = allAssignments.filter(assignment => {
-      const matchesStatus = statusFilter === "all" || assignment.status === statusFilter;
+      const matchesStatus = statusFilter === "all" || assignment.kanbanColumn === statusFilter;
       const matchesSearch = searchTerm === "" || 
         assignment.playerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         assignment.club.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -168,8 +169,8 @@ const ScoutManagementTableView = ({
           bValue = b.position.toLowerCase();
           break;
         case "status":
-          aValue = a.status;
-          bValue = b.status;
+          aValue = a.kanbanColumn;
+          bValue = b.kanbanColumn;
           break;
         case "scout":
           aValue = a.assignedTo.toLowerCase();
@@ -219,14 +220,14 @@ const ScoutManagementTableView = ({
       <ArrowDown className="h-4 w-4 ml-1" />;
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (kanbanColumn: string) => {
     const statusConfig = {
       shortlisted: { label: "Marked for Scouting", variant: "secondary" as const },
       assigned: { label: "Assigned", variant: "default" as const },
       completed: { label: "Completed", variant: "default" as const }
     };
     
-    const config = statusConfig[status as keyof typeof statusConfig];
+    const config = statusConfig[kanbanColumn as keyof typeof statusConfig];
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
@@ -380,7 +381,7 @@ const ScoutManagementTableView = ({
               
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  {getStatusBadge(assignment.status)}
+                  {getStatusBadge(assignment.kanbanColumn)}
                   {getPriorityBadge(assignment.priority)}
                 </div>
                 
@@ -395,7 +396,7 @@ const ScoutManagementTableView = ({
                 
                 {assignment.lastStatusChange && (
                   <div className="text-muted-foreground text-xs">
-                    {assignment.status === 'completed' && assignment.templateName
+                    {assignment.kanbanColumn === 'completed' && assignment.templateName
                       ? `${assignment.templateName} ${assignment.lastStatusChange.replace(/^Completed/, 'completed')}`
                       : assignment.lastStatusChange}
                   </div>
@@ -409,7 +410,7 @@ const ScoutManagementTableView = ({
               </div>
               
               <div className="flex gap-2 pt-2">
-                {assignment.status === 'shortlisted' && onAssignScout && (
+                {assignment.kanbanColumn === 'shortlisted' && onAssignScout && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -421,7 +422,7 @@ const ScoutManagementTableView = ({
                   </Button>
                 )}
                 
-                {assignment.status === 'completed' && onViewReport && (
+                {assignment.kanbanColumn === 'completed' && onViewReport && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -433,7 +434,7 @@ const ScoutManagementTableView = ({
                   </Button>
                 )}
                 
-                {assignment.status === 'completed' && onMarkAsReviewed && (
+                {assignment.kanbanColumn === 'completed' && onMarkAsReviewed && (
                   <Button
                     variant="outline"
                     size="sm"
