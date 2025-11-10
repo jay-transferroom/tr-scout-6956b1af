@@ -33,7 +33,9 @@ export const useFixturesData = () => {
         throw error;
       }
 
-      return (data || []) as Fixture[];
+      const fixtures = (data || []) as Fixture[];
+      console.debug('Fixtures fetched:', fixtures.length);
+      return fixtures;
     },
   });
 };

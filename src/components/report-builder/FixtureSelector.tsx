@@ -20,13 +20,32 @@ interface FixtureSelectorProps {
 const FixtureSelector = ({ player, selectedFixtureId, onFixtureSelect }: FixtureSelectorProps) => {
   const { data: fixtures, isLoading } = useFixturesData();
 
+  // Normalize team/club names for robust matching
+  const normalizeTeamName = (name?: string) => {
+    if (!name) return "";
+    return name
+      .toLowerCase()
+      .replace(/\./g, "")
+      .replace(/\bf\.?c\.?\b/g, "") // remove FC / F.C.
+      .replace(/football club/g, "")
+      .replace(/[^a-z0-9&\s-]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
+  const clubsMatch = (a?: string, b?: string) => {
+    const na = normalizeTeamName(a);
+    const nb = normalizeTeamName(b);
+    return na === nb || na.includes(nb) || nb.includes(na);
+  };
+
   const playerFixtures = useMemo(() => {
     if (!fixtures || !player.club) return [];
     
-    // Filter fixtures where the player's club is either home or away team
+    // Filter fixtures where the player's club is either home or away team (with normalization)
     const filtered = fixtures.filter(
       (fixture) =>
-        fixture.home_team === player.club || fixture.away_team === player.club
+        clubsMatch(fixture.home_team, player.club) || clubsMatch(fixture.away_team, player.club)
     );
 
     // Sort by date (most recent first)
@@ -84,11 +103,17 @@ const FixtureSelector = ({ player, selectedFixtureId, onFixtureSelect }: Fixture
         </SelectTrigger>
         <SelectContent className="bg-background z-50">
           <SelectItem value="none">No match selected</SelectItem>
-          {playerFixtures.map((fixture) => (
-            <SelectItem key={getFixtureId(fixture)} value={getFixtureId(fixture)}>
-              {formatFixture(fixture)}
+          {playerFixtures.length === 0 ? (
+            <SelectItem value="no-fixtures" disabled>
+              No fixtures found for {player.club}
             </SelectItem>
-          ))}
+          ) : (
+            playerFixtures.map((fixture) => (
+              <SelectItem key={getFixtureId(fixture)} value={getFixtureId(fixture)}>
+                {formatFixture(fixture)}
+              </SelectItem>
+            ))
+          )}
         </SelectContent>
       </Select>
     </div>
