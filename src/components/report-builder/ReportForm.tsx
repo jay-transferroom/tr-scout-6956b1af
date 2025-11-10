@@ -5,6 +5,8 @@ import { Player } from "@/types/player";
 import { ReportTemplate, Report } from "@/types/report";
 import ReportSection from "@/components/ReportSection";
 import TestDataFiller from "./TestDataFiller";
+import FixtureSelector from "./FixtureSelector";
+import { Fixture } from "@/hooks/useFixturesData";
 
 interface ReportFormProps {
   player: Player;
@@ -34,6 +36,36 @@ const ReportForm = ({
   // Separate overall section from other sections
   const overallSection = template.sections.find(section => section.id === "overall");
   const otherSections = template.sections.filter(section => section.id !== "overall");
+
+  const handleFixtureSelect = (fixture: Fixture | null) => {
+    if (!fixture) {
+      onReportUpdate({
+        ...report,
+        matchContext: undefined,
+      });
+      return;
+    }
+
+    onReportUpdate({
+      ...report,
+      matchContext: {
+        date: fixture.match_date_utc,
+        opposition: fixture.home_team === player.club ? fixture.away_team : fixture.home_team,
+        competition: fixture.competition || "Unknown",
+        minutesPlayed: 0,
+      },
+    });
+  };
+
+  const getSelectedFixtureId = () => {
+    if (!report.matchContext?.date || !report.matchContext?.opposition) return undefined;
+    
+    // Reconstruct the fixture ID from matchContext
+    const isHome = report.matchContext.opposition !== player.club;
+    const homeTeam = isHome ? player.club : report.matchContext.opposition;
+    const awayTeam = isHome ? report.matchContext.opposition : player.club;
+    return `${homeTeam}-${awayTeam}-${report.matchContext.date}`;
+  };
 
   return (
     <div className="container mx-auto py-8 max-w-5xl">
@@ -109,6 +141,14 @@ const ReportForm = ({
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="bg-card p-4 rounded-md mb-6 border">
+        <FixtureSelector
+          player={player}
+          selectedFixtureId={getSelectedFixtureId()}
+          onFixtureSelect={handleFixtureSelect}
+        />
       </div>
 
       <div className="space-y-6">
