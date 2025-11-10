@@ -98,6 +98,9 @@ export const transformToAssignmentBased = (
     completed: [] as any[]
   };
 
+  // Track which player-scout combinations we've already processed
+  const processedPlayerScoutPairs = new Set<string>();
+
   // Process each assignment as a separate row
   assignments.forEach(assignment => {
     // Apply scout filter
@@ -167,10 +170,74 @@ export const transformToAssignmentBased = (
     status: statusInfo.status,
     playerId: assignment.player_id,
     assignmentId: assignment.id,
-    templateName
+    templateName,
+    matchContext: scoutReport?.matchContext
   };
 
+  // Track this player-scout pair
+  processedPlayerScoutPairs.add(`${assignment.player_id}-${assignment.assigned_to_scout_id}`);
+
   kanbanData[kanbanStatus].push(assignmentData);
+  });
+
+  // Add completed reports that don't have formal assignments
+  const submittedReports = reports.filter(r => r.status === 'submitted');
+  submittedReports.forEach(report => {
+    const pairKey = `${report.playerId}-${report.scoutId}`;
+    
+    // Skip if already processed via assignment
+    if (processedPlayerScoutPairs.has(pairKey)) {
+      return;
+    }
+
+    // Apply scout filter
+    if (selectedScout !== "all" && report.scoutId !== selectedScout) {
+      return;
+    }
+
+    // Find player data
+    const playerData = allPlayers.find(p => {
+      const playerIdStr = p.isPrivatePlayer ? p.id : p.id.toString();
+      return playerIdStr === String(report.playerId);
+    });
+
+    if (!playerData) return;
+
+    const playerName = playerData.name || 'Unknown Player';
+    const club = playerData.club || 'Unknown Club';
+
+    // Apply search filter
+    if (searchTerm && !playerName.toLowerCase().includes(searchTerm.toLowerCase()) && 
+        !club.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return;
+    }
+
+    const scoutName = report.scoutProfile 
+      ? `${report.scoutProfile.first_name || ''} ${report.scoutProfile.last_name || ''}`.trim() || report.scoutProfile.email
+      : 'Unknown Scout';
+
+    const completedData = {
+      id: `report-${report.id}`,
+      playerName,
+      club,
+      position: playerData.positions?.[0] || 'Unknown',
+      rating: playerData.transferroomRating?.toFixed(1) || 'N/A',
+      assignedTo: scoutName,
+      updatedAt: getUpdatedTime('completed'),
+      lastStatusChange: getLastStatusChange('completed', report.updatedAt?.toISOString() || new Date().toISOString()),
+      avatar: playerData.image || `https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=48&h=48&fit=crop&crop=face&auto=format`,
+      priority: null,
+      deadline: null,
+      scoutId: report.scoutId,
+      status: 'completed',
+      playerId: report.playerId,
+      assignmentId: null,
+      templateName: report.templateName,
+      matchContext: report.matchContext
+    };
+
+    processedPlayerScoutPairs.add(pairKey);
+    kanbanData.completed.push(completedData);
   });
 
   // Add players marked for scouting (but not assigned) to shortlisted column
