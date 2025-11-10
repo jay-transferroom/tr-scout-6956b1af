@@ -218,6 +218,38 @@ const ReportView = () => {
         </div>
       </div>
 
+      {/* Match Context */}
+      {report.matchContext && (
+        <Card className="mb-3 sm:mb-6 border-l-4 border-l-blue-500">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+              <h3 className="text-sm sm:text-base font-semibold">Match Context</h3>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm">
+              <div>
+                <span className="text-muted-foreground">Opposition:</span>
+                <p className="font-medium">{report.matchContext.opposition}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Competition:</span>
+                <p className="font-medium">{report.matchContext.competition}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Date:</span>
+                <p className="font-medium">{formatReportDate(new Date(report.matchContext.date))}</p>
+              </div>
+              {report.matchContext.minutesPlayed > 0 && (
+                <div>
+                  <span className="text-muted-foreground">Minutes:</span>
+                  <p className="font-medium">{report.matchContext.minutesPlayed}'</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* AI Summary Component */}
       <ReportSummary report={report} template={template} />
 

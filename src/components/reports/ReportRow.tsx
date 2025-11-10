@@ -91,6 +91,16 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
         </div>
       </TableCell>
       <TableCell>
+        {report.matchContext ? (
+          <div className="text-sm text-grey-700">
+            <div className="font-medium">{report.matchContext.opposition}</div>
+            <div className="text-xs text-grey-500">{report.matchContext.competition}</div>
+          </div>
+        ) : (
+          <span className="text-grey-400 text-sm">-</span>
+        )}
+      </TableCell>
+      <TableCell>
         <div className="text-sm text-grey-600">
           {formatDate(report.createdAt)}
         </div>

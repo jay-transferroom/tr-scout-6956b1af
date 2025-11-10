@@ -102,6 +102,14 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
                 : player.lastStatusChange}
             </span>
           </div>
+
+          {player.matchContext && (
+            <div className="text-xs pt-1 border-t border-muted">
+              <span className="text-muted-foreground">Match: </span>
+              <span className="font-medium">{player.matchContext.opposition}</span>
+              <span className="text-muted-foreground"> • {player.matchContext.competition}</span>
+            </div>
+          )}
         </div>
 
         {/* Actions */}
