@@ -279,6 +279,12 @@ const ScoutManagementTableView = ({
                       : assignment.lastStatusChange}
                   </div>
                 )}
+                
+                {assignment.matchContext && (
+                  <div className="text-muted-foreground text-xs">
+                    Match: vs {assignment.matchContext.opposition} • {assignment.matchContext.competition}
+                  </div>
+                )}
               </div>
               
               <div className="flex gap-2 pt-2">
