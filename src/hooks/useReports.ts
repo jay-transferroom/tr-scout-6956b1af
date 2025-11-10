@@ -228,6 +228,22 @@ export const useReports = () => {
 
       if (error) throw error;
 
+      // If report is submitted, mark the assignment as completed
+      if (reportData.status === 'submitted') {
+        const { error: assignmentError } = await supabase
+          .from('scouting_assignments')
+          .update({ 
+            status: 'completed',
+            updated_at: new Date().toISOString()
+          })
+          .eq('player_id', reportData.playerId)
+          .eq('assigned_to_scout_id', user.id);
+
+        if (assignmentError) {
+          console.error('Error updating assignment status:', assignmentError);
+        }
+      }
+
       await fetchReports(); // Refresh the list
       return data;
     } catch (error) {

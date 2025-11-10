@@ -26,7 +26,8 @@ export const determineAssignmentStatus = ({
   // Check if this specific scout has submitted a report for this player
   const scoutReport = reports.find(report =>
     String(report.playerId) === String(playerId) &&
-    String(report.scoutId) === String(assignment.assigned_to_scout_id)
+    String(report.scoutId) === String(assignment.assigned_to_scout_id) &&
+    report.status === 'submitted' // Only count submitted reports, not drafts
   );
   
   const scoutName = assignment.assigned_to_scout ? 
@@ -134,7 +135,8 @@ export const transformToAssignmentBased = (
   // Find the report for this assignment if completed
   const scoutReport = reports.find(report =>
       String(report.playerId) === String(assignment.player_id) &&
-      String(report.scoutId) === String(assignment.assigned_to_scout_id)
+      String(report.scoutId) === String(assignment.assigned_to_scout_id) &&
+      report.status === 'submitted' // Only count submitted reports
     );
 
   const templateName = scoutReport?.templateName || null;
