@@ -46,11 +46,24 @@ const ReportForm = ({
       return;
     }
 
+    const buildFixtureId = (f: Fixture) => `${f.home_team}-${f.away_team}-${f.match_date_utc}`;
+    const normalize = (name: string) => name
+      .toLowerCase()
+      .replace(/\./g, "")
+      .replace(/\bf\.?c\.?\b/g, "")
+      .replace(/football club/g, "")
+      .replace(/[^a-z0-9&\s-]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const isHome = normalize(fixture.home_team) === normalize(player.club);
+
     onReportUpdate({
       ...report,
       matchContext: {
+        fixtureId: buildFixtureId(fixture),
         date: fixture.match_date_utc,
-        opposition: fixture.home_team === player.club ? fixture.away_team : fixture.home_team,
+        opposition: isHome ? fixture.away_team : fixture.home_team,
         competition: fixture.competition || "Unknown",
         minutesPlayed: 0,
       },
@@ -58,13 +71,12 @@ const ReportForm = ({
   };
 
   const getSelectedFixtureId = () => {
-    if (!report.matchContext?.date || !report.matchContext?.opposition) return undefined;
-    
-    // Reconstruct the fixture ID from matchContext
-    const isHome = report.matchContext.opposition !== player.club;
-    const homeTeam = isHome ? player.club : report.matchContext.opposition;
-    const awayTeam = isHome ? report.matchContext.opposition : player.club;
-    return `${homeTeam}-${awayTeam}-${report.matchContext.date}`;
+    const ctx: any = report.matchContext;
+    if (!ctx) return undefined;
+    if (ctx.fixtureId) return ctx.fixtureId as string;
+    if (!ctx.date || !ctx.opposition) return undefined;
+    // Fallback (legacy): assume player club was home
+    return `${player.club}-${ctx.opposition}-${ctx.date}`;
   };
 
   return (

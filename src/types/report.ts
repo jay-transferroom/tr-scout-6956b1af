@@ -52,6 +52,7 @@ export interface Report {
   status: 'draft' | 'submitted' | 'reviewed';
   sections: ReportSectionData[];
   matchContext?: {
+    fixtureId?: string;
     date: string;
     opposition: string;
     competition: string;
