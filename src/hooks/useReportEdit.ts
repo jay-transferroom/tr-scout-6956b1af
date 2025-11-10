@@ -42,7 +42,7 @@ export const useReportEdit = () => {
 
       await saveReport(reportData);
       toast.success("Report saved successfully");
-      navigate(`/reports/${report.id}`);
+      navigate(`/report/${report.id}`);
     } catch (error) {
       console.error('Error saving report:', error);
       toast.error("Failed to save report");
