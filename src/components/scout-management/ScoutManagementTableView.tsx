@@ -140,8 +140,25 @@ const ScoutManagementTableView = ({
 
   // Apply filters and sorting
   const filteredAndSortedAssignments = useMemo(() => {
+    console.log('All assignments:', allAssignments.map(a => ({ 
+      player: a.playerName, 
+      kanbanColumn: a.kanbanColumn,
+      status: a.status 
+    })));
+    console.log('Status filter:', statusFilter);
+    
     const filtered = allAssignments.filter(assignment => {
       const matchesStatus = statusFilter === "all" || assignment.kanbanColumn === statusFilter;
+      
+      if (statusFilter === "completed") {
+        console.log('Checking assignment:', {
+          player: assignment.playerName,
+          kanbanColumn: assignment.kanbanColumn,
+          status: assignment.status,
+          matchesStatus
+        });
+      }
+      
       const matchesSearch = searchTerm === "" || 
         assignment.playerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         assignment.club.toLowerCase().includes(searchTerm.toLowerCase()) ||
