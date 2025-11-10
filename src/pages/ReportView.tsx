@@ -187,28 +187,31 @@ const ReportView = () => {
   const canEdit = report.scoutId === user?.id;
 
   return (
-    <div className="container mx-auto py-6 max-w-5xl">
+    <div className="container mx-auto py-3 sm:py-6 max-w-5xl px-3 sm:px-4">
       {/* Header Actions */}
-      <div className="flex justify-between items-center mb-6">
-        <Button variant="ghost" onClick={() => navigate("/reports")} className="gap-2 hover:bg-gray-100">
-          <ArrowLeft size={16} />
-          Back to Reports
+      <div className="flex justify-between items-center mb-3 sm:mb-6 gap-2">
+        <Button variant="ghost" onClick={() => navigate("/reports")} className="gap-1 sm:gap-2 hover:bg-gray-100 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10">
+          <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden xs:inline">Back to Reports</span>
+          <span className="xs:hidden">Back</span>
         </Button>
         
-        <div className="flex gap-2">
+        <div className="flex gap-1 sm:gap-2">
           {canEdit && (
-            <Button onClick={() => navigate(`/report/${report.id}/edit`)} className="gap-2">
-              <Edit size={16} />
-              Edit Report
+            <Button onClick={() => navigate(`/report/${report.id}/edit`)} className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10">
+              <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Edit Report</span>
+              <span className="sm:hidden">Edit</span>
             </Button>
           )}
-          <Button variant="outline" className="gap-2">
-            <Download size={16} />
-            Export PDF
+          <Button variant="outline" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10">
+            <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Export PDF</span>
+            <span className="sm:hidden">Export</span>
           </Button>
           {report.flaggedForReview && (
-            <Button variant="outline" className="gap-2 text-orange-600 border-orange-200 bg-orange-50">
-              <Flag size={16} />
+            <Button variant="outline" className="gap-1 sm:gap-2 text-orange-600 border-orange-200 bg-orange-50 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10 hidden md:flex">
+              <Flag className="h-3 w-3 sm:h-4 sm:w-4" />
               Flagged for Review
             </Button>
           )}
@@ -219,7 +222,7 @@ const ReportView = () => {
       <ReportSummary report={report} template={template} />
 
       {/* Enhanced Player Header */}
-      <Card className="mb-6 overflow-hidden">
+      <Card className="mb-3 sm:mb-6 overflow-hidden">
         <CardContent className="p-0">
           <Link 
             to={report.player.isPrivatePlayer 
@@ -228,42 +231,42 @@ const ReportView = () => {
             }
             className="block hover:bg-gray-50 transition-colors"
           >
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 hover:from-blue-100 hover:to-purple-100 transition-all cursor-pointer">
-              <div className="flex items-start gap-6">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 sm:p-6 hover:from-blue-100 hover:to-purple-100 transition-all cursor-pointer">
+              <div className="flex items-start gap-3 sm:gap-6">
                 {report.player.image ? (
                   <img 
                     src={report.player.image} 
                     alt={report.player.name} 
-                    className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg" 
+                    className="w-12 h-12 sm:w-20 sm:h-20 rounded-full object-cover border-2 sm:border-4 border-white shadow-lg" 
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border-4 border-white shadow-lg">
-                    <span className="text-2xl font-bold text-white">
+                  <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border-2 sm:border-4 border-white shadow-lg">
+                    <span className="text-base sm:text-2xl font-bold text-white">
                       {report.player.name.charAt(0)}
                     </span>
                   </div>
                 )}
                 
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2 hover:text-blue-700 transition-colors">{report.player.name}</h1>
-                  <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
+                  <h1 className="text-xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2 hover:text-blue-700 transition-colors">{report.player.name}</h1>
+                  <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
                     <div className="flex items-center gap-1">
-                      <User className="h-4 w-4" />
+                      <User className="h-3 w-3 sm:h-4 sm:w-4" />
                       <span className="font-medium">{report.player.club}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
+                      <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
                       <span>{report.player.positions.join(", ")}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
+                      <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                       <span>{report.player.age} years old</span>
                     </div>
                   </div>
                   
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1 sm:gap-2">
                     {report.player.positions.map((position) => (
-                      <Badge key={position} variant="secondary" className="bg-blue-100 text-blue-800">
+                      <Badge key={position} variant="secondary" className="bg-blue-100 text-blue-800 text-xs px-2 py-0">
                         {position}
                       </Badge>
                     ))}
@@ -276,14 +279,15 @@ const ReportView = () => {
                       report.status === 'submitted' ? 'default' : 
                       report.status === 'draft' ? 'secondary' : 'outline'
                     }
-                    className="mb-2"
+                    className="mb-1 sm:mb-2 text-xs"
                   >
                     {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
                   </Badge>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-xs sm:text-sm text-gray-600">
                     <div className="flex items-center gap-1 mb-1">
-                      <Clock className="h-3 w-3" />
-                      <span>{formatReportDate(report.createdAt)}</span>
+                      <Clock className="h-2 w-2 sm:h-3 sm:w-3" />
+                      <span className="hidden sm:inline">{formatReportDate(report.createdAt)}</span>
+                      <span className="sm:hidden text-[10px]">{formatReportDate(report.createdAt).split(',')[0]}</span>
                     </div>
                   </div>
                 </div>
@@ -294,18 +298,18 @@ const ReportView = () => {
       </Card>
 
       {/* Report Metadata */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
+      <Card className="mb-3 sm:mb-6">
+        <CardHeader className="p-3 sm:p-6">
+          <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+            <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
             Report Details
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <CardContent className="p-3 sm:p-6 pt-0">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6">
             <div>
-              <p className="text-sm text-gray-500 mb-1">Scout</p>
-              <p className="font-medium">
+              <p className="text-xs sm:text-sm text-gray-500 mb-1">Scout</p>
+              <p className="text-sm sm:text-base font-medium truncate">
                 {report.scoutProfile 
                   ? `${report.scoutProfile.first_name} ${report.scoutProfile.last_name}`
                   : 'Unknown Scout'
@@ -313,28 +317,28 @@ const ReportView = () => {
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-500 mb-1">Template</p>
-              <p className="font-medium">{template?.name || 'Unknown Template'}</p>
+              <p className="text-xs sm:text-sm text-gray-500 mb-1">Template</p>
+              <p className="text-sm sm:text-base font-medium truncate">{template?.name || 'Unknown Template'}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500 mb-1">Created</p>
-              <p className="font-medium">{formatReportTime(report.createdAt)}</p>
+              <p className="text-xs sm:text-sm text-gray-500 mb-1">Created</p>
+              <p className="text-sm sm:text-base font-medium">{formatReportTime(report.createdAt)}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500 mb-1">Last Updated</p>
-              <p className="font-medium">{formatReportTime(report.updatedAt)}</p>
+              <p className="text-xs sm:text-sm text-gray-500 mb-1">Last Updated</p>
+              <p className="text-sm sm:text-base font-medium">{formatReportTime(report.updatedAt)}</p>
             </div>
           </div>
 
           {report.matchContext && (
             <>
-              <Separator className="my-4" />
+              <Separator className="my-3 sm:my-4" />
               <div>
-                <h4 className="font-medium mb-3 flex items-center gap-2">
-                  <Calendar size={16} />
+                <h4 className="text-sm sm:text-base font-medium mb-2 sm:mb-3 flex items-center gap-2">
+                  <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                   Match Context
                 </h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-gray-50 p-4 rounded-lg">
+                <div className="grid grid-cols-2 gap-2 sm:gap-4 bg-gray-50 p-2 sm:p-4 rounded-lg text-xs sm:text-sm">
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Date</p>
                     <p className="font-medium">{report.matchContext.date}</p>
@@ -381,31 +385,31 @@ const ReportView = () => {
       </Card>
 
       {/* Report Sections */}
-      <div className="space-y-6">
+      <div className="space-y-3 sm:space-y-6">
         {reportData.map((section, index) => (
           <Card key={section.sectionId} className="overflow-hidden">
-            <CardHeader className="bg-gray-50 border-b">
-              <CardTitle className="text-xl text-gray-900">{section.title}</CardTitle>
+            <CardHeader className="bg-gray-50 border-b p-3 sm:p-6">
+              <CardTitle className="text-base sm:text-xl text-gray-900">{section.title}</CardTitle>
             </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-6">
+            <CardContent className="p-3 sm:p-6">
+              <div className="space-y-3 sm:space-y-6">
                 {section.fields.map((field, fieldIndex) => (
-                  <div key={field.fieldId} className={fieldIndex < section.fields.length - 1 ? "pb-4 border-b border-gray-100" : ""}>
-                    <h4 className="font-semibold text-gray-900 mb-2">{field.label}</h4>
+                  <div key={field.fieldId} className={fieldIndex < section.fields.length - 1 ? "pb-3 sm:pb-4 border-b border-gray-100" : ""}>
+                    <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-2">{field.label}</h4>
                     {field.value !== null && field.value !== undefined && field.value !== "" ? (
                       <div className="space-y-2">
-                        <div className="bg-gray-50 p-3 rounded-lg">
-                          <p className="text-gray-800">{field.displayValue}</p>
+                        <div className="bg-gray-50 p-2 sm:p-3 rounded-lg">
+                          <p className="text-sm sm:text-base text-gray-800">{field.displayValue}</p>
                         </div>
                         {field.notes && (
-                          <div className="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-200">
-                            <p className="text-sm text-blue-800 font-medium mb-1">Scout Notes:</p>
-                            <p className="text-blue-700 text-sm italic">{field.notes}</p>
+                          <div className="bg-blue-50 p-2 sm:p-3 rounded-lg border-l-2 sm:border-l-4 border-blue-200">
+                            <p className="text-xs sm:text-sm text-blue-800 font-medium mb-1">Scout Notes:</p>
+                            <p className="text-blue-700 text-xs sm:text-sm italic">{field.notes}</p>
                           </div>
                         )}
                       </div>
                     ) : (
-                      <p className="text-gray-400 italic bg-gray-50 p-3 rounded-lg">No data recorded for this field</p>
+                      <p className="text-xs sm:text-sm text-gray-400 italic bg-gray-50 p-2 sm:p-3 rounded-lg">No data recorded for this field</p>
                     )}
                   </div>
                 ))}
