@@ -678,6 +678,7 @@ export type Database = {
           id: string
           last_name: string | null
           role: string
+          scouting_enabled: boolean
           updated_at: string
         }
         Insert: {
@@ -688,6 +689,7 @@ export type Database = {
           id: string
           last_name?: string | null
           role?: string
+          scouting_enabled?: boolean
           updated_at?: string
         }
         Update: {
@@ -698,6 +700,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           role?: string
+          scouting_enabled?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -750,6 +753,7 @@ export type Database = {
           tags: string[] | null
           template_id: string
           updated_at: string
+          watch_method: string | null
         }
         Insert: {
           ai_summary?: string | null
@@ -765,6 +769,7 @@ export type Database = {
           tags?: string[] | null
           template_id: string
           updated_at?: string
+          watch_method?: string | null
         }
         Update: {
           ai_summary?: string | null
@@ -780,6 +785,7 @@ export type Database = {
           tags?: string[] | null
           template_id?: string
           updated_at?: string
+          watch_method?: string | null
         }
         Relationships: [
           {
@@ -892,6 +898,7 @@ export type Database = {
       }
       shortlists: {
         Row: {
+          club_id: string | null
           color: string
           created_at: string
           description: string | null
@@ -903,6 +910,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          club_id?: string | null
           color?: string
           created_at?: string
           description?: string | null
@@ -914,6 +922,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          club_id?: string | null
           color?: string
           created_at?: string
           description?: string | null
@@ -924,7 +933,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "shortlists_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       "squad_average_starter-rating": {
         Row: {
