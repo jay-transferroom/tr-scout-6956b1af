@@ -99,6 +99,11 @@ const ScoutManagementTableView = ({
                 vs {assignment.matchContext.opposition} • {assignment.matchContext.competition}
               </div>
             )}
+            {assignment.watchMethod && (
+              <div className="text-muted-foreground mt-1">
+                <Badge variant="outline" className="text-xs">{assignment.watchMethod}</Badge>
+              </div>
+            )}
           </div>
         </td>
         <td className="p-4">

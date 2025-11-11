@@ -7,6 +7,7 @@ import ReportSection from "@/components/ReportSection";
 import TestDataFiller from "./TestDataFiller";
 import FixtureSelector from "./FixtureSelector";
 import { Fixture } from "@/hooks/useFixturesData";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ReportFormProps {
   player: Player;
@@ -156,11 +157,32 @@ const ReportForm = ({
       </div>
 
       <div className="bg-card p-4 rounded-md mb-6 border">
-        <FixtureSelector
-          player={player}
-          selectedFixtureId={getSelectedFixtureId()}
-          onFixtureSelect={handleFixtureSelect}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Match (Optional)</label>
+            <FixtureSelector
+              player={player}
+              selectedFixtureId={getSelectedFixtureId()}
+              onFixtureSelect={handleFixtureSelect}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-2 block">Watch Method (Optional)</label>
+            <Select
+              value={report.watchMethod || ""}
+              onValueChange={(value) => onReportUpdate({ ...report, watchMethod: value as 'Live' | 'Video' | 'Data' })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select watch method" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Live">Live</SelectItem>
+                <SelectItem value="Video">Video</SelectItem>
+                <SelectItem value="Data">Data</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-6">

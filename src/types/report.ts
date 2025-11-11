@@ -60,6 +60,7 @@ export interface Report {
     conditions?: string;
     roleContext?: string;
   };
+  watchMethod?: 'Live' | 'Video' | 'Data';
   tags?: string[];
   flaggedForReview?: boolean;
   requirementProfile?: RequirementProfile;

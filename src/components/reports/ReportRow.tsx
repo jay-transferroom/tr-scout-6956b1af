@@ -101,6 +101,15 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
         )}
       </TableCell>
       <TableCell>
+        {report.watchMethod ? (
+          <Badge variant="outline" className="text-xs">
+            {report.watchMethod}
+          </Badge>
+        ) : (
+          <span className="text-grey-400 text-sm">-</span>
+        )}
+      </TableCell>
+      <TableCell>
         <div className="text-sm text-grey-600">
           {formatDate(report.createdAt)}
         </div>

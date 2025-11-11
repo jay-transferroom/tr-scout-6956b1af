@@ -355,6 +355,12 @@ const ReportView = () => {
                     <p className="text-sm text-gray-500 mb-1">Minutes Played</p>
                     <p className="font-medium">{report.matchContext.minutesPlayed}'</p>
                   </div>
+                  {report.watchMethod && (
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Watch Method</p>
+                      <p className="font-medium">{report.watchMethod}</p>
+                    </div>
+                  )}
                 </div>
                 {report.matchContext.conditions && (
                   <div className="mt-3">

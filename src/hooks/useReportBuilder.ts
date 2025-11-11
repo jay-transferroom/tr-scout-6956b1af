@@ -69,6 +69,7 @@ export const useReportBuilder = () => {
         status,
         sections: report.sections,
         matchContext: report.matchContext, // Include match context
+        watchMethod: report.watchMethod, // Include watch method
       };
 
       console.log('Saving report with data:', reportData);

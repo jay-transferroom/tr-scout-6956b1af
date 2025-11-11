@@ -35,6 +35,7 @@ export const useReportEdit = () => {
         templateId: report.templateId,
         sections: report.sections,
         matchContext: report.matchContext,
+        watchMethod: report.watchMethod,
         tags: report.tags,
         flaggedForReview: report.flaggedForReview,
         status: report.status

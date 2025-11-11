@@ -10,6 +10,7 @@ const ReportsTableHeader = () => {
         <TableHead className="text-sm">Club</TableHead>
         <TableHead className="text-sm">Positions</TableHead>
         <TableHead className="text-sm">Match</TableHead>
+        <TableHead className="text-sm">Watch Method</TableHead>
         <TableHead className="text-sm">Report Date</TableHead>
         <TableHead className="w-[100px] text-sm">Status</TableHead>
         <TableHead className="text-sm">
