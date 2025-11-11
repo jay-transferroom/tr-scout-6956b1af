@@ -8,7 +8,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { Label } from "@/components/ui/label";
 import { Player } from "@/types/player";
 
 interface FixtureSelectorProps {
@@ -80,43 +79,37 @@ const FixtureSelector = ({ player, selectedFixtureId, onFixtureSelect }: Fixture
 
   if (isLoading) {
     return (
-      <div className="space-y-2">
-        <Label>Match</Label>
-        <Select disabled>
-          <SelectTrigger>
-            <SelectValue placeholder="Loading fixtures..." />
-          </SelectTrigger>
-        </Select>
-      </div>
+      <Select disabled>
+        <SelectTrigger>
+          <SelectValue placeholder="Loading fixtures..." />
+        </SelectTrigger>
+      </Select>
     );
   }
 
   return (
-    <div className="space-y-2">
-      <Label>Match</Label>
-      <Select
-        value={selectedFixtureId || "none"}
-        onValueChange={handleValueChange}
-      >
-        <SelectTrigger className="bg-background">
-          <SelectValue placeholder="No match selected" />
-        </SelectTrigger>
-        <SelectContent className="bg-background z-50">
-          <SelectItem value="none">No match selected</SelectItem>
-          {playerFixtures.length === 0 ? (
-            <SelectItem value="no-fixtures" disabled>
-              No fixtures found for {player.club}
+    <Select
+      value={selectedFixtureId || "none"}
+      onValueChange={handleValueChange}
+    >
+      <SelectTrigger className="bg-background">
+        <SelectValue placeholder="No match selected" />
+      </SelectTrigger>
+      <SelectContent className="bg-background z-50">
+        <SelectItem value="none">No match selected</SelectItem>
+        {playerFixtures.length === 0 ? (
+          <SelectItem value="no-fixtures" disabled>
+            No fixtures found for {player.club}
+          </SelectItem>
+        ) : (
+          playerFixtures.map((fixture) => (
+            <SelectItem key={getFixtureId(fixture)} value={getFixtureId(fixture)}>
+              {formatFixture(fixture)}
             </SelectItem>
-          ) : (
-            playerFixtures.map((fixture) => (
-              <SelectItem key={getFixtureId(fixture)} value={getFixtureId(fixture)}>
-                {formatFixture(fixture)}
-              </SelectItem>
-            ))
-          )}
-        </SelectContent>
-      </Select>
-    </div>
+          ))
+        )}
+      </SelectContent>
+    </Select>
   );
 };
 
