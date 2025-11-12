@@ -137,6 +137,23 @@ export const PlayerReports = ({
                           )}
                         </div>
                         
+                        {/* Match Context and Watch Method */}
+                        {(report.matchContext || report.watchMethod) && (
+                          <div className="flex items-center gap-2 mb-2">
+                            {report.matchContext && (
+                              <div className="text-sm text-muted-foreground">
+                                <span className="font-medium">{report.matchContext.opposition}</span>
+                                <span className="text-xs ml-1">({report.matchContext.competition})</span>
+                              </div>
+                            )}
+                            {report.watchMethod && (
+                              <Badge variant="outline" className="text-xs">
+                                {report.watchMethod}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                        
                         <div className="flex items-center gap-4">
                           {rating !== null && (
                             <div className="flex items-center gap-2">
