@@ -69,7 +69,7 @@ export const useReports = () => {
             isArray: Array.isArray(report.sections)
           });
 
-          // Parse sections if it's a string
+           // Parse sections if it's a string
           let sections = report.sections;
           if (typeof sections === 'string') {
             try {
@@ -78,6 +78,17 @@ export const useReports = () => {
             } catch (e) {
               console.log(`Failed to parse sections for report ${report.id}:`, e);
               sections = [];
+            }
+          }
+
+          // Parse matchContext if it's a string
+          let matchContext = report.match_context;
+          if (typeof matchContext === 'string') {
+            try {
+              matchContext = JSON.parse(matchContext);
+            } catch (e) {
+              console.log(`Failed to parse matchContext for report ${report.id}:`, e);
+              matchContext = null;
             }
           }
 
@@ -173,7 +184,8 @@ export const useReports = () => {
             updatedAt: new Date(report.updated_at),
             status: report.status as 'draft' | 'submitted' | 'reviewed',
             sections: Array.isArray(sections) ? sections : [],
-            matchContext: report.match_context,
+            matchContext: matchContext,
+            watchMethod: report.watch_method,
             tags: report.tags || [],
             flaggedForReview: report.flagged_for_review || false,
             player: playerData,
@@ -213,6 +225,7 @@ export const useReports = () => {
         status: reportData.status || 'draft',
         sections: JSON.stringify(reportData.sections || []), // Convert to JSON string
         match_context: reportData.matchContext ? JSON.stringify(reportData.matchContext) : null, // Convert to JSON string
+        watch_method: reportData.watchMethod,
         tags: reportData.tags,
         flagged_for_review: reportData.flaggedForReview,
         updated_at: new Date().toISOString(),
