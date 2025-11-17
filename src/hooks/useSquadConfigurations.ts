@@ -14,6 +14,7 @@ export interface SquadConfiguration {
   }>;
   description?: string;
   overall_rating?: number;
+  is_default?: boolean;
   created_by_user_id: string;
   created_at: string;
   updated_at: string;
@@ -102,6 +103,7 @@ export const useUpdateSquadConfiguration = () => {
           squad_type: config.squad_type,
           position_assignments: config.position_assignments,
           description: config.description,
+          is_default: config.is_default,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)

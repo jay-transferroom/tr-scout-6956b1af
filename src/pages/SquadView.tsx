@@ -42,15 +42,17 @@ const SquadView = () => {
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showNewSquadDialog, setShowNewSquadDialog] = useState(false);
-  // Start with empty pitch for Shadow squad by default
+  const [loadedConfiguration, setLoadedConfiguration] = useState<SquadConfiguration | null>(null);
+  const [manualAssignments, setManualAssignments] = useState<Array<{ position: string; player_id: string }>>([]);
+  
+  // Start with blank squad by default (no auto-fill)
   const [disableAutoFill, setDisableAutoFill] = useState(true);
 
   // Keep shadow-squad empty by default; others can auto-fill
   useEffect(() => {
     if (selectedSquad === 'shadow-squad') {
       setDisableAutoFill(true);
-    } else {
-      setDisableAutoFill(false);
+      setManualAssignments([]);
     }
   }, [selectedSquad]);
 
@@ -78,13 +80,13 @@ const SquadView = () => {
     isLoading: isCoachLoading
   } = useHeadCoach(userClub);
 
-  // Get player position assignments
-  const {
-    data: positionAssignments = []
-  } = usePlayerPositionAssignments(userClub, currentFormation, selectedSquad);
-  const {
-    data: allPositionAssignments = []
-  } = useAllPlayerPositionAssignments(userClub, currentFormation);
+  // Get player position assignments - don't use DB assignments on initial load
+  const { data: savedPositionAssignments = [] } = usePlayerPositionAssignments(userClub, currentFormation, selectedSquad);
+  
+  // Use manual assignments if available, otherwise use empty for blank start
+  const positionAssignments = manualAssignments.length > 0 ? manualAssignments : (loadedConfiguration ? savedPositionAssignments : []);
+  
+  const { data: allPositionAssignments = [] } = useAllPlayerPositionAssignments(userClub, currentFormation);
   const updateAssignment = useUpdatePlayerPositionAssignment();
   const clearAllAssignments = useClearAllPositionAssignments();
 
@@ -198,6 +200,9 @@ const SquadView = () => {
       </div>;
   }
   const handleLoadConfiguration = async (config: SquadConfiguration) => {
+    setLoadedConfiguration(config);
+    setManualAssignments(config.position_assignments);
+    setDisableAutoFill(false);
     setSelectedSquad(config.squad_type);
     
     // Update formation if it's different
@@ -211,11 +216,22 @@ const SquadView = () => {
         console.error('Failed to update formation:', error);
       }
     }
-    // Position assignments will be loaded automatically through the positionAssignments query
+    
+    toast({
+      title: "Configuration loaded",
+      description: `${config.name} has been applied`
+    });
   };
 
   const handlePlayerChange = async (position: string, playerId: string) => {
     console.log(`Player change requested: ${position} -> ${playerId}`);
+    
+    // Update manual assignments
+    const newAssignments = manualAssignments.filter(a => a.position !== position);
+    newAssignments.push({ position, player_id: playerId });
+    setManualAssignments(newAssignments);
+    
+    // Also persist to database
     try {
       await updateAssignment.mutateAsync({
         club_name: userClub,
@@ -224,41 +240,21 @@ const SquadView = () => {
         formation: currentFormation,
         squad_type: selectedSquad
       });
-      // Keep shadow-squad manual-only; re-enable auto-fill for other squads
-      if (selectedSquad !== 'shadow-squad') {
-        setDisableAutoFill(false);
-      }
     } catch (error) {
       console.error('Failed to update player assignment:', error);
     }
   };
 
   const handleStartNewSquad = async (name: string, description: string) => {
-    try {
-      console.log('Starting new squad:', { name, description, userClub, currentFormation, selectedSquad });
-      
-      const result = await clearAllAssignments.mutateAsync({
-        club_name: userClub,
-        formation: currentFormation,
-        squad_type: selectedSquad
-      });
-      
-      console.log('Clear result:', result);
-      // Force empty pitch (no auto-fill) until user assigns players
-      setDisableAutoFill(true);
-      setSelectedPosition(null);
-      toast({
-        title: "New squad started",
-        description: `"${name}" is ready to configure. All positions are now empty.`,
-      });
-    } catch (error) {
-      console.error('Failed to clear squad:', error);
-      toast({
-        title: "Error",
-        description: "Failed to start new squad. Please try again.",
-        variant: "destructive"
-      });
-    }
+    setManualAssignments([]);
+    setLoadedConfiguration(null);
+    setDisableAutoFill(true);
+    setSelectedPosition(null);
+    
+    toast({
+      title: "New squad started",
+      description: `"${name}" is ready to configure. Starting with a blank squad.`,
+    });
   };
   return <>
       <div className="w-full max-w-full overflow-x-hidden">
@@ -531,6 +527,7 @@ const SquadView = () => {
         squadType={selectedSquad}
         positionAssignments={positionAssignments}
         allPlayers={allPlayers}
+        currentConfiguration={loadedConfiguration}
       />
   </>;
 };
