@@ -9,6 +9,7 @@ import { useSquadAverageRatings } from "@/hooks/useSquadAverageRatings";
 
 interface CompactFootballPitchProps {
   players: Player[];
+  allPlayers?: Player[];
   squadType: string;
   formation?: string;
   positionAssignments?: Array<{
@@ -66,6 +67,7 @@ const COMPACT_FORMATION_CONFIGS: Record<string, Record<string, { x: number; y: n
 
 const CompactFootballPitch = ({ 
   players, 
+  allPlayers = [],
   squadType, 
   formation = '4-3-3', 
   positionAssignments = [],
@@ -187,6 +189,11 @@ const CompactFootballPitch = ({
     const assignment = positionAssignments.find(a => a.position === position);
     if (!assignment) return null;
     
+    // First try to find in allPlayers (includes both Chelsea squad and recommendations)
+    const playerFromAll = allPlayers.find(p => p.id === assignment.player_id);
+    if (playerFromAll) return playerFromAll;
+    
+    // Fallback to squad players only
     return players.find(p => p.id === assignment.player_id) || null;
   };
 
