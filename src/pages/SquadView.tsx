@@ -29,8 +29,10 @@ import { Separator } from "@/components/ui/separator";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
 import SavedSquadConfigurations from "@/components/SavedSquadConfigurations";
 import SaveSquadConfigurationDialog from "@/components/SaveSquadConfigurationDialog";
+import NewSquadDialog from "@/components/NewSquadDialog";
 import { SquadConfiguration } from "@/hooks/useSquadConfigurations";
 import { Save } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 const SquadView = () => {
   const navigate = useNavigate();
   const {
@@ -39,6 +41,7 @@ const SquadView = () => {
   const [selectedSquad, setSelectedSquad] = useState<string>('first-team');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showNewSquadDialog, setShowNewSquadDialog] = useState(false);
 
   // Fetch real players data - MUST be called before any conditional returns
   const {
@@ -215,12 +218,17 @@ const SquadView = () => {
     }
   };
 
-  const handleStartNewSquad = async () => {
+  const handleStartNewSquad = async (name: string, description: string) => {
     try {
       await clearAllAssignments.mutateAsync({
         club_name: userClub,
         formation: currentFormation,
         squad_type: selectedSquad
+      });
+      
+      toast({
+        title: "Squad cleared",
+        description: `You can now configure "${name}" from scratch. Remember to save when done.`,
       });
     } catch (error) {
       console.error('Failed to clear squad:', error);
@@ -451,7 +459,7 @@ const SquadView = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Shadow Squad</h2>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleStartNewSquad}>
+              <Button variant="outline" onClick={() => setShowNewSquadDialog(true)}>
                 Start a new squad
               </Button>
               <Button onClick={() => setShowSaveDialog(true)}>
@@ -480,6 +488,13 @@ const SquadView = () => {
           <SquadComparisonChart clubName={userClub} />
         </div>
       </div>
+
+      {/* New Squad Dialog */}
+      <NewSquadDialog
+        open={showNewSquadDialog}
+        onOpenChange={setShowNewSquadDialog}
+        onConfirm={handleStartNewSquad}
+      />
 
       {/* Save Squad Configuration Dialog */}
       <SaveSquadConfigurationDialog
