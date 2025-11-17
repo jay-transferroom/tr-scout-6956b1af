@@ -107,6 +107,49 @@ export const useUpdatePlayerPositionAssignment = () => {
   });
 };
 
+export const useClearAllPositionAssignments = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
+  return useMutation({
+    mutationFn: async (params: {
+      club_name: string;
+      formation: string;
+      squad_type: string;
+    }) => {
+      const { error } = await supabase
+        .from('player_position_assignments')
+        .delete()
+        .eq('club_name', params.club_name)
+        .eq('formation', params.formation)
+        .eq('squad_type', params.squad_type);
+      
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ 
+        queryKey: ['player-position-assignments', variables.club_name, variables.formation, variables.squad_type] 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['all-player-position-assignments', variables.club_name, variables.formation] 
+      });
+      
+      toast({
+        title: "Squad Cleared",
+        description: "All player assignments have been cleared. You can now start a fresh squad configuration.",
+      });
+    },
+    onError: (error) => {
+      console.error('Clear assignments error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to clear squad. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+};
+
 export const useRemovePlayerPositionAssignment = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
