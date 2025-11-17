@@ -432,7 +432,24 @@ const SquadView = () => {
       </div>
 
 
-      {/* Enhanced Football Pitch Visualization */}
+      {/* Shadow Squad */}
+      <div className="w-full max-w-full overflow-x-hidden">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 pb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Shadow Squad</h2>
+            <Button onClick={() => setShowSaveDialog(true)}>
+              <Save className="h-4 w-4 mr-2" />
+              Save Current Setup
+            </Button>
+          </div>
+          <SavedSquadConfigurations 
+            clubName={userClub}
+            onLoadConfiguration={handleLoadConfiguration}
+          />
+        </div>
+      </div>
+
+      {/* Formation View */}
       <div className="w-full max-w-full overflow-x-hidden">
         <div className="container mx-auto max-w-7xl py-4 sm:py-6 px-4 sm:px-6">
           <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
@@ -443,23 +460,6 @@ const SquadView = () => {
       <div className="w-full max-w-full overflow-x-hidden">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-6">
           <SquadComparisonChart clubName={userClub} />
-        </div>
-      </div>
-
-      {/* Saved Squad Configurations */}
-      <div className="w-full max-w-full overflow-x-hidden">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 pb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Saved Squad Configurations</h2>
-            <Button onClick={() => setShowSaveDialog(true)}>
-              <Save className="h-4 w-4 mr-2" />
-              Save Current Setup
-            </Button>
-          </div>
-          <SavedSquadConfigurations 
-            clubName={userClub}
-            onLoadConfiguration={handleLoadConfiguration}
-          />
         </div>
       </div>
 
