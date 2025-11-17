@@ -45,6 +45,15 @@ const SquadView = () => {
   // Start with empty pitch for Shadow squad by default
   const [disableAutoFill, setDisableAutoFill] = useState(true);
 
+  // Keep shadow-squad empty by default; others can auto-fill
+  useEffect(() => {
+    if (selectedSquad === 'shadow-squad') {
+      setDisableAutoFill(true);
+    } else {
+      setDisableAutoFill(false);
+    }
+  }, [selectedSquad]);
+
   // Fetch real players data - MUST be called before any conditional returns
   const {
     data: allPlayers = [],
@@ -493,7 +502,7 @@ const SquadView = () => {
       {/* Formation View */}
       <div className="w-full max-w-full overflow-x-hidden">
         <div className="container mx-auto max-w-7xl py-4 sm:py-6 px-4 sm:px-6">
-          <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} />
+          <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} disableAutoFill={disableAutoFill} />
         </div>
       </div>
 
