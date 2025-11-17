@@ -359,11 +359,11 @@ const CompactSquadView = ({
             </div>
           </div>
 
-          {/* Desktop: split view */}
-          <div className="hidden lg:flex flex-col lg:flex-row gap-4 w-full px-0">
-            {/* Left Side - Pitch View */}
-            <div className="w-full lg:w-1/2">
-              <div className="space-y-2 lg:sticky lg:top-4">
+          {/* Desktop: Formation View */}
+          <div className="hidden lg:flex w-full px-0">
+            {/* Formation View - Full Width */}
+            <div className="w-full max-w-3xl mx-auto">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <LayoutGrid className="h-5 w-5" />
@@ -386,24 +386,6 @@ const CompactSquadView = ({
                     priorityPositions={recommendations.map(rec => rec.Position)}
                   />
                 </div>
-              </div>
-            </div>
-
-            {/* Right Side - Squad List (Scrollable) */}
-            <div className="w-full lg:w-1/2 lg:overflow-y-auto lg:max-h-[calc(100vh-160px)]">
-              <div className="space-y-2 bg-muted/30 p-4 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <List className="h-5 w-5" />
-                  <h3 className="text-lg font-semibold">Squad List</h3>
-                </div>
-                <SquadListView
-                  players={squadPlayers}
-                  squadType={selectedSquad}
-                  formation={formation}
-                  positionAssignments={positionAssignments}
-                  onPlayerClick={handlePlayerClick}
-                  selectedPlayer={selectedPlayerForDetails}
-                />
               </div>
             </div>
           </div>
