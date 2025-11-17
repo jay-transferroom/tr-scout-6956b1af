@@ -1051,6 +1051,7 @@ export type Database = {
           formation: string
           id: string
           name: string
+          overall_rating: number | null
           position_assignments: Json
           squad_type: string
           updated_at: string
@@ -1063,6 +1064,7 @@ export type Database = {
           formation: string
           id?: string
           name: string
+          overall_rating?: number | null
           position_assignments?: Json
           squad_type?: string
           updated_at?: string
@@ -1075,6 +1077,7 @@ export type Database = {
           formation?: string
           id?: string
           name?: string
+          overall_rating?: number | null
           position_assignments?: Json
           squad_type?: string
           updated_at?: string

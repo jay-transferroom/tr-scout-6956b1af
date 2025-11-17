@@ -13,6 +13,7 @@ export interface SquadConfiguration {
     player_id: string;
   }>;
   description?: string;
+  overall_rating?: number;
   created_by_user_id: string;
   created_at: string;
   updated_at: string;
@@ -47,13 +48,32 @@ export const useSaveSquadConfiguration = () => {
   const { user } = useAuth();
   
   return useMutation({
-    mutationFn: async (config: Omit<SquadConfiguration, 'id' | 'created_at' | 'updated_at' | 'created_by_user_id'>) => {
+    mutationFn: async (config: Omit<SquadConfiguration, 'id' | 'created_at' | 'updated_at' | 'created_by_user_id'> & { allPlayers?: any[] }) => {
       if (!user) throw new Error('User not authenticated');
+      
+      // Calculate overall rating from position assignments
+      let overallRating = null;
+      if (config.allPlayers && config.allPlayers.length > 0) {
+        const playerRatings: number[] = [];
+        for (const assignment of config.position_assignments) {
+          const player = config.allPlayers.find(p => p.id === assignment.player_id);
+          if (player) {
+            const rating = player.transferroomRating || player.xtvScore || 0;
+            if (rating > 0) playerRatings.push(rating);
+          }
+        }
+        if (playerRatings.length > 0) {
+          overallRating = Math.round(playerRatings.reduce((sum, r) => sum + r, 0) / playerRatings.length);
+        }
+      }
+      
+      const { allPlayers: _, ...configWithoutPlayers } = config;
       
       const { data, error } = await supabase
         .from('squad_configurations')
         .insert({
-          ...config,
+          ...configWithoutPlayers,
+          overall_rating: overallRating,
           created_by_user_id: user.id,
           position_assignments: config.position_assignments,
         })

@@ -24,6 +24,7 @@ interface SaveSquadConfigurationDialogProps {
     position: string;
     player_id: string;
   }>;
+  allPlayers?: any[];
 }
 
 const SaveSquadConfigurationDialog = ({
@@ -33,6 +34,7 @@ const SaveSquadConfigurationDialog = ({
   formation,
   squadType,
   positionAssignments,
+  allPlayers = [],
 }: SaveSquadConfigurationDialogProps) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -56,6 +58,7 @@ const SaveSquadConfigurationDialog = ({
         squad_type: squadType,
         position_assignments: positionAssignments,
         description: description.trim() || undefined,
+        allPlayers,
       });
 
       toast({

@@ -148,6 +148,11 @@ const SavedSquadConfigurations = ({
               <Badge variant="outline">
                 {config.position_assignments.length} positions
               </Badge>
+              {config.overall_rating && (
+                <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">
+                  ⭐ {config.overall_rating} Overall
+                </Badge>
+              )}
             </div>
             
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
