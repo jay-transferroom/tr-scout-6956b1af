@@ -206,6 +206,11 @@ const CompactFootballPitch = ({
       return assignedPlayer;
     }
 
+    // When disableAutoFill is enabled, don't auto-pick players for empty positions
+    if (disableAutoFill) {
+      return null;
+    }
+
     // Fallback to automatic assignment logic
     const allowedPositions = getPositionMapping(position);
     
