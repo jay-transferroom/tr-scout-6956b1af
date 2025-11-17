@@ -109,7 +109,6 @@ export const useUpdatePlayerPositionAssignment = () => {
 
 export const useClearAllPositionAssignments = () => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
   
   return useMutation({
     mutationFn: async (params: {
@@ -117,35 +116,38 @@ export const useClearAllPositionAssignments = () => {
       formation: string;
       squad_type: string;
     }) => {
-      const { error } = await supabase
+      console.log('Clearing assignments with params:', params);
+      
+      const { data, error } = await supabase
         .from('player_position_assignments')
         .delete()
         .eq('club_name', params.club_name)
         .eq('formation', params.formation)
-        .eq('squad_type', params.squad_type);
+        .eq('squad_type', params.squad_type)
+        .select();
       
-      if (error) throw error;
+      console.log('Deleted assignments:', data);
+      
+      if (error) {
+        console.error('Delete error:', error);
+        throw error;
+      }
+      
+      return data;
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ 
-        queryKey: ['player-position-assignments', variables.club_name, variables.formation, variables.squad_type] 
-      });
-      queryClient.invalidateQueries({ 
-        queryKey: ['all-player-position-assignments', variables.club_name, variables.formation] 
-      });
+    onSuccess: (data, variables) => {
+      console.log('Clear successful, invalidating queries for:', variables);
       
-      toast({
-        title: "Squad Cleared",
-        description: "All player assignments have been cleared. You can now start a fresh squad configuration.",
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ 
+        queryKey: ['player-position-assignments'] 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['all-player-position-assignments'] 
       });
     },
     onError: (error) => {
       console.error('Clear assignments error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to clear squad. Please try again.",
-        variant: "destructive",
-      });
     }
   });
 };
