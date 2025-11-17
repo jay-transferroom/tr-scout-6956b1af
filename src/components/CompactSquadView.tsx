@@ -377,6 +377,7 @@ const CompactSquadView = ({
                 <div className="aspect-[392/541] w-full mx-auto relative overflow-visible rounded-lg">
                   <CompactFootballPitch
                     players={squadPlayers}
+                    allPlayers={allPlayers}
                     squadType={selectedSquad}
                     formation={formation}
                     positionAssignments={positionAssignments}
