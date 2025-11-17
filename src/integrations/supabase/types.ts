@@ -1042,6 +1042,45 @@ export type Database = {
         }
         Relationships: []
       }
+      squad_configurations: {
+        Row: {
+          club_name: string
+          created_at: string
+          created_by_user_id: string
+          description: string | null
+          formation: string
+          id: string
+          name: string
+          position_assignments: Json
+          squad_type: string
+          updated_at: string
+        }
+        Insert: {
+          club_name: string
+          created_at?: string
+          created_by_user_id: string
+          description?: string | null
+          formation: string
+          id?: string
+          name: string
+          position_assignments?: Json
+          squad_type?: string
+          updated_at?: string
+        }
+        Update: {
+          club_name?: string
+          created_at?: string
+          created_by_user_id?: string
+          description?: string | null
+          formation?: string
+          id?: string
+          name?: string
+          position_assignments?: Json
+          squad_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       squad_league_ratings: {
         Row: {
           AttackerRating: number | null
