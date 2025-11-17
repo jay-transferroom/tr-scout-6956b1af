@@ -20,6 +20,7 @@ interface CompactFootballPitchProps {
   selectedPosition?: string | null;
   onPlayerChange?: (position: string, playerId: string) => void;
   priorityPositions?: string[];
+  disableAutoFill?: boolean;
 }
 
 // Simplified formation configurations for compact view - GK at bottom, attackers at top
@@ -74,7 +75,8 @@ const CompactFootballPitch = ({
   onPositionClick,
   selectedPosition,
   onPlayerChange,
-  priorityPositions = []
+  priorityPositions = [],
+  disableAutoFill = false
 }: CompactFootballPitchProps) => {
   // Get current formation positions
   const currentFormation = COMPACT_FORMATION_CONFIGS[formation] || COMPACT_FORMATION_CONFIGS['4-3-3'];

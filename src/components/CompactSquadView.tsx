@@ -40,6 +40,7 @@ interface CompactSquadViewProps {
   onPositionClick?: (position: string) => void;
   selectedPosition?: string | null;
   onPlayerChange?: (position: string, playerId: string) => void;
+  disableAutoFill?: boolean;
 }
 
 const CompactSquadView = ({ 
@@ -49,7 +50,8 @@ const CompactSquadView = ({
   positionAssignments = [],
   onPositionClick, 
   selectedPosition,
-  onPlayerChange 
+  onPlayerChange,
+  disableAutoFill
 }: CompactSquadViewProps) => {
   const [selectedPlayerForDetails, setSelectedPlayerForDetails] = useState<Player | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -385,6 +387,7 @@ const CompactSquadView = ({
                     selectedPosition={selectedPosition}
                     onPlayerChange={onPlayerChange}
                     priorityPositions={recommendations.map(rec => rec.Position)}
+                    disableAutoFill={disableAutoFill}
                   />
                 </div>
               </div>
