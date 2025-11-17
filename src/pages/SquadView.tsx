@@ -4,7 +4,7 @@ import { ArrowLeft, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlayersData } from "@/hooks/usePlayersData";
-import { usePlayerPositionAssignments, useUpdatePlayerPositionAssignment, useAllPlayerPositionAssignments } from "@/hooks/usePlayerPositionAssignments";
+import { usePlayerPositionAssignments, useUpdatePlayerPositionAssignment, useAllPlayerPositionAssignments, useClearAllPositionAssignments } from "@/hooks/usePlayerPositionAssignments";
 import SquadOverview from "@/components/SquadOverview";
 import SquadRecommendations from "@/components/SquadRecommendations";
 import ProspectComparison from "@/components/ProspectComparison";
@@ -72,6 +72,7 @@ const SquadView = () => {
     data: allPositionAssignments = []
   } = useAllPlayerPositionAssignments(userClub, currentFormation);
   const updateAssignment = useUpdatePlayerPositionAssignment();
+  const clearAllAssignments = useClearAllPositionAssignments();
 
   // Fetch squad recommendations from database
   const { data: dbRecommendations = [] } = useSquadRecommendations();
@@ -211,6 +212,18 @@ const SquadView = () => {
       });
     } catch (error) {
       console.error('Failed to update player assignment:', error);
+    }
+  };
+
+  const handleStartNewSquad = async () => {
+    try {
+      await clearAllAssignments.mutateAsync({
+        club_name: userClub,
+        formation: currentFormation,
+        squad_type: selectedSquad
+      });
+    } catch (error) {
+      console.error('Failed to clear squad:', error);
     }
   };
   return <>
@@ -438,7 +451,7 @@ const SquadView = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Shadow Squad</h2>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowSaveDialog(true)}>
+              <Button variant="outline" onClick={handleStartNewSquad}>
                 Start a new squad
               </Button>
               <Button onClick={() => setShowSaveDialog(true)}>
