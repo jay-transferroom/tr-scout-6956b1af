@@ -187,10 +187,6 @@ const SquadView = () => {
     // Position assignments will be loaded automatically through the positionAssignments query
   };
 
-  const handleLoadConfiguration = (config: SquadConfiguration) => {
-    setSelectedSquad(config.squad_type);
-  };
-
   const handlePlayerChange = async (position: string, playerId: string) => {
     console.log(`Player change requested: ${position} -> ${playerId}`);
     try {
