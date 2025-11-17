@@ -42,6 +42,7 @@ const SquadView = () => {
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showNewSquadDialog, setShowNewSquadDialog] = useState(false);
+  const [disableAutoFill, setDisableAutoFill] = useState(false);
 
   // Fetch real players data - MUST be called before any conditional returns
   const {
@@ -213,6 +214,8 @@ const SquadView = () => {
         formation: currentFormation,
         squad_type: selectedSquad
       });
+      // Once a player is assigned, re-enable auto-fill for remaining positions
+      setDisableAutoFill(false);
     } catch (error) {
       console.error('Failed to update player assignment:', error);
     }
@@ -229,7 +232,9 @@ const SquadView = () => {
       });
       
       console.log('Clear result:', result);
-      
+      // Force empty pitch (no auto-fill) until user assigns players
+      setDisableAutoFill(true);
+      setSelectedPosition(null);
       toast({
         title: "New squad started",
         description: `"${name}" is ready to configure. All positions are now empty.`,
