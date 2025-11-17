@@ -1050,6 +1050,7 @@ export type Database = {
           description: string | null
           formation: string
           id: string
+          is_default: boolean
           name: string
           overall_rating: number | null
           position_assignments: Json
@@ -1063,6 +1064,7 @@ export type Database = {
           description?: string | null
           formation: string
           id?: string
+          is_default?: boolean
           name: string
           overall_rating?: number | null
           position_assignments?: Json
@@ -1076,6 +1078,7 @@ export type Database = {
           description?: string | null
           formation?: string
           id?: string
+          is_default?: boolean
           name?: string
           overall_rating?: number | null
           position_assignments?: Json

@@ -7,17 +7,20 @@ import {
   Trash2, 
   Eye, 
   Calendar,
-  MoreVertical
+  MoreVertical,
+  Star
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { 
   useSquadConfigurations, 
   useDeleteSquadConfiguration,
+  useUpdateSquadConfiguration,
   SquadConfiguration 
 } from "@/hooks/useSquadConfigurations";
 import { toast } from "@/hooks/use-toast";
@@ -35,6 +38,30 @@ const SavedSquadConfigurations = ({
 }: SavedSquadConfigurationsProps) => {
   const { data: configurations = [], isLoading } = useSquadConfigurations(clubName);
   const deleteConfiguration = useDeleteSquadConfiguration();
+  const updateConfiguration = useUpdateSquadConfiguration();
+
+  const handleSetDefault = async (config: SquadConfiguration) => {
+    try {
+      await updateConfiguration.mutateAsync({
+        id: config.id,
+        is_default: !config.is_default,
+        club_name: config.club_name,
+      });
+
+      toast({
+        title: config.is_default ? "Default removed" : "Default set",
+        description: config.is_default 
+          ? `${config.name} is no longer the default configuration`
+          : `${config.name} is now the default configuration`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update default configuration",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleDelete = async (id: string, name: string) => {
     try {
@@ -131,6 +158,11 @@ const SavedSquadConfigurations = ({
                     <Eye className="h-4 w-4 mr-2" />
                     Load Configuration
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSetDefault(config)}>
+                    <Star className={`h-4 w-4 mr-2 ${config.is_default ? 'fill-current' : ''}`} />
+                    {config.is_default ? 'Remove as Default' : 'Set as Default'}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem 
                     onClick={() => handleDelete(config.id, config.name)}
                     className="text-destructive"
