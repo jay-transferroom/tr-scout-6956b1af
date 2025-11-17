@@ -29,8 +29,7 @@ import { Separator } from "@/components/ui/separator";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
 import SavedSquadConfigurations from "@/components/SavedSquadConfigurations";
 import SaveSquadConfigurationDialog from "@/components/SaveSquadConfigurationDialog";
-import NewSquadDialog from "@/components/NewSquadDialog";
-import { SquadConfiguration } from "@/hooks/useSquadConfigurations";
+import { SquadConfiguration, useSquadConfigurations } from "@/hooks/useSquadConfigurations";
 import { Save } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 const SquadView = () => {
@@ -38,24 +37,17 @@ const SquadView = () => {
   const {
     profile
   } = useAuth();
-  const [selectedSquad, setSelectedSquad] = useState<string>('first-team');
+  const [selectedSquad, setSelectedSquad] = useState<string>('shadow-squad');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showNewSquadDialog, setShowNewSquadDialog] = useState(false);
   const [loadedConfiguration, setLoadedConfiguration] = useState<SquadConfiguration | null>(null);
   const [manualAssignments, setManualAssignments] = useState<Array<{ position: string; player_id: string }>>([]);
+  const [currentFormation, setCurrentFormation] = useState<string>('4-3-3');
   
   // Start with blank squad by default (no auto-fill)
   const [disableAutoFill, setDisableAutoFill] = useState(true);
-
-  // Keep shadow-squad empty by default; others can auto-fill
-  useEffect(() => {
-    if (selectedSquad === 'shadow-squad') {
-      setDisableAutoFill(true);
-      setManualAssignments([]);
-    }
-  }, [selectedSquad]);
-
+  
   // Fetch real players data - MUST be called before any conditional returns
   const {
     data: allPlayers = [],
@@ -64,15 +56,25 @@ const SquadView = () => {
   } = usePlayersData();
   const userClub = "Chelsea F.C.";
 
-  // Get club settings including formation
-  const {
-    data: clubSettings
-  } = useClubSettings(userClub);
-  const currentFormation = clubSettings?.formation || '4-3-3';
-  
   // Get formations list
   const { data: formations = [] } = useMarescaFormations();
-  const updateClubSettings = useUpdateClubSettings();
+  
+  // Fetch squad configurations to load default on mount
+  const { data: squadConfigs = [] } = useSquadConfigurations(userClub);
+
+  // Load default configuration on mount
+  useEffect(() => {
+    if (squadConfigs.length > 0 && !loadedConfiguration) {
+      const defaultConfig = squadConfigs.find(c => c.is_default);
+      if (defaultConfig) {
+        setLoadedConfiguration(defaultConfig);
+        setManualAssignments(defaultConfig.position_assignments);
+        setCurrentFormation(defaultConfig.formation);
+        setSelectedSquad(defaultConfig.squad_type);
+        setDisableAutoFill(false);
+      }
+    }
+  }, [squadConfigs]);
 
   // Get head coach data
   const {
@@ -142,15 +144,10 @@ const SquadView = () => {
     return <div className="container mx-auto py-8 px-4">Redirecting…</div>;
   }
   
-  const handleFormationChange = async (formation: string) => {
-    try {
-      await updateClubSettings.mutateAsync({
-        club_name: userClub,
-        formation: formation,
-      });
-    } catch (error) {
-      console.error('Failed to update formation:', error);
-    }
+  const handleFormationChange = (formation: string) => {
+    setCurrentFormation(formation);
+    // Clear assignments when formation changes
+    setManualAssignments([]);
   };
 
   const isEligibleForSeniorSquad = (player: any) => {
@@ -199,23 +196,12 @@ const SquadView = () => {
         </div>
       </div>;
   }
-  const handleLoadConfiguration = async (config: SquadConfiguration) => {
+  const handleLoadConfiguration = (config: SquadConfiguration) => {
     setLoadedConfiguration(config);
     setManualAssignments(config.position_assignments);
+    setCurrentFormation(config.formation);
     setDisableAutoFill(false);
     setSelectedSquad(config.squad_type);
-    
-    // Update formation if it's different
-    if (config.formation !== currentFormation) {
-      try {
-        await updateClubSettings.mutateAsync({
-          club_name: userClub,
-          formation: config.formation,
-        });
-      } catch (error) {
-        console.error('Failed to update formation:', error);
-      }
-    }
     
     toast({
       title: "Configuration loaded",
@@ -245,15 +231,16 @@ const SquadView = () => {
     }
   };
 
-  const handleStartNewSquad = async (name: string, description: string) => {
+  const handleStartNewSquad = () => {
     setManualAssignments([]);
     setLoadedConfiguration(null);
     setDisableAutoFill(true);
     setSelectedPosition(null);
+    setCurrentFormation('4-3-3');
     
     toast({
       title: "New squad started",
-      description: `"${name}" is ready to configure. Starting with a blank squad.`,
+      description: "Starting with a blank squad. Make your changes and save when ready.",
     });
   };
   return <>
@@ -475,13 +462,13 @@ const SquadView = () => {
       </div>
 
 
-      {/* Shadow Squad */}
-      <div className="w-full max-w-full overflow-x-hidden">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 pb-6">
+      {/* Shadow Squad Section - Grey Background */}
+      <div className="w-full max-w-full overflow-x-hidden bg-muted/30">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Shadow Squad</h2>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowNewSquadDialog(true)}>
+              <Button variant="outline" onClick={handleStartNewSquad}>
                 Start a new squad
               </Button>
               <Button onClick={() => setShowSaveDialog(true)}>
@@ -490,17 +477,52 @@ const SquadView = () => {
               </Button>
             </div>
           </div>
+          
+          {/* Saved Configurations */}
           <SavedSquadConfigurations 
             clubName={userClub}
             onLoadConfiguration={handleLoadConfiguration}
           />
-        </div>
-      </div>
+          
+          {/* Formation Selector */}
+          <div className="mt-6 space-y-3">
+            <h3 className="text-sm font-medium text-muted-foreground">Formation</h3>
+            <Select value={currentFormation} onValueChange={handleFormationChange}>
+              <SelectTrigger className="w-full md:w-[200px] bg-background">
+                <SelectValue placeholder="Select formation" />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-50">
+                {formations.map((formation) => (
+                  <SelectItem 
+                    key={formation.formation} 
+                    value={formation.formation || ''}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm">{formation.formation}</span>
+                      <Badge variant="secondary" className="text-xs">
+                        {formation.games} {formation.games === 1 ? 'game' : 'games'}
+                      </Badge>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-      {/* Formation View */}
-      <div className="w-full max-w-full overflow-x-hidden">
-        <div className="container mx-auto max-w-7xl py-4 sm:py-6 px-4 sm:px-6">
-          <SquadFormationCard squadPlayers={squadPlayers} selectedSquad={selectedSquad} formation={currentFormation} positionAssignments={positionAssignments} onPositionClick={setSelectedPosition} selectedPosition={selectedPosition} onPlayerChange={handlePlayerChange} disableAutoFill={disableAutoFill} />
+          {/* Formation View */}
+          <div className="mt-6">
+            <SquadFormationCard 
+              squadPlayers={squadPlayers} 
+              selectedSquad={selectedSquad} 
+              formation={currentFormation} 
+              positionAssignments={positionAssignments} 
+              onPositionClick={setSelectedPosition} 
+              selectedPosition={selectedPosition} 
+              onPlayerChange={handlePlayerChange} 
+              disableAutoFill={disableAutoFill} 
+            />
+          </div>
         </div>
       </div>
 
@@ -510,13 +532,6 @@ const SquadView = () => {
           <SquadComparisonChart clubName={userClub} />
         </div>
       </div>
-
-      {/* New Squad Dialog */}
-      <NewSquadDialog
-        open={showNewSquadDialog}
-        onOpenChange={setShowNewSquadDialog}
-        onConfirm={handleStartNewSquad}
-      />
 
       {/* Save Squad Configuration Dialog */}
       <SaveSquadConfigurationDialog
