@@ -182,8 +182,20 @@ const SquadView = () => {
         </div>
       </div>;
   }
-  const handleLoadConfiguration = (config: SquadConfiguration) => {
+  const handleLoadConfiguration = async (config: SquadConfiguration) => {
     setSelectedSquad(config.squad_type);
+    
+    // Update formation if it's different
+    if (config.formation !== currentFormation) {
+      try {
+        await updateClubSettings.mutateAsync({
+          club_name: userClub,
+          formation: config.formation,
+        });
+      } catch (error) {
+        console.error('Failed to update formation:', error);
+      }
+    }
     // Position assignments will be loaded automatically through the positionAssignments query
   };
 
@@ -429,10 +441,38 @@ const SquadView = () => {
 
       {/* Squad Comparison */}
       <div className="w-full max-w-full overflow-x-hidden">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-6">
           <SquadComparisonChart clubName={userClub} />
         </div>
       </div>
+
+      {/* Saved Squad Configurations */}
+      <div className="w-full max-w-full overflow-x-hidden">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 pb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Saved Squad Configurations</h2>
+            <Button onClick={() => setShowSaveDialog(true)}>
+              <Save className="h-4 w-4 mr-2" />
+              Save Current Setup
+            </Button>
+          </div>
+          <SavedSquadConfigurations 
+            clubName={userClub}
+            onLoadConfiguration={handleLoadConfiguration}
+          />
+        </div>
+      </div>
+
+      {/* Save Squad Configuration Dialog */}
+      <SaveSquadConfigurationDialog
+        open={showSaveDialog}
+        onOpenChange={setShowSaveDialog}
+        clubName={userClub}
+        formation={currentFormation}
+        squadType={selectedSquad}
+        positionAssignments={positionAssignments}
+        allPlayers={allPlayers}
+      />
   </>;
 };
 
