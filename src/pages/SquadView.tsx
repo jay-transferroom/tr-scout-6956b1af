@@ -437,10 +437,15 @@ const SquadView = () => {
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 pb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Shadow Squad</h2>
-            <Button onClick={() => setShowSaveDialog(true)}>
-              <Save className="h-4 w-4 mr-2" />
-              Save Current Setup
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setShowSaveDialog(true)}>
+                Start a new squad
+              </Button>
+              <Button onClick={() => setShowSaveDialog(true)}>
+                <Save className="h-4 w-4 mr-2" />
+                Save current squad
+              </Button>
+            </div>
           </div>
           <SavedSquadConfigurations 
             clubName={userClub}
