@@ -224,8 +224,10 @@ const SquadView = () => {
         formation: currentFormation,
         squad_type: selectedSquad
       });
-      // Once a player is assigned, re-enable auto-fill for remaining positions
-      setDisableAutoFill(false);
+      // Keep shadow-squad manual-only; re-enable auto-fill for other squads
+      if (selectedSquad !== 'shadow-squad') {
+        setDisableAutoFill(false);
+      }
     } catch (error) {
       console.error('Failed to update player assignment:', error);
     }
