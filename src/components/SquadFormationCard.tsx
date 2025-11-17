@@ -16,6 +16,7 @@ interface SquadFormationCardProps {
   onPositionClick: (position: string) => void;
   selectedPosition: string | null;
   onPlayerChange?: (position: string, playerId: string) => void;
+  disableAutoFill?: boolean;
 }
 
 const SquadFormationCard = ({ 
@@ -25,7 +26,8 @@ const SquadFormationCard = ({
   positionAssignments = [],
   onPositionClick, 
   selectedPosition,
-  onPlayerChange 
+  onPlayerChange,
+  disableAutoFill
 }: SquadFormationCardProps) => {
   return (
     <CompactSquadView 
@@ -36,6 +38,7 @@ const SquadFormationCard = ({
       onPositionClick={onPositionClick}
       selectedPosition={selectedPosition}
       onPlayerChange={onPlayerChange}
+      disableAutoFill={disableAutoFill}
     />
   );
 };
