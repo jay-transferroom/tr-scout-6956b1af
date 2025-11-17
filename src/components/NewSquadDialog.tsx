@@ -16,7 +16,7 @@ import { toast } from "@/hooks/use-toast";
 interface NewSquadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (name: string, description: string) => void;
+  onConfirm: (name: string, description: string) => Promise<void>;
 }
 
 const NewSquadDialog = ({
@@ -27,7 +27,7 @@ const NewSquadDialog = ({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!name.trim()) {
       toast({
         title: "Error",
@@ -37,7 +37,7 @@ const NewSquadDialog = ({
       return;
     }
 
-    onConfirm(name.trim(), description.trim());
+    await onConfirm(name.trim(), description.trim());
     setName("");
     setDescription("");
     onOpenChange(false);
