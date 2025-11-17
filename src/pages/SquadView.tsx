@@ -220,18 +220,27 @@ const SquadView = () => {
 
   const handleStartNewSquad = async (name: string, description: string) => {
     try {
-      await clearAllAssignments.mutateAsync({
+      console.log('Starting new squad:', { name, description, userClub, currentFormation, selectedSquad });
+      
+      const result = await clearAllAssignments.mutateAsync({
         club_name: userClub,
         formation: currentFormation,
         squad_type: selectedSquad
       });
       
+      console.log('Clear result:', result);
+      
       toast({
-        title: "Squad cleared",
-        description: `You can now configure "${name}" from scratch. Remember to save when done.`,
+        title: "New squad started",
+        description: `"${name}" is ready to configure. All positions are now empty.`,
       });
     } catch (error) {
       console.error('Failed to clear squad:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start new squad. Please try again.",
+        variant: "destructive"
+      });
     }
   };
   return <>
