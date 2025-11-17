@@ -536,6 +536,12 @@ const CompactSquadView = ({
                         onAddToShortlist={handleAddToShortlist}
                         onAssignScout={handleAssignScout}
                         onViewProfile={handleViewPlayerProfile}
+                        onPlayerSelect={(player) => {
+                          if (onPlayerChange && selectedPosition) {
+                            onPlayerChange(selectedPosition, player.id);
+                          }
+                          handlePositionClick('');
+                        }}
                       />
                     </div>
                   </TabsContent>
@@ -561,16 +567,22 @@ const CompactSquadView = ({
                                 return (
                                   <div
                                     key={player.id}
-                                    className="flex items-center gap-3 p-3 rounded-md bg-muted/30 hover:bg-muted/50 transition-all group"
+                                    className="flex items-center gap-3 p-3 rounded-md bg-muted/30 hover:bg-muted/50 transition-all group cursor-pointer"
+                                    onClick={() => {
+                                      if (onPlayerChange && selectedPosition) {
+                                        onPlayerChange(selectedPosition, player.id);
+                                      }
+                                      handlePositionClick('');
+                                    }}
                                   >
-                                    <Avatar className="h-12 w-12 cursor-pointer" onClick={() => handleShortlistPlayerClick(player.id, player.isPrivatePlayer)}>
+                                    <Avatar className="h-12 w-12">
                                       <AvatarImage src={player.image} alt={player.name} />
                                       <AvatarFallback className="text-sm">
                                         {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                                       </AvatarFallback>
                                     </Avatar>
 
-                                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleShortlistPlayerClick(player.id, player.isPrivatePlayer)}>
+                                    <div className="flex-1 min-w-0">
                                       <div className="font-medium truncate text-base">{player.name}</div>
                                       <div className="text-sm text-muted-foreground">
                                         {player.club} • {player.age}y • {player.nationality}
@@ -604,7 +616,10 @@ const CompactSquadView = ({
                                       <Button
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() => handleShortlistPlayerClick(player.id, player.isPrivatePlayer)}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleShortlistPlayerClick(player.id, player.isPrivatePlayer);
+                                        }}
                                         title="View Profile"
                                       >
                                         <Eye className="h-4 w-4" />
@@ -612,7 +627,10 @@ const CompactSquadView = ({
                                       <Button
                                         variant="ghost"
                                         size="sm"
-                                        onClick={(e) => handleAssignScout(player, e)}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleAssignScout(player, e);
+                                        }}
                                         title="Assign Scout"
                                       >
                                         <UserPlus className="h-4 w-4" />

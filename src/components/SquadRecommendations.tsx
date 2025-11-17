@@ -17,6 +17,7 @@ interface SquadRecommendationsProps {
   onAddToShortlist?: (player: Player, e: React.MouseEvent) => void;
   onAssignScout?: (player: Player, e: React.MouseEvent) => void;
   onViewProfile?: (player: Player) => void;
+  onPlayerSelect?: (player: Player) => void;
 }
 
 interface PositionAnalysis {
@@ -43,7 +44,8 @@ const SquadRecommendations = ({
   allPlayers = [],
   onAddToShortlist,
   onAssignScout,
-  onViewProfile
+  onViewProfile,
+  onPlayerSelect
 }: SquadRecommendationsProps) => {
   const navigate = useNavigate();
   const { shortlists } = useShortlists();
@@ -315,8 +317,22 @@ const SquadRecommendations = ({
                             onClick={(e) => handlePlayerClick(player)}
                             title="View Profile"
                           >
-                            <Eye className="h-4 w-4" />
+                          <Eye className="h-4 w-4" />
                           </Button>
+                          {onPlayerSelect && selectedPosition && (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onPlayerSelect(player);
+                              }}
+                              title="Assign to Position"
+                            >
+                              <ArrowRight className="h-4 w-4 mr-1" />
+                              Assign
+                            </Button>
+                          )}
                           {onAddToShortlist && (
                             <Button
                               variant="ghost"
