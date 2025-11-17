@@ -42,7 +42,8 @@ const SquadView = () => {
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showNewSquadDialog, setShowNewSquadDialog] = useState(false);
-  const [disableAutoFill, setDisableAutoFill] = useState(false);
+  // Start with empty pitch for Shadow squad by default
+  const [disableAutoFill, setDisableAutoFill] = useState(true);
 
   // Fetch real players data - MUST be called before any conditional returns
   const {
