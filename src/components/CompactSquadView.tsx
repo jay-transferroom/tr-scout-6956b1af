@@ -70,7 +70,24 @@ const CompactSquadView = ({
   };
 
   const handlePositionClick = (position: string) => {
-    onPositionClick?.(position);
+    if (selectedPosition === position) {
+      // Deselect if clicking the same position
+      onPositionClick?.('');
+    } else {
+      onPositionClick?.(position);
+    }
+  };
+
+  const handleSelectPlayerForPosition = (player: Player) => {
+    if (selectedPosition && onPlayerChange) {
+      onPlayerChange(selectedPosition, player.id);
+      toast({
+        title: "Player assigned",
+        description: `${player.name} has been assigned to ${selectedPosition}`
+      });
+      // Close the slideout after assignment
+      onPositionClick?.('');
+    }
   };
 
   const handleViewFullPitch = () => {

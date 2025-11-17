@@ -27,6 +27,10 @@ import { Users, TrendingUp, AlertTriangle, Lightbulb } from "lucide-react";
 import SquadPitchLegend from "@/components/SquadPitchLegend";
 import { Separator } from "@/components/ui/separator";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
+import SavedSquadConfigurations from "@/components/SavedSquadConfigurations";
+import SaveSquadConfigurationDialog from "@/components/SaveSquadConfigurationDialog";
+import { SquadConfiguration } from "@/hooks/useSquadConfigurations";
+import { Save } from "lucide-react";
 const SquadView = () => {
   const navigate = useNavigate();
   const {
@@ -34,6 +38,7 @@ const SquadView = () => {
   } = useAuth();
   const [selectedSquad, setSelectedSquad] = useState<string>('first-team');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   // Fetch real players data - MUST be called before any conditional returns
   const {
@@ -177,6 +182,15 @@ const SquadView = () => {
         </div>
       </div>;
   }
+  const handleLoadConfiguration = (config: SquadConfiguration) => {
+    setSelectedSquad(config.squad_type);
+    // Position assignments will be loaded automatically through the positionAssignments query
+  };
+
+  const handleLoadConfiguration = (config: SquadConfiguration) => {
+    setSelectedSquad(config.squad_type);
+  };
+
   const handlePlayerChange = async (position: string, playerId: string) => {
     console.log(`Player change requested: ${position} -> ${playerId}`);
     try {

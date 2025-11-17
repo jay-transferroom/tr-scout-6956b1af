@@ -323,7 +323,7 @@ const CompactFootballPitch = ({
   );
 };
 
-// Separate component for each position slot to handle dropdowns
+// Separate component for each position slot
 const PositionSlot = ({ 
   position, 
   coords, 
@@ -349,13 +349,11 @@ const PositionSlot = ({
   hasRecommendation: boolean;
   warnings: { hasWarning: boolean; isContract: boolean; isInjury: boolean };
 }) => {
-  const [showDropdown, setShowDropdown] = useState(false);
-
   return (
     <div
       className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all cursor-pointer hover:scale-105 z-10 ${
         isPriority ? 'animate-pulse' : ''
-      }`}
+      } ${isSelected ? 'scale-110 z-20' : ''}`}
       style={{
         left: `${coords.x}%`,
         top: `${coords.y}%`,
@@ -373,6 +371,11 @@ const PositionSlot = ({
         {/* Priority indicator ring */}
         {isPriority && (
           <div className="absolute -inset-1 sm:-inset-2 rounded-full border-2 border-amber-500 bg-amber-500/10 animate-pulse" />
+        )}
+        
+        {/* Selection ring */}
+        {isSelected && (
+          <div className="absolute -inset-2 rounded-full border-4 border-primary ring-4 ring-primary/20 animate-pulse" />
         )}
         
         {/* Condensed info bar - count, rating, warnings */}
@@ -403,12 +406,11 @@ const PositionSlot = ({
         
         {/* Player avatar */}
         {player ? (
-          <div className="relative" onMouseEnter={() => setShowDropdown(true)} onMouseLeave={() => setShowDropdown(false)}>
+          <div className="relative">
             <Avatar 
               className={`w-10 h-10 sm:w-12 sm:h-12 border-2 shadow-md cursor-pointer hover:shadow-lg transition-shadow ${
                 warnings.hasWarning ? 'border-orange-500' : 'border-white'
               }`}
-              onClick={() => onPositionClick?.(position)}
             >
               <AvatarImage 
                 src={player.image} 
@@ -422,113 +424,32 @@ const PositionSlot = ({
             
             {/* Warning icon for injuries or contract expiry */}
             {warnings.hasWarning && (
-              <div className="absolute -top-2 -left-2 bg-orange-500 text-white rounded-full w-5 h-5 flex items-center justify-center border border-white z-10">
+              <div className="absolute -top-1 -right-1 bg-orange-500 rounded-full p-0.5">
                 {warnings.isContract ? (
-                  <Clock className="w-3 h-3" />
+                  <Clock className="w-2.5 h-2.5 text-white" />
                 ) : (
-                  <AlertTriangle className="w-3 h-3" />
+                  <AlertTriangle className="w-2.5 h-2.5 text-white" />
                 )}
               </div>
             )}
             
             {/* Rating */}
-            <div className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold border border-white">
+            <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold border border-white">
               {Math.round(player.transferroomRating || player.xtvScore || 0)}
             </div>
-
-            {/* Player selection dropdown (hover) */}
-            {showDropdown && onPlayerChange && eligiblePlayers.length > 1 && (
-              <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-[80]">
-                <div className="bg-white border border-gray-300 rounded-lg shadow-xl p-2 min-w-40 max-h-48 overflow-y-auto">
-                  <div className="text-xs font-semibold text-gray-600 mb-2 px-2">
-                    Select Player
-                  </div>
-                  {eligiblePlayers.map((eligiblePlayer) => (
-                    <div
-                      key={eligiblePlayer.id}
-                      className={`flex items-center gap-2 p-1 rounded cursor-pointer transition-colors ${
-                        eligiblePlayer.id === player.id 
-                          ? 'bg-blue-50 border border-blue-200' 
-                          : 'hover:bg-gray-50'
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onPlayerChange(position, eligiblePlayer.id);
-                        setShowDropdown(false);
-                      }}
-                    >
-                      <Avatar className="w-6 h-6">
-                        <AvatarImage 
-                          src={eligiblePlayer.image} 
-                          alt={eligiblePlayer.name}
-                        />
-                        <AvatarFallback className="bg-blue-600 text-white text-xs">
-                          {eligiblePlayer.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-medium truncate">{eligiblePlayer.name}</div>
-                        <div className="text-xs text-gray-500">
-                          {Math.round(eligiblePlayer.transferroomRating || eligiblePlayer.xtvScore || 0)}
-                        </div>
-                      </div>
-                      {eligiblePlayer.id === player.id && (
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         ) : (
           <div 
             className="w-12 h-12 rounded-full border-2 border-dashed border-gray-400 bg-white/50 flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors"
-            onClick={() => onPositionClick?.(position)}
-            onMouseEnter={() => setShowDropdown(true)}
-            onMouseLeave={() => setShowDropdown(false)}
           >
             <Plus className="h-4 w-4 text-gray-400" />
-
-            {/* Empty position dropdown (hover) */}
-            {showDropdown && onPlayerChange && eligiblePlayers.length > 0 && (
-              <div className="absolute top-12 left-1/2 transform -translate-x-1/2 z-[80]">
-                <div className="bg-white border border-gray-300 rounded-lg shadow-xl p-2 min-w-40 max-h-48 overflow-y-auto">
-                  <div className="text-xs font-semibold text-gray-600 mb-2 px-2">
-                    Select Player
-                  </div>
-                  {eligiblePlayers.map((eligiblePlayer) => (
-                    <div
-                      key={eligiblePlayer.id}
-                      className="flex items-center gap-2 p-1 rounded cursor-pointer hover:bg-gray-50 transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onPlayerChange(position, eligiblePlayer.id);
-                        setShowDropdown(false);
-                      }}
-                    >
-                      <Avatar className="w-6 h-6">
-                        <AvatarImage 
-                          src={eligiblePlayer.image} 
-                          alt={eligiblePlayer.name}
-                        />
-                        <AvatarFallback className="bg-blue-600 text-white text-xs">
-                          {eligiblePlayer.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-medium truncate">{eligiblePlayer.name}</div>
-                        <div className="text-xs text-gray-500">
-                          {Math.round(eligiblePlayer.transferroomRating || eligiblePlayer.xtvScore || 0)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         )}
+
+        {/* Name badge */}
+        <Badge variant="secondary" className="text-xs mt-1 px-1 py-0">
+          {player ? player.name.split(' ').pop() : position}
+        </Badge>
       </div>
     </div>
   );
