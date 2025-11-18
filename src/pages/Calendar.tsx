@@ -801,7 +801,7 @@ const Calendar = () => {
                               ) : (
                                 <div className="text-base sm:text-lg text-muted-foreground">vs</div>
                               )}
-                              {fixture.status && (
+                              {fixture.status && !isCompleted && (
                                 <div className="text-xs text-muted-foreground uppercase">
                                   {fixture.status}
                                 </div>
