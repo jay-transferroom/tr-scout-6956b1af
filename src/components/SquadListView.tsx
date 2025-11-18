@@ -183,20 +183,19 @@ const SquadListView = ({
                           {position}
                         </Badge>
                       ))}
-                        
-                        {/* Warning badges */}
-                        {contractStatus && (
-                          <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-300">
-                            <Clock className="w-2.5 h-2.5 mr-1" />
-                            {contractStatus.status}
-                          </Badge>
-                        )}
-                        {agingPlayer && (
-                          <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-300">
-                            Aging
-                          </Badge>
-                        )}
-                      </div>
+                      
+                      {/* Warning badges */}
+                      {contractStatus && (
+                        <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-300">
+                          <Clock className="w-2.5 h-2.5 mr-1" />
+                          {contractStatus.status}
+                        </Badge>
+                      )}
+                      {agingPlayer && (
+                        <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-300">
+                          Aging
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 );
