@@ -2,7 +2,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ListPlus, UserPlus } from "lucide-react";
 import { MatchPlayer } from "@/hooks/useMatchPlayers";
+import { useNavigate } from "react-router-dom";
 
 interface MatchPlayersSheetProps {
   open: boolean;
@@ -13,50 +16,99 @@ interface MatchPlayersSheetProps {
   awayScore?: number;
   homePlayers: MatchPlayer[];
   awayPlayers: MatchPlayer[];
+  onAddToShortlist?: (player: MatchPlayer, e: React.MouseEvent) => void;
+  onAssignScout?: (player: MatchPlayer, e: React.MouseEvent) => void;
 }
 
-const PlayerCard = ({ player }: { player: MatchPlayer }) => (
-  <div className="flex items-center gap-3 p-3 rounded-md bg-muted/30 hover:bg-muted/50 transition-all group">
-    <Avatar className="h-12 w-12 flex-shrink-0">
-      <AvatarImage src={player.image} alt={player.name} />
-      <AvatarFallback className="text-sm">
-        {player.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-      </AvatarFallback>
-    </Avatar>
-    
-    <div className="flex-1 min-w-0">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <div className="font-medium truncate text-base">{player.name}</div>
-          <div className="text-sm text-muted-foreground">
-            {player.club} • {player.age}y • {player.nationality}
+const PlayerCard = ({ player, onAddToShortlist, onAssignScout }: { 
+  player: MatchPlayer;
+  onAddToShortlist?: (player: MatchPlayer, e: React.MouseEvent) => void;
+  onAssignScout?: (player: MatchPlayer, e: React.MouseEvent) => void;
+}) => {
+  const navigate = useNavigate();
+
+  const handlePlayerClick = () => {
+    if (player.isPrivatePlayer) {
+      navigate(`/private-player/${player.id}`);
+    } else {
+      navigate(`/player/${player.id}`);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-md bg-muted/30 hover:bg-muted/50 transition-all group">
+      <Avatar className="h-12 w-12 flex-shrink-0 cursor-pointer" onClick={handlePlayerClick}>
+        <AvatarImage src={player.image} alt={player.name} />
+        <AvatarFallback className="text-sm">
+          {player.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+        </AvatarFallback>
+      </Avatar>
+      
+      <div className="flex-1 min-w-0 cursor-pointer" onClick={handlePlayerClick}>
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="font-medium truncate text-base">{player.name}</div>
+            <div className="text-sm text-muted-foreground">
+              {player.age}y • {player.nationality}
+            </div>
           </div>
+          
+          {player.transferroomRating && (
+            <Badge variant="secondary" className="shrink-0">
+              {player.transferroomRating}
+            </Badge>
+          )}
         </div>
         
-        {player.transferroomRating && (
-          <Badge variant="secondary" className="shrink-0">
-            {player.transferroomRating}
-          </Badge>
-        )}
+        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+          {player.minutesPlayed !== undefined && (
+            <span>{player.minutesPlayed}'</span>
+          )}
+          {player.goals !== undefined && player.goals > 0 && (
+            <span>⚽ {player.goals}</span>
+          )}
+          {player.assists !== undefined && player.assists > 0 && (
+            <span>🅰️ {player.assists}</span>
+          )}
+          {player.matchRating && (
+            <span>Rating: {player.matchRating}</span>
+          )}
+        </div>
       </div>
-      
-      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-        {player.minutesPlayed !== undefined && (
-          <span>{player.minutesPlayed}'</span>
+
+      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {onAddToShortlist && (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToShortlist(player, e);
+            }}
+            title="Add to shortlist"
+          >
+            <ListPlus className="h-4 w-4" />
+          </Button>
         )}
-        {player.goals !== undefined && player.goals > 0 && (
-          <span>⚽ {player.goals}</span>
-        )}
-        {player.assists !== undefined && player.assists > 0 && (
-          <span>🅰️ {player.assists}</span>
-        )}
-        {player.matchRating && (
-          <span>Rating: {player.matchRating}</span>
+        {onAssignScout && (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAssignScout(player, e);
+            }}
+            title="Assign scout"
+          >
+            <UserPlus className="h-4 w-4" />
+          </Button>
         )}
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export const MatchPlayersSheet = ({
   open,
@@ -67,6 +119,8 @@ export const MatchPlayersSheet = ({
   awayScore,
   homePlayers,
   awayPlayers,
+  onAddToShortlist,
+  onAssignScout,
 }: MatchPlayersSheetProps) => {
   // Dummy data for demonstration - will be replaced with real data
   const dummyHomePlayers: MatchPlayer[] = homePlayers.length > 0 ? homePlayers : [
@@ -284,7 +338,12 @@ export const MatchPlayersSheet = ({
               </h3>
               <div className="space-y-2">
                 {dummyHomePlayers.map(player => (
-                  <PlayerCard key={player.id} player={player} />
+                  <PlayerCard 
+                    key={player.id} 
+                    player={player}
+                    onAddToShortlist={onAddToShortlist}
+                    onAssignScout={onAssignScout}
+                  />
                 ))}
               </div>
             </div>
@@ -297,7 +356,12 @@ export const MatchPlayersSheet = ({
               </h3>
               <div className="space-y-2">
                 {dummyAwayPlayers.map(player => (
-                  <PlayerCard key={player.id} player={player} />
+                  <PlayerCard 
+                    key={player.id} 
+                    player={player}
+                    onAddToShortlist={onAddToShortlist}
+                    onAssignScout={onAssignScout}
+                  />
                 ))}
               </div>
             </div>

@@ -7,6 +7,7 @@ import { ClubBadge } from "@/components/ui/club-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Calendar as CalendarIcon, Clock, MapPin, Users, UserCheck, Plus, Search, Star, Target } from "lucide-react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday, addWeeks, subWeeks, isSameWeek, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,7 @@ import { usePlayersData } from "@/hooks/usePlayersData";
 import { useScoutingAssignments } from "@/hooks/useScoutingAssignments";
 import { useShortlists } from "@/hooks/useShortlists";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
 import ViewToggle from "@/components/ViewToggle";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
@@ -34,11 +36,12 @@ const Calendar = () => {
   const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
 
   const { profile } = useAuth();
+  const { toast } = useToast();
   const { data: fixtures = [] } = useFixturesData();
   const { data: scouts = [] } = useScoutUsers();
   const { data: allPlayers = [] } = usePlayersData();
   const { data: assignments = [], refetch: refetchAssignments } = useScoutingAssignments();
-  const { shortlists } = useShortlists();
+  const { shortlists, addPlayerToShortlist } = useShortlists();
 
   // Check if user can assign scouts (recruitment or director roles)
   const canAssignScouts = profile?.role === 'recruitment' || profile?.role === 'director';
@@ -298,6 +301,21 @@ const Calendar = () => {
     setIsAssignDialogOpen(false);
     setSelectedPlayer(null);
     refetchAssignments();
+  };
+
+  // Shortlist and scout assignment handlers for match players
+  const [shortlistDialogOpen, setShortlistDialogOpen] = useState(false);
+  const [shortlistSelectedPlayer, setShortlistSelectedPlayer] = useState<any>(null);
+
+  const handleAddToShortlist = (player: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShortlistSelectedPlayer(player);
+    setShortlistDialogOpen(true);
+  };
+
+  const handleAssignScout = (player: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleAssignPlayer(player);
   };
 
   return (
@@ -1048,6 +1066,58 @@ const Calendar = () => {
         </div>
       </div>
 
+      {/* Shortlist Dialog */}
+      <Dialog open={shortlistDialogOpen} onOpenChange={setShortlistDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add {shortlistSelectedPlayer?.name} to Shortlist</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-sm text-muted-foreground">
+              Select a shortlist to add this player to:
+            </div>
+            <div className="space-y-2">
+              {shortlists.filter(s => !s.is_scouting_assignment_list).map((shortlist) => (
+                <Button
+                  key={shortlist.id}
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    if (shortlistSelectedPlayer) {
+                      const playerId = shortlistSelectedPlayer.isPrivatePlayer 
+                        ? `private-${shortlistSelectedPlayer.id}` 
+                        : shortlistSelectedPlayer.id.toString();
+                      
+                      addPlayerToShortlist(shortlist.id, playerId);
+                      
+                      toast({
+                        title: "Player Added",
+                        description: `${shortlistSelectedPlayer.name} has been added to ${shortlist.name}`,
+                      });
+                      
+                      setShortlistDialogOpen(false);
+                      setShortlistSelectedPlayer(null);
+                    }
+                  }}
+                >
+                  <Badge className="mr-2" style={{ backgroundColor: shortlist.color }}>
+                    {shortlist.name}
+                  </Badge>
+                  <span className="text-muted-foreground text-xs">
+                    {shortlist.description || 'No description'}
+                  </span>
+                </Button>
+              ))}
+              {shortlists.filter(s => !s.is_scouting_assignment_list).length === 0 && (
+                <div className="text-center py-4 text-muted-foreground text-sm">
+                  No shortlists available. Create one first.
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Assign Scout Dialog */}
       {canAssignScouts && (
         <AssignScoutDialog
@@ -1067,6 +1137,8 @@ const Calendar = () => {
         awayScore={selectedFixture?.away_score ?? undefined}
         homePlayers={[]}
         awayPlayers={[]}
+        onAddToShortlist={handleAddToShortlist}
+        onAssignScout={handleAssignScout}
       />
     </div>
   );
