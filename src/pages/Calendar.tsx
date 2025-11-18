@@ -871,7 +871,7 @@ const Calendar = () => {
                                           <div className="text-xs text-muted-foreground">
                                             {player.club} • {player.positions?.[0] || 'Unknown'}
                                             {player.age && ` • ${player.age}y`}
-                                            {player.transferroomRating && ` • ${player.transferroomRating}/100`}
+                                            {player.transferroomRating && ` • ${player.transferroomRating}`}
                                           </div>
                                           {assignedScouts.length > 0 && (
                                             <div className="mt-1">
@@ -964,7 +964,7 @@ const Calendar = () => {
                           <div className="text-xs text-muted-foreground">
                             {player.club} • {player.positions?.[0] || 'Unknown'}
                             {player.age && ` • ${player.age}y`}
-                            {player.transferroomRating && ` • ${player.transferroomRating}/100`}
+                            {player.transferroomRating && ` • ${player.transferroomRating}`}
                             {player.xtvScore && ` • €${(player.xtvScore / 1000000).toFixed(1)}M`}
                           </div>
                           {assignedScouts.length > 0 && (
