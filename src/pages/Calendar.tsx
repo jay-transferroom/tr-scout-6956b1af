@@ -792,10 +792,22 @@ const Calendar = () => {
                         
                         <div className="text-center mb-3">
                           <div className="flex items-center justify-center gap-2 sm:gap-4">
-                            <div className="text-right flex-1 flex items-center justify-end gap-1 sm:gap-2">
+                            <button
+                              onClick={() => {
+                                if (isCompleted) {
+                                  setSelectedFixture(fixture);
+                                  setMatchPlayersOpen(true);
+                                }
+                              }}
+                              className={cn(
+                                "text-right flex-1 flex items-center justify-end gap-1 sm:gap-2 transition-all",
+                                isCompleted && "cursor-pointer hover:underline"
+                              )}
+                              disabled={!isCompleted}
+                            >
                               <div className="font-semibold text-sm sm:text-base lg:text-lg">{fixture.home_team}</div>
                               <ClubBadge clubName={fixture.home_team} size="md" />
-                            </div>
+                            </button>
                             <div className="flex flex-col items-center gap-1">
                               {hasScore ? (
                                 <button
@@ -806,8 +818,8 @@ const Calendar = () => {
                                     }
                                   }}
                                   className={cn(
-                                    "text-xl sm:text-2xl font-bold",
-                                    isCompleted && "hover:text-primary transition-colors cursor-pointer"
+                                    "text-xl sm:text-2xl font-bold transition-all",
+                                    isCompleted && "hover:text-primary hover:underline cursor-pointer"
                                   )}
                                 >
                                   {fixture.home_score} - {fixture.away_score}
@@ -821,10 +833,22 @@ const Calendar = () => {
                                 </div>
                               )}
                             </div>
-                            <div className="text-left flex-1 flex items-center justify-start gap-1 sm:gap-2">
+                            <button
+                              onClick={() => {
+                                if (isCompleted) {
+                                  setSelectedFixture(fixture);
+                                  setMatchPlayersOpen(true);
+                                }
+                              }}
+                              className={cn(
+                                "text-left flex-1 flex items-center justify-start gap-1 sm:gap-2 transition-all",
+                                isCompleted && "cursor-pointer hover:underline"
+                              )}
+                              disabled={!isCompleted}
+                            >
                               <ClubBadge clubName={fixture.away_team} size="md" />
                               <div className="font-semibold text-sm sm:text-base lg:text-lg">{fixture.away_team}</div>
-                            </div>
+                            </button>
                           </div>
                         </div>
                         
