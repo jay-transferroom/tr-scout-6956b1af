@@ -129,6 +129,20 @@ const SquadView = () => {
   }, [squadPlayers]);
 
   const squadMetrics = useSquadMetrics(squadPlayers, selectedSquad);
+  
+  // Calculate current and shadow squad ratings
+  const currentSquadPlayers = useMemo(() => {
+    return allPlayers.filter(p => p.club === userClub);
+  }, [allPlayers, userClub]);
+
+  const calculateAverageRating = (players: typeof allPlayers) => {
+    if (players.length === 0) return 0;
+    const totalRating = players.reduce((sum, p) => sum + (p.transferroomRating || 0), 0);
+    return totalRating / players.length;
+  };
+
+  const currentSquadRating = useMemo(() => calculateAverageRating(currentSquadPlayers), [currentSquadPlayers]);
+  const shadowSquadRating = useMemo(() => calculateAverageRating(squadPlayers), [squadPlayers]);
   const displayTitle = `${userClub} ${getSquadDisplayName(selectedSquad)} Analysis`;
   
   // Auth/role guard via effect to avoid altering hook order during render
@@ -486,7 +500,11 @@ const SquadView = () => {
 
             {/* League Rankings - takes 2 columns */}
             <div className="xl:col-span-2">
-              <SquadComparisonChart clubName={userClub} />
+              <SquadComparisonChart 
+                clubName={userClub} 
+                currentSquadRating={currentSquadRating}
+                shadowSquadRating={shadowSquadRating}
+              />
             </div>
           </div>
         </div>

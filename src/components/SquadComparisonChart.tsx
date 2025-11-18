@@ -2,24 +2,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useSquadAverageRatings, SquadAverageRating } from "@/hooks/useSquadAverageRatings";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getTeamLogoUrl } from "@/utils/teamLogos";
-import { useState } from "react";
 
-const SquadComparisonChart = ({ clubName = "Chelsea FC" }: { clubName?: string }) => {
+interface SquadComparisonChartProps {
+  clubName?: string;
+  currentSquadRating?: number;
+  shadowSquadRating?: number;
+}
+
+const SquadComparisonChart = ({ 
+  clubName = "Chelsea FC",
+  currentSquadRating,
+  shadowSquadRating 
+}: SquadComparisonChartProps) => {
   const { data: squads, isLoading } = useSquadAverageRatings("Premier League");
-  const [selectedPosition, setSelectedPosition] = useState<keyof SquadAverageRating>('average_starter_rating');
 
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>League Position Comparison</CardTitle>
-          <CardDescription>How your squad compares to the competition</CardDescription>
+          <CardTitle className="text-lg">Squad Ratings</CardTitle>
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-48 w-full" />
         </CardContent>
       </Card>
     );
@@ -31,196 +37,137 @@ const SquadComparisonChart = ({ clubName = "Chelsea FC" }: { clubName?: string }
 
   // Find Chelsea's squad
   const chelseaSquad = squads.find(s => s.IsChelsea === "Yes" || s.Squad?.toLowerCase().includes("chelsea"));
-  const chelseaRank = squads.findIndex(s => s.IsChelsea === "Yes" || s.Squad?.toLowerCase().includes("chelsea")) + 1;
-
+  
   if (!chelseaSquad) {
     return null;
   }
 
-  const positionCategories = [
-    { key: 'average_starter_rating', label: 'Overall Rating', short: 'AVG' },
-    { key: 'KeeperRating', label: 'Goalkeeper', short: 'GK' },
-    { key: 'DefenderRating', label: 'Defenders', short: 'DEF' },
-    { key: 'CentreBackRating', label: 'Centre Backs', short: 'CB' },
-    { key: 'MidfielderRating', label: 'Midfielders', short: 'MID' },
-    { key: 'AttackerRating', label: 'Attackers', short: 'ATT' },
-    { key: 'ForwardRating', label: 'Forwards', short: 'FWD' },
-  ];
+  const currentRating = currentSquadRating || chelseaSquad.average_starter_rating || 0;
+  const shadowRating = shadowSquadRating || currentRating;
 
-  const getRankedTeams = () => {
+  // Calculate rankings for current and shadow squads
+  const getCurrentRank = (rating: number) => {
     const sorted = [...squads].sort((a, b) => 
-      ((b[selectedPosition] as number) || 0) - ((a[selectedPosition] as number) || 0)
+      (b.average_starter_rating || 0) - (a.average_starter_rating || 0)
     );
-    return sorted.map((squad, index) => ({
-      position: index + 1,
-      squad: squad.Squad || '',
-      rating: (squad[selectedPosition] as number) || 0,
-      isChelsea: squad.IsChelsea === "Yes" || squad.Squad?.toLowerCase().includes("chelsea")
-    }));
+    return sorted.findIndex(s => (s.average_starter_rating || 0) <= rating) + 1 || squads.length;
   };
 
-  const rankedTeams = getRankedTeams();
-  const selectedPositionLabel = positionCategories.find(p => p.key === selectedPosition)?.label || "Overall";
+  const currentRank = getCurrentRank(currentRating);
+  const shadowRank = getCurrentRank(shadowRating);
 
-  const getPositionRank = (position: keyof SquadAverageRating) => {
-    const sorted = [...squads].sort((a, b) => 
-      (b[position] as number || 0) - (a[position] as number || 0)
-    );
-    return sorted.findIndex(s => s.squadid === chelseaSquad.squadid) + 1;
-  };
-
-  const getPositionComparison = (position: keyof SquadAverageRating) => {
-    const chelseaValue = chelseaSquad[position] as number || 0;
-    const leagueAvg = squads.reduce((sum, s) => sum + ((s[position] as number) || 0), 0) / squads.length;
-    const diff = chelseaValue - leagueAvg;
-    return { value: chelseaValue, avg: leagueAvg, diff };
-  };
+  // Get top 5 and bottom 2 teams for comparison
+  const sortedSquads = [...squads].sort((a, b) => 
+    (b.average_starter_rating || 0) - (a.average_starter_rating || 0)
+  );
+  const topTeams = sortedSquads.slice(0, 5);
+  const bottomTeams = sortedSquads.slice(-2);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-      {/* Left side - Position comparison */}
+    <div className="space-y-3">
+      {/* League Position Comparison */}
       <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div>
-              <CardTitle className="text-base sm:text-lg">League Position Comparison</CardTitle>
-              <CardDescription className="text-xs sm:text-sm">How your squad compares to the Premier League</CardDescription>
-            </div>
-            <Badge variant="secondary" className="text-sm sm:text-lg">
-              #{chelseaRank} of {squads.length}
-            </Badge>
-          </div>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">League Ratings</CardTitle>
+          <CardDescription className="text-xs">Current vs Shadow Squad</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 sm:space-y-6">
-          {/* Position Breakdown */}
-          <div>
-            <h3 className="font-semibold mb-3 text-sm sm:text-base">Position-by-Position Breakdown</h3>
-            <div className="space-y-2 sm:space-y-3">
-              {positionCategories.map(({ key, label, short }) => {
-                const comparison = getPositionComparison(key as keyof SquadAverageRating);
-                const rank = getPositionRank(key as keyof SquadAverageRating);
-                const isAboveAvg = comparison.diff > 0;
-                const isEqual = Math.abs(comparison.diff) < 0.5;
-
-                return (
-                  <div 
-                    key={key} 
-                    className={`border rounded-lg p-2 sm:p-3 cursor-pointer transition-all ${
-                      selectedPosition === key ? 'bg-primary/10 border-primary ring-2 ring-primary/20' : 'hover:bg-grey-50'
-                    }`}
-                    onClick={() => setSelectedPosition(key as keyof SquadAverageRating)}
-                  >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <Badge variant="outline" className="text-[10px] sm:text-xs">
-                        {short}
-                      </Badge>
-                      <span className="text-xs sm:text-sm font-medium truncate">{label}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                      <Badge variant="secondary" className="text-[10px] sm:text-xs">
-                        #{rank}
-                      </Badge>
-                      <span className="font-semibold text-xs sm:text-base">{comparison.value.toFixed(1)}</span>
-                    </div>
-                  </div>
-                  
-                  {/* Progress Bar */}
-                  <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className={`absolute h-full ${
-                        isAboveAvg ? 'bg-green-500' : isEqual ? 'bg-amber-500' : 'bg-red-500'
-                      }`}
-                      style={{ 
-                        width: `${Math.min(100, (comparison.value / 100) * 100)}%` 
-                      }}
-                    />
-                    {/* League average marker */}
-                    <div 
-                      className="absolute h-full w-0.5 bg-foreground/40"
-                      style={{ 
-                        left: `${Math.min(100, (comparison.avg / 100) * 100)}%` 
-                      }}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between mt-1 text-[10px] sm:text-xs text-muted-foreground">
-                    <span className="truncate">League avg: {comparison.avg.toFixed(1)}</span>
-                    <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
-                      {isEqual ? (
-                        <>
-                          <Minus className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-amber-500" />
-                          <span className="text-amber-600">Equal</span>
-                        </>
-                      ) : isAboveAvg ? (
-                        <>
-                          <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-500" />
-                          <span className="text-green-600">+{comparison.diff.toFixed(1)}</span>
-                        </>
-                      ) : (
-                        <>
-                          <TrendingDown className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-red-500" />
-                          <span className="text-red-600">{comparison.diff.toFixed(1)}</span>
-                        </>
-                      )}
-                    </div>
-                    </div>
-                  </div>
-                );
-              })}
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">Current Squad</p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-2xl font-bold">{currentRating.toFixed(1)}</p>
+                <Badge variant="secondary" className="text-xs">#{currentRank}</Badge>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Right side - League table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base sm:text-lg">{selectedPositionLabel} Rankings</CardTitle>
-          <CardDescription className="text-xs sm:text-sm">Premier League standings by position rating</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
-            <div className="inline-block min-w-full align-middle">
-              <div className="overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12 text-xs sm:text-sm">#</TableHead>
-                      <TableHead className="text-xs sm:text-sm">Team</TableHead>
-                      <TableHead className="text-right text-xs sm:text-sm">Rating</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {rankedTeams.map((team) => (
-                      <TableRow 
-                        key={team.squad}
-                        className={team.isChelsea ? 'bg-primary/10 font-medium' : ''}
-                      >
-                        <TableCell className="font-medium text-xs sm:text-sm">{team.position}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 flex items-center justify-center">
-                              <img 
-                                src={getTeamLogoUrl(team.squad)} 
-                                alt={team.squad}
-                                className="w-full h-full object-contain"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                }}
-                              />
-                            </div>
-                            <span className="text-xs sm:text-sm truncate">{team.squad}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right font-semibold text-xs sm:text-sm">{team.rating.toFixed(1)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">Shadow Squad</p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-2xl font-bold">{shadowRating.toFixed(1)}</p>
+                <Badge variant={shadowRank < currentRank ? "default" : "secondary"} className="text-xs">
+                  #{shadowRank}
+                </Badge>
               </div>
             </div>
           </div>
+          
+          {shadowRating !== currentRating && (
+            <div className="pt-2 border-t">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Change</span>
+                <span className={shadowRating > currentRating ? "text-green-600 font-medium" : "text-red-600 font-medium"}>
+                  {shadowRating > currentRating ? "+" : ""}{(shadowRating - currentRating).toFixed(1)}
+                  {shadowRank !== currentRank && ` (${currentRank - shadowRank > 0 ? "+" : ""}${currentRank - shadowRank} positions)`}
+                </span>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Overall Rating Rankings */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Premier League Rankings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow className="text-xs">
+                <TableHead className="w-12 py-2">#</TableHead>
+                <TableHead className="py-2">Team</TableHead>
+                <TableHead className="text-right py-2">Rating</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {topTeams.map((squad, idx) => {
+                const isChelsea = squad.IsChelsea === "Yes" || squad.Squad?.toLowerCase().includes("chelsea");
+                return (
+                  <TableRow key={squad.squadid} className={isChelsea ? "bg-primary/5" : ""}>
+                    <TableCell className="py-2 text-xs font-medium">{idx + 1}</TableCell>
+                    <TableCell className="py-2">
+                      <div className="flex items-center gap-2">
+                        <img 
+                          src={getTeamLogoUrl(squad.Squad || '')} 
+                          alt={squad.Squad || ''} 
+                          className="h-4 w-4 object-contain"
+                        />
+                        <span className="text-xs truncate">{squad.Squad}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right py-2 text-xs font-medium">
+                      {(squad.average_starter_rating || 0).toFixed(1)}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+              {sortedSquads.length > 7 && (
+                <TableRow>
+                  <TableCell colSpan={3} className="py-1 text-center text-xs text-muted-foreground">
+                    ...
+                  </TableCell>
+                </TableRow>
+              )}
+              {bottomTeams.map((squad, idx) => (
+                <TableRow key={squad.squadid}>
+                  <TableCell className="py-2 text-xs font-medium">{sortedSquads.length - 1 + idx}</TableCell>
+                  <TableCell className="py-2">
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src={getTeamLogoUrl(squad.Squad || '')} 
+                        alt={squad.Squad || ''} 
+                        className="h-4 w-4 object-contain"
+                      />
+                      <span className="text-xs truncate">{squad.Squad}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right py-2 text-xs font-medium">
+                    {(squad.average_starter_rating || 0).toFixed(1)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
