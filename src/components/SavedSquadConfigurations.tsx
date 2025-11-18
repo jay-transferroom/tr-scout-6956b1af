@@ -123,34 +123,38 @@ const SavedSquadConfigurations = ({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Save className="h-5 w-5" />
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Save className="h-4 w-4" />
           Saved Configurations
-          <Badge variant="secondary" className="ml-auto">
+          <Badge variant="secondary" className="ml-auto text-xs">
             {configurations.length}
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-2">
         {configurations.map((config) => (
           <div 
             key={config.id} 
-            className="p-4 border rounded-lg hover:bg-muted/50 transition-colors space-y-2"
+            className="p-3 border rounded-md hover:bg-muted/50 transition-colors"
           >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h4 className="font-medium">{config.name}</h4>
-                {config.description && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {config.description}
-                  </p>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                <span className="font-medium text-sm truncate">{config.name}</span>
+                {config.is_default && (
+                  <Star className="h-3 w-3 fill-primary text-primary shrink-0" />
+                )}
+                <Badge variant="outline" className="text-xs">{config.formation}</Badge>
+                {config.overall_rating && (
+                  <Badge variant="default" className="bg-primary/10 text-primary border-primary/20 text-xs">
+                    ⭐ {config.overall_rating}
+                  </Badge>
                 )}
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <MoreVertical className="h-4 w-4" />
+                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                    <MoreVertical className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -172,24 +176,6 @@ const SavedSquadConfigurations = ({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
-            
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline">{config.formation}</Badge>
-              <Badge variant="secondary">{getSquadDisplayName(config.squad_type)}</Badge>
-              <Badge variant="outline">
-                {config.position_assignments.length} positions
-              </Badge>
-              {config.overall_rating && (
-                <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">
-                  ⭐ {config.overall_rating} Overall
-                </Badge>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Calendar className="h-3 w-3" />
-              <span>Saved {format(new Date(config.created_at), 'MMM d, yyyy')}</span>
             </div>
           </div>
         ))}
