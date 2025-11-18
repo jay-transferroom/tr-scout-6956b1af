@@ -690,13 +690,17 @@ const Calendar = () => {
                                    isTodayDate && !isSelected && "bg-accent border-accent-foreground/20"
                                  )}
                               >
-                                 <div className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">{format(day, 'd')}</div>
-                                 {hasFixtures && (
-                                   <div className="space-y-0.5 sm:space-y-1.5 w-full">
+                                 <div className="flex items-start justify-between w-full mb-1 sm:mb-2">
+                                   <div className="font-semibold text-sm sm:text-base">{format(day, 'd')}</div>
+                                   {hasFixtures && (
                                      <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs">
                                        <CalendarIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                                        {dayFixtures.length}
                                      </div>
+                                   )}
+                                 </div>
+                                 {hasFixtures && (
+                                   <div className="space-y-0.5 sm:space-y-1.5 w-full">
                                      {totalShortlisted > 0 && (
                                        <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs text-yellow-600">
                                          <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-current" />
