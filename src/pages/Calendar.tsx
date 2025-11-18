@@ -814,18 +814,20 @@ const Calendar = () => {
                           </div>
                         </div>
                         
-                        {fixture.venue && (
+                        {(fixture.venue || fixture.result) && (
                           <div className="flex items-center justify-center gap-2 mb-3 text-sm text-muted-foreground">
-                            <MapPin className="h-4 w-4" />
-                            <span>{fixture.venue}</span>
-                          </div>
-                        )}
-                        
-                        {fixture.result && (
-                          <div className="text-center mb-3">
-                            <div className="text-sm font-medium text-muted-foreground">
-                              Result: {fixture.result}
-                            </div>
+                            {fixture.venue && (
+                              <>
+                                <MapPin className="h-4 w-4" />
+                                <span>{fixture.venue}</span>
+                              </>
+                            )}
+                            {fixture.venue && fixture.result && (
+                              <span>•</span>
+                            )}
+                            {fixture.result && (
+                              <span>Result: {fixture.result}</span>
+                            )}
                           </div>
                         )}
                         
