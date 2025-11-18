@@ -690,7 +690,7 @@ const Calendar = () => {
                                    isTodayDate && !isSelected && "bg-accent border-accent-foreground/20"
                                  )}
                               >
-                                 <div className="flex items-start justify-between w-full mb-1 sm:mb-2">
+                                 <div className="flex items-center justify-between w-full mb-1 sm:mb-2">
                                    <div className="font-semibold text-sm sm:text-base">{format(day, 'd')}</div>
                                    {hasFixtures && (
                                      <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs">
