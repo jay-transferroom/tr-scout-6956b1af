@@ -16,10 +16,10 @@ interface MatchPlayersSheetProps {
 }
 
 const PlayerCard = ({ player }: { player: MatchPlayer }) => (
-  <div className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
-    <Avatar className="h-12 w-12">
+  <div className="flex items-center gap-3 p-3 rounded-md bg-muted/30 hover:bg-muted/50 transition-all group">
+    <Avatar className="h-12 w-12 flex-shrink-0">
       <AvatarImage src={player.image} alt={player.name} />
-      <AvatarFallback className="bg-gradient-to-br from-primary to-primary/60 text-primary-foreground text-sm">
+      <AvatarFallback className="text-sm">
         {player.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
       </AvatarFallback>
     </Avatar>
@@ -27,12 +27,10 @@ const PlayerCard = ({ player }: { player: MatchPlayer }) => (
     <div className="flex-1 min-w-0">
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <p className="font-medium truncate">{player.name}</p>
-          <p className="text-sm text-muted-foreground">
-            {player.positionPlayed || player.positions?.[0] || 'Unknown'}
-            {player.age && ` • ${player.age}y`}
-            {player.nationality && ` • ${player.nationality}`}
-          </p>
+          <div className="font-medium truncate text-base">{player.name}</div>
+          <div className="text-sm text-muted-foreground">
+            {player.club} • {player.age}y • {player.nationality}
+          </div>
         </div>
         
         {player.transferroomRating && (
@@ -42,7 +40,7 @@ const PlayerCard = ({ player }: { player: MatchPlayer }) => (
         )}
       </div>
       
-      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
         {player.minutesPlayed !== undefined && (
           <span>{player.minutesPlayed}'</span>
         )}
