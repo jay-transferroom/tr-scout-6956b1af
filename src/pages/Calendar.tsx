@@ -678,11 +678,11 @@ const Calendar = () => {
                         <TooltipProvider key={day.toISOString()}>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                               <button
+                              <button
                                 onClick={() => hasFixtures && setSelectedDate(day)}
                                 disabled={!hasFixtures}
                                  className={cn(
-                                   "relative p-1 sm:p-2 rounded-lg border text-xs sm:text-sm transition-colors min-h-[50px] sm:min-h-[70px] flex flex-col",
+                                   "relative p-1 sm:p-2 rounded-lg border text-xs sm:text-sm transition-colors min-h-[60px] sm:min-h-[90px] flex flex-col items-start",
                                    !isCurrentMonth && "text-muted-foreground opacity-50 border-muted",
                                    isCurrentMonth && !hasFixtures && "hover:bg-muted/30 cursor-default border-border",
                                    hasFixtures && "hover:bg-muted cursor-pointer border-border",
@@ -690,16 +690,13 @@ const Calendar = () => {
                                    isTodayDate && !isSelected && "bg-accent border-accent-foreground/20"
                                  )}
                               >
-                                 <div className="flex items-start justify-between w-full mb-1">
-                                   <div className="font-semibold text-sm sm:text-base">{format(day, 'd')}</div>
-                                   {hasFixtures && (
-                                     <div className="text-[10px] sm:text-xs text-muted-foreground">
-                                       {dayFixtures.length} {dayFixtures.length === 1 ? 'event' : 'events'}
-                                     </div>
-                                   )}
-                                 </div>
+                                 <div className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">{format(day, 'd')}</div>
                                  {hasFixtures && (
-                                   <div className="flex items-center gap-2 w-full">
+                                   <div className="space-y-0.5 sm:space-y-1.5 w-full">
+                                     <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs">
+                                       <CalendarIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                                       {dayFixtures.length}
+                                     </div>
                                      {totalShortlisted > 0 && (
                                        <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs text-yellow-600">
                                          <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-current" />
