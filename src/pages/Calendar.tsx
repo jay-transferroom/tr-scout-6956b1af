@@ -10,7 +10,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Calendar as CalendarIcon, Clock, MapPin, Users, UserCheck, Plus, Search, Star, Target } from "lucide-react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday, addWeeks, subWeeks, isSameWeek, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
-import { useFixturesData } from "@/hooks/useFixturesData";
+import { useFixturesData, Fixture } from "@/hooks/useFixturesData";
 import { useScoutUsers } from "@/hooks/useScoutUsers";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { useScoutingAssignments } from "@/hooks/useScoutingAssignments";
@@ -19,6 +19,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
 import ViewToggle from "@/components/ViewToggle";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
+import { MatchPlayersSheet } from "@/components/MatchPlayersSheet";
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -29,6 +30,8 @@ const Calendar = () => {
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
+  const [matchPlayersOpen, setMatchPlayersOpen] = useState(false);
+  const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
 
   const { profile } = useAuth();
   const { data: fixtures = [] } = useFixturesData();
@@ -795,9 +798,20 @@ const Calendar = () => {
                             </div>
                             <div className="flex flex-col items-center gap-1">
                               {hasScore ? (
-                                <div className="text-xl sm:text-2xl font-bold">
+                                <button
+                                  onClick={() => {
+                                    if (isCompleted) {
+                                      setSelectedFixture(fixture);
+                                      setMatchPlayersOpen(true);
+                                    }
+                                  }}
+                                  className={cn(
+                                    "text-xl sm:text-2xl font-bold",
+                                    isCompleted && "hover:text-primary transition-colors cursor-pointer"
+                                  )}
+                                >
                                   {fixture.home_score} - {fixture.away_score}
-                                </div>
+                                </button>
                               ) : (
                                 <div className="text-base sm:text-lg text-muted-foreground">vs</div>
                               )}
@@ -1018,6 +1032,18 @@ const Calendar = () => {
           player={selectedPlayer}
         />
       )}
+
+      {/* Match Players Sheet */}
+      <MatchPlayersSheet
+        open={matchPlayersOpen}
+        onOpenChange={setMatchPlayersOpen}
+        homeTeam={selectedFixture?.home_team || ''}
+        awayTeam={selectedFixture?.away_team || ''}
+        homeScore={selectedFixture?.home_score ?? undefined}
+        awayScore={selectedFixture?.away_score ?? undefined}
+        homePlayers={[]}
+        awayPlayers={[]}
+      />
     </div>
   );
 };
