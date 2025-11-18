@@ -60,23 +60,9 @@ const PlayerCard = ({ player, onAddToShortlist, onAssignScout }: {
           )}
         </div>
         
-        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-          {player.minutesPlayed !== undefined && (
-            <span>{player.minutesPlayed}'</span>
-          )}
-          {player.goals !== undefined && player.goals > 0 && (
-            <span>⚽ {player.goals}</span>
-          )}
-          {player.assists !== undefined && player.assists > 0 && (
-            <span>🅰️ {player.assists}</span>
-          )}
-          {player.matchRating && (
-            <span>Rating: {player.matchRating}</span>
-          )}
-        </div>
       </div>
 
-      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex gap-1">
         {onAddToShortlist && (
           <Button
             size="icon"
