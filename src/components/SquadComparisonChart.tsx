@@ -7,7 +7,24 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { getTeamLogoUrl } from "@/utils/teamLogos";
 import { useState } from "react";
 
-const SquadComparisonChart = ({ clubName = "Chelsea FC" }: { clubName?: string }) => {
+interface SquadComparisonChartProps {
+  clubName?: string;
+  currentSquadRating?: {
+    average_starter_rating: number;
+    KeeperRating: number;
+    DefenderRating: number;
+    CentreBackRating: number;
+    LeftBackRating: number;
+    RightBackRating: number;
+    MidfielderRating: number;
+    CentreMidfielderRating: number;
+    AttackerRating: number;
+    ForwardRating: number;
+    WingerRating: number;
+  } | null;
+}
+
+const SquadComparisonChart = ({ clubName = "Chelsea FC", currentSquadRating }: SquadComparisonChartProps) => {
   const { data: squads, isLoading } = useSquadAverageRatings("Premier League");
   const [selectedPosition, setSelectedPosition] = useState<keyof SquadAverageRating>('average_starter_rating');
 
@@ -66,32 +83,48 @@ const SquadComparisonChart = ({ clubName = "Chelsea FC" }: { clubName?: string }
     const sorted = [...squads].sort((a, b) => 
       (b[position] as number || 0) - (a[position] as number || 0)
     );
+    
+    // If using current rating, calculate hypothetical rank
+    if (hasCurrentRating) {
+      const currentValue = displayRating[position] as number || 0;
+      return sorted.filter(s => ((s[position] as number) || 0) > currentValue).length + 1;
+    }
+    
     return sorted.findIndex(s => s.squadid === chelseaSquad.squadid) + 1;
   };
 
   const getPositionComparison = (position: keyof SquadAverageRating) => {
-    const chelseaValue = chelseaSquad[position] as number || 0;
+    const currentValue = displayRating[position] as number || 0;
     const leagueAvg = squads.reduce((sum, s) => sum + ((s[position] as number) || 0), 0) / squads.length;
-    const diff = chelseaValue - leagueAvg;
-    return { value: chelseaValue, avg: leagueAvg, diff };
+    const diff = currentValue - leagueAvg;
+    return { value: currentValue, avg: leagueAvg, diff };
   };
 
+  // Use current squad rating if available, otherwise use Chelsea's DB rating
+  const displayRating = currentSquadRating || chelseaSquad;
+  const hasCurrentRating = !!currentSquadRating;
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Left side - Position comparison */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <Card className="border-0 shadow-none">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base sm:text-lg">League Position Comparison</CardTitle>
-              <CardDescription className="text-xs sm:text-sm">How your squad compares to the Premier League</CardDescription>
+              <CardTitle className="text-base">League Position Comparison</CardTitle>
+              <CardDescription className="text-xs mt-1">How your squad compares to the Premier League</CardDescription>
             </div>
-            <Badge variant="secondary" className="text-sm sm:text-lg">
+            <Badge variant="secondary" className="text-sm">
               #{chelseaRank} of {squads.length}
             </Badge>
           </div>
+          {hasCurrentRating && (
+            <Badge variant="outline" className="text-xs mt-2 w-fit">
+              Live Preview
+            </Badge>
+          )}
         </CardHeader>
-        <CardContent className="space-y-4 sm:space-y-6">
+        <CardContent className="space-y-3">
           {/* Position Breakdown */}
           <div>
             <h3 className="font-semibold mb-3 text-sm sm:text-base">Position-by-Position Breakdown</h3>
