@@ -63,9 +63,11 @@ const SquadView = () => {
   // Fetch squad configurations to load default on mount
   const { data: squadConfigs = [] } = useSquadConfigurations(userClub);
 
-  // Load default configuration on mount
+  // Load default configuration on initial mount only
+  const [hasLoadedDefault, setHasLoadedDefault] = useState(false);
+  
   useEffect(() => {
-    if (squadConfigs.length > 0 && !loadedConfiguration) {
+    if (squadConfigs.length > 0 && !loadedConfiguration && !hasLoadedDefault) {
       const defaultConfig = squadConfigs.find(c => c.is_default);
       if (defaultConfig) {
         setLoadedConfiguration(defaultConfig);
@@ -73,9 +75,10 @@ const SquadView = () => {
         setCurrentFormation(defaultConfig.formation);
         setSelectedSquad(defaultConfig.squad_type);
         setDisableAutoFill(false);
+        setHasLoadedDefault(true);
       }
     }
-  }, [squadConfigs]);
+  }, [squadConfigs, loadedConfiguration, hasLoadedDefault]);
 
   // Get head coach data
   const {
