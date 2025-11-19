@@ -64,10 +64,31 @@ const SquadComparisonChart = ({ clubName = "Chelsea FC", currentSquadRating }: S
     { key: 'ForwardRating', label: 'Forwards', short: 'FWD' },
   ];
 
+  // Determine display rating and whether we're using current (live) rating
+  const displayRating = currentSquadRating || chelseaSquad;
+  const hasCurrentRating = !!currentSquadRating;
+
   const getRankedTeams = () => {
-    const sorted = [...squads].sort((a, b) => 
+    // If we have current rating, use it for Chelsea instead of database value
+    let teamsToRank = [...squads];
+    
+    if (hasCurrentRating && currentSquadRating) {
+      teamsToRank = squads.map(squad => {
+        if (squad.IsChelsea === "Yes" || squad.Squad?.toLowerCase().includes("chelsea")) {
+          // Replace Chelsea's rating with current squad rating for selected position
+          return {
+            ...squad,
+            [selectedPosition]: displayRating[selectedPosition]
+          };
+        }
+        return squad;
+      });
+    }
+    
+    const sorted = teamsToRank.sort((a, b) => 
       ((b[selectedPosition] as number) || 0) - ((a[selectedPosition] as number) || 0)
     );
+    
     return sorted.map((squad, index) => ({
       position: index + 1,
       squad: squad.Squad || '',
@@ -99,10 +120,6 @@ const SquadComparisonChart = ({ clubName = "Chelsea FC", currentSquadRating }: S
     const diff = currentValue - leagueAvg;
     return { value: currentValue, avg: leagueAvg, diff };
   };
-
-  // Use current squad rating if available, otherwise use Chelsea's DB rating
-  const displayRating = currentSquadRating || chelseaSquad;
-  const hasCurrentRating = !!currentSquadRating;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
