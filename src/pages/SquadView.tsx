@@ -266,6 +266,20 @@ const SquadView = () => {
         </div>
       </div>
 
+      {/* Loaded Configuration Indicator */}
+      {loadedConfiguration && (
+        <div className="w-full max-w-full overflow-x-hidden bg-background border-b">
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-3">
+            <div className="flex items-center gap-3">
+              <Badge variant="default" className="text-sm">Currently Loaded</Badge>
+              <h2 className="text-xl font-semibold text-foreground">{loadedConfiguration.name}</h2>
+              <Badge variant="secondary" className="text-xs">{loadedConfiguration.formation}</Badge>
+              <Badge variant="outline" className="text-xs">{getSquadDisplayName(loadedConfiguration.squad_type)}</Badge>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Squad Selection and Formation Controls */}
       <div className="w-full max-w-full overflow-x-hidden bg-background">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-4 sm:py-6">
@@ -441,10 +455,11 @@ const SquadView = () => {
           </div>
           
           {/* Saved Configurations */}
-          <SavedSquadConfigurations 
-            clubName={userClub}
-            onLoadConfiguration={handleLoadConfiguration}
-          />
+              <SavedSquadConfigurations 
+                clubName={userClub}
+                onLoadConfiguration={handleLoadConfiguration}
+                loadedConfigurationId={loadedConfiguration?.id}
+              />
           
           {/* Formation Selector */}
           <div className="mt-6 space-y-3">

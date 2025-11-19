@@ -30,11 +30,13 @@ import { getSquadDisplayName } from "@/utils/squadUtils";
 interface SavedSquadConfigurationsProps {
   clubName: string;
   onLoadConfiguration: (config: SquadConfiguration) => void;
+  loadedConfigurationId?: string;
 }
 
 const SavedSquadConfigurations = ({ 
   clubName, 
-  onLoadConfiguration 
+  onLoadConfiguration,
+  loadedConfigurationId
 }: SavedSquadConfigurationsProps) => {
   const { data: configurations = [], isLoading } = useSquadConfigurations(clubName);
   const deleteConfiguration = useDeleteSquadConfiguration();
@@ -133,17 +135,28 @@ const SavedSquadConfigurations = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
-        {configurations.map((config) => (
-          <div 
-            key={config.id} 
-            className="p-3 border rounded-md hover:bg-muted/50 transition-colors"
-          >
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
-                <span className="font-medium text-sm truncate">{config.name}</span>
-                {config.is_default && (
-                  <Star className="h-3 w-3 fill-primary text-primary shrink-0" />
-                )}
+        {configurations.map((config) => {
+          const isLoaded = config.id === loadedConfigurationId;
+          return (
+            <div 
+              key={config.id} 
+              className={`p-3 border rounded-md transition-colors ${
+                isLoaded 
+                  ? 'bg-primary/10 border-primary/40 ring-2 ring-primary/20' 
+                  : 'hover:bg-muted/50'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                  <span className={`font-medium text-sm truncate ${isLoaded ? 'text-primary' : ''}`}>
+                    {config.name}
+                  </span>
+                  {isLoaded && (
+                    <Badge variant="default" className="text-xs">Loaded</Badge>
+                  )}
+                  {config.is_default && (
+                    <Star className="h-3 w-3 fill-primary text-primary shrink-0" />
+                  )}
                 <Badge variant="outline" className="text-xs">{config.formation}</Badge>
                 {config.overall_rating && (
                   <Badge variant="default" className="bg-primary/10 text-primary border-primary/20 text-xs">
@@ -178,7 +191,8 @@ const SavedSquadConfigurations = ({
               </DropdownMenu>
             </div>
           </div>
-        ))}
+        );
+        })}
       </CardContent>
     </Card>
   );
