@@ -80,6 +80,17 @@ const SaveSquadConfigurationDialog = ({
       return;
     }
 
+    // Check if 11 players are selected
+    const selectedPlayers = positionAssignments.filter(p => p.player_id && p.player_id.trim() !== '');
+    if (selectedPlayers.length < 11) {
+      toast({
+        title: "Incomplete Squad",
+        description: `You need to select 11 players to save the squad. Currently selected: ${selectedPlayers.length}/11`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (currentConfiguration) {
       await handleUpdate();
     } else {

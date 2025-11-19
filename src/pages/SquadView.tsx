@@ -74,7 +74,7 @@ const SquadView = () => {
         setManualAssignments(defaultConfig.position_assignments);
         setCurrentFormation(defaultConfig.formation);
         setSelectedSquad(defaultConfig.squad_type);
-        setDisableAutoFill(false);
+        // Keep auto-fill disabled when loading configurations
         setHasLoadedDefault(true);
       }
     }
@@ -208,7 +208,7 @@ const SquadView = () => {
     setLoadedConfiguration(config);
     setManualAssignments(config.position_assignments);
     setCurrentFormation(config.formation);
-    setDisableAutoFill(false);
+    // Keep auto-fill disabled when loading configurations
     setSelectedSquad(config.squad_type);
     
     toast({
