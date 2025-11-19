@@ -32,6 +32,7 @@ import SaveSquadConfigurationDialog from "@/components/SaveSquadConfigurationDia
 import { SquadConfiguration, useSquadConfigurations } from "@/hooks/useSquadConfigurations";
 import { Save } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useCurrentSquadRating } from "@/hooks/useCurrentSquadRating";
 const SquadView = () => {
   const navigate = useNavigate();
   const {
@@ -129,6 +130,10 @@ const SquadView = () => {
   }, [squadPlayers]);
 
   const squadMetrics = useSquadMetrics(squadPlayers, selectedSquad);
+  
+  // Calculate current squad rating based on position assignments
+  const currentSquadRating = useCurrentSquadRating(positionAssignments, allPlayers);
+  
   const displayTitle = `${userClub} ${getSquadDisplayName(selectedSquad)} Analysis`;
   
   // Auth/role guard via effect to avoid altering hook order during render
@@ -262,13 +267,13 @@ const SquadView = () => {
       </div>
 
       {/* Squad Selection and Formation Controls */}
-      <div className="w-full max-w-full overflow-x-hidden">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="bg-muted/30 py-4 sm:py-6 px-4 sm:px-6 lg:px-8 rounded-lg">
-          <div className="flex flex-col md:flex-row gap-4 sm:gap-6 items-start">
-            {/* Select Squad Section */}
-            <div className="flex-1 space-y-2 sm:space-y-3 w-full">
-              <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Select Squad</h3>
+      <div className="w-full max-w-full overflow-x-hidden bg-background">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-4 sm:py-6">
+          <div className="space-y-4">
+          {/* Select Squad Section */}
+          <div className="space-y-2">
+            <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Select Squad</h3>
+            <div className="flex-1 w-full">
               <div className="flex flex-wrap gap-2">
                 {squadsList.map((squad) => (
                   <Button
@@ -286,7 +291,6 @@ const SquadView = () => {
                 ))}
               </div>
             </div>
-
           </div>
 
           <Separator className="my-4 sm:my-6" />
@@ -416,7 +420,7 @@ const SquadView = () => {
           </div>
         </div>
       </div>
-      </div>
+    </div>
 
 
 
@@ -468,26 +472,26 @@ const SquadView = () => {
             </Select>
           </div>
 
-          {/* Formation View and Rankings side by side */}
-          <div className="mt-6 grid grid-cols-1 xl:grid-cols-5 gap-6">
-            {/* Formation View - takes 3 columns */}
-            <div className="xl:col-span-3">
-              <SquadFormationCard 
-                squadPlayers={squadPlayers} 
-                selectedSquad={selectedSquad} 
-                formation={currentFormation} 
-                positionAssignments={positionAssignments} 
-                onPositionClick={setSelectedPosition} 
-                selectedPosition={selectedPosition} 
-                onPlayerChange={handlePlayerChange} 
-                disableAutoFill={disableAutoFill} 
-              />
-            </div>
+          {/* Formation View */}
+          <div className="mt-6">
+            <SquadFormationCard 
+              squadPlayers={squadPlayers} 
+              selectedSquad={selectedSquad} 
+              formation={currentFormation} 
+              positionAssignments={positionAssignments} 
+              onPositionClick={setSelectedPosition} 
+              selectedPosition={selectedPosition} 
+              onPlayerChange={handlePlayerChange} 
+              disableAutoFill={disableAutoFill} 
+            />
+          </div>
 
-            {/* League Rankings - takes 2 columns */}
-            <div className="xl:col-span-2">
-              <SquadComparisonChart clubName={userClub} />
-            </div>
+          {/* League Comparison - Now below formation */}
+          <div className="mt-6">
+            <SquadComparisonChart 
+              clubName={userClub} 
+              currentSquadRating={currentSquadRating}
+            />
           </div>
         </div>
       </div>
