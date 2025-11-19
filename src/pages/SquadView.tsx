@@ -457,13 +457,6 @@ const SquadView = () => {
             </div>
           </div>
           
-          {/* Saved Configurations */}
-              <SavedSquadConfigurations 
-                clubName={userClub}
-                onLoadConfiguration={handleLoadConfiguration}
-                loadedConfigurationId={loadedConfiguration?.id}
-              />
-          
           {/* Formation Selector */}
           <div className="mt-6 space-y-3">
             <h3 className="text-sm font-medium text-muted-foreground">Formation</h3>
@@ -490,18 +483,30 @@ const SquadView = () => {
             </Select>
           </div>
 
-          {/* Formation View */}
-          <div className="mt-6">
-            <SquadFormationCard 
-              squadPlayers={squadPlayers} 
-              selectedSquad={selectedSquad} 
-              formation={currentFormation} 
-              positionAssignments={positionAssignments} 
-              onPositionClick={setSelectedPosition} 
-              selectedPosition={selectedPosition} 
-              onPlayerChange={handlePlayerChange} 
-              disableAutoFill={disableAutoFill} 
-            />
+          {/* Formation View with Saved Configurations Side by Side */}
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Pitch View - Takes 2 columns on large screens */}
+            <div className="lg:col-span-2">
+              <SquadFormationCard 
+                squadPlayers={squadPlayers} 
+                selectedSquad={selectedSquad} 
+                formation={currentFormation} 
+                positionAssignments={positionAssignments} 
+                onPositionClick={setSelectedPosition} 
+                selectedPosition={selectedPosition} 
+                onPlayerChange={handlePlayerChange} 
+                disableAutoFill={disableAutoFill} 
+              />
+            </div>
+
+            {/* Saved Configurations - Takes 1 column on large screens */}
+            <div className="lg:col-span-1">
+              <SavedSquadConfigurations 
+                clubName={userClub}
+                onLoadConfiguration={handleLoadConfiguration}
+                loadedConfigurationId={loadedConfiguration?.id}
+              />
+            </div>
           </div>
 
           {/* League Comparison - Now below formation */}
