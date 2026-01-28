@@ -23,6 +23,10 @@ const Shortlists = () => {
   const [sortBy, setSortBy] = useState<string>("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [euGbeFilter, setEuGbeFilter] = useState<string>("all");
+  const [positionFilter, setPositionFilter] = useState<string>("all");
+  const [xtvRange, setXtvRange] = useState<[number, number]>([0, 100]);
+  const [scoutedFilter, setScoutedFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const { data: allPlayers = [], isLoading } = usePlayersData();
   const { data: assignments = [], refetch: refetchAssignments } = useScoutingAssignments();
@@ -41,7 +45,11 @@ const Shortlists = () => {
     sortOrder,
     euGbeFilter,
     shortlists,
-    privatePlayers
+    privatePlayers,
+    positionFilter,
+    xtvRange,
+    scoutedFilter,
+    statusFilter
   });
 
   // Handle URL parameters for selected shortlist - exclude scouting assignment list
@@ -152,10 +160,18 @@ const Shortlists = () => {
         onSearchChange={setSearchTerm}
         sortBy={sortBy}
         onSortByChange={setSortBy}
-        sortOrder={sortOrder}
         onSortOrderChange={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
         euGbeFilter={euGbeFilter}
         onEuGbeFilterChange={setEuGbeFilter}
+        positionFilter={positionFilter}
+        onPositionFilterChange={setPositionFilter}
+        xtvRange={xtvRange}
+        onXtvRangeChange={setXtvRange}
+        maxXtv={shortlistsLogic.maxXtv}
+        scoutedFilter={scoutedFilter}
+        onScoutedFilterChange={setScoutedFilter}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
         getAssignmentBadge={shortlistsLogic.getAssignmentBadge}
         getEuGbeBadge={shortlistsLogic.getEuGbeBadge}
         formatXtvScore={shortlistsLogic.formatXtvScore}

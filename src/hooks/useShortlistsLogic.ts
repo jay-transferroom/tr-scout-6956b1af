@@ -1,9 +1,5 @@
 
-import { useState, useMemo } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useShortlists } from "@/hooks/useShortlists";
-import { useScoutingAssignments } from "@/hooks/useScoutingAssignments";
-import { useReports } from "@/hooks/useReports";
+import { useMemo } from "react";
 import { determinePlayerStatus, getStatusBadgeProps } from "@/utils/playerStatusUtils";
 
 interface UseShortlistsLogicProps {
@@ -17,6 +13,10 @@ interface UseShortlistsLogicProps {
   euGbeFilter: string;
   shortlists: any[];
   privatePlayers: any[];
+  positionFilter: string;
+  xtvRange: [number, number];
+  scoutedFilter: string;
+  statusFilter: string;
 }
 
 export const useShortlistsLogic = ({
@@ -29,7 +29,11 @@ export const useShortlistsLogic = ({
   sortOrder,
   euGbeFilter,
   shortlists,
-  privatePlayers
+  privatePlayers,
+  positionFilter,
+  xtvRange,
+  scoutedFilter,
+  statusFilter
 }: UseShortlistsLogicProps) => {
   
   // Get real private players for shortlists from usePrivatePlayers hook
@@ -108,6 +112,30 @@ export const useShortlistsLogic = ({
   console.log('Total players for current list:', allCurrentPlayers.length);
   console.log('Public players:', currentPublicPlayers.length, 'Private players:', currentPrivatePlayers.length);
   
+  // Calculate max xTV for range filter
+  const maxXtv = useMemo(() => {
+    if (allCurrentPlayers.length === 0) return 100;
+    const maxScore = Math.max(...allCurrentPlayers.map(p => (p.xtvScore || 0) / 1000000));
+    return Math.max(Math.ceil(maxScore), 1); // At least 1M for the slider
+  }, [allCurrentPlayers]);
+
+  // Helper to check if player has been scouted (has reports)
+  const hasPlayerBeenScouted = (playerId: string): boolean => {
+    return reports.some(report => report.playerId === playerId);
+  };
+
+  // Helper to get player status for filtering
+  const getPlayerStatusForFilter = (playerId: string): string => {
+    const assignment = assignments.find(a => a.player_id === playerId);
+    if (hasPlayerBeenScouted(playerId)) return 'reported';
+    if (assignment) {
+      if (assignment.status === 'completed') return 'completed';
+      if (assignment.status === 'in_progress') return 'in_progress';
+      return 'assigned';
+    }
+    return 'not_scouted';
+  };
+
   // Apply search filter
   const searchFilteredPlayers = allCurrentPlayers.filter(player =>
     player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -122,9 +150,40 @@ export const useShortlistsLogic = ({
         player.isPrivate || (player.euGbeStatus || 'Pass').toLowerCase() === euGbeFilter.toLowerCase()
       );
 
+  // Apply position filter
+  const positionFilteredPlayers = positionFilter === "all"
+    ? euGbeFilteredPlayers
+    : euGbeFilteredPlayers.filter(player =>
+        player.positions?.some((pos: string) => 
+          pos.toLowerCase() === positionFilter.toLowerCase()
+        )
+      );
+
+  // Apply xTV range filter
+  const xtvFilteredPlayers = positionFilteredPlayers.filter(player => {
+    const xtvInMillions = (player.xtvScore || 0) / 1000000;
+    return xtvInMillions >= xtvRange[0] && xtvInMillions <= xtvRange[1];
+  });
+
+  // Apply scouted filter
+  const scoutedFilteredPlayers = scoutedFilter === "all"
+    ? xtvFilteredPlayers
+    : xtvFilteredPlayers.filter(player => {
+        const isScouted = hasPlayerBeenScouted(player.id.toString());
+        return scoutedFilter === "yes" ? isScouted : !isScouted;
+      });
+
+  // Apply status filter
+  const statusFilteredPlayers = statusFilter === "all"
+    ? scoutedFilteredPlayers
+    : scoutedFilteredPlayers.filter(player => {
+        const status = getPlayerStatusForFilter(player.id.toString());
+        return status === statusFilter;
+      });
+
   // Apply sorting
   const sortedPlayers = useMemo(() => {
-    return [...euGbeFilteredPlayers].sort((a, b) => {
+    return [...statusFilteredPlayers].sort((a, b) => {
       let aValue: any, bValue: any;
       
       switch (sortBy) {
@@ -161,7 +220,7 @@ export const useShortlistsLogic = ({
         return aValue < bValue ? 1 : -1;
       }
     });
-  }, [euGbeFilteredPlayers, sortBy, sortOrder]);
+  }, [statusFilteredPlayers, sortBy, sortOrder]);
 
   const formatXtvScore = (score: number) => {
     return (score / 1000000).toFixed(1);
@@ -230,9 +289,12 @@ export const useShortlistsLogic = ({
   return {
     currentList,
     sortedPlayers,
+    maxXtv,
     formatXtvScore,
     getPlayerAssignment,
     getAssignmentBadge,
-    getEuGbeBadge
+    getEuGbeBadge,
+    hasPlayerBeenScouted,
+    getPlayerStatusForFilter
   };
 };
