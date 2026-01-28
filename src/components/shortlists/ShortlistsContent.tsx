@@ -298,18 +298,20 @@ export const ShortlistsContent = ({
             </div>
 
             {/* xTV Range Filter */}
-            <div className="flex flex-col gap-1.5 min-w-[180px]">
+            <div className="flex flex-col gap-1.5 flex-1 min-w-[200px] max-w-[400px]">
               <span className="text-xs font-medium text-muted-foreground">
                 xTV Range: £{xtvRange[0]}M - £{xtvRange[1]}M
               </span>
-              <Slider
-                value={xtvRange}
-                onValueChange={(value) => onXtvRangeChange(value as [number, number])}
-                min={0}
-                max={maxXtv}
-                step={1}
-                className="w-full"
-              />
+              <div className="h-9 flex items-center">
+                <Slider
+                  value={xtvRange}
+                  onValueChange={(value) => onXtvRangeChange(value as [number, number])}
+                  min={0}
+                  max={maxXtv}
+                  step={1}
+                  className="w-full"
+                />
+              </div>
             </div>
 
             {/* Scouted Filter */}
