@@ -1,6 +1,6 @@
 
 import { useState, useMemo } from "react";
-import { Search, ArrowUpDown, Download, Plus, Wand2 } from "lucide-react";
+import { Search, ArrowUpDown, ChevronUp, ChevronDown, Download, Plus, Wand2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,7 @@ interface ShortlistsContentProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   sortBy: string;
+  sortOrder: "asc" | "desc";
   onSortByChange: (value: string) => void;
   onSortOrderChange: () => void;
   euGbeFilter: string;
@@ -54,6 +55,7 @@ export const ShortlistsContent = ({
   searchTerm,
   onSearchChange,
   sortBy,
+  sortOrder,
   onSortByChange,
   onSortOrderChange,
   euGbeFilter,
@@ -145,6 +147,47 @@ export const ShortlistsContent = ({
   const handleCreateReport = (player: any) => {
     // This will be handled by the parent component
     console.log("Creating report for:", player);
+  };
+
+  // Sortable table header component
+  const SortableTableHead = ({ 
+    column, 
+    currentSort, 
+    sortOrder, 
+    onSort, 
+    children 
+  }: { 
+    column: string; 
+    currentSort: string; 
+    sortOrder: "asc" | "desc"; 
+    onSort: (value: string) => void; 
+    children: React.ReactNode;
+  }) => {
+    const isActive = currentSort === column;
+    
+    const handleClick = () => {
+      onSort(column);
+    };
+    
+    return (
+      <TableHead 
+        className="cursor-pointer hover:bg-muted/50 select-none"
+        onClick={handleClick}
+      >
+        <div className="flex items-center gap-1">
+          {children}
+          {isActive ? (
+            sortOrder === "asc" ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )
+          ) : (
+            <ArrowUpDown className="h-3 w-3 opacity-50" />
+          )}
+        </div>
+      </TableHead>
+    );
   };
 
   if (!currentList) {
@@ -422,12 +465,54 @@ export const ShortlistsContent = ({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Player</TableHead>
-                <TableHead>Age</TableHead>
-                <TableHead>Positions</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Potential</TableHead>
-                <TableHead>XTV (£M)</TableHead>
+                <SortableTableHead 
+                  column="name" 
+                  currentSort={sortBy} 
+                  sortOrder={sortOrder} 
+                  onSort={onSortByChange}
+                >
+                  Player
+                </SortableTableHead>
+                <SortableTableHead 
+                  column="age" 
+                  currentSort={sortBy} 
+                  sortOrder={sortOrder} 
+                  onSort={onSortByChange}
+                >
+                  Age
+                </SortableTableHead>
+                <SortableTableHead 
+                  column="position" 
+                  currentSort={sortBy} 
+                  sortOrder={sortOrder} 
+                  onSort={onSortByChange}
+                >
+                  Positions
+                </SortableTableHead>
+                <SortableTableHead 
+                  column="rating" 
+                  currentSort={sortBy} 
+                  sortOrder={sortOrder} 
+                  onSort={onSortByChange}
+                >
+                  Rating
+                </SortableTableHead>
+                <SortableTableHead 
+                  column="potential" 
+                  currentSort={sortBy} 
+                  sortOrder={sortOrder} 
+                  onSort={onSortByChange}
+                >
+                  Potential
+                </SortableTableHead>
+                <SortableTableHead 
+                  column="xtv" 
+                  currentSort={sortBy} 
+                  sortOrder={sortOrder} 
+                  onSort={onSortByChange}
+                >
+                  XTV (£M)
+                </SortableTableHead>
                 <TableHead>EU/GBE</TableHead>
                 <TableHead>Scouts</TableHead>
                 <TableHead>Status</TableHead>

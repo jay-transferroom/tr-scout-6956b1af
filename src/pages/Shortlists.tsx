@@ -159,6 +159,7 @@ const Shortlists = () => {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         sortBy={sortBy}
+        sortOrder={sortOrder}
         onSortByChange={setSortBy}
         onSortOrderChange={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
         euGbeFilter={euGbeFilter}
