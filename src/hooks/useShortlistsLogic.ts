@@ -207,6 +207,10 @@ export const useShortlistsLogic = ({
           aValue = a.contractExpiry ? new Date(a.contractExpiry).getTime() : 0;
           bValue = b.contractExpiry ? new Date(b.contractExpiry).getTime() : 0;
           break;
+        case "position":
+          aValue = a.positions?.[0]?.toLowerCase() || '';
+          bValue = b.positions?.[0]?.toLowerCase() || '';
+          break;
         case "name":
         default:
           aValue = a.name.toLowerCase();
