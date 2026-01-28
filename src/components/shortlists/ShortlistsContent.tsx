@@ -362,6 +362,26 @@ export const ShortlistsContent = ({
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Clear Filters Button */}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-medium text-transparent">Clear</span>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-9"
+                onClick={() => {
+                  onPositionFilterChange("all");
+                  onXtvRangeChange([0, maxXtv]);
+                  onScoutedFilterChange("all");
+                  onStatusFilterChange("all");
+                  onEuGbeFilterChange("all");
+                  onSearchChange("");
+                }}
+              >
+                Clear Filters
+              </Button>
+            </div>
           </div>
         </div>
 
