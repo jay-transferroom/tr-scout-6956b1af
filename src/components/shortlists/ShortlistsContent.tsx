@@ -297,23 +297,6 @@ export const ShortlistsContent = ({
               </Select>
             </div>
 
-            {/* xTV Range Filter */}
-            <div className="flex flex-col gap-1.5 flex-1 min-w-[200px] max-w-[400px]">
-              <span className="text-xs font-medium text-muted-foreground">
-                xTV Range: £{xtvRange[0]}M - £{xtvRange[1]}M
-              </span>
-              <div className="h-9 flex items-center">
-                <Slider
-                  value={xtvRange}
-                  onValueChange={(value) => onXtvRangeChange(value as [number, number])}
-                  min={0}
-                  max={maxXtv}
-                  step={1}
-                  className="w-full"
-                />
-              </div>
-            </div>
-
             {/* Scouted Filter */}
             <div className="flex flex-col gap-1.5">
               <span className="text-xs font-medium text-muted-foreground">Scouted</span>
@@ -361,6 +344,23 @@ export const ShortlistsContent = ({
                   <SelectItem value="pending">Pending</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* xTV Range Filter */}
+            <div className="flex flex-col gap-1.5 flex-1 min-w-[200px] max-w-[400px]">
+              <span className="text-xs font-medium text-muted-foreground">
+                xTV Range: £{xtvRange[0]}M - £{xtvRange[1]}M
+              </span>
+              <div className="h-9 flex items-center">
+                <Slider
+                  value={xtvRange}
+                  onValueChange={(value) => onXtvRangeChange(value as [number, number])}
+                  min={0}
+                  max={maxXtv}
+                  step={1}
+                  className="w-full"
+                />
+              </div>
             </div>
 
             {/* Clear Filters Button */}
