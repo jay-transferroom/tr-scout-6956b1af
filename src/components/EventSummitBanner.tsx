@@ -44,7 +44,7 @@ const EventSummitBanner = ({
           <div className="flex items-center gap-3 flex-wrap">
             <Button 
               onClick={onRegister}
-              className="bg-[#3A9D5C] hover:bg-[#2d7a47] text-white font-semibold px-5"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-5"
             >
               Register Interest
             </Button>

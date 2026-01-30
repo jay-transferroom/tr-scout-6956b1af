@@ -30,7 +30,7 @@ const AIScoutAssistant = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-blue-600" />
+          <Sparkles className="h-5 w-5 text-primary" />
           AI Scout Assistant
         </CardTitle>
       </CardHeader>
