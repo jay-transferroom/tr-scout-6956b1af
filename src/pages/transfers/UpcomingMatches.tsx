@@ -1,28 +1,21 @@
 import { useFixturesData } from "@/hooks/useFixturesData";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Calendar, MapPin, Trophy } from "lucide-react";
-import { format } from "date-fns";
+import { Loader2, Calendar as CalendarIcon } from "lucide-react";
+import { FixtureCard } from "@/components/fixtures/FixtureCard";
+import { isAfter, addDays } from "date-fns";
 
 const UpcomingMatches = () => {
   const { data: fixtures = [], isLoading, error } = useFixturesData();
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'scheduled':
-        return 'bg-blue-500';
-      case 'live':
-        return 'bg-green-500';
-      case 'completed':
-        return 'bg-gray-500';
-      case 'postponed':
-        return 'bg-yellow-500';
-      case 'cancelled':
-        return 'bg-red-500';
-      default:
-        return 'bg-gray-500';
-    }
-  };
+  // Filter for upcoming matches (next 30 days)
+  const now = new Date();
+  const next30Days = addDays(now, 30);
+  
+  const upcomingMatches = fixtures
+    .filter(fixture => {
+      const fixtureDate = new Date(fixture.match_date_utc);
+      return isAfter(fixtureDate, now) && !isAfter(fixtureDate, next30Days);
+    })
+    .sort((a, b) => new Date(a.match_date_utc).getTime() - new Date(b.match_date_utc).getTime());
 
   if (isLoading) {
     return (
@@ -42,55 +35,37 @@ const UpcomingMatches = () => {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Upcoming Matches</h2>
+        <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+          <CalendarIcon className="h-6 w-6" />
+          Upcoming Matches
+        </h2>
         <p className="text-muted-foreground">Track upcoming fixtures and matches for scouting opportunities</p>
       </div>
 
-      <div className="grid gap-4">
-        {fixtures.map((fixture, index) => (
-          <Card key={`${fixture.match_number}-${index}`}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">
-                  {fixture.home_team} vs {fixture.away_team}
-                </CardTitle>
-                <Badge className={getStatusColor(fixture.status || 'scheduled')}>
-                  {(fixture.status || 'scheduled').charAt(0).toUpperCase() + (fixture.status || 'scheduled').slice(1)}
-                </Badge>
-              </div>
-              <CardDescription className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
-                  <Trophy className="h-4 w-4" />
-                  {fixture.competition}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  {format(new Date(fixture.match_date_utc), 'PPP p')}
-                </div>
-                {fixture.venue && (
-                  <div className="flex items-center gap-1">
-                    <MapPin className="h-4 w-4" />
-                    {fixture.venue}
-                  </div>
-                )}
-              </CardDescription>
-            </CardHeader>
-            {(fixture.home_score !== null && fixture.away_score !== null) && (
-              <CardContent>
-                <div className="text-2xl font-bold text-center">
-                  {fixture.home_score} - {fixture.away_score}
-                </div>
-              </CardContent>
-            )}
-          </Card>
-        ))}
-      </div>
-
-      {fixtures.length === 0 && (
+      {upcomingMatches.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {upcomingMatches.map((fixture, index) => (
+            <FixtureCard
+              key={`${fixture.match_number}-${index}`}
+              homeTeam={fixture.home_team}
+              awayTeam={fixture.away_team}
+              matchDate={fixture.match_date_utc}
+              venue={fixture.venue}
+              competition={fixture.competition}
+              homeScore={fixture.home_score}
+              awayScore={fixture.away_score}
+              shortlistedPlayersCount={0}
+              scoutsAssignedCount={0}
+              colorIndex={index}
+            />
+          ))}
+        </div>
+      ) : (
         <div className="text-center p-8 text-muted-foreground">
-          No fixtures available at the moment.
+          <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
+          <p>No upcoming fixtures available at the moment.</p>
         </div>
       )}
     </div>
