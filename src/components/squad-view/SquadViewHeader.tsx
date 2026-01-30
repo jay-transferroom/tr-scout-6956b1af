@@ -102,13 +102,13 @@ export function SquadViewHeader({
                 <Button
                   key={squad.id}
                   onClick={() => onSquadChange(squad.id)}
-                  variant={selectedSquad === squad.id ? "default" : "ghost"}
+                  variant={selectedSquad === squad.id ? "secondary" : "ghost"}
                   size="sm"
                   className="h-8 px-3"
                 >
                   <span className="text-sm">{squad.label}</span>
                   <Badge 
-                    variant={selectedSquad === squad.id ? "secondary" : "outline"} 
+                    variant="secondary"
                     className="ml-1.5 text-xs h-5 min-w-5 justify-center"
                   >
                     {squad.count}
