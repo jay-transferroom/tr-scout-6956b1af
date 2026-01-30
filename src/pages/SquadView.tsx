@@ -4,7 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { usePlayerPositionAssignments, useUpdatePlayerPositionAssignment, useAllPlayerPositionAssignments } from "@/hooks/usePlayerPositionAssignments";
 import SquadFormationCard from "@/components/SquadFormationCard";
-import SquadComparisonChart from "@/components/SquadComparisonChart";
+import { SquadRatingCTAs } from "@/components/squad-view/SquadRatingCTAs";
+
 import { useSquadData } from "@/hooks/useSquadData";
 import { useMarescaFormations } from "@/hooks/useMarescaFormations";
 import { useHeadCoach } from "@/hooks/useHeadCoach";
@@ -271,12 +272,9 @@ const SquadView = () => {
             </div>
           </div>
 
-          {/* League Comparison - Now below formation */}
+          {/* Rating CTAs */}
           <div className="mt-6">
-            <SquadComparisonChart 
-              clubName={userClub} 
-              currentSquadRating={currentSquadRating}
-            />
+            <SquadRatingCTAs currentSquadRating={currentSquadRating} />
           </div>
         </div>
       </div>
