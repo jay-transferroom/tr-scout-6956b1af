@@ -13,9 +13,16 @@ interface SquadFormationCardProps {
     position: string;
     player_id: string;
   }>;
+  multiPlayerSlots?: Array<{
+    position: string;
+    activePlayerId: string;
+    alternatePlayerIds: string[];
+  }>;
   onPositionClick: (position: string) => void;
   selectedPosition: string | null;
   onPlayerChange?: (position: string, playerId: string) => void;
+  onAddPlayerToPosition?: (position: string, playerId: string) => void;
+  onSetActivePlayer?: (position: string, playerId: string) => void;
   disableAutoFill?: boolean;
 }
 
@@ -24,9 +31,12 @@ const SquadFormationCard = ({
   selectedSquad, 
   formation,
   positionAssignments = [],
+  multiPlayerSlots = [],
   onPositionClick, 
   selectedPosition,
   onPlayerChange,
+  onAddPlayerToPosition,
+  onSetActivePlayer,
   disableAutoFill
 }: SquadFormationCardProps) => {
   return (
@@ -35,9 +45,12 @@ const SquadFormationCard = ({
       selectedSquad={selectedSquad}
       formation={formation}
       positionAssignments={positionAssignments}
+      multiPlayerSlots={multiPlayerSlots}
       onPositionClick={onPositionClick}
       selectedPosition={selectedPosition}
       onPlayerChange={onPlayerChange}
+      onAddPlayerToPosition={onAddPlayerToPosition}
+      onSetActivePlayer={onSetActivePlayer}
       disableAutoFill={disableAutoFill}
     />
   );

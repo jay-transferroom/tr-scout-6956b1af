@@ -185,75 +185,81 @@ export function SquadViewHeader({
           )}
         </div>
 
-        {/* Recommendations & Alerts Row */}
-        {(recommendations.length > 0 || alertPlayers.length > 0) && (
-          <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
-            {/* Recommendations */}
-            {recommendations.slice(0, 3).map((rec, index) => (
-              <TooltipProvider key={index}>
+        {/* Recommendations, Alerts & Rating Row */}
+        <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t">
+          {/* Rating CTAs as compact tags */}
+          <SquadRatingCTAs currentSquadRating={currentSquadRating} variant="compact" />
+          
+          {/* Divider */}
+          {(recommendations.length > 0 || alertPlayers.length > 0) && (
+            <div className="h-5 w-px bg-border mx-1" />
+          )}
+          
+          {/* Recommendations */}
+          {recommendations.slice(0, 3).map((rec, index) => (
+            <TooltipProvider key={index}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md cursor-default">
+                    <Lightbulb className="h-3.5 w-3.5 text-primary" />
+                    <Badge variant="default" className="text-xs">
+                      {rec.Position}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground hidden sm:inline max-w-[200px] truncate">
+                      {rec.Reason}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <p className="text-sm">{rec.Reason}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
+
+          {/* Alert Players */}
+          {alertPlayers.slice(0, 3).map((player) => {
+            const contractExpiringSoon = player.contractExpiry ? (() => {
+              const expiryDate = new Date(player.contractExpiry);
+              const now = new Date();
+              const monthsUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30));
+              return monthsUntilExpiry <= 12 && monthsUntilExpiry > 0;
+            })() : false;
+            const isAging = player.age >= 30;
+            const alertType = contractExpiringSoon ? "Contract" : "Age";
+
+            return (
+              <TooltipProvider key={player.id}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md cursor-default">
-                      <Lightbulb className="h-3.5 w-3.5 text-primary" />
-                      <Badge variant="default" className="text-xs">
-                        {rec.Position}
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-destructive/10 rounded-md cursor-default">
+                      <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+                      <span className="text-xs font-medium">{player.name.split(' ').pop()}</span>
+                      <Badge variant="outline" className="text-xs border-destructive/30 text-destructive">
+                        {alertType}
                       </Badge>
-                      <span className="text-xs text-muted-foreground hidden sm:inline max-w-[200px] truncate">
-                        {rec.Reason}
-                      </span>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-xs">
-                    <p className="text-sm">{rec.Reason}</p>
+                  <TooltipContent side="bottom">
+                    <p className="text-sm font-medium">{player.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {player.positions.join(', ')} • Age {player.age}
+                      {contractExpiringSoon && " • Contract expiring soon"}
+                      {isAging && !contractExpiringSoon && " • Aging player"}
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            ))}
+            );
+          })}
 
-            {/* Alert Players */}
-            {alertPlayers.slice(0, 3).map((player) => {
-              const contractExpiringSoon = player.contractExpiry ? (() => {
-                const expiryDate = new Date(player.contractExpiry);
-                const now = new Date();
-                const monthsUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30));
-                return monthsUntilExpiry <= 12 && monthsUntilExpiry > 0;
-              })() : false;
-              const isAging = player.age >= 30;
-              const alertType = contractExpiringSoon ? "Contract" : "Age";
-
-              return (
-                <TooltipProvider key={player.id}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-destructive/10 rounded-md cursor-default">
-                        <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
-                        <span className="text-xs font-medium">{player.name.split(' ').pop()}</span>
-                        <Badge variant="outline" className="text-xs border-destructive/30 text-destructive">
-                          {alertType}
-                        </Badge>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">
-                      <p className="text-sm font-medium">{player.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {player.positions.join(', ')} • Age {player.age}
-                        {contractExpiringSoon && " • Contract expiring soon"}
-                        {isAging && !contractExpiringSoon && " • Aging player"}
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              );
-            })}
-
-            {/* Show more indicator */}
-            {(recommendations.length > 3 || alertPlayers.length > 3) && (
-              <Badge variant="outline" className="text-xs">
-                +{Math.max(0, recommendations.length - 3) + Math.max(0, alertPlayers.length - 3)} more
-              </Badge>
-            )}
-          </div>
-        )}
+          {/* Show more indicator */}
+          {(recommendations.length > 3 || alertPlayers.length > 3) && (
+            <Badge variant="outline" className="text-xs">
+              +{Math.max(0, recommendations.length - 3) + Math.max(0, alertPlayers.length - 3)} more
+            </Badge>
+          )}
+        </div>
       </div>
     </div>
   );

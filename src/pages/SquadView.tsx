@@ -263,14 +263,13 @@ const SquadView = () => {
               />
             </div>
 
-            {/* Saved Configurations + Rating CTAs - Takes 1 column on large screens */}
+            {/* Saved Configurations - Takes 1 column on large screens */}
             <div className="lg:col-span-1 space-y-4">
               <SavedSquadConfigurations 
                 clubName={userClub}
                 onLoadConfiguration={handleLoadConfiguration}
                 loadedConfigurationId={loadedConfiguration?.id}
               />
-              <SquadRatingCTAs currentSquadRating={currentSquadRating} />
             </div>
           </div>
 
