@@ -22,6 +22,7 @@ import AssignScoutDialog from "@/components/AssignScoutDialog";
 import ViewToggle from "@/components/ViewToggle";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { MatchPlayersSheet } from "@/components/MatchPlayersSheet";
+import { getMatchGradient } from "@/components/fixtures/FixtureCard";
 
 
 const Calendar = () => {
@@ -782,19 +783,18 @@ const Calendar = () => {
                     const isLive = fixture.status === 'live' || fixture.status === 'Live';
                     const hasScore = fixture.home_score !== null && fixture.away_score !== null;
                     
-                    // Color palette for fixture headers
-                    const fixtureColors = [
-                      "bg-[#6B4E71]", // Purple/mauve
-                      "bg-[#D4A84B]", // Gold/mustard  
-                      "bg-[#4A5568]", // Slate gray
-                      "bg-[#2D5A7B]", // Steel blue
-                    ];
-                    const headerColor = fixtureColors[index % fixtureColors.length];
+                    // Get dynamic gradient from home team to away team colors
+                    const gradient = getMatchGradient(fixture.home_team, fixture.away_team);
                     
                     return (
                       <div key={`${fixture.match_number}-${index}`} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                        {/* Colored Header with Teams */}
-                        <div className={cn("px-4 py-3 text-white", headerColor)}>
+                        {/* Gradient Header with Teams - from home to away team colors */}
+                        <div 
+                          className="px-4 py-3 text-white"
+                          style={{
+                            background: `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.to} 100%)`
+                          }}
+                        >
                           <div className="flex items-center justify-center gap-2 sm:gap-4">
                             {/* Home Team */}
                             <button

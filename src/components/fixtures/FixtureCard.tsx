@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 // Club primary colors for gradient headers - based on actual club colors
+// Exported for use in other components
 const CLUB_COLORS: Record<string, { from: string; to: string }> = {
   // Premier League
   "Liverpool": { from: "#C8102E", to: "#8B0A1E" },
@@ -85,22 +86,68 @@ const CLUB_COLORS: Record<string, { from: string; to: string }> = {
 // Default gradient for unknown clubs
 const DEFAULT_GRADIENT = { from: "#4A5568", to: "#2D3748" };
 
-function getClubGradient(clubName: string): { from: string; to: string } {
+// Get the primary (darker/more saturated) color for a club - suitable for white text
+function getClubPrimaryColor(clubName: string): string {
   // Try exact match first
   if (CLUB_COLORS[clubName]) {
-    return CLUB_COLORS[clubName];
+    return CLUB_COLORS[clubName].from;
   }
   
   // Try partial match
   const lowerName = clubName.toLowerCase();
   for (const [key, value] of Object.entries(CLUB_COLORS)) {
     if (lowerName.includes(key.toLowerCase()) || key.toLowerCase().includes(lowerName)) {
-      return value;
+      return value.from;
     }
   }
   
-  return DEFAULT_GRADIENT;
+  return DEFAULT_GRADIENT.from;
 }
+
+// Check if a color is too light for white text (needs darkening)
+function isColorTooLight(hex: string): boolean {
+  // Convert hex to RGB
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  
+  // Calculate relative luminance
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  
+  return luminance > 0.5;
+}
+
+// Darken a hex color by a percentage
+function darkenColor(hex: string, percent: number): string {
+  const r = Math.max(0, Math.floor(parseInt(hex.slice(1, 3), 16) * (1 - percent)));
+  const g = Math.max(0, Math.floor(parseInt(hex.slice(3, 5), 16) * (1 - percent)));
+  const b = Math.max(0, Math.floor(parseInt(hex.slice(5, 7), 16) * (1 - percent)));
+  
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
+// Get a color safe for white text overlay
+function getSafeColorForWhiteText(color: string): string {
+  if (isColorTooLight(color)) {
+    return darkenColor(color, 0.4); // Darken light colors by 40%
+  }
+  return color;
+}
+
+// Create a gradient from home team color to away team color
+// Exported for use in Calendar and other components
+export function getMatchGradient(homeTeam: string, awayTeam: string): { from: string; to: string } {
+  const homeColor = getClubPrimaryColor(homeTeam);
+  const awayColor = getClubPrimaryColor(awayTeam);
+  
+  return {
+    from: getSafeColorForWhiteText(homeColor),
+    to: getSafeColorForWhiteText(awayColor)
+  };
+}
+
+// Export the color map for direct access if needed
+export { CLUB_COLORS };
 
 interface FixtureCardProps {
   homeTeam: string;
@@ -133,7 +180,7 @@ export const FixtureCard: React.FC<FixtureCardProps> = ({
   variant = "default",
 }) => {
   const hasScore = homeScore !== null && awayScore !== null;
-  const gradient = getClubGradient(homeTeam);
+  const gradient = getMatchGradient(homeTeam, awayTeam);
   const formattedDate = format(new Date(matchDate), "d MMM yyyy, HH:mm");
   
   return (
