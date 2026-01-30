@@ -117,43 +117,35 @@ export function SquadRatingCTAs({ currentSquadRating }: SquadRatingCTAsProps) {
 
   return (
     <>
-      <div className="flex flex-wrap gap-3">
+      <div className="grid grid-cols-2 gap-2">
         {/* Overall Rating CTA */}
         <Card 
-          className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/50 transition-colors border"
+          className="flex items-center gap-2 p-2 cursor-pointer hover:bg-muted/50 transition-colors border"
           onClick={() => setShowRatingSheet(true)}
         >
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Star className="h-5 w-5 text-primary" />
+          <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <Star className="h-3.5 w-3.5 text-primary" />
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Overall Rating</p>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold">{overallRating.toFixed(1)}</span>
-              {hasCurrentRating && (
-                <Badge variant="outline" className="text-[10px]">Live</Badge>
-              )}
-            </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] text-muted-foreground">Rating</p>
+            <span className="text-sm font-bold">{overallRating.toFixed(1)}</span>
           </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground ml-2" />
+          <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
         </Card>
 
         {/* League Position CTA */}
         <Card 
-          className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/50 transition-colors border"
+          className="flex items-center gap-2 p-2 cursor-pointer hover:bg-muted/50 transition-colors border"
           onClick={() => setShowRankingSheet(true)}
         >
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Trophy className="h-5 w-5 text-primary" />
+          <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <Trophy className="h-3.5 w-3.5 text-primary" />
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground">League Position</p>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold">#{overallRank}</span>
-              <span className="text-xs text-muted-foreground">of {squads.length}</span>
-            </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] text-muted-foreground">Position</p>
+            <span className="text-sm font-bold">#{overallRank}</span>
           </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground ml-2" />
+          <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
         </Card>
       </div>
 
