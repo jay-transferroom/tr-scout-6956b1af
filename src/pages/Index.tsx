@@ -275,20 +275,20 @@ const Index = () => {
         </div>
 
 
+        {/* Fixture Tracking - Full width */}
+        <UpcomingMatches />
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Left Column */}
           <div className="space-y-4 sm:space-y-6">
             {/* Quick Actions Bar */}
             <QuickActionsBar />
-
-            {/* AI Scout Assistant */}
-            <AIScoutAssistant />
           </div>
 
           {/* Right Column */}
           <div className="space-y-4 sm:space-y-6">
-            {/* Upcoming Matches */}
-            <UpcomingMatches />
+            {/* AI Scout Assistant */}
+            <AIScoutAssistant />
           </div>
         </div>
 
