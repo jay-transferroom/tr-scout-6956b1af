@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Calendar as CalendarIcon, Clock, MapPin, Users, UserCheck, Plus, Search, Star, Target } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, MapPin, UserCheck, Plus, Search, Star, Target } from "lucide-react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday, addWeeks, subWeeks, isSameWeek, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useFixturesData, Fixture } from "@/hooks/useFixturesData";
@@ -22,6 +22,7 @@ import AssignScoutDialog from "@/components/AssignScoutDialog";
 import ViewToggle from "@/components/ViewToggle";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { MatchPlayersSheet } from "@/components/MatchPlayersSheet";
+
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -781,35 +782,21 @@ const Calendar = () => {
                     const isLive = fixture.status === 'live' || fixture.status === 'Live';
                     const hasScore = fixture.home_score !== null && fixture.away_score !== null;
                     
+                    // Color palette for fixture headers
+                    const fixtureColors = [
+                      "bg-[#6B4E71]", // Purple/mauve
+                      "bg-[#D4A84B]", // Gold/mustard  
+                      "bg-[#4A5568]", // Slate gray
+                      "bg-[#2D5A7B]", // Steel blue
+                    ];
+                    const headerColor = fixtureColors[index % fixtureColors.length];
+                    
                     return (
-                      <div key={`${fixture.match_number}-${index}`} className={cn(
-                        "p-4 border rounded-lg",
-                        isLive && "border-green-300 bg-green-50",
-                        isCompleted && "border-gray-300 bg-gray-50"
-                      )}>
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium">
-                              {format(new Date(fixture.match_date_utc), "HH:mm")}
-                            </span>
-                            <Badge variant="outline">{fixture.competition}</Badge>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {isLive && (
-                              <Badge className="bg-green-500 text-white animate-pulse">LIVE</Badge>
-                            )}
-                            {isCompleted && (
-                              <Badge variant="secondary">FT</Badge>
-                            )}
-                            {!isLive && !isCompleted && (
-                              <Badge variant="outline">Scheduled</Badge>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="text-center mb-3">
+                      <div key={`${fixture.match_number}-${index}`} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        {/* Colored Header with Teams */}
+                        <div className={cn("px-4 py-3 text-white", headerColor)}>
                           <div className="flex items-center justify-center gap-2 sm:gap-4">
+                            {/* Home Team */}
                             <button
                               onClick={() => {
                                 if (isCompleted) {
@@ -818,15 +805,17 @@ const Calendar = () => {
                                 }
                               }}
                               className={cn(
-                                "text-right flex-1 flex items-center justify-end gap-1 sm:gap-2 transition-all",
-                                isCompleted && "cursor-pointer hover:underline"
+                                "flex items-center gap-2 flex-1 justify-end transition-all",
+                                isCompleted && "cursor-pointer hover:opacity-80"
                               )}
                               disabled={!isCompleted}
                             >
-                              <div className="font-semibold text-sm sm:text-base lg:text-lg">{fixture.home_team}</div>
-                              <ClubBadge clubName={fixture.home_team} size="md" />
+                              <ClubBadge clubName={fixture.home_team} size="sm" className="bg-white/20 rounded-full p-0.5" />
+                              <span className="font-semibold text-sm sm:text-base truncate">{fixture.home_team}</span>
                             </button>
-                            <div className="flex flex-col items-center gap-1">
+                            
+                            {/* Score/VS */}
+                            <div className="shrink-0 px-2 sm:px-3">
                               {hasScore ? (
                                 <button
                                   onClick={() => {
@@ -836,21 +825,18 @@ const Calendar = () => {
                                     }
                                   }}
                                   className={cn(
-                                    "text-xl sm:text-2xl font-bold transition-all",
-                                    isCompleted && "hover:text-primary hover:underline cursor-pointer"
+                                    "text-lg sm:text-xl font-bold transition-all",
+                                    isCompleted && "hover:underline cursor-pointer"
                                   )}
                                 >
                                   {fixture.home_score} - {fixture.away_score}
                                 </button>
                               ) : (
-                                <div className="text-base sm:text-lg text-muted-foreground">vs</div>
-                              )}
-                              {fixture.status && !isCompleted && (
-                                <div className="text-xs text-muted-foreground uppercase">
-                                  {fixture.status}
-                                </div>
+                                <span className="text-white/80 font-medium text-sm">vs</span>
                               )}
                             </div>
+                            
+                            {/* Away Team */}
                             <button
                               onClick={() => {
                                 if (isCompleted) {
@@ -859,33 +845,43 @@ const Calendar = () => {
                                 }
                               }}
                               className={cn(
-                                "text-left flex-1 flex items-center justify-start gap-1 sm:gap-2 transition-all",
-                                isCompleted && "cursor-pointer hover:underline"
+                                "flex items-center gap-2 flex-1 transition-all",
+                                isCompleted && "cursor-pointer hover:opacity-80"
                               )}
                               disabled={!isCompleted}
                             >
-                              <ClubBadge clubName={fixture.away_team} size="md" />
-                              <div className="font-semibold text-sm sm:text-base lg:text-lg">{fixture.away_team}</div>
+                              <span className="font-semibold text-sm sm:text-base truncate">{fixture.away_team}</span>
+                              <ClubBadge clubName={fixture.away_team} size="sm" className="bg-white/20 rounded-full p-0.5" />
                             </button>
                           </div>
                         </div>
                         
-                        {(fixture.venue || fixture.result) && (
-                          <div className="flex items-center justify-center gap-2 mb-3 text-sm text-muted-foreground">
+                        {/* Card Body */}
+                        <div className="p-4 bg-card">
+                          {/* Meta info row */}
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-3 text-sm text-muted-foreground">
                             {fixture.venue && (
-                              <>
-                                <MapPin className="h-4 w-4" />
+                              <div className="flex items-center gap-1">
+                                <MapPin className="h-3.5 w-3.5" />
                                 <span>{fixture.venue}</span>
-                              </>
+                              </div>
                             )}
-                            {fixture.venue && fixture.result && (
-                              <span>•</span>
-                            )}
-                            {fixture.result && (
-                              <span>Result: {fixture.result}</span>
-                            )}
+                            <div className="flex items-center gap-1">
+                              <CalendarIcon className="h-3.5 w-3.5" />
+                              <span>{format(new Date(fixture.match_date_utc), "d MMM yyyy, HH:mm")}</span>
+                            </div>
+                            <div className="flex items-center gap-2 ml-auto">
+                              {isLive && (
+                                <Badge className="bg-green-500 text-white animate-pulse">LIVE</Badge>
+                              )}
+                              {isCompleted && (
+                                <Badge variant="secondary">FT</Badge>
+                              )}
+                              {!isLive && !isCompleted && (
+                                <Badge variant="outline">{fixture.competition || 'Scheduled'}</Badge>
+                              )}
+                            </div>
                           </div>
-                        )}
                         
                         {/* Shortlisted Players */}
                         {(() => {
@@ -1047,6 +1043,7 @@ const Calendar = () => {
                             </div>
                           );
                         })()}
+                        </div>
                       </div>
                     );
                   })}
