@@ -130,7 +130,7 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
         {/* Logo Section */}
         <div className={cn("px-3 mb-4", isCollapsed && "px-2")}>
           <Link to="/" onClick={handleNavClick}>
-            <ScoutLogo size={isCollapsed ? "sm" : "md"} />
+            <ScoutLogo size={isCollapsed ? "sm" : "md"} showText={!isCollapsed} />
           </Link>
         </div>
 
