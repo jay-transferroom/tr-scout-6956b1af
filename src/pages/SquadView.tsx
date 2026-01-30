@@ -4,8 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { usePlayerPositionAssignments, useUpdatePlayerPositionAssignment, useAllPlayerPositionAssignments } from "@/hooks/usePlayerPositionAssignments";
 import SquadFormationCard from "@/components/SquadFormationCard";
-import { SquadRatingCTAs } from "@/components/squad-view/SquadRatingCTAs";
-
+import { useMultiPlayerPositions } from "@/hooks/useMultiPlayerPositions";
 import { useSquadData } from "@/hooks/useSquadData";
 import { useMarescaFormations } from "@/hooks/useMarescaFormations";
 import { useHeadCoach } from "@/hooks/useHeadCoach";
@@ -16,20 +15,28 @@ import { SquadConfiguration, useSquadConfigurations } from "@/hooks/useSquadConf
 import { toast } from "@/hooks/use-toast";
 import { useCurrentSquadRating } from "@/hooks/useCurrentSquadRating";
 import { SquadViewHeader } from "@/components/squad-view/SquadViewHeader";
+
 const SquadView = () => {
   const navigate = useNavigate();
-  const {
-    profile
-  } = useAuth();
+  const { profile } = useAuth();
   const [selectedSquad, setSelectedSquad] = useState<string>('shadow-squad');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [loadedConfiguration, setLoadedConfiguration] = useState<SquadConfiguration | null>(null);
-  const [manualAssignments, setManualAssignments] = useState<Array<{ position: string; player_id: string }>>([]);
   const [currentFormation, setCurrentFormation] = useState<string>('4-3-3');
   
   // Start with blank squad by default (no auto-fill)
   const [disableAutoFill, setDisableAutoFill] = useState(true);
+  
+  // Multi-player positions hook for managing multiple players per position
+  const {
+    positionSlots,
+    setActivePlayer,
+    addPlayerToPosition,
+    loadFromAssignments,
+    getActiveAssignments,
+    clearAll: clearMultiPlayerSlots
+  } = useMultiPlayerPositions();
   
   // Fetch real players data - MUST be called before any conditional returns
   const {
@@ -53,14 +60,14 @@ const SquadView = () => {
       const defaultConfig = squadConfigs.find(c => c.is_default);
       if (defaultConfig) {
         setLoadedConfiguration(defaultConfig);
-        setManualAssignments(defaultConfig.position_assignments);
+        loadFromAssignments(defaultConfig.position_assignments);
         setCurrentFormation(defaultConfig.formation);
         setSelectedSquad(defaultConfig.squad_type);
         // Keep auto-fill disabled when loading configurations
         setHasLoadedDefault(true);
       }
     }
-  }, [squadConfigs, loadedConfiguration, hasLoadedDefault]);
+  }, [squadConfigs, loadedConfiguration, hasLoadedDefault, loadFromAssignments]);
 
   // Get head coach data
   const { data: headCoach } = useHeadCoach(userClub);
@@ -68,8 +75,11 @@ const SquadView = () => {
   // Get player position assignments - don't use DB assignments on initial load
   const { data: savedPositionAssignments = [] } = usePlayerPositionAssignments(userClub, currentFormation, selectedSquad);
   
-  // Use manual assignments if available, otherwise use empty for blank start
-  const positionAssignments = manualAssignments.length > 0 ? manualAssignments : (loadedConfiguration ? savedPositionAssignments : []);
+  // Get active assignments from multi-player hook (only the currently active player per position)
+  const positionAssignments = useMemo(() => {
+    const activeAssignments = getActiveAssignments();
+    return activeAssignments.length > 0 ? activeAssignments : (loadedConfiguration ? savedPositionAssignments : []);
+  }, [getActiveAssignments, loadedConfiguration, savedPositionAssignments]);
   
   const { data: allPositionAssignments = [] } = useAllPlayerPositionAssignments(userClub, currentFormation);
   const updateAssignment = useUpdatePlayerPositionAssignment();
@@ -129,7 +139,7 @@ const SquadView = () => {
   const handleFormationChange = (formation: string) => {
     setCurrentFormation(formation);
     // Clear assignments when formation changes
-    setManualAssignments([]);
+    clearMultiPlayerSlots();
   };
 
   const isEligibleForSeniorSquad = (player: any) => {
@@ -180,7 +190,7 @@ const SquadView = () => {
   }
   const handleLoadConfiguration = (config: SquadConfiguration) => {
     setLoadedConfiguration(config);
-    setManualAssignments(config.position_assignments);
+    loadFromAssignments(config.position_assignments);
     setCurrentFormation(config.formation);
     // Keep auto-fill disabled when loading configurations
     setSelectedSquad(config.squad_type);
@@ -194,10 +204,8 @@ const SquadView = () => {
   const handlePlayerChange = async (position: string, playerId: string) => {
     console.log(`Player change requested: ${position} -> ${playerId}`);
     
-    // Update manual assignments
-    const newAssignments = manualAssignments.filter(a => a.position !== position);
-    newAssignments.push({ position, player_id: playerId });
-    setManualAssignments(newAssignments);
+    // Set as active player (replaces current active, moves old active to alternates)
+    setActivePlayer(position, playerId);
     
     // Also persist to database
     try {
@@ -213,8 +221,25 @@ const SquadView = () => {
     }
   };
 
+  // Handler for adding a player as an alternate to a position
+  const handleAddPlayerToPosition = (position: string, playerId: string) => {
+    console.log(`Adding player ${playerId} as alternate to position ${position}`);
+    addPlayerToPosition(position, playerId);
+    
+    toast({
+      title: "Player added",
+      description: "Player added as an alternative option for this position"
+    });
+  };
+
+  // Handler for switching active player in a position
+  const handleSetActivePlayer = (position: string, playerId: string) => {
+    console.log(`Switching active player for ${position} to ${playerId}`);
+    setActivePlayer(position, playerId);
+  };
+
   const handleStartNewSquad = () => {
-    setManualAssignments([]);
+    clearMultiPlayerSlots();
     setLoadedConfiguration(null);
     setDisableAutoFill(true);
     setSelectedPosition(null);
@@ -256,10 +281,13 @@ const SquadView = () => {
                 selectedSquad={selectedSquad} 
                 formation={currentFormation} 
                 positionAssignments={positionAssignments} 
+                multiPlayerSlots={positionSlots}
                 onPositionClick={setSelectedPosition} 
                 selectedPosition={selectedPosition} 
-                onPlayerChange={handlePlayerChange} 
-                disableAutoFill={disableAutoFill} 
+                onPlayerChange={handlePlayerChange}
+                onAddPlayerToPosition={handleAddPlayerToPosition}
+                onSetActivePlayer={handleSetActivePlayer}
+                disableAutoFill={disableAutoFill}
               />
             </div>
 
