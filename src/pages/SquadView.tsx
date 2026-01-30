@@ -1,27 +1,20 @@
 import { useState, useMemo, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { usePlayerPositionAssignments, useUpdatePlayerPositionAssignment, useAllPlayerPositionAssignments } from "@/hooks/usePlayerPositionAssignments";
 import SquadFormationCard from "@/components/SquadFormationCard";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SquadComparisonChart from "@/components/SquadComparisonChart";
 import { useSquadData } from "@/hooks/useSquadData";
 import { useMarescaFormations } from "@/hooks/useMarescaFormations";
 import { useHeadCoach } from "@/hooks/useHeadCoach";
-import { getSquadDisplayName } from "@/utils/squadUtils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Users, AlertTriangle, Lightbulb, Save } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
 import SavedSquadConfigurations from "@/components/SavedSquadConfigurations";
 import SaveSquadConfigurationDialog from "@/components/SaveSquadConfigurationDialog";
 import { SquadConfiguration, useSquadConfigurations } from "@/hooks/useSquadConfigurations";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentSquadRating } from "@/hooks/useCurrentSquadRating";
+import { SquadViewHeader } from "@/components/squad-view/SquadViewHeader";
 const SquadView = () => {
   const navigate = useNavigate();
   const {
@@ -231,224 +224,29 @@ const SquadView = () => {
       description: "Starting with a blank squad. Make your changes and save when ready.",
     });
   };
-  return <>
+  return (
+    <>
+      {/* Unified Header */}
+      <SquadViewHeader
+        loadedConfiguration={loadedConfiguration}
+        selectedSquad={selectedSquad}
+        onSquadChange={setSelectedSquad}
+        squadsList={squadsList}
+        headCoach={headCoach}
+        currentFormation={currentFormation}
+        onFormationChange={handleFormationChange}
+        formations={formations}
+        recommendations={dbRecommendations}
+        alertPlayers={alertPlayers}
+        onStartNewSquad={handleStartNewSquad}
+        onSaveSquad={() => setShowSaveDialog(true)}
+      />
 
-      {/* Loaded Configuration Indicator */}
-      {loadedConfiguration && (
-        <div className="w-full max-w-full overflow-x-hidden bg-background border-b">
-          <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-3">
-            <div className="flex items-center gap-3">
-              <Badge variant="default" className="text-sm">Currently Loaded</Badge>
-              <h2 className="text-xl font-semibold text-foreground">{loadedConfiguration.name}</h2>
-              <Badge variant="secondary" className="text-xs">{loadedConfiguration.formation}</Badge>
-              <Badge variant="outline" className="text-xs">{getSquadDisplayName(loadedConfiguration.squad_type)}</Badge>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Squad Selection and Formation Controls */}
-      <div className="w-full max-w-full overflow-x-hidden bg-background">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-4 sm:py-6">
-          <div className="space-y-4">
-          {/* Select Squad Section */}
-          <div className="space-y-2">
-            <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Select Squad</h3>
-            <div className="flex-1 w-full">
-              <div className="flex flex-wrap gap-2">
-                {squadsList.map((squad) => (
-                  <Button
-                    key={squad.id}
-                    onClick={() => setSelectedSquad(squad.id)}
-                    variant={selectedSquad === squad.id ? "default" : "outline"}
-                    className="flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base"
-                    size="sm"
-                  >
-                    <span>{squad.label}</span>
-                    <Badge variant="secondary" className="ml-0.5 sm:ml-1 text-xs">
-                      {squad.count}
-                    </Badge>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <Separator className="my-4 sm:my-6" />
-
-          {/* Head Coach Info */}
-          {headCoach && (
-            <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
-              <Avatar className="h-12 w-12 sm:h-16 sm:w-16 shrink-0">
-                <AvatarImage src={headCoach.Image || undefined} alt={headCoach.shortname || "Coach"} />
-                <AvatarFallback className="text-xs sm:text-sm">
-                  {headCoach.shortname ? headCoach.shortname.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "HC"}
-                </AvatarFallback>
-              </Avatar>
-              
-              <div className="flex-1 space-y-1.5 sm:space-y-2 min-w-0">
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground shrink-0" />
-                  <span className="text-xs sm:text-base font-medium text-muted-foreground">Head Coach</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-base sm:text-xl truncate">{headCoach.shortname || "Unknown"}</h4>
-                  <p className="text-sm sm:text-base text-muted-foreground truncate">
-                    {headCoach.current_Role} {headCoach.age ? `• ${headCoach.age} years old` : ""}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                  {headCoach.rating && (
-                    <Badge variant="secondary" className="text-xs sm:text-sm">
-                      Rating: {headCoach.rating}
-                    </Badge>
-                  )}
-                  {headCoach.TrustInYouth !== null && headCoach.TrustInYouth !== undefined && (
-                    <Badge variant="outline" className="text-xs sm:text-sm">
-                      Youth: {headCoach.TrustInYouth}
-                    </Badge>
-                  )}
-                  {headCoach.Style && (
-                    <Badge variant="outline" className="text-xs sm:text-sm">
-                      {headCoach.Style}
-                    </Badge>
-                  )}
-                  {headCoach["Favourite Formation"] && (
-                    <Badge variant="outline" className="text-xs sm:text-sm">
-                      {headCoach["Favourite Formation"]}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <Separator className="my-4 sm:my-6" />
-
-          {/* Squad Recommendations and Alerts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            {/* Database Recommendations */}
-            {dbRecommendations.length > 0 && (
-              <div className="space-y-2 sm:space-y-3">
-                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <Lightbulb className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  Squad Recommendations
-                </h3>
-                <div className="grid gap-2">
-                  {dbRecommendations.map((rec, index) => (
-                    <Card key={index} className="border-l-4 border-l-primary">
-                      <CardContent className="py-2.5 sm:py-3 px-3 sm:px-4">
-                        <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-3">
-                          <Badge variant="secondary" className="text-xs shrink-0">
-                            {rec.Position}
-                          </Badge>
-                          <p className="text-xs sm:text-sm flex-1">{rec.Reason}</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Players with Alerts */}
-            {alertPlayers.length > 0 && (
-              <div className="space-y-2 sm:space-y-3">
-                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  Players Requiring Attention ({alertPlayers.length})
-                </h3>
-                <div className="grid gap-2">
-                  {alertPlayers.map((player) => {
-                    const contractExpiringSoon = player.contractExpiry ? (() => {
-                      const expiryDate = new Date(player.contractExpiry);
-                      const now = new Date();
-                      const monthsUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30));
-                      return monthsUntilExpiry <= 12 && monthsUntilExpiry > 0;
-                    })() : false;
-                    const isAging = player.age >= 30;
-
-                    return (
-                      <Card key={player.id} className="border-l-4 border-l-amber-500">
-                        <CardContent className="py-2.5 sm:py-3 px-3 sm:px-4">
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-xs sm:text-sm truncate">{player.name}</div>
-                              <div className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                                {player.positions.join(', ')} • Age {player.age}
-                              </div>
-                            </div>
-                            <div className="flex flex-wrap gap-1.5 self-start sm:self-auto">
-                              {contractExpiringSoon && (
-                                <Badge variant="outline" className="text-[9px] sm:text-[10px] border-destructive/50 text-destructive">
-                                  Contract expiring
-                                </Badge>
-                              )}
-                              {isAging && (
-                                <Badge variant="outline" className="text-[9px] sm:text-[10px] border-destructive/50 text-destructive">
-                                  Aging player
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-
-      {/* Shadow Squad Section - Grey Background */}
+      {/* Main Content - Grey Background */}
       <div className="w-full max-w-full overflow-x-hidden bg-muted/30">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Shadow Squad</h2>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={handleStartNewSquad}>
-                Start a new squad
-              </Button>
-              <Button onClick={() => setShowSaveDialog(true)}>
-                <Save className="h-4 w-4 mr-2" />
-                Save current squad
-              </Button>
-            </div>
-          </div>
-          
-          {/* Formation Selector */}
-          <div className="mt-6 space-y-3">
-            <h3 className="text-sm font-medium text-muted-foreground">Formation</h3>
-            <Select value={currentFormation} onValueChange={handleFormationChange}>
-              <SelectTrigger className="w-full md:w-[200px] bg-background">
-                <SelectValue placeholder="Select formation" />
-              </SelectTrigger>
-              <SelectContent className="bg-background z-50">
-                {formations.map((formation) => (
-                  <SelectItem 
-                    key={formation.formation} 
-                    value={formation.formation || ''}
-                    className="cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm">{formation.formation}</span>
-                      <Badge variant="secondary" className="text-xs">
-                        {formation.games} {formation.games === 1 ? 'game' : 'games'}
-                      </Badge>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Formation View with Saved Configurations Side by Side */}
-          <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Pitch View - Takes 2 columns on large screens */}
             <div className="lg:col-span-2">
               <SquadFormationCard 
@@ -483,7 +281,6 @@ const SquadView = () => {
         </div>
       </div>
 
-
       {/* Save Squad Configuration Dialog */}
       <SaveSquadConfigurationDialog
         open={showSaveDialog}
@@ -495,7 +292,8 @@ const SquadView = () => {
         allPlayers={allPlayers}
         currentConfiguration={loadedConfiguration}
       />
-  </>;
+    </>
+  );
 };
 
 export default SquadView;
