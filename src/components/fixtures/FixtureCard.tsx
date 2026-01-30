@@ -5,15 +5,102 @@ import { MapPin, Calendar, Star, Users } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
-// Color palette for fixture card headers - rotates based on index
-const FIXTURE_COLORS = [
-  "bg-[#6B4E71]", // Purple/mauve (like Liverpool example)
-  "bg-[#D4A84B]", // Gold/mustard (like Leeds example)  
-  "bg-[#4A5568]", // Slate gray
-  "bg-[#2D5A7B]", // Steel blue
-  "bg-[#8B5A2B]", // Saddle brown
-  "bg-[#4A6741]", // Forest green
-];
+// Club primary colors for gradient headers - based on actual club colors
+const CLUB_COLORS: Record<string, { from: string; to: string }> = {
+  // Premier League
+  "Liverpool": { from: "#C8102E", to: "#8B0A1E" },
+  "Liverpool FC": { from: "#C8102E", to: "#8B0A1E" },
+  "Manchester City": { from: "#6CABDD", to: "#1C2C5B" },
+  "Manchester City FC": { from: "#6CABDD", to: "#1C2C5B" },
+  "Man City": { from: "#6CABDD", to: "#1C2C5B" },
+  "Arsenal": { from: "#EF0107", to: "#9C0004" },
+  "Arsenal FC": { from: "#EF0107", to: "#9C0004" },
+  "Chelsea": { from: "#034694", to: "#001F3F" },
+  "Chelsea FC": { from: "#034694", to: "#001F3F" },
+  "Chelsea F.C.": { from: "#034694", to: "#001F3F" },
+  "Manchester United": { from: "#DA291C", to: "#8B0000" },
+  "Manchester United FC": { from: "#DA291C", to: "#8B0000" },
+  "Man United": { from: "#DA291C", to: "#8B0000" },
+  "Tottenham": { from: "#132257", to: "#0A1433" },
+  "Tottenham Hotspur": { from: "#132257", to: "#0A1433" },
+  "Tottenham Hotspur FC": { from: "#132257", to: "#0A1433" },
+  "Newcastle": { from: "#241F20", to: "#000000" },
+  "Newcastle United": { from: "#241F20", to: "#000000" },
+  "Newcastle Utd": { from: "#241F20", to: "#000000" },
+  "Aston Villa": { from: "#670E36", to: "#420921" },
+  "Aston Villa FC": { from: "#670E36", to: "#420921" },
+  "Brighton": { from: "#0057B8", to: "#003C7A" },
+  "Brighton & Hove Albion": { from: "#0057B8", to: "#003C7A" },
+  "West Ham": { from: "#7A263A", to: "#4A1623" },
+  "West Ham United": { from: "#7A263A", to: "#4A1623" },
+  "West Ham Utd": { from: "#7A263A", to: "#4A1623" },
+  "Bournemouth": { from: "#DA291C", to: "#8B0000" },
+  "AFC Bournemouth": { from: "#DA291C", to: "#8B0000" },
+  "Fulham": { from: "#000000", to: "#1A1A1A" },
+  "Fulham FC": { from: "#000000", to: "#1A1A1A" },
+  "Brentford": { from: "#E30613", to: "#9B040D" },
+  "Brentford FC": { from: "#E30613", to: "#9B040D" },
+  "Crystal Palace": { from: "#1B458F", to: "#0E2A5C" },
+  "Crystal Palace FC": { from: "#1B458F", to: "#0E2A5C" },
+  "Wolves": { from: "#FDB913", to: "#B8860B" },
+  "Wolverhampton": { from: "#FDB913", to: "#B8860B" },
+  "Wolverhampton Wanderers": { from: "#FDB913", to: "#B8860B" },
+  "Nottingham Forest": { from: "#DD0000", to: "#8B0000" },
+  "Nottm Forest": { from: "#DD0000", to: "#8B0000" },
+  "Everton": { from: "#003399", to: "#001F5C" },
+  "Everton FC": { from: "#003399", to: "#001F5C" },
+  "Leicester": { from: "#003090", to: "#001F5C" },
+  "Leicester City": { from: "#003090", to: "#001F5C" },
+  "Ipswich": { from: "#0033A0", to: "#001F5C" },
+  "Ipswich Town": { from: "#0033A0", to: "#001F5C" },
+  "Southampton": { from: "#D71920", to: "#8B0000" },
+  "Southampton FC": { from: "#D71920", to: "#8B0000" },
+  // Championship
+  "Leeds": { from: "#FFCD00", to: "#B8960B" },
+  "Leeds United": { from: "#FFCD00", to: "#B8960B" },
+  "Burnley": { from: "#6C1D45", to: "#3D1027" },
+  "Burnley FC": { from: "#6C1D45", to: "#3D1027" },
+  "Sunderland": { from: "#EB172B", to: "#9B0D1B" },
+  "Sunderland AFC": { from: "#EB172B", to: "#9B0D1B" },
+  // European
+  "Barcelona": { from: "#A50044", to: "#004D98" },
+  "FC Barcelona": { from: "#A50044", to: "#004D98" },
+  "Real Madrid": { from: "#FEBE10", to: "#00529F" },
+  "Real Madrid CF": { from: "#FEBE10", to: "#00529F" },
+  "Bayern Munich": { from: "#DC052D", to: "#8B0000" },
+  "FC Bayern Munich": { from: "#DC052D", to: "#8B0000" },
+  "Juventus": { from: "#000000", to: "#1A1A1A" },
+  "Juventus FC": { from: "#000000", to: "#1A1A1A" },
+  "PSG": { from: "#004170", to: "#002040" },
+  "Paris Saint-Germain": { from: "#004170", to: "#002040" },
+  "Inter Milan": { from: "#010E80", to: "#000850" },
+  "Internazionale": { from: "#010E80", to: "#000850" },
+  "AC Milan": { from: "#AC1A2F", to: "#6B1020" },
+  "Dortmund": { from: "#FDE100", to: "#B8A000" },
+  "Borussia Dortmund": { from: "#FDE100", to: "#B8A000" },
+  "Atletico Madrid": { from: "#CB3524", to: "#272E61" },
+  "Atletico de Madrid": { from: "#CB3524", to: "#272E61" },
+};
+
+// Default gradient for unknown clubs
+const DEFAULT_GRADIENT = { from: "#4A5568", to: "#2D3748" };
+
+function getClubGradient(clubName: string): { from: string; to: string } {
+  // Try exact match first
+  if (CLUB_COLORS[clubName]) {
+    return CLUB_COLORS[clubName];
+  }
+  
+  // Try partial match
+  const lowerName = clubName.toLowerCase();
+  for (const [key, value] of Object.entries(CLUB_COLORS)) {
+    if (lowerName.includes(key.toLowerCase()) || key.toLowerCase().includes(lowerName)) {
+      return value;
+    }
+  }
+  
+  return DEFAULT_GRADIENT;
+}
 
 interface FixtureCardProps {
   homeTeam: string;
@@ -41,13 +128,12 @@ export const FixtureCard: React.FC<FixtureCardProps> = ({
   awayScore,
   shortlistedPlayersCount = 0,
   scoutsAssignedCount = 0,
-  colorIndex = 0,
   onClick,
   className,
   variant = "default",
 }) => {
   const hasScore = homeScore !== null && awayScore !== null;
-  const headerColor = FIXTURE_COLORS[colorIndex % FIXTURE_COLORS.length];
+  const gradient = getClubGradient(homeTeam);
   const formattedDate = format(new Date(matchDate), "d MMM yyyy, HH:mm");
   
   return (
@@ -59,8 +145,13 @@ export const FixtureCard: React.FC<FixtureCardProps> = ({
       )}
       onClick={onClick}
     >
-      {/* Colored Header with Teams */}
-      <div className={cn("px-4 py-3 text-white", headerColor)}>
+      {/* Gradient Header with Teams */}
+      <div 
+        className="px-4 py-3 text-white"
+        style={{
+          background: `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.to} 100%)`
+        }}
+      >
         <div className="flex items-center justify-center gap-2 sm:gap-3">
           {/* Home Team */}
           <div className="flex items-center gap-2 flex-1 justify-end">
