@@ -320,8 +320,8 @@ const Calendar = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-4 sm:py-8">
-      <div className="mb-6 sm:mb-8 px-2 sm:px-0">
+    <div className="max-w-7xl mx-auto py-4 sm:py-8 px-4 sm:px-6">
+      <div className="mb-6 sm:mb-8">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">Scout Calendar</h1>
@@ -333,7 +333,7 @@ const Calendar = () => {
       </div>
 
       {/* Filters */}
-      <div className="mb-4 sm:mb-6 space-y-3 px-2 sm:px-0">
+      <div className="mb-4 sm:mb-6 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 sm:justify-between">
           <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
             <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -400,7 +400,7 @@ const Calendar = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 px-2 sm:px-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Dates List or Calendar Grid */}
         <div>
           {/* Mobile: 3-day view */}
