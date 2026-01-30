@@ -23,6 +23,7 @@ import ViewToggle from "@/components/ViewToggle";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { MatchPlayersSheet } from "@/components/MatchPlayersSheet";
 import { getMatchGradient } from "@/components/fixtures/FixtureCard";
+import { PlayerAvatar } from "@/components/ui/player-avatar";
 
 
 const Calendar = () => {
@@ -915,8 +916,13 @@ const Calendar = () => {
                                   }));
                                   
                                   return (
-                                    <div key={player.id} className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded px-2 py-1">
-                                      <div className="flex items-center gap-2 flex-1">
+                                    <div key={player.id} className="flex items-center justify-between bg-muted/30 hover:bg-muted/50 rounded-md px-3 py-2 transition-colors">
+                                      <div className="flex items-center gap-3 flex-1">
+                                        <PlayerAvatar 
+                                          playerName={player.name} 
+                                          avatarUrl={player.image} 
+                                          size="md" 
+                                        />
                                         <ClubBadge clubName={player.club} size="sm" />
                                         <div className="flex-1">
                                           <div className="text-sm font-medium">{player.name}</div>
@@ -932,29 +938,16 @@ const Calendar = () => {
                                           )}
                                         </div>
                                       </div>
-                                      <div className="flex items-center gap-2">
-                                        <div className="flex flex-col items-end gap-1">
-                                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                                            <Star className="h-3 w-3 mr-1" />
-                                            Shortlisted
-                                          </Badge>
-                                          {assignedScouts.length > 0 && (
-                                            <Badge variant="outline" className="bg-blue-50 text-blue-700 text-xs">
-                                              {assignedScouts.length} Scout{assignedScouts.length > 1 ? 's' : ''}
-                                            </Badge>
-                                          )}
-                                        </div>
-                                        {canAssignScouts && (
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="h-6 px-2"
-                                            onClick={() => handleAssignPlayer(player)}
-                                          >
-                                            <Plus className="h-3 w-3" />
-                                          </Button>
-                                        )}
-                                      </div>
+                                      {canAssignScouts && (
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="h-6 px-2"
+                                          onClick={() => handleAssignPlayer(player)}
+                                        >
+                                          <Plus className="h-3 w-3" />
+                                        </Button>
+                                      )}
                                     </div>
                                   );
                                 })}
@@ -985,7 +978,6 @@ const Calendar = () => {
                               </div>
               <div className="space-y-2">
                 {displayedRecommendedPlayers.map(player => {
-                  const isShortlisted = allShortlistedPlayerIds.has(player.id.toString());
                   // Get all scouts assigned to this player
                   const playerAssignments = assignments.filter(a => a.player_id === player.id.toString());
                   const assignedScouts = playerAssignments.map(assignment => ({
@@ -996,23 +988,16 @@ const Calendar = () => {
                   }));
                   
                   return (
-                    <div key={player.id} className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded px-2 py-1">
-                      <div className="flex items-center gap-2 flex-1">
+                    <div key={player.id} className="flex items-center justify-between bg-muted/30 hover:bg-muted/50 rounded-md px-3 py-2 transition-colors">
+                      <div className="flex items-center gap-3 flex-1">
+                        <PlayerAvatar 
+                          playerName={player.name} 
+                          avatarUrl={player.image} 
+                          size="md" 
+                        />
                         <ClubBadge clubName={player.club} size="sm" />
                         <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <div className="text-sm font-medium">{player.name}</div>
-                          {isShortlisted && (
-                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 h-5">
-                              <Star className="h-3 w-3 mr-1" /> Shortlisted
-                            </Badge>
-                          )}
-                          {assignedScouts.length > 0 && (
-                            <Badge variant="outline" className="bg-blue-50 text-blue-700 h-5">
-                              {assignedScouts.length} Scout{assignedScouts.length > 1 ? 's' : ''}
-                            </Badge>
-                          )}
-                        </div>
+                          <div className="text-sm font-medium">{player.name}</div>
                           <div className="text-xs text-muted-foreground">
                             {player.club} • {player.positions?.[0] || 'Unknown'}
                             {player.age && ` • ${player.age}y`}
@@ -1026,16 +1011,16 @@ const Calendar = () => {
                           )}
                         </div>
                       </div>
-                       {canAssignScouts && (
-                         <Button
-                           size="sm"
-                           variant="outline"
-                           className="h-6 px-2"
-                           onClick={() => handleAssignPlayer(player)}
-                         >
-                           <Plus className="h-3 w-3" />
-                         </Button>
-                       )}
+                      {canAssignScouts && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-6 px-2"
+                          onClick={() => handleAssignPlayer(player)}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      )}
                     </div>
                   );
                 })}
