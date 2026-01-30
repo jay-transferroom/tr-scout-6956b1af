@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { usePlayerPositionAssignments, useUpdatePlayerPositionAssignment, useAllPlayerPositionAssignments } from "@/hooks/usePlayerPositionAssignments";
 import SquadFormationCard from "@/components/SquadFormationCard";
-import { SquadRatingCTAs } from "@/components/squad-view/SquadRatingCTAs";
+
 
 import { useSquadData } from "@/hooks/useSquadData";
 import { useMarescaFormations } from "@/hooks/useMarescaFormations";
@@ -241,6 +241,7 @@ const SquadView = () => {
         alertPlayers={alertPlayers}
         onStartNewSquad={handleStartNewSquad}
         onSaveSquad={() => setShowSaveDialog(true)}
+        currentSquadRating={currentSquadRating}
       />
 
       {/* Main Content - Grey Background */}
@@ -272,10 +273,6 @@ const SquadView = () => {
             </div>
           </div>
 
-          {/* Rating CTAs */}
-          <div className="mt-6">
-            <SquadRatingCTAs currentSquadRating={currentSquadRating} />
-          </div>
         </div>
       </div>
 

@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AlertTriangle, Lightbulb, Save, Plus } from "lucide-react";
 import { SquadConfiguration } from "@/hooks/useSquadConfigurations";
 import { SquadRecommendation } from "@/hooks/useSquadRecommendations";
+import { SquadRatingCTAs } from "./SquadRatingCTAs";
 
 interface HeadCoach {
   staffid: number;
@@ -47,6 +48,19 @@ interface SquadViewHeaderProps {
   alertPlayers: AlertPlayer[];
   onStartNewSquad: () => void;
   onSaveSquad: () => void;
+  currentSquadRating?: {
+    average_starter_rating: number;
+    KeeperRating: number;
+    DefenderRating: number;
+    CentreBackRating: number;
+    LeftBackRating: number;
+    RightBackRating: number;
+    MidfielderRating: number;
+    CentreMidfielderRating: number;
+    AttackerRating: number;
+    ForwardRating: number;
+    WingerRating: number;
+  } | null;
 }
 
 export function SquadViewHeader({
@@ -62,6 +76,7 @@ export function SquadViewHeader({
   alertPlayers,
   onStartNewSquad,
   onSaveSquad,
+  currentSquadRating,
 }: SquadViewHeaderProps) {
   return (
     <div className="w-full bg-background border-b">
@@ -90,6 +105,11 @@ export function SquadViewHeader({
               Save
             </Button>
           </div>
+        </div>
+
+        {/* Rating CTAs Row */}
+        <div className="mb-4">
+          <SquadRatingCTAs currentSquadRating={currentSquadRating} />
         </div>
 
         {/* Main Controls Row */}
