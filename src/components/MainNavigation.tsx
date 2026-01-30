@@ -236,7 +236,7 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                 }}
                 className="w-full"
               >
-                <Sparkles className="h-4 w-4 text-blue-600" />
+                <Sparkles className="h-4 w-4 text-primary" />
                 <span>AI Scout Assistant</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
