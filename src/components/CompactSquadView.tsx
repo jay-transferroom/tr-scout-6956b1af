@@ -37,9 +37,16 @@ interface CompactSquadViewProps {
     position: string;
     player_id: string;
   }>;
+  multiPlayerSlots?: Array<{
+    position: string;
+    activePlayerId: string;
+    alternatePlayerIds: string[];
+  }>;
   onPositionClick?: (position: string) => void;
   selectedPosition?: string | null;
   onPlayerChange?: (position: string, playerId: string) => void;
+  onAddPlayerToPosition?: (position: string, playerId: string) => void;
+  onSetActivePlayer?: (position: string, playerId: string) => void;
   disableAutoFill?: boolean;
 }
 
@@ -48,9 +55,12 @@ const CompactSquadView = ({
   selectedSquad, 
   formation,
   positionAssignments = [],
+  multiPlayerSlots = [],
   onPositionClick, 
   selectedPosition,
   onPlayerChange,
+  onAddPlayerToPosition,
+  onSetActivePlayer,
   disableAutoFill
 }: CompactSquadViewProps) => {
   const [selectedPlayerForDetails, setSelectedPlayerForDetails] = useState<Player | null>(null);
@@ -383,9 +393,11 @@ const CompactSquadView = ({
                     squadType={selectedSquad}
                     formation={formation}
                     positionAssignments={positionAssignments}
+                    multiPlayerSlots={multiPlayerSlots}
                     onPositionClick={handlePositionClick}
                     selectedPosition={selectedPosition}
                     onPlayerChange={onPlayerChange}
+                    onSetActivePlayer={onSetActivePlayer}
                     priorityPositions={recommendations.map(rec => rec.Position)}
                     disableAutoFill={disableAutoFill}
                   />

@@ -2,10 +2,24 @@ import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Player } from "@/types/player";
-import { Plus, Hash, AlertTriangle, Clock } from "lucide-react";
+import { Plus, Hash, AlertTriangle, Clock, ChevronDown, Users } from "lucide-react";
 import pitchBackground from "@/assets/pitch.svg";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
 import { useSquadAverageRatings } from "@/hooks/useSquadAverageRatings";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+
+export interface PositionPlayerSlot {
+  position: string;
+  activePlayerId: string;
+  alternatePlayerIds: string[];
+}
 
 interface CompactFootballPitchProps {
   players: Player[];
@@ -16,9 +30,12 @@ interface CompactFootballPitchProps {
     position: string;
     player_id: string;
   }>;
+  multiPlayerSlots?: PositionPlayerSlot[];
   onPositionClick?: (position: string) => void;
   selectedPosition?: string | null;
   onPlayerChange?: (position: string, playerId: string) => void;
+  onAddPlayerToPosition?: (position: string, playerId: string) => void;
+  onSetActivePlayer?: (position: string, playerId: string) => void;
   priorityPositions?: string[];
   disableAutoFill?: boolean;
 }
@@ -72,9 +89,12 @@ const CompactFootballPitch = ({
   squadType, 
   formation = '4-3-3', 
   positionAssignments = [],
+  multiPlayerSlots = [],
   onPositionClick,
   selectedPosition,
   onPlayerChange,
+  onAddPlayerToPosition,
+  onSetActivePlayer,
   priorityPositions = [],
   disableAutoFill = false
 }: CompactFootballPitchProps) => {
@@ -316,6 +336,19 @@ const CompactFootballPitch = ({
         const hasDbRecommendation = hasRecommendation(position);
         const warnings = getPlayerWarnings(player);
         
+        // Get multi-player slot data for this position
+        const multiSlot = multiPlayerSlots.find(slot => slot.position === position);
+        const assignedPlayerCount = multiSlot 
+          ? 1 + multiSlot.alternatePlayerIds.length 
+          : (player ? 1 : 0);
+        
+        // Get all assigned players for this position (for dropdown)
+        const assignedPlayersForPosition: Player[] = multiSlot 
+          ? [multiSlot.activePlayerId, ...multiSlot.alternatePlayerIds]
+              .map(id => [...players, ...allPlayers].find(p => p.id === id))
+              .filter((p): p is Player => p !== undefined)
+          : player ? [player] : [];
+        
         return (
           <PositionSlot 
             key={position}
@@ -324,8 +357,11 @@ const CompactFootballPitch = ({
             player={player}
             isSelected={isSelected}
             eligiblePlayers={eligiblePlayers}
+            assignedPlayers={assignedPlayersForPosition}
+            assignedPlayerCount={assignedPlayerCount}
             onPositionClick={onPositionClick}
             onPlayerChange={onPlayerChange}
+            onSetActivePlayer={onSetActivePlayer}
             depth={depth}
             isPriority={isPriority}
             hasRecommendation={hasDbRecommendation}
@@ -344,8 +380,11 @@ const PositionSlot = ({
   player, 
   isSelected, 
   eligiblePlayers,
+  assignedPlayers,
+  assignedPlayerCount,
   onPositionClick,
   onPlayerChange,
+  onSetActivePlayer,
   depth,
   isPriority,
   hasRecommendation,
@@ -356,13 +395,18 @@ const PositionSlot = ({
   player: Player | null;
   isSelected: boolean;
   eligiblePlayers: Player[];
+  assignedPlayers: Player[];
+  assignedPlayerCount: number;
   onPositionClick?: (position: string) => void;
   onPlayerChange?: (position: string, playerId: string) => void;
+  onSetActivePlayer?: (position: string, playerId: string) => void;
   depth: { count: number; color: string; avgRating: number; warningCount: number };
   isPriority: boolean;
   hasRecommendation: boolean;
   warnings: { hasWarning: boolean; isContract: boolean; isInjury: boolean };
 }) => {
+  const hasMultiplePlayers = assignedPlayerCount > 1;
+
   return (
     <div
       className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all cursor-pointer hover:scale-105 z-10 ${
@@ -418,39 +462,117 @@ const PositionSlot = ({
           )}
         </div>
         
-        {/* Player avatar */}
+        {/* Player avatar with multi-player dropdown */}
         {player ? (
           <div className="relative">
-            <Avatar 
-              className={`w-10 h-10 sm:w-12 sm:h-12 border-2 shadow-md cursor-pointer hover:shadow-lg transition-shadow ${
-                warnings.hasWarning ? 'border-orange-500' : 'border-white'
-              }`}
-            >
-              <AvatarImage 
-                src={player.image} 
-                alt={player.name}
-                className="rounded-full object-cover"
-              />
-              <AvatarFallback className="bg-blue-600 text-white text-xs">
-                {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-              </AvatarFallback>
-            </Avatar>
-            
-            {/* Warning icon for injuries or contract expiry */}
-            {warnings.hasWarning && (
-              <div className="absolute -top-1 -right-1 bg-orange-500 rounded-full p-0.5">
-                {warnings.isContract ? (
-                  <Clock className="w-2.5 h-2.5 text-white" />
-                ) : (
-                  <AlertTriangle className="w-2.5 h-2.5 text-white" />
+            {hasMultiplePlayers && onSetActivePlayer ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="relative cursor-pointer">
+                    <Avatar 
+                      className={`w-10 h-10 sm:w-12 sm:h-12 border-2 shadow-md cursor-pointer hover:shadow-lg transition-shadow ${
+                        warnings.hasWarning ? 'border-orange-500' : 'border-white'
+                      }`}
+                    >
+                      <AvatarImage 
+                        src={player.image} 
+                        alt={player.name}
+                        className="rounded-full object-cover"
+                      />
+                      <AvatarFallback className="bg-blue-600 text-white text-xs">
+                        {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    {/* Multi-player badge count */}
+                    <div className="absolute -top-1 -left-1 bg-primary text-primary-foreground text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border border-white z-10">
+                      {assignedPlayerCount}
+                    </div>
+                    
+                    {/* Dropdown indicator */}
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-muted rounded-full p-0.5 border border-border">
+                      <ChevronDown className="w-2.5 h-2.5 text-muted-foreground" />
+                    </div>
+                    
+                    {/* Rating */}
+                    <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold border border-white">
+                      {Math.round(player.transferroomRating || player.xtvScore || 0)}
+                    </div>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  className="w-56 bg-background border shadow-lg z-[100]" 
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <DropdownMenuLabel className="flex items-center gap-2 text-xs">
+                    <Users className="h-3 w-3" />
+                    {position} Players ({assignedPlayerCount})
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {assignedPlayers.map((p, idx) => (
+                    <DropdownMenuItem
+                      key={p.id}
+                      className={`flex items-center gap-2 cursor-pointer ${
+                        p.id === player.id ? 'bg-primary/10' : ''
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSetActivePlayer(position, p.id);
+                      }}
+                    >
+                      <Avatar className="w-6 h-6">
+                        <AvatarImage src={p.image} alt={p.name} />
+                        <AvatarFallback className="bg-blue-600 text-white text-[10px]">
+                          {p.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate">{p.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          Rating: {Math.round(p.transferroomRating || p.xtvScore || 0)}
+                        </div>
+                      </div>
+                      {p.id === player.id && (
+                        <Badge variant="default" className="text-[10px] px-1 py-0">Active</Badge>
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Avatar 
+                  className={`w-10 h-10 sm:w-12 sm:h-12 border-2 shadow-md cursor-pointer hover:shadow-lg transition-shadow ${
+                    warnings.hasWarning ? 'border-orange-500' : 'border-white'
+                  }`}
+                >
+                  <AvatarImage 
+                    src={player.image} 
+                    alt={player.name}
+                    className="rounded-full object-cover"
+                  />
+                  <AvatarFallback className="bg-blue-600 text-white text-xs">
+                    {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
+                
+                {/* Warning icon for injuries or contract expiry */}
+                {warnings.hasWarning && (
+                  <div className="absolute -top-1 -right-1 bg-orange-500 rounded-full p-0.5">
+                    {warnings.isContract ? (
+                      <Clock className="w-2.5 h-2.5 text-white" />
+                    ) : (
+                      <AlertTriangle className="w-2.5 h-2.5 text-white" />
+                    )}
+                  </div>
                 )}
-              </div>
+                
+                {/* Rating */}
+                <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold border border-white">
+                  {Math.round(player.transferroomRating || player.xtvScore || 0)}
+                </div>
+              </>
             )}
-            
-            {/* Rating */}
-            <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold border border-white">
-              {Math.round(player.transferroomRating || player.xtvScore || 0)}
-            </div>
           </div>
         ) : (
           <div 

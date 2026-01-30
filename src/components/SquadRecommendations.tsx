@@ -18,6 +18,7 @@ interface SquadRecommendationsProps {
   onAssignScout?: (player: Player, e: React.MouseEvent) => void;
   onViewProfile?: (player: Player) => void;
   onPlayerSelect?: (player: Player) => void;
+  onAddPlayerToPosition?: (player: Player, e: React.MouseEvent) => void;
 }
 
 interface PositionAnalysis {
@@ -45,7 +46,8 @@ const SquadRecommendations = ({
   onAddToShortlist,
   onAssignScout,
   onViewProfile,
-  onPlayerSelect
+  onPlayerSelect,
+  onAddPlayerToPosition
 }: SquadRecommendationsProps) => {
   const navigate = useNavigate();
   const { shortlists } = useShortlists();
@@ -320,18 +322,34 @@ const SquadRecommendations = ({
                           <Eye className="h-4 w-4" />
                           </Button>
                           {onPlayerSelect && selectedPosition && (
-                            <Button
-                              variant="default"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onPlayerSelect(player);
-                              }}
-                              title="Assign to Position"
-                            >
-                              <ArrowRight className="h-4 w-4 mr-1" />
-                              Assign
-                            </Button>
+                            <>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onPlayerSelect(player);
+                                }}
+                                title="Assign to Position"
+                              >
+                                <ArrowRight className="h-4 w-4 mr-1" />
+                                Assign
+                              </Button>
+                              {onAddPlayerToPosition && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onAddPlayerToPosition(player, e);
+                                  }}
+                                  title="Add as alternative option for this position"
+                                >
+                                  <ListPlus className="h-4 w-4 mr-1" />
+                                  Add
+                                </Button>
+                              )}
+                            </>
                           )}
                           {onAddToShortlist && (
                             <Button
