@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/player";
-import { Users, Calendar, MapPin, TrendingUp, Clock, UserX } from "lucide-react";
+import { Users, Calendar, MapPin, TrendingUp, Clock, UserX, ArrowRight, ListPlus } from "lucide-react";
 
 interface SquadListViewProps {
   players: Player[];
@@ -14,7 +14,9 @@ interface SquadListViewProps {
     player_id: string;
   }>;
   onPlayerClick?: (player: Player) => void;
+  onAddPlayer?: (player: Player) => void;
   selectedPlayer?: Player | null;
+  showActionButtons?: boolean;
 }
 
 const SquadListView = ({ 
@@ -23,7 +25,9 @@ const SquadListView = ({
   formation = '4-3-3', 
   positionAssignments = [],
   onPlayerClick,
-  selectedPlayer
+  onAddPlayer,
+  selectedPlayer,
+  showActionButtons = false
 }: SquadListViewProps) => {
   
   // Group players by position category
@@ -176,7 +180,7 @@ const SquadListView = ({
                       )}
                     </div>
 
-                    {/* Positions and Rating */}
+                    {/* Positions, Rating and Actions */}
                     <div className="flex items-center gap-2">
                       {player.positions.slice(0, 2).map((position, idx) => (
                         <Badge key={idx} variant="outline" className="text-sm">
@@ -195,6 +199,38 @@ const SquadListView = ({
                         <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-300">
                           Aging
                         </Badge>
+                      )}
+                      
+                      {/* Action Buttons */}
+                      {showActionButtons && (
+                        <div className="flex items-center gap-1 ml-2">
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onPlayerClick?.(player);
+                            }}
+                            title="Assign to Position"
+                          >
+                            <ArrowRight className="h-4 w-4 mr-1" />
+                            Assign
+                          </Button>
+                          {onAddPlayer && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onAddPlayer(player);
+                              }}
+                              title="Add as alternative"
+                            >
+                              <ListPlus className="h-4 w-4 mr-1" />
+                              Add
+                            </Button>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>

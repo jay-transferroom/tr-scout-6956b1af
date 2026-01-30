@@ -537,7 +537,13 @@ const CompactSquadView = ({
                           }
                           handlePositionClick('');
                         }}
+                        onAddPlayer={(player) => {
+                          if (onAddPlayerToPosition && selectedPosition) {
+                            onAddPlayerToPosition(selectedPosition, player.id);
+                          }
+                        }}
                         selectedPlayer={positionEligiblePlayers.find(p => p.id === (positionAssignments.find(a => a.position === selectedPosition)?.player_id)) || null}
+                        showActionButtons={true}
                       />
                     </div>
                   </TabsContent>
@@ -557,6 +563,12 @@ const CompactSquadView = ({
                             onPlayerChange(selectedPosition, player.id);
                           }
                           handlePositionClick('');
+                        }}
+                        onAddPlayerToPosition={(player, e) => {
+                          e.stopPropagation();
+                          if (onAddPlayerToPosition && selectedPosition) {
+                            onAddPlayerToPosition(selectedPosition, player.id);
+                          }
                         }}
                       />
                     </div>
@@ -630,6 +642,37 @@ const CompactSquadView = ({
 
                                     <div className="flex items-center gap-1">
                                       <Button
+                                        variant="default"
+                                        size="sm"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (onPlayerChange && selectedPosition) {
+                                            onPlayerChange(selectedPosition, player.id);
+                                          }
+                                          handlePositionClick('');
+                                        }}
+                                        title="Assign to Position"
+                                      >
+                                        <ArrowRight className="h-4 w-4 mr-1" />
+                                        Assign
+                                      </Button>
+                                      {onAddPlayerToPosition && (
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (selectedPosition) {
+                                              onAddPlayerToPosition(selectedPosition, player.id);
+                                            }
+                                          }}
+                                          title="Add as alternative"
+                                        >
+                                          <ListPlus className="h-4 w-4 mr-1" />
+                                          Add
+                                        </Button>
+                                      )}
+                                      <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={(e) => {
@@ -639,17 +682,6 @@ const CompactSquadView = ({
                                         title="View Profile"
                                       >
                                         <Eye className="h-4 w-4" />
-                                      </Button>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleAssignScout(player, e);
-                                        }}
-                                        title="Assign Scout"
-                                      >
-                                        <UserPlus className="h-4 w-4" />
                                       </Button>
                                     </div>
                                   </div>
