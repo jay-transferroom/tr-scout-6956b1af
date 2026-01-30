@@ -1,36 +1,25 @@
 import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlayersData } from "@/hooks/usePlayersData";
-import { usePlayerPositionAssignments, useUpdatePlayerPositionAssignment, useAllPlayerPositionAssignments, useClearAllPositionAssignments } from "@/hooks/usePlayerPositionAssignments";
-import SquadOverview from "@/components/SquadOverview";
-import SquadRecommendations from "@/components/SquadRecommendations";
-import ProspectComparison from "@/components/ProspectComparison";
+import { usePlayerPositionAssignments, useUpdatePlayerPositionAssignment, useAllPlayerPositionAssignments } from "@/hooks/usePlayerPositionAssignments";
 import SquadFormationCard from "@/components/SquadFormationCard";
-import SquadTableView from "@/components/SquadTableView";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
 import SquadComparisonChart from "@/components/SquadComparisonChart";
 import { useSquadData } from "@/hooks/useSquadData";
-import { useSquadMetrics } from "@/hooks/useSquadMetrics";
-import { useClubSettings, useUpdateClubSettings } from "@/hooks/useClubSettings";
 import { useMarescaFormations } from "@/hooks/useMarescaFormations";
 import { useHeadCoach } from "@/hooks/useHeadCoach";
 import { getSquadDisplayName } from "@/utils/squadUtils";
-import { ClubBadge } from "@/components/ui/club-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, TrendingUp, AlertTriangle, Lightbulb } from "lucide-react";
-import SquadPitchLegend from "@/components/SquadPitchLegend";
+import { Users, AlertTriangle, Lightbulb, Save } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
 import SavedSquadConfigurations from "@/components/SavedSquadConfigurations";
 import SaveSquadConfigurationDialog from "@/components/SaveSquadConfigurationDialog";
 import { SquadConfiguration, useSquadConfigurations } from "@/hooks/useSquadConfigurations";
-import { Save } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentSquadRating } from "@/hooks/useCurrentSquadRating";
 const SquadView = () => {
@@ -41,7 +30,6 @@ const SquadView = () => {
   const [selectedSquad, setSelectedSquad] = useState<string>('shadow-squad');
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [showNewSquadDialog, setShowNewSquadDialog] = useState(false);
   const [loadedConfiguration, setLoadedConfiguration] = useState<SquadConfiguration | null>(null);
   const [manualAssignments, setManualAssignments] = useState<Array<{ position: string; player_id: string }>>([]);
   const [currentFormation, setCurrentFormation] = useState<string>('4-3-3');
@@ -81,10 +69,7 @@ const SquadView = () => {
   }, [squadConfigs, loadedConfiguration, hasLoadedDefault]);
 
   // Get head coach data
-  const {
-    data: headCoach,
-    isLoading: isCoachLoading
-  } = useHeadCoach(userClub);
+  const { data: headCoach } = useHeadCoach(userClub);
 
   // Get player position assignments - don't use DB assignments on initial load
   const { data: savedPositionAssignments = [] } = usePlayerPositionAssignments(userClub, currentFormation, selectedSquad);
@@ -94,7 +79,6 @@ const SquadView = () => {
   
   const { data: allPositionAssignments = [] } = useAllPlayerPositionAssignments(userClub, currentFormation);
   const updateAssignment = useUpdatePlayerPositionAssignment();
-  const clearAllAssignments = useClearAllPositionAssignments();
 
   // Fetch squad recommendations from database
   const { data: dbRecommendations = [] } = useSquadRecommendations();
@@ -132,12 +116,8 @@ const SquadView = () => {
     });
   }, [squadPlayers]);
 
-  const squadMetrics = useSquadMetrics(squadPlayers, selectedSquad);
-  
   // Calculate current squad rating based on position assignments
   const currentSquadRating = useCurrentSquadRating(positionAssignments, allPlayers);
-  
-  const displayTitle = `${userClub} ${getSquadDisplayName(selectedSquad)} Analysis`;
   
   // Auth/role guard via effect to avoid altering hook order during render
   const isAuthorized = profile?.role === 'recruitment' || profile?.role === 'director';
@@ -200,7 +180,7 @@ const SquadView = () => {
   if (error) {
     return <div className="container mx-auto py-4 sm:py-8 px-4">
         <div className="flex items-center justify-center h-64">
-          <div className="text-base sm:text-lg text-red-600">Error loading squad data. Please try again.</div>
+          <div className="text-base sm:text-lg text-destructive">Error loading squad data. Please try again.</div>
         </div>
       </div>;
   }
@@ -252,22 +232,6 @@ const SquadView = () => {
     });
   };
   return <>
-      <div className="w-full max-w-full overflow-x-hidden">
-        <div className="container mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 max-w-7xl">
-          {/* Header */}
-          <div className="space-y-4 sm:space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-              <ClubBadge clubName={userClub} size="lg" className="shrink-0" />
-              <div className="min-w-0 w-full">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold truncate">{displayTitle}</h1>
-                <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
-                  Manage squad formations, analyze depth, and identify recruitment opportunities
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Loaded Configuration Indicator */}
       {loadedConfiguration && (
@@ -416,12 +380,12 @@ const SquadView = () => {
                             </div>
                             <div className="flex flex-wrap gap-1.5 self-start sm:self-auto">
                               {contractExpiringSoon && (
-                                <Badge variant="outline" className="text-[9px] sm:text-[10px] border-amber-500 text-amber-700">
+                                <Badge variant="outline" className="text-[9px] sm:text-[10px] border-destructive/50 text-destructive">
                                   Contract expiring
                                 </Badge>
                               )}
                               {isAging && (
-                                <Badge variant="outline" className="text-[9px] sm:text-[10px] border-orange-500 text-orange-700">
+                                <Badge variant="outline" className="text-[9px] sm:text-[10px] border-destructive/50 text-destructive">
                                   Aging player
                                 </Badge>
                               )}
