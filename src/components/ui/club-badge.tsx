@@ -1,17 +1,21 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { getTeamLogoUrl } from "@/utils/teamLogos";
+
 interface ClubBadgeProps {
   clubName: string;
   logoUrl?: string;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  showLabel?: boolean;
 }
+
 const ClubBadge = ({
   clubName,
   logoUrl,
   className,
-  size = 'sm'
+  size = 'sm',
+  showLabel = false
 }: ClubBadgeProps) => {
   // Use provided logoUrl or get from storage
   const teamLogoUrl = logoUrl || getTeamLogoUrl(clubName);
@@ -36,6 +40,41 @@ const ClubBadge = ({
     }
   };
   const currentSize = sizeClasses[size];
+
+  if (showLabel) {
+    return (
+      <div className={cn(
+        "inline-flex items-center",
+        currentSize.container,
+        className
+      )}>
+        <div className={cn(
+          "relative flex items-center justify-center overflow-visible",
+          currentSize.logo
+        )}>
+          {teamLogoUrl ? (
+            <img
+              src={teamLogoUrl}
+              alt={`${clubName} logo`}
+              className="w-full h-full object-contain block"
+            />
+          ) : (
+            <div className="w-full h-full bg-muted rounded-full flex items-center justify-center">
+              <span className={cn("font-medium text-muted-foreground", currentSize.fallbackText)}>
+                {clubName.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col">
+          <span className={cn("font-semibold", currentSize.text)}>
+            {clubName}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn(
       "relative inline-flex items-center justify-center overflow-visible z-10",
@@ -59,4 +98,5 @@ const ClubBadge = ({
     </div>
   );
 };
+
 export { ClubBadge };

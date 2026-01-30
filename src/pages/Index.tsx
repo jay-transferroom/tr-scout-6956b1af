@@ -20,6 +20,7 @@ import { formatDate } from "@/utils/reportFormatting";
 import QuickActionsBar from "@/components/QuickActionsBar";
 import UpcomingMatches from "@/components/UpcomingMatches";
 import AIScoutAssistant from "@/components/AIScoutAssistant";
+import EventSummitBanner from "@/components/EventSummitBanner";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -222,16 +223,22 @@ const Index = () => {
     return report.scoutProfile?.email || 'Unknown Scout';
   };
 
+  const currentDate = new Date().toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+
   return (
     <div className="container mx-auto py-4 sm:py-6 lg:py-8 px-4 sm:px-6 max-w-7xl">
       <div className="space-y-4 sm:space-y-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">
-              {profile?.role === 'recruitment' ? 'Scout Management Dashboard' : 'Scout Dashboard'}
+              Welcome back, {profile?.first_name || 'Scout'}
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Welcome back, {getUserDisplayName()}. Here's your scouting overview.
+            <p className="text-sm text-muted-foreground">
+              {currentDate}
             </p>
           </div>
         </div>
@@ -274,6 +281,14 @@ const Index = () => {
           })}
         </div>
 
+        {/* Event Summit Banner */}
+        <EventSummitBanner 
+          title="TransferRoom Summit"
+          location="BUENOS AIRES"
+          venue="Estadio Más Monumental"
+          dates="June 3-4"
+          onRegister={() => console.log('Register clicked')}
+        />
 
         {/* Fixture Tracking - Full width */}
         <UpcomingMatches />

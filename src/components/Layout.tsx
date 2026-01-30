@@ -1,10 +1,9 @@
-
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Outlet, useLocation } from "react-router-dom";
 import MainNavigation from "./MainNavigation";
-import Header from "./Header";
 import ChatOverlay from "./ChatOverlay";
 import { useState, useEffect } from "react";
+import { ClubBadge } from "@/components/ui/club-badge";
 
 const Layout = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -27,12 +26,18 @@ const Layout = () => {
   };
   
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full min-w-0 overflow-x-hidden">
         <MainNavigation onAIAssistantClick={openNewChat} />
         <SidebarInset className="w-full max-w-full min-w-0 overflow-x-hidden">
-          <Header />
-          <main className="w-full max-w-full min-w-0 flex-1 p-2 sm:p-6 overflow-x-hidden">
+          {/* Minimal top bar with sidebar trigger and club badge */}
+          <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+            <div className="flex items-center justify-between h-14 px-4">
+              <SidebarTrigger />
+              <ClubBadge clubName="Chelsea F.C." size="md" showLabel />
+            </div>
+          </div>
+          <main className="w-full max-w-full min-w-0 flex-1 overflow-x-hidden">
             <Outlet />
           </main>
         </SidebarInset>
