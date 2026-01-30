@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { usePlayerPositionAssignments, useUpdatePlayerPositionAssignment, useAllPlayerPositionAssignments } from "@/hooks/usePlayerPositionAssignments";
 import SquadFormationCard from "@/components/SquadFormationCard";
-
+import { SquadRatingCTAs } from "@/components/squad-view/SquadRatingCTAs";
 
 import { useSquadData } from "@/hooks/useSquadData";
 import { useMarescaFormations } from "@/hooks/useMarescaFormations";
@@ -263,13 +263,14 @@ const SquadView = () => {
               />
             </div>
 
-            {/* Saved Configurations - Takes 1 column on large screens */}
-            <div className="lg:col-span-1">
+            {/* Saved Configurations + Rating CTAs - Takes 1 column on large screens */}
+            <div className="lg:col-span-1 space-y-4">
               <SavedSquadConfigurations 
                 clubName={userClub}
                 onLoadConfiguration={handleLoadConfiguration}
                 loadedConfigurationId={loadedConfiguration?.id}
               />
+              <SquadRatingCTAs currentSquadRating={currentSquadRating} />
             </div>
           </div>
 

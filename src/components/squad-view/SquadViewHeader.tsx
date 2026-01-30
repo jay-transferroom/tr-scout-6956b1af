@@ -107,11 +107,6 @@ export function SquadViewHeader({
           </div>
         </div>
 
-        {/* Rating CTAs Row */}
-        <div className="mb-4">
-          <SquadRatingCTAs currentSquadRating={currentSquadRating} />
-        </div>
-
         {/* Main Controls Row */}
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Left: Squad Type + Formation */}
