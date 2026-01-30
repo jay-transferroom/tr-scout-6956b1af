@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
+import summitBannerBg from "@/assets/summit-banner-bg.png";
 
 interface EventSummitBannerProps {
   title?: string;
@@ -17,53 +18,45 @@ const EventSummitBanner = ({
   onRegister
 }: EventSummitBannerProps) => {
   return (
-    <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-primary/90 via-primary to-primary/80">
-      {/* Background pattern overlay */}
-      <div 
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }}
-      />
+    <div 
+      className="relative overflow-hidden rounded-xl bg-[#1a2744]"
+      style={{
+        backgroundImage: `url(${summitBannerBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center right',
+      }}
+    >
+      {/* Dark overlay for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#1a2744]/95 via-[#1a2744]/80 to-transparent" />
       
-      {/* Soccer field pattern on the right */}
-      <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-30">
-        <svg viewBox="0 0 200 100" className="h-full w-full" preserveAspectRatio="xMaxYMid slice">
-          <rect x="0" y="0" width="200" height="100" fill="none" stroke="white" strokeWidth="2"/>
-          <circle cx="100" cy="50" r="20" fill="none" stroke="white" strokeWidth="2"/>
-          <line x1="100" y1="0" x2="100" y2="100" stroke="white" strokeWidth="2"/>
-          <rect x="0" y="20" width="30" height="60" fill="none" stroke="white" strokeWidth="2"/>
-          <rect x="170" y="20" width="30" height="60" fill="none" stroke="white" strokeWidth="2"/>
-        </svg>
-      </div>
-      
-      <div className="relative z-10 px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <h3 className="text-lg sm:text-xl font-bold text-primary-foreground">
-            {title}
-          </h3>
-          <span className="text-primary-foreground/60 text-lg">|</span>
-          <span className="text-primary-foreground/90 font-semibold tracking-wide">
-            {location}
-          </span>
-        </div>
-        
-        <div className="flex items-center gap-4 flex-wrap justify-center">
-          <Button 
-            onClick={onRegister}
-            variant="secondary"
-            className="font-semibold px-5"
-          >
-            Register Interest
-          </Button>
-          
-          <div className="flex items-center gap-1 text-primary-foreground/90 text-sm">
-            <MapPin className="h-4 w-4" />
-            <span>{venue}</span>
+      <div className="relative z-10 px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <h3 className="text-lg sm:text-xl font-bold italic text-white">
+              {title}
+            </h3>
+            <span className="text-white/60 text-lg">|</span>
+            <span className="text-white font-semibold tracking-wide">
+              {location}
+            </span>
           </div>
           
-          <div className="bg-background text-foreground font-bold px-4 py-1.5 rounded-lg text-sm">
-            {dates}
+          <div className="flex items-center gap-3 flex-wrap">
+            <Button 
+              onClick={onRegister}
+              className="bg-[#3A9D5C] hover:bg-[#2d7a47] text-white font-semibold px-5"
+            >
+              Register Interest
+            </Button>
+            
+            <div className="flex items-center gap-1 text-white/90 text-sm bg-white/10 px-3 py-1.5 rounded-full">
+              <MapPin className="h-4 w-4" />
+              <span>{venue}</span>
+            </div>
+            
+            <div className="text-white/90 font-medium px-3 py-1.5 rounded-full border border-white/30 text-sm">
+              {dates}
+            </div>
           </div>
         </div>
       </div>
