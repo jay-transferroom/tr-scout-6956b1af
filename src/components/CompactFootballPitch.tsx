@@ -421,7 +421,7 @@ const PositionSlot = ({
       <div className="flex flex-col items-center relative">
         {/* Large subtle position label in background */}
         <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 -translate-y-full z-0">
-          <span className={`text-2xl sm:text-3xl md:text-4xl font-bold ${hasRecommendation ? 'text-blue-600/40' : 'text-green-800/20'}`}>
+          <span className={`text-2xl sm:text-3xl md:text-4xl font-bold ${hasRecommendation ? 'text-primary/30' : 'text-primary/15'}`}>
             {position}
           </span>
         </div>
@@ -437,27 +437,27 @@ const PositionSlot = ({
         )}
         
         {/* Condensed info bar - count, rating, warnings */}
-        <div className={`flex items-center gap-1 mb-1 px-2 py-0.5 rounded-full shadow-md border-2 relative z-10 ${
-          isPriority ? 'bg-amber-500 border-amber-600' : depth.warningCount > 0 ? 'bg-orange-100 border-orange-400' : 'bg-white border-gray-300'
+        <div className={`flex items-center gap-1 mb-1 px-2 py-0.5 rounded-full shadow-sm border relative z-10 ${
+          isPriority ? 'bg-amber-500 border-amber-600' : depth.warningCount > 0 ? 'bg-orange-50 border-orange-300' : 'bg-white/90 border-border'
         }`}>
           <div className="flex items-center">
-            <Hash className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : 'text-gray-600'}`} />
-            <span className={`text-xs font-bold ${isPriority ? 'text-white' : 'text-gray-700'}`}>{depth.count}</span>
+            <Hash className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : 'text-muted-foreground'}`} />
+            <span className={`text-xs font-medium ${isPriority ? 'text-white' : 'text-foreground'}`}>{depth.count}</span>
           </div>
           {depth.avgRating > 0 && (
             <>
-              <div className={`w-px h-3 ${isPriority ? 'bg-white/30' : 'bg-gray-300'}`} />
-              <span className={`text-xs ${isPriority ? 'text-white/70' : 'text-gray-500'}`}>⌀</span>
-              <span className={`text-xs font-bold ${isPriority ? 'text-white' : 'text-gray-700'}`}>
+              <div className={`w-px h-3 ${isPriority ? 'bg-white/30' : 'bg-border'}`} />
+              <span className={`text-xs ${isPriority ? 'text-white/70' : 'text-muted-foreground'}`}>⌀</span>
+              <span className={`text-xs font-medium ${isPriority ? 'text-white' : 'text-foreground'}`}>
                 {Math.round(depth.avgRating)}
               </span>
             </>
           )}
           {depth.warningCount > 0 && (
             <>
-              <div className={`w-px h-3 ${isPriority ? 'bg-white/30' : 'bg-gray-300'}`} />
-              <AlertTriangle className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : 'text-orange-600'}`} />
-              <span className={`text-xs font-bold ${isPriority ? 'text-white' : 'text-orange-600'}`}>{depth.warningCount}</span>
+              <div className={`w-px h-3 ${isPriority ? 'bg-white/30' : 'bg-border'}`} />
+              <AlertTriangle className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : 'text-orange-500'}`} />
+              <span className={`text-xs font-medium ${isPriority ? 'text-white' : 'text-orange-500'}`}>{depth.warningCount}</span>
             </>
           )}
         </div>
@@ -479,7 +479,7 @@ const PositionSlot = ({
                         alt={player.name}
                         className="rounded-full object-cover"
                       />
-                      <AvatarFallback className="bg-blue-600 text-white text-xs">
+                      <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
                         {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
@@ -495,7 +495,7 @@ const PositionSlot = ({
                     </div>
                     
                     {/* Rating */}
-                    <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold border border-white">
+                    <div className="absolute -bottom-1 -right-1 bg-secondary text-secondary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium border border-white">
                       {Math.round(player.transferroomRating || player.xtvScore || 0)}
                     </div>
                   </div>
@@ -522,7 +522,7 @@ const PositionSlot = ({
                     >
                       <Avatar className="w-6 h-6">
                         <AvatarImage src={p.image} alt={p.name} />
-                        <AvatarFallback className="bg-blue-600 text-white text-[10px]">
+                        <AvatarFallback className="bg-secondary text-secondary-foreground text-[10px]">
                           {p.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
@@ -551,7 +551,7 @@ const PositionSlot = ({
                     alt={player.name}
                     className="rounded-full object-cover"
                   />
-                  <AvatarFallback className="bg-blue-600 text-white text-xs">
+                  <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
                     {player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                   </AvatarFallback>
                 </Avatar>
@@ -568,7 +568,7 @@ const PositionSlot = ({
                 )}
                 
                 {/* Rating */}
-                <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold border border-white">
+                <div className="absolute -bottom-1 -right-1 bg-secondary text-secondary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium border border-white">
                   {Math.round(player.transferroomRating || player.xtvScore || 0)}
                 </div>
               </>
@@ -576,9 +576,9 @@ const PositionSlot = ({
           </div>
         ) : (
           <div 
-            className="w-12 h-12 rounded-full border-2 border-dashed border-gray-400 bg-white/50 flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors"
+            className="w-12 h-12 rounded-full border-2 border-dashed border-muted-foreground/40 bg-white/50 flex items-center justify-center cursor-pointer hover:border-muted-foreground/60 transition-colors"
           >
-            <Plus className="h-4 w-4 text-gray-400" />
+            <Plus className="h-4 w-4 text-muted-foreground" />
           </div>
         )}
 
