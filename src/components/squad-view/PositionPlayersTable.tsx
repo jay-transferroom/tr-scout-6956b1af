@@ -299,21 +299,11 @@ const PositionPlayersTable = ({
     setPlayerToAssign(player);
   };
 
-  // Helper to check if a player is external (non-Chelsea)
-  const isExternalPlayer = (player: Player): boolean => {
-    return !(player.club === 'Chelsea FC' || (player.club?.includes('Chelsea') ?? false));
-  };
-
   const renderPlayerRow = (player: Player, showShortlistActions = false) => {
-    const isExternal = isExternalPlayer(player);
-    
     return (
       <div
         key={player.id}
-        className={cn(
-          "flex items-center justify-between px-3 py-2 hover:bg-muted/30 transition-colors cursor-pointer rounded-md mx-1",
-          isExternal && "border-2 border-amber-400 bg-amber-50/30 dark:bg-amber-950/20"
-        )}
+        className="flex items-center justify-between px-3 py-2 hover:bg-muted/30 transition-colors cursor-pointer rounded-md mx-1"
         onClick={() => navigate(player.isPrivatePlayer ? `/private-player/${player.id}` : `/player/${player.id}`)}
       >
         <div className="flex items-center gap-2 min-w-0 flex-1">
