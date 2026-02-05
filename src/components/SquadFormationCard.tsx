@@ -1,7 +1,3 @@
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Users } from "lucide-react";
 import { Player } from "@/types/player";
 import CompactSquadView from "@/components/CompactSquadView";
 
@@ -24,6 +20,7 @@ interface SquadFormationCardProps {
   onAddPlayerToPosition?: (position: string, playerId: string) => void;
   onSetActivePlayer?: (position: string, playerId: string) => void;
   disableAutoFill?: boolean;
+  hideSlideout?: boolean;
 }
 
 const SquadFormationCard = ({ 
@@ -37,7 +34,8 @@ const SquadFormationCard = ({
   onPlayerChange,
   onAddPlayerToPosition,
   onSetActivePlayer,
-  disableAutoFill
+  disableAutoFill,
+  hideSlideout
 }: SquadFormationCardProps) => {
   return (
     <CompactSquadView 
@@ -52,6 +50,7 @@ const SquadFormationCard = ({
       onAddPlayerToPosition={onAddPlayerToPosition}
       onSetActivePlayer={onSetActivePlayer}
       disableAutoFill={disableAutoFill}
+      hideSlideout={hideSlideout}
     />
   );
 };

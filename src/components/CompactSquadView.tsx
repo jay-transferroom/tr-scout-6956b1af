@@ -48,6 +48,7 @@ interface CompactSquadViewProps {
   onAddPlayerToPosition?: (position: string, playerId: string) => void;
   onSetActivePlayer?: (position: string, playerId: string) => void;
   disableAutoFill?: boolean;
+  hideSlideout?: boolean;
 }
 
 const CompactSquadView = ({ 

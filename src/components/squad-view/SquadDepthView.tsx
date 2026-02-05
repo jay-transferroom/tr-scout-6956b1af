@@ -121,19 +121,19 @@ const SquadDepthView = ({
     return (
       <div className="flex items-center gap-0.5">
         {[...Array(fullStars)].map((_, i) => (
-          <Star key={i} className="w-2.5 h-2.5 fill-primary text-primary" />
+          <Star key={i} className="w-2.5 h-2.5 fill-emerald-500 text-emerald-500" />
         ))}
-        {hasHalf && <Star className="w-2.5 h-2.5 fill-primary/50 text-primary" />}
+        {hasHalf && <Star className="w-2.5 h-2.5 fill-emerald-500/50 text-emerald-500" />}
         {[...Array(5 - Math.ceil(stars))].map((_, i) => (
-          <Star key={`empty-${i}`} className="w-2.5 h-2.5 text-muted-foreground/30" />
+          <Star key={`empty-${i}`} className="w-2.5 h-2.5 text-slate-300" />
         ))}
       </div>
     );
   };
 
   return (
-    <div className="relative w-full rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
-      {/* Football pitch background - rotated */}
+    <div className="relative w-full rounded-lg overflow-hidden bg-[#0E9655]" style={{ aspectRatio: '16/9' }}>
+      {/* Football pitch background - rotated, all green */}
       <div 
         className="absolute inset-0 bg-cover bg-center pointer-events-none"
         style={{ 
@@ -142,9 +142,6 @@ const SquadDepthView = ({
           transformOrigin: 'center center',
         }}
       />
-      
-      {/* Overlay for better contrast */}
-      <div className="absolute inset-0 bg-black/20" />
 
       {/* Position cards */}
       {Object.entries(currentFormation).map(([position, config]) => {
@@ -161,14 +158,14 @@ const SquadDepthView = ({
               top: `${config.y}%`,
             }}
           >
-            {/* Position card */}
-            <div className="bg-secondary/95 backdrop-blur-sm rounded-md border border-border/50 shadow-lg min-w-[120px] max-w-[140px]">
+            {/* Position card - white background */}
+            <div className="bg-slate-800 backdrop-blur-sm rounded-md border border-slate-700 shadow-lg min-w-[120px] max-w-[140px]">
               {/* Header */}
-              <div className="flex items-center justify-between px-2 py-1.5 border-b border-border/50 bg-secondary-foreground/5">
-                <span className="text-xs font-semibold text-secondary-foreground">{config.label}</span>
+              <div className="flex items-center justify-between px-2 py-1.5 border-b border-slate-700">
+                <span className="text-xs font-semibold text-white">{config.label}</span>
                 <Badge 
                   variant="secondary" 
-                  className="h-5 min-w-5 px-1.5 text-xs font-medium bg-primary text-primary-foreground"
+                  className="h-5 min-w-5 px-1.5 text-xs font-medium bg-emerald-500 text-white border-0"
                 >
                   <Users className="w-2.5 h-2.5 mr-0.5" />
                   {players.length}
@@ -181,29 +178,29 @@ const SquadDepthView = ({
                   displayPlayers.map((player) => (
                     <div 
                       key={player.id}
-                      className="flex items-center justify-between gap-1 px-1.5 py-1 rounded bg-background/50 hover:bg-background/80 transition-colors"
+                      className="flex items-center justify-between gap-1 px-1.5 py-1 rounded bg-white/95 hover:bg-white transition-colors"
                     >
                       <div className="flex items-center gap-1.5 min-w-0 flex-1">
                         {renderStars(player.transferroomRating || player.xtvScore)}
-                        <span className="text-xs font-medium text-foreground truncate">
+                        <span className="text-xs font-medium text-slate-800 truncate">
                           {getAbbreviatedName(player.name)}
                         </span>
                       </div>
-                      <button className="shrink-0 w-4 h-4 rounded-full bg-destructive/20 hover:bg-destructive/40 flex items-center justify-center transition-colors">
-                        <Minus className="w-2.5 h-2.5 text-destructive" />
+                      <button className="shrink-0 w-4 h-4 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors">
+                        <Minus className="w-2.5 h-2.5 text-red-500" />
                       </button>
                     </div>
                   ))
                 ) : (
                   <div className="px-1.5 py-2 text-center">
-                    <span className="text-xs text-muted-foreground italic">No players</span>
+                    <span className="text-xs text-slate-400 italic">No players</span>
                   </div>
                 )}
                 
                 {/* More players indicator */}
                 {remainingCount > 0 && (
                   <div className="px-1.5 py-0.5 text-center">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-slate-400">
                       +{remainingCount} more player{remainingCount > 1 ? 's' : ''}
                     </span>
                   </div>
