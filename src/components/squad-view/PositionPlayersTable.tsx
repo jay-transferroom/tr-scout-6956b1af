@@ -325,13 +325,28 @@ const PositionPlayersTable = ({
             {player.transferroomRating}
           </Badge>
         )}
-        {showShortlistActions ? (
+        {/* Add to position button - always show */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 w-7 p-0"
+          onClick={(e) => {
+            e.stopPropagation();
+            onAddPlayerToPosition?.(selectedPosition!, player.id);
+          }}
+          title="Add to position"
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </Button>
+        {/* Shortlist actions - only for non-squad players */}
+        {showShortlistActions && (
           <>
             <Button
               variant="ghost"
               size="sm"
               className="h-7 w-7 p-0"
               onClick={(e) => handleAddToShortlist(player, e)}
+              title="Add to shortlist"
             >
               <ListPlus className="h-3.5 w-3.5" />
             </Button>
@@ -340,22 +355,11 @@ const PositionPlayersTable = ({
               size="sm"
               className="h-7 w-7 p-0"
               onClick={(e) => handleAssignScout(player, e)}
+              title="Assign scout"
             >
               <UserPlus className="h-3.5 w-3.5" />
             </Button>
           </>
-        ) : (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0"
-            onClick={(e) => {
-              e.stopPropagation();
-              onPlayerChange?.(selectedPosition!, player.id);
-            }}
-          >
-            <Plus className="h-3.5 w-3.5" />
-          </Button>
         )}
         <Button
           variant="ghost"
@@ -365,6 +369,7 @@ const PositionPlayersTable = ({
             e.stopPropagation();
             navigate(player.isPrivatePlayer ? `/private-player/${player.id}` : `/player/${player.id}`);
           }}
+          title="View profile"
         >
           <ArrowRight className="h-3.5 w-3.5" />
         </Button>
