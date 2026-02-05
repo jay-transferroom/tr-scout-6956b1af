@@ -251,21 +251,21 @@ export function SquadRatingCTAs({ currentSquadRating, variant = 'default' }: Squ
     return (
       <>
         <div
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 rounded-md cursor-pointer hover:bg-muted transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/30 border border-border/50 rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
           onClick={() => setShowRatingSheet(true)}
         >
-          <Star className="h-3.5 w-3.5 text-primary" />
-          <span className="text-xs font-medium">Rating</span>
-          <Badge variant="secondary" className="text-xs h-5 px-1.5">{overallRating.toFixed(1)}</Badge>
+          <Star className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">Rating</span>
+          <span className="text-xs font-semibold">{overallRating.toFixed(1)}</span>
         </div>
         
         <div
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 rounded-md cursor-pointer hover:bg-muted transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/30 border border-border/50 rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
           onClick={() => setShowRankingSheet(true)}
         >
-          <Trophy className="h-3.5 w-3.5 text-primary" />
-          <span className="text-xs font-medium">Position</span>
-          <Badge variant="secondary" className="text-xs h-5 px-1.5">#{overallRank}</Badge>
+          <Trophy className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">Position</span>
+          <span className="text-xs font-semibold">#{overallRank}</span>
         </div>
 
         {sheetsContent}
