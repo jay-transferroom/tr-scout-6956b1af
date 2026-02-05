@@ -239,11 +239,18 @@ const PositionPlayersTable = ({
     }
   };
 
-  const getPriorityVariant = (priority: string) => {
+  const getPriorityStyles = (priority: string) => {
     switch (priority) {
-      case 'Critical': case 'High': return 'destructive';
-      case 'Medium': return 'secondary';
-      default: return 'default';
+      case 'Critical': 
+        return 'text-destructive bg-destructive/10';
+      case 'High': 
+        return 'text-orange-600 bg-orange-50 dark:bg-orange-950/30';
+      case 'Medium': 
+        return 'text-yellow-600 bg-yellow-50 dark:bg-yellow-950/30';
+      case 'Strong':
+        return 'text-green-600 bg-green-50 dark:bg-green-950/30';
+      default: 
+        return 'text-muted-foreground bg-muted/50';
     }
   };
 
@@ -377,9 +384,12 @@ const PositionPlayersTable = ({
             <div className="flex items-center gap-2">
               {getPriorityIcon(analysis.priority)}
               <span className="font-medium">{analysis.displayName}</span>
-              <Badge variant={getPriorityVariant(analysis.priority) as any}>
+              <span className={cn(
+                "text-xs font-medium px-2 py-0.5 rounded",
+                getPriorityStyles(analysis.priority)
+              )}>
                 {analysis.priority}
-              </Badge>
+              </span>
             </div>
             <span className="text-sm text-muted-foreground">
               {analysis.current}/{analysis.needed} players

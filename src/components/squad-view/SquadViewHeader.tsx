@@ -95,9 +95,9 @@ export function SquadViewHeader({
           <div className="flex items-center gap-3 flex-wrap">
             {loadedConfiguration ? (
               <>
-                <Badge variant="default" className="bg-primary text-primary-foreground">
+                <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
                   Editing
-                </Badge>
+                </span>
                 <h1 className="text-xl font-semibold">{loadedConfiguration.name}</h1>
               </>
             ) : (
@@ -141,12 +141,9 @@ export function SquadViewHeader({
                   className="h-8 px-3"
                 >
                   <span className="text-sm">{squad.label}</span>
-                  <Badge 
-                    variant="secondary"
-                    className="ml-1.5 text-xs h-5 min-w-5 justify-center"
-                  >
+                  <span className="ml-1.5 text-xs font-medium bg-background/80 px-1.5 py-0.5 rounded">
                     {squad.count}
-                  </Badge>
+                  </span>
                 </Button>
               ))}
             </div>
@@ -190,14 +187,14 @@ export function SquadViewHeader({
               </div>
               <div className="flex gap-1.5">
                 {headCoach.rating && (
-                  <Badge variant="secondary" className="text-xs">
+                  <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded">
                     {headCoach.rating}
-                  </Badge>
+                  </span>
                 )}
                 {headCoach["Favourite Formation"] && (
-                  <Badge variant="outline" className="text-xs">
+                  <span className="text-xs text-muted-foreground border border-border px-2 py-0.5 rounded">
                     {headCoach["Favourite Formation"]}
-                  </Badge>
+                  </span>
                 )}
               </div>
             </div>
@@ -219,11 +216,11 @@ export function SquadViewHeader({
             <TooltipProvider key={index}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md cursor-default">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/30 border border-border/50 rounded-md cursor-default">
                     <Lightbulb className="h-3.5 w-3.5 text-primary" />
-                    <Badge variant="default" className="text-xs">
+                    <span className="text-xs font-semibold text-primary">
                       {rec.Position}
-                    </Badge>
+                    </span>
                     <span className="text-xs text-muted-foreground hidden sm:inline max-w-[200px] truncate">
                       {rec.Reason}
                     </span>
@@ -251,12 +248,12 @@ export function SquadViewHeader({
               <TooltipProvider key={player.id}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-destructive/10 rounded-md cursor-default">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-destructive/5 border border-destructive/20 rounded-md cursor-default">
                       <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
                       <span className="text-xs font-medium">{player.name.split(' ').pop()}</span>
-                      <Badge variant="outline" className="text-xs border-destructive/30 text-destructive">
+                      <span className="text-xs text-destructive font-medium">
                         {alertType}
-                      </Badge>
+                      </span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
@@ -274,9 +271,9 @@ export function SquadViewHeader({
 
           {/* Show more indicator */}
           {(recommendations.length > 3 || alertPlayers.length > 3) && (
-            <Badge variant="outline" className="text-xs">
+            <span className="text-xs text-muted-foreground border border-border/50 px-2 py-1 rounded">
               +{Math.max(0, recommendations.length - 3) + Math.max(0, alertPlayers.length - 3)} more
-            </Badge>
+            </span>
           )}
         </div>
       </div>
