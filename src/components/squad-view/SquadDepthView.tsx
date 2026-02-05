@@ -12,40 +12,40 @@ interface SquadDepthViewProps {
   }>;
 }
 
-// Horizontal layout - GK on left, attackers on right
+// Horizontal layout - GK on left, attackers on right (shifted right to prevent GK cutoff)
 const DEPTH_FORMATION_CONFIGS: Record<string, Record<string, { x: number; y: number; label: string }>> = {
   '4-3-3': {
-    GK: { x: 5, y: 50, label: 'GK' },
-    LB: { x: 22, y: 15, label: 'LB' },
-    CB1: { x: 22, y: 38, label: 'CB' },
-    CB2: { x: 22, y: 62, label: 'CB' },
-    RB: { x: 22, y: 85, label: 'RB' },
+    GK: { x: 10, y: 50, label: 'GK' },
+    LB: { x: 24, y: 12, label: 'LB' },
+    CB1: { x: 24, y: 36, label: 'CB' },
+    CB2: { x: 24, y: 64, label: 'CB' },
+    RB: { x: 24, y: 88, label: 'RB' },
     CDM: { x: 45, y: 50, label: 'DM' },
     CM1: { x: 55, y: 30, label: 'CM' },
     CM2: { x: 55, y: 70, label: 'CM' },
-    LW: { x: 78, y: 18, label: 'LW' },
-    ST: { x: 90, y: 50, label: 'ST' },
-    RW: { x: 78, y: 82, label: 'RW' },
+    LW: { x: 75, y: 15, label: 'LW' },
+    ST: { x: 88, y: 50, label: 'ST' },
+    RW: { x: 75, y: 85, label: 'RW' },
   },
   '4-2-3-1': {
-    GK: { x: 5, y: 50, label: 'GK' },
-    LB: { x: 22, y: 15, label: 'LB' },
-    CB1: { x: 22, y: 38, label: 'CB' },
-    CB2: { x: 22, y: 62, label: 'CB' },
-    RB: { x: 22, y: 85, label: 'RB' },
+    GK: { x: 10, y: 50, label: 'GK' },
+    LB: { x: 24, y: 12, label: 'LB' },
+    CB1: { x: 24, y: 36, label: 'CB' },
+    CB2: { x: 24, y: 64, label: 'CB' },
+    RB: { x: 24, y: 88, label: 'RB' },
     CDM1: { x: 42, y: 35, label: 'DM' },
     CDM2: { x: 42, y: 65, label: 'DM' },
-    LW: { x: 62, y: 18, label: 'LW' },
+    LW: { x: 62, y: 15, label: 'LW' },
     CAM: { x: 62, y: 50, label: 'AM' },
-    RW: { x: 62, y: 82, label: 'RW' },
+    RW: { x: 62, y: 85, label: 'RW' },
     ST: { x: 85, y: 50, label: 'ST' },
   },
   '4-4-2': {
-    GK: { x: 5, y: 50, label: 'GK' },
-    LB: { x: 22, y: 15, label: 'LB' },
-    CB1: { x: 22, y: 38, label: 'CB' },
-    CB2: { x: 22, y: 62, label: 'CB' },
-    RB: { x: 22, y: 85, label: 'RB' },
+    GK: { x: 10, y: 50, label: 'GK' },
+    LB: { x: 24, y: 12, label: 'LB' },
+    CB1: { x: 24, y: 36, label: 'CB' },
+    CB2: { x: 24, y: 64, label: 'CB' },
+    RB: { x: 24, y: 88, label: 'RB' },
     LM: { x: 50, y: 15, label: 'LM' },
     CM1: { x: 50, y: 38, label: 'CM' },
     CM2: { x: 50, y: 62, label: 'CM' },
@@ -132,10 +132,10 @@ const SquadDepthView = ({
   };
 
   return (
-    <div className="relative w-full rounded-lg overflow-hidden bg-[#0E9655]" style={{ aspectRatio: '16/9' }}>
-      {/* Football pitch background - rotated, all green */}
+    <div className="relative w-full rounded-lg overflow-hidden bg-[#3A9D5C]" style={{ aspectRatio: '16/9' }}>
+      {/* Football pitch background - rotated */}
       <div 
-        className="absolute inset-0 bg-cover bg-center pointer-events-none"
+        className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-30"
         style={{ 
           backgroundImage: `url(${pitchBackground})`,
           transform: 'rotate(-90deg) scaleX(-1)',
