@@ -9,12 +9,13 @@ import { useSquadData } from "@/hooks/useSquadData";
 import { useMarescaFormations } from "@/hooks/useMarescaFormations";
 import { useHeadCoach } from "@/hooks/useHeadCoach";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
-import SavedSquadConfigurations from "@/components/SavedSquadConfigurations";
 import SaveSquadConfigurationDialog from "@/components/SaveSquadConfigurationDialog";
 import { SquadConfiguration, useSquadConfigurations } from "@/hooks/useSquadConfigurations";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentSquadRating } from "@/hooks/useCurrentSquadRating";
 import { SquadViewHeader } from "@/components/squad-view/SquadViewHeader";
+import SquadDepthView from "@/components/squad-view/SquadDepthView";
+import PositionPlayersTable from "@/components/squad-view/PositionPlayersTable";
 
 const SquadView = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const SquadView = () => {
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [loadedConfiguration, setLoadedConfiguration] = useState<SquadConfiguration | null>(null);
   const [currentFormation, setCurrentFormation] = useState<string>('4-3-3');
+  const [viewMode, setViewMode] = useState<'detail' | 'depth'>('detail');
   
   // Start with blank squad by default (no auto-fill)
   const [disableAutoFill, setDisableAutoFill] = useState(true);
@@ -267,40 +269,57 @@ const SquadView = () => {
         onStartNewSquad={handleStartNewSquad}
         onSaveSquad={() => setShowSaveDialog(true)}
         currentSquadRating={currentSquadRating}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        clubName={userClub}
+        onLoadConfiguration={handleLoadConfiguration}
       />
 
       {/* Main Content - Grey Background */}
       <div className="w-full max-w-full overflow-x-hidden bg-muted/30">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-6">
-          {/* Formation View with Saved Configurations Side by Side */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Pitch View - Takes 2 columns on large screens */}
-            <div className="lg:col-span-2">
-              <SquadFormationCard 
-                squadPlayers={squadPlayers} 
-                selectedSquad={selectedSquad} 
-                formation={currentFormation} 
-                positionAssignments={positionAssignments} 
-                multiPlayerSlots={positionSlots}
-                onPositionClick={setSelectedPosition} 
-                selectedPosition={selectedPosition} 
-                onPlayerChange={handlePlayerChange}
-                onAddPlayerToPosition={handleAddPlayerToPosition}
-                onSetActivePlayer={handleSetActivePlayer}
-                disableAutoFill={disableAutoFill}
+          {viewMode === 'detail' ? (
+            /* Detail View - Pitch with side table */
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+              {/* Pitch View - Reduced size, takes 3 columns */}
+              <div className="lg:col-span-3">
+                <div className="max-w-xl mx-auto lg:mx-0">
+                  <SquadFormationCard 
+                    squadPlayers={squadPlayers} 
+                    selectedSquad={selectedSquad} 
+                    formation={currentFormation} 
+                    positionAssignments={positionAssignments} 
+                    multiPlayerSlots={positionSlots}
+                    onPositionClick={setSelectedPosition} 
+                    selectedPosition={selectedPosition} 
+                    onPlayerChange={handlePlayerChange}
+                    onAddPlayerToPosition={handleAddPlayerToPosition}
+                    onSetActivePlayer={handleSetActivePlayer}
+                    disableAutoFill={disableAutoFill}
+                  />
+                </div>
+              </div>
+
+              {/* Position Players Table - Takes 2 columns */}
+              <div className="lg:col-span-2">
+                <PositionPlayersTable
+                  squadPlayers={squadPlayers}
+                  selectedPosition={selectedPosition}
+                  onPlayerChange={handlePlayerChange}
+                  onAddPlayerToPosition={handleAddPlayerToPosition}
+                />
+              </div>
+            </div>
+          ) : (
+            /* Depth View - Horizontal pitch with depth cards */
+            <div className="w-full">
+              <SquadDepthView
+                squadPlayers={squadPlayers}
+                formation={currentFormation}
+                positionAssignments={positionAssignments}
               />
             </div>
-
-            {/* Saved Configurations - Takes 1 column on large screens */}
-            <div className="lg:col-span-1 space-y-4">
-              <SavedSquadConfigurations 
-                clubName={userClub}
-                onLoadConfiguration={handleLoadConfiguration}
-                loadedConfigurationId={loadedConfiguration?.id}
-              />
-            </div>
-          </div>
-
+          )}
         </div>
       </div>
 

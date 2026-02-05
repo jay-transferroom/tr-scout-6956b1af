@@ -7,7 +7,8 @@ import { AlertTriangle, Lightbulb, Save, Plus } from "lucide-react";
 import { SquadConfiguration } from "@/hooks/useSquadConfigurations";
 import { SquadRecommendation } from "@/hooks/useSquadRecommendations";
 import { SquadRatingCTAs } from "./SquadRatingCTAs";
-
+import SquadViewModeToggle from "./SquadViewModeToggle";
+import SavedConfigurationsDropdown from "./SavedConfigurationsDropdown";
 interface HeadCoach {
   staffid: number;
   shortname: string | null;
@@ -61,6 +62,10 @@ interface SquadViewHeaderProps {
     ForwardRating: number;
     WingerRating: number;
   } | null;
+  viewMode: 'detail' | 'depth';
+  onViewModeChange: (mode: 'detail' | 'depth') => void;
+  clubName: string;
+  onLoadConfiguration: (config: SquadConfiguration) => void;
 }
 
 export function SquadViewHeader({
@@ -77,6 +82,10 @@ export function SquadViewHeader({
   onStartNewSquad,
   onSaveSquad,
   currentSquadRating,
+  viewMode,
+  onViewModeChange,
+  clubName,
+  onLoadConfiguration,
 }: SquadViewHeaderProps) {
   return (
     <div className="w-full bg-background border-b">
@@ -95,7 +104,17 @@ export function SquadViewHeader({
               <h1 className="text-xl font-semibold text-muted-foreground">New Squad Configuration</h1>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <SquadViewModeToggle 
+              currentView={viewMode} 
+              onViewChange={onViewModeChange} 
+            />
+            <div className="h-6 w-px bg-border mx-1" />
+            <SavedConfigurationsDropdown
+              clubName={clubName}
+              onLoadConfiguration={onLoadConfiguration}
+              loadedConfigurationId={loadedConfiguration?.id}
+            />
             <Button variant="outline" size="sm" onClick={onStartNewSquad}>
               <Plus className="h-4 w-4 mr-1.5" />
               New
