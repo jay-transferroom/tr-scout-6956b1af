@@ -321,6 +321,11 @@ const EnhancedFootballPitch = ({ players, squadType, formation = '4-3-3', positi
     }
   };
 
+  // Helper to check if a player is external (non-Chelsea)
+  const isExternalPlayer = (player: Player): boolean => {
+    return !(player.club === 'Chelsea FC' || (player.club?.includes('Chelsea') ?? false));
+  };
+
   const getContractRiskLevel = (player: Player) => {
     if (!player.contractExpiry) return 'none';
     const expiryDate = new Date(player.contractExpiry);
@@ -433,12 +438,14 @@ const EnhancedFootballPitch = ({ players, squadType, formation = '4-3-3', positi
                 className={`w-16 h-16 rounded-full border-4 transition-all cursor-pointer ${
                   isSelected 
                     ? 'border-yellow-500 shadow-lg shadow-yellow-500/50' 
-                    : 'border-blue-500 hover:border-blue-600 shadow-md'
+                    : isExternalPlayer(currentPlayer)
+                      ? 'border-amber-400 hover:border-amber-500 shadow-md shadow-amber-200/50'
+                      : 'border-blue-500 hover:border-blue-600 shadow-md'
                 } bg-white hover:shadow-lg animate-scale-in`}
                 onClick={() => setShowDropdown(!showDropdown)}
               >
                 <Avatar className="w-full h-full flex items-center justify-center">
-                  <AvatarImage 
+                  <AvatarImage
                     src={currentPlayer.image} 
                     alt={currentPlayer.name}
                     className="rounded-full object-center object-cover"
