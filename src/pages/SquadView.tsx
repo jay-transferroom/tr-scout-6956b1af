@@ -279,11 +279,11 @@ const SquadView = () => {
       <div className="w-full max-w-full overflow-x-hidden bg-muted/30">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-6">
           {viewMode === 'detail' ? (
-            /* Detail View - Pitch with side table */
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-              {/* Pitch View - Reduced size, takes 3 columns */}
-              <div className="lg:col-span-3">
-                <div className="max-w-xl mx-auto lg:mx-0">
+            /* Detail View - Condensed pitch with side panel */
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              {/* Pitch View - Condensed, takes 5 columns */}
+              <div className="lg:col-span-5">
+                <div className="max-w-md mx-auto lg:mx-0">
                   <SquadFormationCard 
                     squadPlayers={squadPlayers} 
                     selectedSquad={selectedSquad} 
@@ -296,14 +296,16 @@ const SquadView = () => {
                     onAddPlayerToPosition={handleAddPlayerToPosition}
                     onSetActivePlayer={handleSetActivePlayer}
                     disableAutoFill={disableAutoFill}
+                    hideSlideout={true}
                   />
                 </div>
               </div>
 
-              {/* Position Players Table - Takes 2 columns */}
-              <div className="lg:col-span-2">
+              {/* Position Players Panel - Takes 7 columns */}
+              <div className="lg:col-span-7">
                 <PositionPlayersTable
                   squadPlayers={squadPlayers}
+                  allPlayers={allPlayers}
                   selectedPosition={selectedPosition}
                   onPlayerChange={handlePlayerChange}
                   onAddPlayerToPosition={handleAddPlayerToPosition}
