@@ -317,6 +317,7 @@ const SquadView = () => {
             <div className="w-full">
               <SquadDepthView
                 squadPlayers={squadPlayers}
+                allPlayers={allPlayers}
                 formation={currentFormation}
                 positionAssignments={positionAssignments}
               />
