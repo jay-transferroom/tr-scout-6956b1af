@@ -163,6 +163,7 @@ const SquadDepthView = ({
         const players = getPositionDepth(position);
         const displayPlayers = players.slice(0, 3);
         const remainingCount = players.length - 3;
+        const hasExternalPlayers = players.some(p => p.isExternal);
         
         return (
           <div
@@ -173,14 +174,28 @@ const SquadDepthView = ({
               top: `${config.y}%`,
             }}
           >
-            {/* Position card - white background */}
-            <div className="bg-slate-800 backdrop-blur-sm rounded-md border border-slate-700 shadow-lg min-w-[120px] max-w-[140px]">
+            {/* Position card - gold when external players added */}
+            <div className={cn(
+              "backdrop-blur-sm rounded-md shadow-lg min-w-[120px] max-w-[140px]",
+              hasExternalPlayers 
+                ? "bg-amber-400 border border-amber-500" 
+                : "bg-slate-800 border border-slate-700"
+            )}>
               {/* Header */}
-              <div className="flex items-center justify-between px-2 py-1.5 border-b border-slate-700">
-                <span className="text-xs font-semibold text-white">{config.label}</span>
+              <div className={cn(
+                "flex items-center justify-between px-2 py-1.5 border-b",
+                hasExternalPlayers ? "border-amber-500/50" : "border-slate-700"
+              )}>
+                <span className={cn(
+                  "text-xs font-semibold",
+                  hasExternalPlayers ? "text-amber-900" : "text-white"
+                )}>{config.label}</span>
                 <Badge 
                   variant="secondary" 
-                  className="h-5 min-w-5 px-1.5 text-xs font-medium bg-emerald-500 text-white border-0"
+                  className={cn(
+                    "h-5 min-w-5 px-1.5 text-xs font-medium border-0",
+                    hasExternalPlayers ? "bg-amber-600 text-white" : "bg-emerald-500 text-white"
+                  )}
                 >
                   <Users className="w-2.5 h-2.5 mr-0.5" />
                   {players.length}
@@ -192,15 +207,14 @@ const SquadDepthView = ({
               {displayPlayers.length > 0 ? (
                   displayPlayers.map((player) => {
                     const rating = player.transferroomRating || player.xtvScore;
-                    const isExternal = player.isExternal || false;
                     
                     return (
                       <div 
                         key={player.id}
                         className={cn(
                           "flex items-center justify-between gap-1 px-1.5 py-1 rounded transition-colors",
-                          isExternal 
-                            ? "bg-amber-400/90 hover:bg-amber-400 border border-amber-500/50" 
+                          hasExternalPlayers
+                            ? "bg-amber-500/40 hover:bg-amber-500/60"
                             : "bg-white/95 hover:bg-white"
                         )}
                       >
@@ -213,7 +227,7 @@ const SquadDepthView = ({
                           </span>
                           <span className={cn(
                             "text-xs font-medium truncate",
-                            isExternal ? "text-amber-900" : "text-slate-800"
+                            hasExternalPlayers ? "text-amber-950" : "text-slate-800"
                           )}>
                             {getAbbreviatedName(player.name)}
                           </span>
@@ -223,14 +237,20 @@ const SquadDepthView = ({
                   })
                 ) : (
                   <div className="px-1.5 py-2 text-center">
-                    <span className="text-xs text-slate-400 italic">No players</span>
+                    <span className={cn(
+                      "text-xs italic",
+                      hasExternalPlayers ? "text-amber-800" : "text-slate-400"
+                    )}>No players</span>
                   </div>
                 )}
                 
                 {/* More players indicator */}
                 {remainingCount > 0 && (
                   <div className="px-1.5 py-0.5 text-center">
-                    <span className="text-xs text-slate-400">
+                    <span className={cn(
+                      "text-xs",
+                      hasExternalPlayers ? "text-amber-800" : "text-slate-400"
+                    )}>
                       +{remainingCount} more player{remainingCount > 1 ? 's' : ''}
                     </span>
                   </div>
