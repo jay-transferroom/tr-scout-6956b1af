@@ -320,6 +320,7 @@ const SquadView = () => {
                 allPlayers={allPlayers}
                 formation={currentFormation}
                 positionAssignments={positionAssignments}
+                multiPlayerSlots={positionSlots}
               />
             </div>
           )}
