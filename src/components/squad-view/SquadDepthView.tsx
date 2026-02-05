@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 interface SquadDepthViewProps {
   squadPlayers: Player[];
+  allPlayers?: Player[];
   formation?: string;
   positionAssignments?: Array<{
     position: string;
@@ -76,33 +77,55 @@ const getPositionMapping = (pos: string): string[] => {
 
 const SquadDepthView = ({
   squadPlayers,
+  allPlayers = [],
   formation = '4-3-3',
   positionAssignments = [],
 }: SquadDepthViewProps) => {
   const currentFormation = DEPTH_FORMATION_CONFIGS[formation] || DEPTH_FORMATION_CONFIGS['4-3-3'];
 
-  // Get IDs of players assigned via position assignments (edited positions)
-  const assignedPlayerIds = new Set(positionAssignments.map(a => a.player_id));
+  // Create a map of position -> assigned player IDs for quick lookup
+  const positionToAssignedPlayers = new Map<string, string[]>();
+  positionAssignments.forEach(a => {
+    const existing = positionToAssignedPlayers.get(a.position) || [];
+    existing.push(a.player_id);
+    positionToAssignedPlayers.set(a.position, existing);
+  });
 
-  // Calculate depth for each position
-  const getPositionDepth = (position: string) => {
+  // Get IDs of players in the squad
+  const squadPlayerIds = new Set(squadPlayers.map(p => p.id));
+
+  // Calculate depth for each position - includes both squad players and assigned external players
+  const getPositionDepth = (position: string): Array<Player & { isExternal?: boolean }> => {
     const allowedPositions = getPositionMapping(position);
-    const availablePlayers = squadPlayers.filter(player =>
+    
+    // Get squad players eligible for this position
+    const eligibleSquadPlayers = squadPlayers.filter(player =>
       player.positions.some(pos => allowedPositions.includes(pos))
     );
 
-    // Sort by rating
-    return availablePlayers.sort((a, b) => {
+    // Get externally assigned players for this specific position
+    const assignedPlayerIds = positionToAssignedPlayers.get(position) || [];
+    const externalPlayers = assignedPlayerIds
+      .filter(id => !squadPlayerIds.has(id)) // Only players not in squad
+      .map(id => allPlayers.find(p => p.id === id))
+      .filter((p): p is Player => p !== undefined)
+      .map(p => ({ ...p, isExternal: true }));
+
+    // Combine and sort by rating
+    const allPositionPlayers = [
+      ...externalPlayers, // External players first (they're the new additions)
+      ...eligibleSquadPlayers.map(p => ({ ...p, isExternal: false }))
+    ];
+
+    return allPositionPlayers.sort((a, b) => {
+      // External players sort first
+      if (a.isExternal && !b.isExternal) return -1;
+      if (!a.isExternal && b.isExternal) return 1;
+      // Then by rating
       const ratingA = a.transferroomRating || a.xtvScore || 0;
       const ratingB = b.transferroomRating || b.xtvScore || 0;
       return ratingB - ratingA;
     });
-  };
-
-  // Check if a player is an external addition (not in original squad)
-  const isExternalPlayer = (player: Player): boolean => {
-    // If player is in position assignments, they may have been added externally
-    return assignedPlayerIds.has(player.id) && !squadPlayers.some(sp => sp.id === player.id);
   };
 
   // Get abbreviated name (First initial + surname)
@@ -169,7 +192,7 @@ const SquadDepthView = ({
               {displayPlayers.length > 0 ? (
                   displayPlayers.map((player) => {
                     const rating = player.transferroomRating || player.xtvScore;
-                    const isExternal = isExternalPlayer(player);
+                    const isExternal = player.isExternal || false;
                     
                     return (
                       <div 
@@ -190,7 +213,7 @@ const SquadDepthView = ({
                           </span>
                           <span className={cn(
                             "text-xs font-medium truncate",
-                            isExternal ? "text-primary-foreground" : "text-slate-800"
+                            isExternal ? "text-white" : "text-slate-800"
                           )}>
                             {getAbbreviatedName(player.name)}
                           </span>
