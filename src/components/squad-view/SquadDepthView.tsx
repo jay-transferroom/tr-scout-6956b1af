@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Player } from "@/types/player";
-import { Users, Star, Minus } from "lucide-react";
+import { Users } from "lucide-react";
 import pitchBackground from "@/assets/pitch.svg";
+import { cn } from "@/lib/utils";
 
 interface SquadDepthViewProps {
   squadPlayers: Player[];
@@ -76,8 +77,12 @@ const getPositionMapping = (pos: string): string[] => {
 const SquadDepthView = ({
   squadPlayers,
   formation = '4-3-3',
+  positionAssignments = [],
 }: SquadDepthViewProps) => {
   const currentFormation = DEPTH_FORMATION_CONFIGS[formation] || DEPTH_FORMATION_CONFIGS['4-3-3'];
+
+  // Get IDs of players assigned via position assignments (edited positions)
+  const assignedPlayerIds = new Set(positionAssignments.map(a => a.player_id));
 
   // Calculate depth for each position
   const getPositionDepth = (position: string) => {
@@ -94,6 +99,12 @@ const SquadDepthView = ({
     });
   };
 
+  // Check if a player is an external addition (not in original squad)
+  const isExternalPlayer = (player: Player): boolean => {
+    // If player is in position assignments, they may have been added externally
+    return assignedPlayerIds.has(player.id) && !squadPlayers.some(sp => sp.id === player.id);
+  };
+
   // Get abbreviated name (First initial + surname)
   const getAbbreviatedName = (name: string): string => {
     const parts = name.split(' ');
@@ -103,32 +114,13 @@ const SquadDepthView = ({
     return `${firstName[0]}. ${lastName.substring(0, 5)}`;
   };
 
-  // Get star rating visual
-  const getStarRating = (rating: number | undefined): number => {
-    if (!rating) return 0;
-    if (rating >= 85) return 5;
-    if (rating >= 75) return 4;
-    if (rating >= 65) return 3;
-    if (rating >= 55) return 2;
-    return 1;
-  };
-
-  const renderStars = (rating: number | undefined) => {
-    const stars = getStarRating(rating);
-    const fullStars = Math.floor(stars);
-    const hasHalf = stars % 1 >= 0.5;
-    
-    return (
-      <div className="flex items-center gap-0.5">
-        {[...Array(fullStars)].map((_, i) => (
-          <Star key={i} className="w-2.5 h-2.5 fill-emerald-500 text-emerald-500" />
-        ))}
-        {hasHalf && <Star className="w-2.5 h-2.5 fill-emerald-500/50 text-emerald-500" />}
-        {[...Array(5 - Math.ceil(stars))].map((_, i) => (
-          <Star key={`empty-${i}`} className="w-2.5 h-2.5 text-slate-300" />
-        ))}
-      </div>
-    );
+  // Get rating color based on value
+  const getRatingColor = (rating: number | undefined): string => {
+    if (!rating) return 'text-slate-400';
+    if (rating >= 80) return 'text-emerald-500';
+    if (rating >= 70) return 'text-primary';
+    if (rating >= 60) return 'text-yellow-500';
+    return 'text-orange-500';
   };
 
   return (
@@ -174,23 +166,38 @@ const SquadDepthView = ({
               
               {/* Player list */}
               <div className="p-1.5 space-y-1">
-                {displayPlayers.length > 0 ? (
-                  displayPlayers.map((player) => (
-                    <div 
-                      key={player.id}
-                      className="flex items-center justify-between gap-1 px-1.5 py-1 rounded bg-white/95 hover:bg-white transition-colors"
-                    >
-                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                        {renderStars(player.transferroomRating || player.xtvScore)}
-                        <span className="text-xs font-medium text-slate-800 truncate">
-                          {getAbbreviatedName(player.name)}
-                        </span>
+              {displayPlayers.length > 0 ? (
+                  displayPlayers.map((player) => {
+                    const rating = player.transferroomRating || player.xtvScore;
+                    const isExternal = isExternalPlayer(player);
+                    
+                    return (
+                      <div 
+                        key={player.id}
+                        className={cn(
+                          "flex items-center justify-between gap-1 px-1.5 py-1 rounded transition-colors",
+                          isExternal 
+                            ? "bg-primary/20 hover:bg-primary/30 border border-primary/30" 
+                            : "bg-white/95 hover:bg-white"
+                        )}
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                          <span className={cn(
+                            "text-xs font-bold tabular-nums min-w-[24px]",
+                            getRatingColor(rating)
+                          )}>
+                            {rating || '-'}
+                          </span>
+                          <span className={cn(
+                            "text-xs font-medium truncate",
+                            isExternal ? "text-primary-foreground" : "text-slate-800"
+                          )}>
+                            {getAbbreviatedName(player.name)}
+                          </span>
+                        </div>
                       </div>
-                      <button className="shrink-0 w-4 h-4 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors">
-                        <Minus className="w-2.5 h-2.5 text-red-500" />
-                      </button>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="px-1.5 py-2 text-center">
                     <span className="text-xs text-slate-400 italic">No players</span>

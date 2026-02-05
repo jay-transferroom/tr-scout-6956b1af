@@ -37,7 +37,7 @@ const getPositionMapping = (pos: string): string[] => {
   }
 };
 
-const getPositionLabel = (position: string): string => {
+const _getPositionLabel = (position: string): string => {
   const labels: Record<string, string> = {
     'GK': 'Goalkeeper',
     'LB': 'Left Back',
@@ -127,17 +127,29 @@ const PositionPlayersTable = ({
   }, [selectedPosition, shortlists, allPlayers, squadPlayers]);
 
   // Get recommended players for the selected position
+  // Get recommended players for the selected position
   const recommendedPlayers = useMemo(() => {
     if (!selectedPosition) return [];
     
     const category = mapPositionToCategory(selectedPosition);
-    const positionLabel = getPositionLabel(selectedPosition);
     
-    // Check if this position has recommendations
-    const hasRecommendation = recommendations.some(r => 
-      r.Position?.toLowerCase().includes(positionLabel.toLowerCase()) ||
-      r.Position?.toLowerCase().includes(category.toLowerCase())
-    );
+    // Map categories to recommendation keywords
+    const categoryToKeywords: Record<string, string[]> = {
+      'GK': ['goalkeeper', 'gk', 'keeper'],
+      'CB': ['centre back', 'center back', 'cb', 'defender'],
+      'FB': ['right back', 'left back', 'rb', 'lb', 'full back', 'fullback', 'wing back'],
+      'CM': ['midfielder', 'midfield', 'cm', 'cdm', 'cam', 'central mid'],
+      'W': ['winger', 'wing', 'lw', 'rw', 'wide'],
+      'ST': ['striker', 'forward', 'st', 'cf', 'attacker']
+    };
+
+    const keywords = categoryToKeywords[category] || [];
+    
+    // Check if this position has recommendations - more flexible matching
+    const hasRecommendation = recommendations.some(r => {
+      const posLower = r.Position?.toLowerCase() || '';
+      return keywords.some(kw => posLower.includes(kw));
+    });
 
     if (!hasRecommendation) return [];
 
