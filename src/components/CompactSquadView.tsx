@@ -62,7 +62,8 @@ const CompactSquadView = ({
   onPlayerChange,
   onAddPlayerToPosition,
   onSetActivePlayer,
-  disableAutoFill
+  disableAutoFill,
+  hideSlideout = false
 }: CompactSquadViewProps) => {
   const [selectedPlayerForDetails, setSelectedPlayerForDetails] = useState<Player | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -414,8 +415,8 @@ const CompactSquadView = ({
         </div>
       )}
 
-      {/* Position Selection Slide-out */}
-      <Sheet open={!!selectedPosition} onOpenChange={(open) => !open && handlePositionClick('')}>
+      {/* Position Selection Slide-out - only show when hideSlideout is false */}
+      <Sheet open={!hideSlideout && !!selectedPosition} onOpenChange={(open) => !open && handlePositionClick('')}>
         <SheetContent side="right" className="w-full sm:w-[420px] md:w-[50vw] overflow-y-auto">
           {selectedPosition && (() => {
             const analysis = getPositionAnalysis(selectedPosition);
