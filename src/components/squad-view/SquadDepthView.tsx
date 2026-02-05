@@ -91,41 +91,54 @@ const SquadDepthView = ({
     positionToAssignedPlayers.set(a.position, existing);
   });
 
-  // Get IDs of players in the squad
-  const squadPlayerIds = new Set(squadPlayers.map(p => p.id));
 
-  // Calculate depth for each position - includes both squad players and assigned external players
+
+  // Calculate depth for each position - prioritizes actual assignments over position eligibility
   const getPositionDepth = (position: string): Array<Player & { isExternal?: boolean }> => {
-    const allowedPositions = getPositionMapping(position);
+    const assignedPlayerIds = positionToAssignedPlayers.get(position) || [];
     
-    // Get squad players eligible for this position
+    // If there are explicit assignments for this position, use only those
+    if (assignedPlayerIds.length > 0) {
+      const assignedPlayers = assignedPlayerIds
+        .map(id => {
+          // Check if player is in squad first
+          const squadPlayer = squadPlayers.find(p => p.id === id);
+          if (squadPlayer) {
+            return { ...squadPlayer, isExternal: false };
+          }
+          // Otherwise check all players (external)
+          const externalPlayer = allPlayers.find(p => p.id === id);
+          if (externalPlayer) {
+            return { ...externalPlayer, isExternal: true };
+          }
+          return null;
+        })
+        .filter((p): p is Player & { isExternal: boolean } => p !== null);
+
+      return assignedPlayers.sort((a, b) => {
+        // External players sort first
+        if (a.isExternal && !b.isExternal) return -1;
+        if (!a.isExternal && b.isExternal) return 1;
+        // Then by rating
+        const ratingA = a.transferroomRating || a.xtvScore || 0;
+        const ratingB = b.transferroomRating || b.xtvScore || 0;
+        return ratingB - ratingA;
+      });
+    }
+
+    // Fallback: no explicit assignments, show eligible squad players by position
+    const allowedPositions = getPositionMapping(position);
     const eligibleSquadPlayers = squadPlayers.filter(player =>
       player.positions.some(pos => allowedPositions.includes(pos))
     );
 
-    // Get externally assigned players for this specific position
-    const assignedPlayerIds = positionToAssignedPlayers.get(position) || [];
-    const externalPlayers = assignedPlayerIds
-      .filter(id => !squadPlayerIds.has(id)) // Only players not in squad
-      .map(id => allPlayers.find(p => p.id === id))
-      .filter((p): p is Player => p !== undefined)
-      .map(p => ({ ...p, isExternal: true }));
-
-    // Combine and sort by rating
-    const allPositionPlayers = [
-      ...externalPlayers, // External players first (they're the new additions)
-      ...eligibleSquadPlayers.map(p => ({ ...p, isExternal: false }))
-    ];
-
-    return allPositionPlayers.sort((a, b) => {
-      // External players sort first
-      if (a.isExternal && !b.isExternal) return -1;
-      if (!a.isExternal && b.isExternal) return 1;
-      // Then by rating
-      const ratingA = a.transferroomRating || a.xtvScore || 0;
-      const ratingB = b.transferroomRating || b.xtvScore || 0;
-      return ratingB - ratingA;
-    });
+    return eligibleSquadPlayers
+      .map(p => ({ ...p, isExternal: false }))
+      .sort((a, b) => {
+        const ratingA = a.transferroomRating || a.xtvScore || 0;
+        const ratingB = b.transferroomRating || b.xtvScore || 0;
+        return ratingB - ratingA;
+      });
   };
 
   // Get abbreviated name (First initial + surname)
