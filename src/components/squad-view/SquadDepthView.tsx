@@ -220,14 +220,15 @@ const SquadDepthView = ({
               {displayPlayers.length > 0 ? (
                   displayPlayers.map((player) => {
                     const rating = player.transferroomRating || player.xtvScore;
+                    const isExternal = player.isExternal || false;
                     
                     return (
                       <div 
                         key={player.id}
                         className={cn(
                           "flex items-center justify-between gap-1 px-1.5 py-1 rounded transition-colors",
-                          hasExternalPlayers
-                            ? "bg-amber-500/40 hover:bg-amber-500/60"
+                          isExternal
+                            ? "bg-amber-500/50 hover:bg-amber-500/70"
                             : "bg-white/95 hover:bg-white"
                         )}
                       >
@@ -240,7 +241,7 @@ const SquadDepthView = ({
                           </span>
                           <span className={cn(
                             "text-xs font-medium truncate",
-                            hasExternalPlayers ? "text-amber-950" : "text-slate-800"
+                            isExternal ? "text-amber-950" : "text-slate-800"
                           )}>
                             {getAbbreviatedName(player.name)}
                           </span>
