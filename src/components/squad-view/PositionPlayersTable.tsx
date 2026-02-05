@@ -299,83 +299,95 @@ const PositionPlayersTable = ({
     setPlayerToAssign(player);
   };
 
-  const renderPlayerRow = (player: Player, showShortlistActions = false) => (
-    <div
-      key={player.id}
-      className="flex items-center justify-between px-3 py-2 hover:bg-muted/30 transition-colors cursor-pointer"
-      onClick={() => navigate(player.isPrivatePlayer ? `/private-player/${player.id}` : `/player/${player.id}`)}
-    >
-      <div className="flex items-center gap-2 min-w-0 flex-1">
-        <PlayerAvatar 
-          playerName={player.name} 
-          avatarUrl={player.image} 
-          size="sm" 
-        />
-        <div className="min-w-0">
-          <p className="text-sm font-medium truncate">{player.name}</p>
-          <p className="text-xs text-muted-foreground">
-            {player.positions.join(', ')} • Age {player.age}
-          </p>
+  // Helper to check if a player is external (non-Chelsea)
+  const isExternalPlayer = (player: Player): boolean => {
+    return !(player.club === 'Chelsea FC' || (player.club?.includes('Chelsea') ?? false));
+  };
+
+  const renderPlayerRow = (player: Player, showShortlistActions = false) => {
+    const isExternal = isExternalPlayer(player);
+    
+    return (
+      <div
+        key={player.id}
+        className={cn(
+          "flex items-center justify-between px-3 py-2 hover:bg-muted/30 transition-colors cursor-pointer rounded-md mx-1",
+          isExternal && "border-2 border-amber-400 bg-amber-50/30 dark:bg-amber-950/20"
+        )}
+        onClick={() => navigate(player.isPrivatePlayer ? `/private-player/${player.id}` : `/player/${player.id}`)}
+      >
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <PlayerAvatar 
+            playerName={player.name} 
+            avatarUrl={player.image} 
+            size="sm" 
+          />
+          <div className="min-w-0">
+            <p className="text-sm font-medium truncate">{player.name}</p>
+            <p className="text-xs text-muted-foreground">
+              {player.positions.join(', ')} • Age {player.age}
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-1.5 shrink-0">
+          {player.transferroomRating && (
+            <Badge variant="outline" className="text-xs">
+              {player.transferroomRating}
+            </Badge>
+          )}
+          {/* Add to position button - always show */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddPlayerToPosition?.(selectedPosition!, player.id);
+            }}
+            title="Add to position"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </Button>
+          {/* Shortlist actions - only for non-squad players */}
+          {showShortlistActions && (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={(e) => handleAddToShortlist(player, e)}
+                title="Add to shortlist"
+              >
+                <ListPlus className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={(e) => handleAssignScout(player, e)}
+                title="Assign scout"
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+              </Button>
+            </>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(player.isPrivatePlayer ? `/private-player/${player.id}` : `/player/${player.id}`);
+            }}
+            title="View profile"
+          >
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Button>
         </div>
       </div>
-      
-      <div className="flex items-center gap-1.5 shrink-0">
-        {player.transferroomRating && (
-          <Badge variant="outline" className="text-xs">
-            {player.transferroomRating}
-          </Badge>
-        )}
-        {/* Add to position button - always show */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 w-7 p-0"
-          onClick={(e) => {
-            e.stopPropagation();
-            onAddPlayerToPosition?.(selectedPosition!, player.id);
-          }}
-          title="Add to position"
-        >
-          <Plus className="h-3.5 w-3.5" />
-        </Button>
-        {/* Shortlist actions - only for non-squad players */}
-        {showShortlistActions && (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0"
-              onClick={(e) => handleAddToShortlist(player, e)}
-              title="Add to shortlist"
-            >
-              <ListPlus className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0"
-              onClick={(e) => handleAssignScout(player, e)}
-              title="Assign scout"
-            >
-              <UserPlus className="h-3.5 w-3.5" />
-            </Button>
-          </>
-        )}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 w-7 p-0"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(player.isPrivatePlayer ? `/private-player/${player.id}` : `/player/${player.id}`);
-          }}
-          title="View profile"
-        >
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Button>
-      </div>
-    </div>
-  );
+    );
+  };
 
   if (!selectedPosition) {
     return (

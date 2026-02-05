@@ -4,6 +4,12 @@ import { Users } from "lucide-react";
 import pitchBackground from "@/assets/pitch.svg";
 import { cn } from "@/lib/utils";
 
+interface PositionPlayerSlot {
+  position: string;
+  activePlayerId: string;
+  alternatePlayerIds: string[];
+}
+
 interface SquadDepthViewProps {
   squadPlayers: Player[];
   allPlayers?: Player[];
@@ -12,6 +18,7 @@ interface SquadDepthViewProps {
     position: string;
     player_id: string;
   }>;
+  multiPlayerSlots?: PositionPlayerSlot[];
 }
 
 // Horizontal layout - GK on left, attackers on right (shifted right to prevent GK cutoff)
@@ -80,16 +87,26 @@ const SquadDepthView = ({
   allPlayers = [],
   formation = '4-3-3',
   positionAssignments = [],
+  multiPlayerSlots = [],
 }: SquadDepthViewProps) => {
   const currentFormation = DEPTH_FORMATION_CONFIGS[formation] || DEPTH_FORMATION_CONFIGS['4-3-3'];
 
-  // Create a map of position -> assigned player IDs for quick lookup
+  // Create a map of position -> ALL assigned player IDs (active + alternates) for quick lookup
   const positionToAssignedPlayers = new Map<string, string[]>();
-  positionAssignments.forEach(a => {
-    const existing = positionToAssignedPlayers.get(a.position) || [];
-    existing.push(a.player_id);
-    positionToAssignedPlayers.set(a.position, existing);
-  });
+  
+  // Use multiPlayerSlots if available (includes alternates), otherwise fall back to positionAssignments
+  if (multiPlayerSlots.length > 0) {
+    multiPlayerSlots.forEach(slot => {
+      const allPlayerIds = [slot.activePlayerId, ...slot.alternatePlayerIds].filter(Boolean);
+      positionToAssignedPlayers.set(slot.position, allPlayerIds);
+    });
+  } else {
+    positionAssignments.forEach(a => {
+      const existing = positionToAssignedPlayers.get(a.position) || [];
+      existing.push(a.player_id);
+      positionToAssignedPlayers.set(a.position, existing);
+    });
+  }
 
 
   // Helper to check if a player belongs to the club's squad (Chelsea)
