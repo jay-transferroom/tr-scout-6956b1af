@@ -349,6 +349,11 @@ const CompactFootballPitch = ({
               .filter((p): p is Player => p !== undefined)
           : player ? [player] : [];
         
+        // Check if any assigned player is external (non-Chelsea)
+        const hasExternalPlayer = assignedPlayersForPosition.some(p => 
+          !(p.club === 'Chelsea FC' || (p.club?.includes('Chelsea') ?? false))
+        );
+        
         return (
           <PositionSlot 
             key={position}
@@ -366,6 +371,7 @@ const CompactFootballPitch = ({
             isPriority={isPriority}
             hasRecommendation={hasDbRecommendation}
             warnings={warnings}
+            hasExternalPlayer={hasExternalPlayer}
           />
         );
       })}
@@ -388,7 +394,8 @@ const PositionSlot = ({
   depth,
   isPriority,
   hasRecommendation,
-  warnings
+  warnings,
+  hasExternalPlayer
 }: {
   position: string;
   coords: { x: number; y: number };
@@ -404,6 +411,7 @@ const PositionSlot = ({
   isPriority: boolean;
   hasRecommendation: boolean;
   warnings: { hasWarning: boolean; isContract: boolean; isInjury: boolean };
+  hasExternalPlayer: boolean;
 }) => {
   const hasMultiplePlayers = assignedPlayerCount > 1;
 
@@ -438,7 +446,13 @@ const PositionSlot = ({
         
         {/* Condensed info bar - count, rating, warnings */}
         <div className={`flex items-center gap-1 mb-1 px-2 py-0.5 rounded-full shadow-sm border relative z-10 ${
-          isPriority ? 'bg-amber-500 border-amber-600' : depth.warningCount > 0 ? 'bg-orange-50 border-orange-300' : 'bg-white/90 border-border'
+          hasExternalPlayer 
+            ? 'bg-amber-400 border-amber-500 shadow-amber-400/50 shadow-lg ring-2 ring-amber-300/50' 
+            : isPriority 
+              ? 'bg-amber-500 border-amber-600' 
+              : depth.warningCount > 0 
+                ? 'bg-orange-50 border-orange-300' 
+                : 'bg-white/90 border-border'
         }`}>
           <div className="flex items-center">
             <Hash className={`w-2.5 h-2.5 ${isPriority ? 'text-white' : 'text-muted-foreground'}`} />
