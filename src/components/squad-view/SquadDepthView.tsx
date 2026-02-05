@@ -92,8 +92,13 @@ const SquadDepthView = ({
   });
 
 
+  // Helper to check if a player belongs to the club's squad (Chelsea)
+  const isClubPlayer = (player: Player): boolean => {
+    return player.club === 'Chelsea FC' || 
+           (player.club?.includes('Chelsea') ?? false);
+  };
 
-  // Calculate depth for each position - combines eligible squad players with any external assignments
+  // Calculate depth for each position - combines eligible squad players with ALL assigned players
   const getPositionDepth = (position: string): Array<Player & { isExternal?: boolean }> => {
     const assignedPlayerIds = positionToAssignedPlayers.get(position) || [];
     const allowedPositions = getPositionMapping(position);
@@ -103,17 +108,34 @@ const SquadDepthView = ({
       player.positions.some(pos => allowedPositions.includes(pos))
     );
     
-    // Get any external players that have been assigned to this position
-    const externalAssignedPlayers = assignedPlayerIds
-      .filter(id => !squadPlayers.some(p => p.id === id)) // Not in squad
-      .map(id => allPlayers.find(p => p.id === id))
+    // Get ALL assigned players for this position (not just external ones)
+    const assignedPlayers = assignedPlayerIds
+      .map(id => {
+        // First check squadPlayers, then allPlayers
+        const player = squadPlayers.find(p => p.id === id) || allPlayers.find(p => p.id === id);
+        return player;
+      })
       .filter((p): p is Player => p !== undefined);
     
-    // Combine: external players first (marked as external), then squad players
-    const allPositionPlayers: Array<Player & { isExternal: boolean }> = [
-      ...externalAssignedPlayers.map(p => ({ ...p, isExternal: true })),
-      ...eligibleSquadPlayers.map(p => ({ ...p, isExternal: false })),
-    ];
+    // Build the combined list, avoiding duplicates
+    const seenIds = new Set<string>();
+    const allPositionPlayers: Array<Player & { isExternal: boolean }> = [];
+    
+    // First add all assigned players (they appear first)
+    for (const player of assignedPlayers) {
+      if (!seenIds.has(player.id)) {
+        seenIds.add(player.id);
+        allPositionPlayers.push({ ...player, isExternal: !isClubPlayer(player) });
+      }
+    }
+    
+    // Then add eligible squad players not already assigned
+    for (const player of eligibleSquadPlayers) {
+      if (!seenIds.has(player.id)) {
+        seenIds.add(player.id);
+        allPositionPlayers.push({ ...player, isExternal: !isClubPlayer(player) });
+      }
+    }
 
     // Sort: external first, then by rating
     return allPositionPlayers.sort((a, b) => {
