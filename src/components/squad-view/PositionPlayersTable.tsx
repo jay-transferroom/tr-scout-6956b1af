@@ -3,14 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/player";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
-import { Plus, ArrowRight, AlertTriangle, Star, TrendingDown, Target, TrendingUp, ListPlus, UserPlus } from "lucide-react";
+import { Plus, ArrowRight, AlertTriangle, Star, TrendingDown, Target, TrendingUp, ListPlus, UserPlus, Sparkles, Users, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useShortlists } from "@/hooks/useShortlists";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
 import { toast } from "@/hooks/use-toast";
-
+import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
+import { cn } from "@/lib/utils";
 interface PositionPlayersTableProps {
   squadPlayers: Player[];
   allPlayers?: Player[];
@@ -81,6 +81,8 @@ const PositionPlayersTable = ({
   const navigate = useNavigate();
   const { shortlists, addPlayerToShortlist } = useShortlists();
   const [playerToAssign, setPlayerToAssign] = useState<Player | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("squad");
+  const { data: recommendations = [] } = useSquadRecommendations();
   
   const eligiblePlayers = useMemo(() => {
     if (!selectedPosition) return [];
@@ -123,6 +125,48 @@ const PositionPlayersTable = ({
       return ratingB - ratingA;
     });
   }, [selectedPosition, shortlists, allPlayers, squadPlayers]);
+
+  // Get recommended players for the selected position
+  const recommendedPlayers = useMemo(() => {
+    if (!selectedPosition) return [];
+    
+    const category = mapPositionToCategory(selectedPosition);
+    const positionLabel = getPositionLabel(selectedPosition);
+    
+    // Check if this position has recommendations
+    const hasRecommendation = recommendations.some(r => 
+      r.Position?.toLowerCase().includes(positionLabel.toLowerCase()) ||
+      r.Position?.toLowerCase().includes(category.toLowerCase())
+    );
+
+    if (!hasRecommendation) return [];
+
+    const positionConfig: Record<string, string[]> = {
+      'GK': ['GK'],
+      'CB': ['CB'],
+      'FB': ['LB', 'RB', 'LWB', 'RWB'],
+      'CM': ['CM', 'CDM', 'CAM'],
+      'W': ['LW', 'RW', 'LM', 'RM', 'W'],
+      'ST': ['ST', 'CF', 'F', 'FW']
+    };
+
+    const requiredPositions = positionConfig[category] || [];
+    const squadPlayerIds = squadPlayers.map(p => p.id);
+    
+    // Get players that match the position but aren't in squad and have high ratings
+    return allPlayers
+      .filter(p => 
+        !squadPlayerIds.includes(p.id) &&
+        p.positions.some(pos => requiredPositions.includes(pos)) &&
+        (p.transferroomRating || 0) >= 70
+      )
+      .sort((a, b) => {
+        const ratingA = a.transferroomRating || a.xtvScore || 0;
+        const ratingB = b.transferroomRating || b.xtvScore || 0;
+        return ratingB - ratingA;
+      })
+      .slice(0, 10);
+  }, [selectedPosition, recommendations, allPlayers, squadPlayers]);
 
   // Position analysis
   const analysis = useMemo(() => {
@@ -366,18 +410,71 @@ const PositionPlayersTable = ({
         </div>
       )}
 
-      {/* Tabs for Squad / Shortlisted */}
-      <Tabs defaultValue="squad" className="flex-1 flex flex-col">
-        <TabsList className="w-full justify-start rounded-none border-b bg-transparent px-4 pt-2">
-          <TabsTrigger value="squad" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-            Squad ({eligiblePlayers.length})
-          </TabsTrigger>
-          <TabsTrigger value="shortlisted" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
-            Shortlisted ({shortlistedPlayers.length})
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="squad" className="flex-1 m-0">
+      {/* Tab Filter Buttons */}
+      <div className="px-4 py-3 border-b">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setActiveTab("squad")}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+              activeTab === "squad" 
+                ? "bg-primary text-primary-foreground" 
+                : "bg-muted/50 text-muted-foreground hover:bg-muted"
+            )}
+          >
+            <Users className="h-3.5 w-3.5" />
+            Squad
+            <span className={cn(
+              "ml-1 px-1.5 py-0.5 rounded-full text-xs",
+              activeTab === "squad" ? "bg-primary-foreground/20" : "bg-background"
+            )}>
+              {eligiblePlayers.length}
+            </span>
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("shortlisted")}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+              activeTab === "shortlisted" 
+                ? "bg-primary text-primary-foreground" 
+                : "bg-muted/50 text-muted-foreground hover:bg-muted"
+            )}
+          >
+            <Heart className="h-3.5 w-3.5" />
+            Shortlisted
+            <span className={cn(
+              "ml-1 px-1.5 py-0.5 rounded-full text-xs",
+              activeTab === "shortlisted" ? "bg-primary-foreground/20" : "bg-background"
+            )}>
+              {shortlistedPlayers.length}
+            </span>
+          </button>
+          
+          <button
+            onClick={() => setActiveTab("recommended")}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+              activeTab === "recommended" 
+                ? "bg-primary text-primary-foreground" 
+                : "bg-muted/50 text-muted-foreground hover:bg-muted"
+            )}
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            Recommended
+            <span className={cn(
+              "ml-1 px-1.5 py-0.5 rounded-full text-xs",
+              activeTab === "recommended" ? "bg-primary-foreground/20" : "bg-background"
+            )}>
+              {recommendedPlayers.length}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="flex-1">
+        {activeTab === "squad" && (
           <ScrollArea className="h-[400px]">
             <div className="divide-y">
               {eligiblePlayers.length > 0 ? (
@@ -389,9 +486,9 @@ const PositionPlayersTable = ({
               )}
             </div>
           </ScrollArea>
-        </TabsContent>
+        )}
         
-        <TabsContent value="shortlisted" className="flex-1 m-0">
+        {activeTab === "shortlisted" && (
           <ScrollArea className="h-[400px]">
             <div className="divide-y">
               {shortlistedPlayers.length > 0 ? (
@@ -403,8 +500,22 @@ const PositionPlayersTable = ({
               )}
             </div>
           </ScrollArea>
-        </TabsContent>
-      </Tabs>
+        )}
+
+        {activeTab === "recommended" && (
+          <ScrollArea className="h-[400px]">
+            <div className="divide-y">
+              {recommendedPlayers.length > 0 ? (
+                recommendedPlayers.map((player) => renderPlayerRow(player, true))
+              ) : (
+                <div className="p-4 text-center text-sm text-muted-foreground">
+                  No recommended players for this position
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        )}
+      </div>
 
       {/* Assign Scout Dialog */}
       {playerToAssign && (
