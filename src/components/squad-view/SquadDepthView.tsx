@@ -226,16 +226,29 @@ const SquadDepthView = ({
                   "text-xs font-semibold",
                   hasExternalPlayers ? "text-amber-900" : "text-white"
                 )}>{config.label}</span>
-                <Badge 
-                  variant="secondary" 
-                  className={cn(
-                    "h-5 min-w-5 px-1.5 text-xs font-medium border-0",
-                    hasExternalPlayers ? "bg-amber-600 text-white" : "bg-emerald-500 text-white"
-                  )}
-                >
-                  <Users className="w-2.5 h-2.5 mr-0.5" />
-                  {players.length}
-                </Badge>
+                <div className="flex items-center gap-1.5">
+                  {(() => {
+                    const ratings = players
+                      .map(p => p.transferroomRating || p.xtvScore)
+                      .filter((r): r is number => r !== null && r !== undefined);
+                    const avg = ratings.length > 0 ? Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length) : null;
+                    return avg !== null ? (
+                      <span className={cn("text-xs font-bold tabular-nums", getRatingColor(avg))}>
+                        {avg}
+                      </span>
+                    ) : null;
+                  })()}
+                  <Badge 
+                    variant="secondary" 
+                    className={cn(
+                      "h-5 min-w-5 px-1.5 text-xs font-medium border-0",
+                      hasExternalPlayers ? "bg-amber-600 text-white" : "bg-emerald-500 text-white"
+                    )}
+                  >
+                    <Users className="w-2.5 h-2.5 mr-0.5" />
+                    {players.length}
+                  </Badge>
+                </div>
               </div>
               
               {/* Player list */}
