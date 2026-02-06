@@ -152,12 +152,6 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
             {player.transferroomRating}
           </Badge>
         )}
-        {(existingNotes || existingRating !== null) && (
-          <Badge variant="outline" className="text-xs shrink-0 border-primary/30 text-primary">
-            <Check className="h-3 w-3 mr-1" />
-            Noted
-          </Badge>
-        )}
         {expanded ? (
           <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
         ) : (
