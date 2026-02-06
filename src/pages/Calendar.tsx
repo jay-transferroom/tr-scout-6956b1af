@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Calendar as CalendarIcon, Clock, MapPin, UserCheck, Plus, Search, Star, Target } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, MapPin, UserCheck, Plus, Search, Star, Target, ClipboardList } from "lucide-react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday, addWeeks, subWeeks, isSameWeek, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useFixturesData, Fixture } from "@/hooks/useFixturesData";
@@ -793,63 +793,50 @@ const Calendar = () => {
                     return (
                       <div key={`${fixture.match_number}-${index}`} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                         {/* Gradient Header with Teams - from home to away team colors */}
-                        <div 
-                          className="px-4 py-3 text-white"
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setScoutingFixture(fixture);
+                            setMatchScoutingOpen(true);
+                          }}
+                          className="w-full px-4 py-3 text-white text-left cursor-pointer hover:brightness-110 transition-all"
                           style={{
                             background: `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.to} 100%)`
                           }}
                         >
-                          <div className="flex items-center justify-center gap-2 sm:gap-4">
+                          <div className="flex items-center gap-2 sm:gap-4">
                             {/* Home Team */}
-                            <button
-                              onClick={() => {
-                                setScoutingFixture(fixture);
-                                setMatchScoutingOpen(true);
-                              }}
-                              className="flex items-center gap-2 flex-1 justify-end transition-all cursor-pointer hover:opacity-80"
-                            >
+                            <div className="flex items-center gap-2 flex-1 justify-end">
                               <ClubBadge clubName={fixture.home_team} size="sm" className="bg-white/20 rounded-full p-0.5" />
-                              <span className="font-semibold text-sm sm:text-base truncate hover:underline">{fixture.home_team}</span>
-                            </button>
+                              <span className="font-semibold text-sm sm:text-base truncate">{fixture.home_team}</span>
+                            </div>
                             
                             {/* Score/VS */}
                             <div className="shrink-0 px-2 sm:px-3">
                               {hasScore ? (
-                                <button
-                                  onClick={() => {
-                                    setScoutingFixture(fixture);
-                                    setMatchScoutingOpen(true);
-                                  }}
-                                  className="text-lg sm:text-xl font-bold transition-all hover:underline cursor-pointer"
-                                >
+                                <span className="text-lg sm:text-xl font-bold">
                                   {fixture.home_score} - {fixture.away_score}
-                                </button>
+                                </span>
                               ) : (
-                                <button
-                                  onClick={() => {
-                                    setScoutingFixture(fixture);
-                                    setMatchScoutingOpen(true);
-                                  }}
-                                  className="text-white/80 font-medium text-sm hover:underline cursor-pointer"
-                                >
+                                <span className="text-white/80 font-medium text-sm">
                                   vs
-                                </button>
+                                </span>
                               )}
                             </div>
                             
                             {/* Away Team */}
-                            <button
-                              onClick={() => {
-                                setScoutingFixture(fixture);
-                                setMatchScoutingOpen(true);
-                              }}
-                              className="flex items-center gap-2 flex-1 transition-all cursor-pointer hover:opacity-80"
-                            >
-                              <span className="font-semibold text-sm sm:text-base truncate hover:underline">{fixture.away_team}</span>
+                            <div className="flex items-center gap-2 flex-1">
+                              <span className="font-semibold text-sm sm:text-base truncate">{fixture.away_team}</span>
                               <ClubBadge clubName={fixture.away_team} size="sm" className="bg-white/20 rounded-full p-0.5" />
-                            </button>
+                            </div>
+
+                            {/* Match Report Button */}
+                            <span className="shrink-0 ml-2 inline-flex items-center gap-1 rounded-md bg-white/20 hover:bg-white/30 transition-colors px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                              <ClipboardList className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">Match report</span>
+                            </span>
                           </div>
-                        </div>
+                        </button>
                         
                         {/* Card Body */}
                         <div className="p-4 bg-card">
