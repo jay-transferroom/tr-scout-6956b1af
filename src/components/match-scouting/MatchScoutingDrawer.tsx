@@ -286,7 +286,7 @@ export const MatchScoutingDrawer: React.FC<MatchScoutingDrawerProps> = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col">
+      <SheetContent side="right" className="w-full sm:max-w-3xl p-0 flex flex-col">
         {/* Gradient Header */}
         <div
           className="px-6 py-4 text-white shrink-0"
@@ -329,7 +329,7 @@ export const MatchScoutingDrawer: React.FC<MatchScoutingDrawerProps> = ({
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <div className="space-y-6 pb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-4">
               {renderTeamSection(homeTeam, homePlayers)}
               {renderTeamSection(awayTeam, awayPlayers)}
             </div>
