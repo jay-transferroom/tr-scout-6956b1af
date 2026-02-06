@@ -195,11 +195,40 @@ const SquadDepthView = ({
       />
 
       {/* Position cards */}
-      {Object.entries(currentFormation).map(([position, config]) => {
+      {(() => {
+        // Pre-compute all position averages for relative color scaling
+        const positionEntries = Object.entries(currentFormation);
+        const positionAvgMap = new Map<string, number | null>();
+        const allAvgs: number[] = [];
+
+        positionEntries.forEach(([position]) => {
+          const players = getPositionDepth(position);
+          const ratings = players
+            .map(p => p.transferroomRating || p.xtvScore)
+            .filter((r): r is number => r !== null && r !== undefined);
+          const avg = ratings.length > 0 ? Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length) : null;
+          positionAvgMap.set(position, avg);
+          if (avg !== null) allAvgs.push(avg);
+        });
+
+        const minAvg = allAvgs.length > 0 ? Math.min(...allAvgs) : 0;
+        const maxAvg = allAvgs.length > 0 ? Math.max(...allAvgs) : 100;
+        const range = maxAvg - minAvg || 1;
+
+        const getRelativeRatingColor = (avg: number): string => {
+          const normalized = (avg - minAvg) / range; // 0 = lowest, 1 = highest
+          if (normalized >= 0.75) return 'text-emerald-500';
+          if (normalized >= 0.5) return 'text-primary';
+          if (normalized >= 0.25) return 'text-amber-500';
+          return 'text-red-500';
+        };
+
+        return positionEntries.map(([position, config]) => {
         const players = getPositionDepth(position);
         const displayPlayers = players.slice(0, 3);
         const remainingCount = players.length - 3;
         const hasExternalPlayers = players.some(p => p.isExternal);
+        const posAvg = positionAvgMap.get(position) ?? null;
         
         return (
           <div
@@ -227,17 +256,11 @@ const SquadDepthView = ({
                   hasExternalPlayers ? "text-amber-900" : "text-white"
                 )}>{config.label}</span>
                 <div className="flex items-center gap-1.5">
-                  {(() => {
-                    const ratings = players
-                      .map(p => p.transferroomRating || p.xtvScore)
-                      .filter((r): r is number => r !== null && r !== undefined);
-                    const avg = ratings.length > 0 ? Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length) : null;
-                    return avg !== null ? (
-                      <span className={cn("text-xs font-bold tabular-nums", getRatingColor(avg))}>
-                        {avg}
-                      </span>
-                    ) : null;
-                  })()}
+                  {posAvg !== null && (
+                    <span className={cn("text-xs font-bold tabular-nums", getRelativeRatingColor(posAvg))}>
+                      {posAvg}
+                    </span>
+                  )}
                   <Badge 
                     variant="secondary" 
                     className={cn(
@@ -309,7 +332,8 @@ const SquadDepthView = ({
             </div>
           </div>
         );
-      })}
+      });
+      })()}
     </div>
   );
 };
