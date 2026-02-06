@@ -142,6 +142,11 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
             {player.positions?.join(", ")} • {player.age}y • {player.nationality}
           </div>
         </div>
+        {existingRating !== null && (
+          <Badge variant="default" className="text-xs shrink-0 font-semibold">
+            {existingRating.toFixed(1)}
+          </Badge>
+        )}
         {player.transferroomRating && (
           <Badge variant="secondary" className="text-xs shrink-0">
             {player.transferroomRating}
