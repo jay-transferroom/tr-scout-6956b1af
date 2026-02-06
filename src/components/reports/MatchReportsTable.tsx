@@ -25,6 +25,7 @@ const MatchReportsTable = ({ matchReports }: MatchReportsTableProps) => {
           <TableRow>
             <TableHead>Match</TableHead>
             <TableHead>Date</TableHead>
+            <TableHead>League</TableHead>
             <TableHead className="text-center">Players Rated</TableHead>
             <TableHead className="text-center">Avg Rating</TableHead>
             <TableHead>Scouts</TableHead>
@@ -63,6 +64,11 @@ const MatchReportsTable = ({ matchReports }: MatchReportsTableProps) => {
                       ? format(new Date(match.matchDate), "dd MMM yyyy")
                       : "—"}
                   </div>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm text-muted-foreground">
+                    {match.competition || "—"}
+                  </span>
                 </TableCell>
                 <TableCell className="text-center">
                   <Badge variant="secondary" className="gap-1">

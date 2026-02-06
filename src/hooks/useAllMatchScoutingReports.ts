@@ -22,6 +22,7 @@ export interface GroupedMatchReport {
   homeTeam: string;
   awayTeam: string;
   matchDate: string;
+  competition: string | null;
   reports: MatchScoutingReportWithDetails[];
   totalRatings: number;
   averageRating: number | null;
@@ -77,6 +78,28 @@ export const useAllMatchScoutingReports = () => {
         grouped.set(report.match_identifier, existing);
       }
 
+      // Collect unique match identifiers to look up competitions
+      const matchIdentifiers = [...grouped.keys()];
+      const competitionMap = new Map<string, string | null>();
+
+      // Look up competitions from fixtures_results_2526
+      for (const identifier of matchIdentifiers) {
+        const [teams, date] = identifier.split("|");
+        const [homeTeam, awayTeam] = teams.split(" vs ");
+        if (homeTeam && awayTeam && date) {
+          const { data: fixtureData } = await supabase
+            .from("fixtures_results_2526")
+            .select("competition")
+            .eq("home_team", homeTeam.trim())
+            .eq("away_team", awayTeam.trim())
+            .gte("match_date_utc", `${date}T00:00:00`)
+            .lt("match_date_utc", `${date}T23:59:59`)
+            .limit(1);
+
+          competitionMap.set(identifier, fixtureData?.[0]?.competition || null);
+        }
+      }
+
       // Transform into GroupedMatchReport[]
       const result: GroupedMatchReport[] = [];
       for (const [identifier, reports] of grouped) {
@@ -89,6 +112,7 @@ export const useAllMatchScoutingReports = () => {
           homeTeam: homeTeam?.trim() || "Unknown",
           awayTeam: awayTeam?.trim() || "Unknown",
           matchDate: date || "",
+          competition: competitionMap.get(identifier) || null,
           reports,
           totalRatings: ratingsWithValues.length,
           averageRating:
