@@ -29,6 +29,20 @@ interface MatchScoutingDrawerProps {
 }
 
 // Normalize team names for matching players to fixtures
+const TEAM_ALIASES: Record<string, string[]> = {
+  "nottingham forest": ["nottm forest", "nott'm forest", "notts forest"],
+  "manchester united": ["man utd", "man united"],
+  "manchester city": ["man city"],
+  "tottenham hotspur": ["spurs", "tottenham"],
+  "wolverhampton wanderers": ["wolves", "wolverhampton"],
+  "newcastle united": ["newcastle"],
+  "west ham united": ["west ham"],
+  "brighton & hove albion": ["brighton"],
+  "crystal palace": ["crystal palace"],
+  "aston villa": ["aston villa"],
+  "leeds united": ["leeds"],
+};
+
 const normalizeTeamName = (name?: string) => {
   if (!name) return "";
   return name
@@ -36,15 +50,28 @@ const normalizeTeamName = (name?: string) => {
     .replace(/\./g, "")
     .replace(/\bf\.?c\.?\b/g, "")
     .replace(/football club/g, "")
-    .replace(/[^a-z0-9&\s-]/g, "")
+    .replace(/[^a-z0-9&'\s-]/g, "")
+    .replace(/'/g, "'")
     .replace(/\s+/g, " ")
     .trim();
+};
+
+const resolveCanonical = (normalized: string): string => {
+  for (const [canonical, aliases] of Object.entries(TEAM_ALIASES)) {
+    if (normalized === canonical || aliases.some(a => normalized === a || normalized.includes(a) || a.includes(normalized))) {
+      return canonical;
+    }
+  }
+  return normalized;
 };
 
 const clubsMatch = (a?: string, b?: string) => {
   const na = normalizeTeamName(a);
   const nb = normalizeTeamName(b);
-  return na === nb || na.includes(nb) || nb.includes(na);
+  if (na === nb) return true;
+  const ca = resolveCanonical(na);
+  const cb = resolveCanonical(nb);
+  return ca === cb || ca.includes(cb) || cb.includes(ca);
 };
 
 interface PlayerScoutingRowProps {
