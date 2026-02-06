@@ -250,23 +250,27 @@ export function SquadRatingCTAs({ currentSquadRating, variant = 'default' }: Squ
   if (variant === 'compact') {
     return (
       <>
-        <div
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/30 border border-border/50 rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
+        <button
+          type="button"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-background border border-border rounded-md cursor-pointer hover:bg-muted hover:border-primary/30 hover:shadow-sm active:scale-[0.98] transition-all group"
           onClick={() => setShowRatingSheet(true)}
         >
-          <Star className="h-3.5 w-3.5 text-muted-foreground" />
+          <Star className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
           <span className="text-xs text-muted-foreground">Rating</span>
           <span className="text-xs font-semibold">{overallRating.toFixed(1)}</span>
-        </div>
+          <ChevronRight className="h-3 w-3 text-muted-foreground/50 group-hover:text-primary/70 transition-colors" />
+        </button>
         
-        <div
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/30 border border-border/50 rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
+        <button
+          type="button"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-background border border-border rounded-md cursor-pointer hover:bg-muted hover:border-primary/30 hover:shadow-sm active:scale-[0.98] transition-all group"
           onClick={() => setShowRankingSheet(true)}
         >
-          <Trophy className="h-3.5 w-3.5 text-muted-foreground" />
+          <Trophy className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
           <span className="text-xs text-muted-foreground">Position</span>
           <span className="text-xs font-semibold">#{overallRank}</span>
-        </div>
+          <ChevronRight className="h-3 w-3 text-muted-foreground/50 group-hover:text-primary/70 transition-colors" />
+        </button>
 
         {sheetsContent}
       </>
