@@ -241,7 +241,7 @@ const SquadDepthView = ({
           >
             {/* Position card - gold when external players added */}
             <div className={cn(
-              "backdrop-blur-sm rounded-md shadow-lg min-w-[120px] max-w-[140px]",
+              "backdrop-blur-sm rounded-md shadow-lg min-w-[180px] max-w-[210px]",
               hasExternalPlayers 
                 ? "bg-amber-400 border border-amber-500" 
                 : "bg-slate-800 border border-slate-700"
@@ -291,18 +291,18 @@ const SquadDepthView = ({
                             : "bg-white/95 hover:bg-white"
                         )}
                       >
-                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                          <span className={cn(
-                            "text-xs font-bold tabular-nums min-w-[24px]",
-                            getRatingColor(rating)
-                          )}>
-                            {rating || '-'}
-                          </span>
+                        <div className="flex items-center justify-between gap-1.5 min-w-0 flex-1">
                           <span className={cn(
                             "text-xs font-medium truncate",
                             isExternal ? "text-amber-950" : "text-slate-800"
                           )}>
                             {getAbbreviatedName(player.name)}
+                          </span>
+                          <span className={cn(
+                            "text-xs font-bold tabular-nums shrink-0",
+                            getRatingColor(rating)
+                          )}>
+                            {rating || '-'}
                           </span>
                         </div>
                       </div>
