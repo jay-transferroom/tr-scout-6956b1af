@@ -22,6 +22,7 @@ import AssignScoutDialog from "@/components/AssignScoutDialog";
 import ViewToggle from "@/components/ViewToggle";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { MatchPlayersSheet } from "@/components/MatchPlayersSheet";
+import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
 import { getMatchGradient } from "@/components/fixtures/FixtureCard";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
 
@@ -37,6 +38,8 @@ const Calendar = () => {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
   const [matchPlayersOpen, setMatchPlayersOpen] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<Fixture | null>(null);
+  const [matchScoutingOpen, setMatchScoutingOpen] = useState(false);
+  const [scoutingFixture, setScoutingFixture] = useState<Fixture | null>(null);
 
   const { profile } = useAuth();
   const { toast } = useToast();
@@ -800,19 +803,13 @@ const Calendar = () => {
                             {/* Home Team */}
                             <button
                               onClick={() => {
-                                if (isCompleted) {
-                                  setSelectedFixture(fixture);
-                                  setMatchPlayersOpen(true);
-                                }
+                                setScoutingFixture(fixture);
+                                setMatchScoutingOpen(true);
                               }}
-                              className={cn(
-                                "flex items-center gap-2 flex-1 justify-end transition-all",
-                                isCompleted && "cursor-pointer hover:opacity-80"
-                              )}
-                              disabled={!isCompleted}
+                              className="flex items-center gap-2 flex-1 justify-end transition-all cursor-pointer hover:opacity-80"
                             >
                               <ClubBadge clubName={fixture.home_team} size="sm" className="bg-white/20 rounded-full p-0.5" />
-                              <span className="font-semibold text-sm sm:text-base truncate">{fixture.home_team}</span>
+                              <span className="font-semibold text-sm sm:text-base truncate hover:underline">{fixture.home_team}</span>
                             </button>
                             
                             {/* Score/VS */}
@@ -820,38 +817,35 @@ const Calendar = () => {
                               {hasScore ? (
                                 <button
                                   onClick={() => {
-                                    if (isCompleted) {
-                                      setSelectedFixture(fixture);
-                                      setMatchPlayersOpen(true);
-                                    }
+                                    setScoutingFixture(fixture);
+                                    setMatchScoutingOpen(true);
                                   }}
-                                  className={cn(
-                                    "text-lg sm:text-xl font-bold transition-all",
-                                    isCompleted && "hover:underline cursor-pointer"
-                                  )}
+                                  className="text-lg sm:text-xl font-bold transition-all hover:underline cursor-pointer"
                                 >
                                   {fixture.home_score} - {fixture.away_score}
                                 </button>
                               ) : (
-                                <span className="text-white/80 font-medium text-sm">vs</span>
+                                <button
+                                  onClick={() => {
+                                    setScoutingFixture(fixture);
+                                    setMatchScoutingOpen(true);
+                                  }}
+                                  className="text-white/80 font-medium text-sm hover:underline cursor-pointer"
+                                >
+                                  vs
+                                </button>
                               )}
                             </div>
                             
                             {/* Away Team */}
                             <button
                               onClick={() => {
-                                if (isCompleted) {
-                                  setSelectedFixture(fixture);
-                                  setMatchPlayersOpen(true);
-                                }
+                                setScoutingFixture(fixture);
+                                setMatchScoutingOpen(true);
                               }}
-                              className={cn(
-                                "flex items-center gap-2 flex-1 transition-all",
-                                isCompleted && "cursor-pointer hover:opacity-80"
-                              )}
-                              disabled={!isCompleted}
+                              className="flex items-center gap-2 flex-1 transition-all cursor-pointer hover:opacity-80"
                             >
-                              <span className="font-semibold text-sm sm:text-base truncate">{fixture.away_team}</span>
+                              <span className="font-semibold text-sm sm:text-base truncate hover:underline">{fixture.away_team}</span>
                               <ClubBadge clubName={fixture.away_team} size="sm" className="bg-white/20 rounded-full p-0.5" />
                             </button>
                           </div>
@@ -1121,6 +1115,17 @@ const Calendar = () => {
         awayPlayers={[]}
         onAddToShortlist={handleAddToShortlist}
         onAssignScout={handleAssignScout}
+      />
+
+      {/* Match Scouting Drawer */}
+      <MatchScoutingDrawer
+        open={matchScoutingOpen}
+        onOpenChange={setMatchScoutingOpen}
+        homeTeam={scoutingFixture?.home_team || ''}
+        awayTeam={scoutingFixture?.away_team || ''}
+        matchDate={scoutingFixture?.match_date_utc || ''}
+        homeScore={scoutingFixture?.home_score}
+        awayScore={scoutingFixture?.away_score}
       />
     </div>
   );

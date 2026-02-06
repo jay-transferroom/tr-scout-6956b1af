@@ -212,6 +212,39 @@ export type Database = {
         }
         Relationships: []
       }
+      match_scouting_reports: {
+        Row: {
+          created_at: string
+          id: string
+          match_identifier: string
+          notes: string | null
+          player_id: string
+          rating: number | null
+          scout_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          match_identifier: string
+          notes?: string | null
+          player_id: string
+          rating?: number | null
+          scout_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          match_identifier?: string
+          notes?: string | null
+          player_id?: string
+          rating?: number | null
+          scout_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_settings: {
         Row: {
           availability: boolean
