@@ -8,19 +8,21 @@ import { toast } from "sonner";
 import ReportsTabNavigation from "@/components/reports/ReportsTabNavigation";
 import ReportsTable from "@/components/reports/ReportsTable";
 import GroupedReportsTable from "@/components/reports/GroupedReportsTable";
+import MatchReportsTable from "@/components/reports/MatchReportsTable";
 import PlayerReportsModal from "@/components/reports/PlayerReportsModal";
 import ReportsFilters, { ReportsFilterCriteria } from "@/components/reports/ReportsFilters";
 import { getRecommendation } from "@/utils/reportDataExtraction";
 import { groupReportsByPlayer } from "@/utils/reportGrouping";
+import { useAllMatchScoutingReports } from "@/hooks/useAllMatchScoutingReports";
 import { SlidingToggle } from "@/components/ui/sliding-toggle";
-import { List, Users } from "lucide-react";
+import { List, Users, ClipboardList } from "lucide-react";
 
 // Reports List Component
 const ReportsList = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("all-reports");
-  const [viewMode, setViewMode] = useState<"individual" | "grouped">("individual");
+  const [viewMode, setViewMode] = useState<"individual" | "grouped" | "match">("individual");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [selectedPlayerName, setSelectedPlayerName] = useState<string>("");
@@ -65,6 +67,7 @@ const ReportsList = () => {
   }, [searchParams]);
   
   const { reports, loading, deleteReport } = useReports();
+  const { data: matchReports = [], isLoading: matchReportsLoading } = useAllMatchScoutingReports();
   const filteredReports = useReportsFilter(reports, activeTab, searchFilters);
 
   // Extract available filter options from reports
@@ -188,7 +191,7 @@ const ReportsList = () => {
         
         <SlidingToggle
           value={viewMode}
-          onChange={(value) => setViewMode(value as "individual" | "grouped")}
+          onChange={(value) => setViewMode(value as "individual" | "grouped" | "match")}
           options={[
             { 
               value: "individual", 
@@ -205,6 +208,15 @@ const ReportsList = () => {
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   Player
+                </div>
+              )
+            },
+            { 
+              value: "match", 
+              label: (
+                <div className="flex items-center gap-2">
+                  <ClipboardList className="h-4 w-4" />
+                  Match
                 </div>
               )
             }
@@ -224,7 +236,13 @@ const ReportsList = () => {
 
       <div>
         <div>
-          {viewMode === "individual" ? (
+          {viewMode === "match" ? (
+            matchReportsLoading ? (
+              <div className="text-center py-8">Loading match reports...</div>
+            ) : (
+              <MatchReportsTable matchReports={matchReports} />
+            )
+          ) : viewMode === "individual" ? (
             <ReportsTable
               reports={paginatedReports}
               onViewReport={handleViewReport}
@@ -241,7 +259,7 @@ const ReportsList = () => {
             />
           )}
 
-          {totalPages > 1 && (
+          {viewMode !== "match" && totalPages > 1 && (
             <div className="mt-6 flex justify-center">
               <div className="flex items-center space-x-2">
                 <Button
@@ -291,9 +309,11 @@ const ReportsList = () => {
             </div>
           )}
 
-          <div className="mt-4 text-sm text-muted-foreground text-center">
-            Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of {totalItems} {isGroupedMode ? 'players' : 'reports'}
-          </div>
+          {viewMode !== "match" && (
+            <div className="mt-4 text-sm text-muted-foreground text-center">
+              Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of {totalItems} {isGroupedMode ? 'players' : 'reports'}
+            </div>
+          )}
         </div>
       </div>
 
