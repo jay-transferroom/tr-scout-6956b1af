@@ -3,7 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/player";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
-import { Plus, ArrowRight, AlertTriangle, Star, TrendingDown, Target, TrendingUp, ListPlus, UserPlus, Sparkles, Users, Heart } from "lucide-react";
+import { Plus, ArrowRight, AlertTriangle, Star, TrendingDown, Target, TrendingUp, ListPlus, UserPlus, Sparkles, Users, Heart, Filter } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { useShortlists } from "@/hooks/useShortlists";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -82,7 +83,14 @@ const PositionPlayersTable = ({
   const { shortlists, addPlayerToShortlist } = useShortlists();
   const [playerToAssign, setPlayerToAssign] = useState<Player | null>(null);
   const [activeTab, setActiveTab] = useState<string>("squad");
+  const [selectedShortlistId, setSelectedShortlistId] = useState<string>('all');
   const { data: recommendations = [] } = useSquadRecommendations();
+
+  // Filter shortlists to exclude scouting assignment lists
+  const userShortlists = useMemo(() => 
+    shortlists.filter(s => !s.is_scouting_assignment_list), 
+    [shortlists]
+  );
   
   const eligiblePlayers = useMemo(() => {
     if (!selectedPosition) return [];
@@ -113,7 +121,9 @@ const PositionPlayersTable = ({
     };
 
     const requiredPositions = positionConfig[category] || [];
-    const shortlistPlayerIds = shortlists.flatMap(s => s.playerIds || []);
+    const shortlistPlayerIds = selectedShortlistId === 'all'
+      ? shortlists.flatMap(s => s.playerIds || [])
+      : shortlists.find(s => s.id === selectedShortlistId)?.playerIds || [];
     
     return allPlayers.filter(p => 
       shortlistPlayerIds.includes(p.id) &&
@@ -124,7 +134,7 @@ const PositionPlayersTable = ({
       const ratingB = b.transferroomRating || b.xtvScore || 0;
       return ratingB - ratingA;
     });
-  }, [selectedPosition, shortlists, allPlayers, squadPlayers]);
+  }, [selectedPosition, shortlists, allPlayers, squadPlayers, selectedShortlistId]);
 
   // Get recommended players for the selected position
   // Get recommended players for the selected position
@@ -316,6 +326,7 @@ const PositionPlayersTable = ({
             <p className="text-sm font-medium truncate">{player.name}</p>
             <p className="text-xs text-muted-foreground">
               {player.positions.join(', ')} • Age {player.age}
+              {player.contractExpiry && <span> • {new Date(player.contractExpiry).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}</span>}
             </p>
           </div>
         </div>
@@ -518,17 +529,35 @@ const PositionPlayersTable = ({
         )}
         
         {activeTab === "shortlisted" && (
-          <ScrollArea className="h-[400px]">
-            <div className="divide-y">
-              {shortlistedPlayers.length > 0 ? (
-                shortlistedPlayers.map((player) => renderPlayerRow(player, true))
-              ) : (
-                <div className="p-4 text-center text-sm text-muted-foreground">
-                  No shortlisted players for this position
-                </div>
-              )}
-            </div>
-          </ScrollArea>
+          <div className="flex flex-col h-full">
+            {userShortlists.length > 1 && (
+              <div className="px-4 py-2 border-b">
+                <Select value={selectedShortlistId} onValueChange={setSelectedShortlistId}>
+                  <SelectTrigger className="h-8 text-xs w-full">
+                    <Filter className="h-3 w-3 mr-1.5 shrink-0" />
+                    <SelectValue placeholder="All shortlists" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All shortlists</SelectItem>
+                    {userShortlists.map(s => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <ScrollArea className="h-[400px]">
+              <div className="divide-y">
+                {shortlistedPlayers.length > 0 ? (
+                  shortlistedPlayers.map((player) => renderPlayerRow(player, true))
+                ) : (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    No shortlisted players for this position
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </div>
         )}
 
         {activeTab === "recommended" && (
