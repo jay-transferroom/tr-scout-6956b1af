@@ -19,6 +19,8 @@ interface SquadDepthViewProps {
     player_id: string;
   }>;
   multiPlayerSlots?: PositionPlayerSlot[];
+  onPositionClick?: (position: string) => void;
+  selectedPosition?: string | null;
 }
 
 // Horizontal layout - GK on left, attackers on right (shifted right to prevent GK cutoff)
@@ -88,6 +90,8 @@ const SquadDepthView = ({
   formation = '4-3-3',
   positionAssignments = [],
   multiPlayerSlots = [],
+  onPositionClick,
+  selectedPosition,
 }: SquadDepthViewProps) => {
   const currentFormation = DEPTH_FORMATION_CONFIGS[formation] || DEPTH_FORMATION_CONFIGS['4-3-3'];
 
@@ -239,13 +243,17 @@ const SquadDepthView = ({
               top: `${config.y}%`,
             }}
           >
-            {/* Position card - gold when external players added */}
-            <div className={cn(
-              "backdrop-blur-sm rounded-md shadow-lg min-w-[180px] max-w-[210px]",
-              hasExternalPlayers 
-                ? "bg-amber-400 border border-amber-500" 
-                : "bg-slate-800 border border-slate-700"
-            )}>
+            {/* Position card - gold when external players added, ring when selected */}
+            <div 
+              className={cn(
+                "backdrop-blur-sm rounded-md shadow-lg min-w-[180px] max-w-[210px] cursor-pointer transition-all",
+                hasExternalPlayers 
+                  ? "bg-amber-400 border border-amber-500" 
+                  : "bg-slate-800 border border-slate-700",
+                selectedPosition === position && "ring-2 ring-primary ring-offset-2 ring-offset-[#3A9D5C]"
+              )}
+              onClick={() => onPositionClick?.(position)}
+            >
               {/* Header */}
               <div className={cn(
                 "flex items-center justify-between px-2 py-1.5 border-b",
