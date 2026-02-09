@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/player";
 import { Star, ArrowUpDown, ArrowDown, User } from "lucide-react";
-import { CategoryWeights, computeMyRating } from "./CustomiseMyRatingDialog";
+import { CategoryWeights, computeMyRating, PositionKey } from "./CustomiseMyRatingDialog";
 
 interface PlayerSearchTableProps {
   players: Player[];
@@ -12,7 +12,7 @@ interface PlayerSearchTableProps {
   getTeamLogo: (clubName: string) => string | undefined;
   currentSort: string;
   onSort: (sortBy: string) => void;
-  myRatingWeights: CategoryWeights[];
+  myRatingWeights: Record<PositionKey, CategoryWeights[]>;
 }
 
 const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, onSort, myRatingWeights }: PlayerSearchTableProps) => {
@@ -84,7 +84,7 @@ const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, o
         {players.length > 0 ? (
           players.map((player) => {
             const teamLogo = getTeamLogo(player.club);
-            const myRating = computeMyRating(player, myRatingWeights);
+            const myRating = computeMyRating(player, myRatingWeights['CM']);
             
             return (
               <TableRow 
