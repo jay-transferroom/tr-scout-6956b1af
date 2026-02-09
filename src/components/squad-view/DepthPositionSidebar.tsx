@@ -347,18 +347,20 @@ const DepthPositionSidebar = ({
 
             {/* Shortlist filter dropdown */}
             {availableTab === 'shortlisted' && userShortlists.length > 1 && (
-              <Select value={selectedShortlistId} onValueChange={setSelectedShortlistId}>
-                <SelectTrigger className="h-8 text-xs w-full">
-                  <Filter className="h-3 w-3 mr-1.5 shrink-0" />
-                  <SelectValue placeholder="All shortlists" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All shortlists</SelectItem>
-                  {userShortlists.map(s => (
-                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex justify-end mb-2">
+                <Select value={selectedShortlistId} onValueChange={setSelectedShortlistId}>
+                  <SelectTrigger className="h-8 text-xs w-auto min-w-[140px]">
+                    <Filter className="h-3 w-3 mr-1.5 shrink-0" />
+                    <SelectValue placeholder="All shortlists" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All shortlists</SelectItem>
+                    {userShortlists.map(s => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             )}
 
             {/* Available player list */}
