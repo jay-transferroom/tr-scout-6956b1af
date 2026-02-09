@@ -16,6 +16,7 @@ import { useCurrentSquadRating } from "@/hooks/useCurrentSquadRating";
 import { SquadViewHeader } from "@/components/squad-view/SquadViewHeader";
 import SquadDepthView from "@/components/squad-view/SquadDepthView";
 import PositionPlayersTable from "@/components/squad-view/PositionPlayersTable";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 const SquadView = () => {
   const navigate = useNavigate();
@@ -321,11 +322,28 @@ const SquadView = () => {
                 formation={currentFormation}
                 positionAssignments={positionAssignments}
                 multiPlayerSlots={positionSlots}
+                onPositionClick={setSelectedPosition}
+                selectedPosition={selectedPosition}
               />
             </div>
           )}
         </div>
       </div>
+
+      {/* Depth View Position Sidebar */}
+      <Sheet open={viewMode === 'depth' && !!selectedPosition} onOpenChange={(open) => { if (!open) setSelectedPosition(null); }}>
+        <SheetContent side="right" className="w-full sm:max-w-lg p-0">
+          <div className="h-full pt-8">
+            <PositionPlayersTable
+              squadPlayers={squadPlayers}
+              allPlayers={allPlayers}
+              selectedPosition={selectedPosition}
+              onPlayerChange={handlePlayerChange}
+              onAddPlayerToPosition={handleAddPlayerToPosition}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Save Squad Configuration Dialog */}
       <SaveSquadConfigurationDialog
