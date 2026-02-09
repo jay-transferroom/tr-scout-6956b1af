@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Player } from "@/types/player";
 import { Star, ArrowUpDown, ArrowDown, User } from "lucide-react";
 import { CategoryWeights, computeMyRating, PositionKey } from "./CustomiseMyRatingDialog";
+import MyRatingHover from "./MyRatingHover";
 
 interface PlayerSearchTableProps {
   players: Player[];
@@ -161,12 +162,14 @@ const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, o
                 </TableCell>
 
                 <TableCell>
-                  <div className="flex items-center gap-1">
-                    <span className={myRating ? "font-medium" : ""}>{formatRating(myRating)}</span>
-                    {myRating && (
-                      <User className="h-3 w-3 text-primary" />
-                    )}
-                  </div>
+                  <MyRatingHover rating={myRating} categories={myRatingWeights['CM']}>
+                    <div className="flex items-center gap-1 cursor-default">
+                      <span className={myRating ? "font-medium" : ""}>{formatRating(myRating)}</span>
+                      {myRating && (
+                        <User className="h-3 w-3 text-primary" />
+                      )}
+                    </div>
+                  </MyRatingHover>
                 </TableCell>
                 
                 <TableCell>
