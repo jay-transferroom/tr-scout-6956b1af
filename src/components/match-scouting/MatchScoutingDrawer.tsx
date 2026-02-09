@@ -147,7 +147,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
           </Badge>
         )}
         {player.transferroomRating && (
-          <Badge variant="secondary" className="text-xs shrink-0 bg-slate-800 text-white border-slate-700">
+          <Badge variant="secondary" className="text-xs shrink-0 bg-blue-900 text-white border-blue-800">
             {player.transferroomRating}
           </Badge>
         )}
