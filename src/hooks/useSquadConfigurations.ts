@@ -1,6 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import type { Json } from "@/integrations/supabase/types";
+
+export interface SquadConfigurationAssignment {
+  position: string;
+  player_id: string;
+  alternate_player_ids?: string[];
+}
 
 export interface SquadConfiguration {
   id: string;
@@ -8,10 +15,7 @@ export interface SquadConfiguration {
   name: string;
   formation: string;
   squad_type: string;
-  position_assignments: Array<{
-    position: string;
-    player_id: string;
-  }>;
+  position_assignments: SquadConfigurationAssignment[];
   description?: string;
   overall_rating?: number;
   is_default?: boolean;
@@ -35,10 +39,7 @@ export const useSquadConfigurations = (clubName: string) => {
       // Transform the data to ensure position_assignments is properly typed
       return (data || []).map(config => ({
         ...config,
-        position_assignments: config.position_assignments as Array<{
-          position: string;
-          player_id: string;
-        }>
+        position_assignments: (config.position_assignments as unknown as SquadConfigurationAssignment[]) || []
       }));
     },
   });
@@ -76,7 +77,7 @@ export const useSaveSquadConfiguration = () => {
           ...configWithoutPlayers,
           overall_rating: overallRating,
           created_by_user_id: user.id,
-          position_assignments: config.position_assignments,
+          position_assignments: config.position_assignments as unknown as Json,
         })
         .select()
         .single();
@@ -101,7 +102,7 @@ export const useUpdateSquadConfiguration = () => {
           name: config.name,
           formation: config.formation,
           squad_type: config.squad_type,
-          position_assignments: config.position_assignments,
+          position_assignments: config.position_assignments as unknown as Json,
           description: config.description,
           is_default: config.is_default,
           updated_at: new Date().toISOString(),

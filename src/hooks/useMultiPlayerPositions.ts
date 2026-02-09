@@ -17,7 +17,7 @@ interface UseMultiPlayerPositionsResult {
   addPlayerToPosition: (position: string, playerId: string) => void;
   removePlayerFromPosition: (position: string, playerId: string) => void;
   reorderPlayerInPosition: (position: string, playerId: string, direction: 'up' | 'down') => void;
-  loadFromAssignments: (assignments: Array<{ position: string; player_id: string }>) => void;
+  loadFromAssignments: (assignments: Array<{ position: string; player_id: string; alternate_player_ids?: string[] }>) => void;
   getActiveAssignments: () => Array<{ position: string; player_id: string }>;
   clearAll: () => void;
 }
@@ -177,12 +177,12 @@ export const useMultiPlayerPositions = (): UseMultiPlayerPositionsResult => {
       return updated;
     });
   }, []);
-  const loadFromAssignments = useCallback((assignments: Array<{ position: string; player_id: string }>) => {
-    // Convert simple assignments to position slots (each position gets one active player)
+  const loadFromAssignments = useCallback((assignments: Array<{ position: string; player_id: string; alternate_player_ids?: string[] }>) => {
+    // Convert assignments to position slots, preserving alternates if present
     const slots: PositionPlayerSlot[] = assignments.map(a => ({
       position: a.position,
       activePlayerId: a.player_id,
-      alternatePlayerIds: []
+      alternatePlayerIds: a.alternate_player_ids || []
     }));
     setPositionSlots(slots);
   }, []);

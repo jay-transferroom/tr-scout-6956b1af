@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { SquadConfigurationAssignment } from "@/hooks/useSquadConfigurations";
 import {
   Dialog,
   DialogContent,
@@ -31,10 +32,7 @@ interface SaveSquadConfigurationDialogProps {
   clubName: string;
   formation: string;
   squadType: string;
-  positionAssignments: Array<{
-    position: string;
-    player_id: string;
-  }>;
+  positionAssignments: SquadConfigurationAssignment[];
   allPlayers?: any[];
   currentConfiguration?: SquadConfiguration | null;
 }
