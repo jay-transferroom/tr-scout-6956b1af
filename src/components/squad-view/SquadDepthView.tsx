@@ -223,14 +223,14 @@ const SquadDepthView = ({
                         className={cn(
                           "flex items-center justify-between gap-1 px-1.5 py-1 rounded transition-colors",
                           isExternal
-                            ? "bg-amber-500/50 hover:bg-amber-500/70"
+                            ? "bg-sky-200/60 hover:bg-sky-200/80"
                             : "bg-white/95 hover:bg-white"
                         )}
                       >
                         <div className="flex items-center justify-between gap-1.5 min-w-0 flex-1">
                           <span className={cn(
                             "text-xs font-medium truncate",
-                            isExternal ? "text-amber-950" : "text-slate-800"
+                            isExternal ? "text-sky-950" : "text-slate-800"
                           )}>
                             {player.name}
                           </span>
