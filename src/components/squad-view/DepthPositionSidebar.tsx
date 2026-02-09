@@ -4,7 +4,8 @@ import { PlayerAvatar } from "@/components/ui/player-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, X, ArrowRight, GripVertical, Star, AlertTriangle, Users, Heart, Sparkles, ChevronUp, ChevronDown } from "lucide-react";
+import { Plus, X, ArrowRight, GripVertical, Star, AlertTriangle, Users, Heart, Sparkles, ChevronUp, ChevronDown, Filter } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { useShortlists } from "@/hooks/useShortlists";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
@@ -75,7 +76,13 @@ const DepthPositionSidebar = ({
   const { shortlists } = useShortlists();
   const { data: recommendations = [] } = useSquadRecommendations();
   const [availableTab, setAvailableTab] = useState<'squad' | 'shortlisted' | 'recommended'>('squad');
+  const [selectedShortlistId, setSelectedShortlistId] = useState<string>('all');
 
+  // Filter shortlists to exclude scouting assignment lists
+  const userShortlists = useMemo(() => 
+    shortlists.filter(s => !s.is_scouting_assignment_list), 
+    [shortlists]
+  );
   // Get assigned player IDs for this position
   const assignedPlayerIds = useMemo(() => {
     if (!selectedPosition) return [];
@@ -120,13 +127,15 @@ const DepthPositionSidebar = ({
       'ST': ['ST', 'CF', 'F', 'FW']
     };
     const requiredPositions = positionConfig[category] || [];
-    const shortlistPlayerIds = shortlists.flatMap(s => s.playerIds || []);
+    const shortlistPlayerIds = selectedShortlistId === 'all'
+      ? shortlists.flatMap(s => s.playerIds || [])
+      : shortlists.find(s => s.id === selectedShortlistId)?.playerIds || [];
     return allPlayers.filter(p =>
       shortlistPlayerIds.includes(p.id) &&
       p.positions.some(pos => requiredPositions.includes(pos)) &&
       !assignedPlayerIds.includes(p.id)
     ).sort((a, b) => (b.transferroomRating || b.xtvScore || 0) - (a.transferroomRating || a.xtvScore || 0));
-  }, [selectedPosition, shortlists, allPlayers, assignedPlayerIds]);
+  }, [selectedPosition, shortlists, allPlayers, assignedPlayerIds, selectedShortlistId]);
 
   // Available recommended players
   const availableRecommendedPlayers = useMemo(() => {
@@ -336,6 +345,22 @@ const DepthPositionSidebar = ({
               </button>
             </div>
 
+            {/* Shortlist filter dropdown */}
+            {availableTab === 'shortlisted' && userShortlists.length > 1 && (
+              <Select value={selectedShortlistId} onValueChange={setSelectedShortlistId}>
+                <SelectTrigger className="h-8 text-xs w-full">
+                  <Filter className="h-3 w-3 mr-1.5 shrink-0" />
+                  <SelectValue placeholder="All shortlists" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All shortlists</SelectItem>
+                  {userShortlists.map(s => (
+                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
             {/* Available player list */}
             <div className="space-y-1">
               {currentAvailablePlayers.length > 0 ? (
@@ -352,6 +377,7 @@ const DepthPositionSidebar = ({
                         <p className="text-sm font-medium truncate">{player.name}</p>
                         <p className="text-xs text-muted-foreground">
                           {player.positions.join(', ')} • {player.age}y • {player.nationality}
+                          {player.contractExpiry && <span> • {new Date(player.contractExpiry).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}</span>}
                         </p>
                       </div>
                       {rating && (
