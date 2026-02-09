@@ -5,10 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { ClubBadge } from "@/components/ui/club-badge";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Check, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import {
   useMatchScoutingReports,
@@ -164,24 +163,35 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
         <div className="px-3 pb-3 pt-1 space-y-3 border-t border-border bg-muted/20">
           {/* Rating */}
           <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center justify-between">
-              <span>Rating</span>
-              <span className="text-sm font-semibold text-foreground">
-                {rating !== null ? rating.toFixed(1) : "—"}
-              </span>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              Rating
             </label>
-            <Slider
-              value={rating !== null ? [rating] : [5]}
-              onValueChange={(values) => setRating(values[0])}
-              min={1}
-              max={10}
-              step={0.5}
-              className="w-full"
-            />
-            <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5">
-              <span>1</span>
-              <span>5</span>
-              <span>10</span>
+            <div className="flex flex-wrap gap-1.5">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => {
+                const isSelected = rating === value;
+                let selectedColor = "bg-primary";
+                if (isSelected) {
+                  if (value <= 3) selectedColor = "bg-destructive";
+                  else if (value <= 5) selectedColor = "bg-yellow-500";
+                  else if (value <= 7) selectedColor = "bg-green-500";
+                  else selectedColor = "bg-emerald-500";
+                }
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setRating(isSelected ? null : value)}
+                    className={cn(
+                      "h-8 w-8 rounded-md border flex items-center justify-center text-xs font-medium transition-colors",
+                      isSelected
+                        ? `${selectedColor} text-white border-transparent`
+                        : "bg-background hover:bg-muted/50 border-border"
+                    )}
+                  >
+                    {value}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
