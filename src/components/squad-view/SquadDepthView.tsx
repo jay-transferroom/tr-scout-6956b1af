@@ -66,23 +66,6 @@ const DEPTH_FORMATION_CONFIGS: Record<string, Record<string, { x: number; y: num
   },
 };
 
-const getPositionMapping = (pos: string): string[] => {
-  switch (pos) {
-    case 'GK': return ['GK'];
-    case 'LB': return ['LB', 'LWB'];
-    case 'CB1': case 'CB2': case 'CB3': return ['CB'];
-    case 'RB': return ['RB', 'RWB'];
-    case 'CDM': case 'CDM1': case 'CDM2': return ['CM', 'CDM'];
-    case 'CM1': case 'CM2': case 'CM3': return ['CM', 'CAM'];
-    case 'CAM': return ['CAM', 'CM'];
-    case 'LM': return ['LM', 'W', 'LW'];
-    case 'RM': return ['RM', 'W', 'RW'];
-    case 'LW': return ['W', 'LW', 'LM'];
-    case 'ST': case 'ST1': case 'ST2': return ['F', 'FW', 'ST', 'CF'];
-    case 'RW': return ['W', 'RW', 'RM'];
-    default: return [];
-  }
-};
 
 const SquadDepthView = ({
   squadPlayers,
@@ -119,63 +102,19 @@ const SquadDepthView = ({
            (player.club?.includes('Chelsea') ?? false);
   };
 
-  // Calculate depth for each position - combines eligible squad players with ALL assigned players
+  // Get only assigned players for each position (consistent with shadow squad sidebar)
   const getPositionDepth = (position: string): Array<Player & { isExternal?: boolean }> => {
     const assignedPlayerIds = positionToAssignedPlayers.get(position) || [];
-    const allowedPositions = getPositionMapping(position);
     
-    // Get all squad players eligible for this position
-    const eligibleSquadPlayers = squadPlayers.filter(player =>
-      player.positions.some(pos => allowedPositions.includes(pos))
-    );
-    
-    // Get ALL assigned players for this position (not just external ones)
-    const assignedPlayers = assignedPlayerIds
+    // Only show players that are explicitly assigned to this position
+    return assignedPlayerIds
       .map(id => {
-        // First check squadPlayers, then allPlayers
         const player = squadPlayers.find(p => p.id === id) || allPlayers.find(p => p.id === id);
-        return player;
+        return player ? { ...player, isExternal: !isClubPlayer(player) } : undefined;
       })
-      .filter((p): p is Player => p !== undefined);
-    
-    // Build the combined list, avoiding duplicates
-    const seenIds = new Set<string>();
-    const allPositionPlayers: Array<Player & { isExternal: boolean }> = [];
-    
-    // First add all assigned players (they appear first)
-    for (const player of assignedPlayers) {
-      if (!seenIds.has(player.id)) {
-        seenIds.add(player.id);
-        allPositionPlayers.push({ ...player, isExternal: !isClubPlayer(player) });
-      }
-    }
-    
-    // Then add eligible squad players not already assigned
-    for (const player of eligibleSquadPlayers) {
-      if (!seenIds.has(player.id)) {
-        seenIds.add(player.id);
-        allPositionPlayers.push({ ...player, isExternal: !isClubPlayer(player) });
-      }
-    }
-
-    // Sort: external first, then by rating
-    return allPositionPlayers.sort((a, b) => {
-      if (a.isExternal && !b.isExternal) return -1;
-      if (!a.isExternal && b.isExternal) return 1;
-      const ratingA = a.transferroomRating || a.xtvScore || 0;
-      const ratingB = b.transferroomRating || b.xtvScore || 0;
-      return ratingB - ratingA;
-    });
+      .filter((p): p is Player & { isExternal: boolean } => p !== undefined);
   };
 
-  // Get abbreviated name (First initial + surname)
-  const getAbbreviatedName = (name: string): string => {
-    const parts = name.split(' ');
-    if (parts.length === 1) return parts[0].substring(0, 4);
-    const firstName = parts[0];
-    const lastName = parts[parts.length - 1];
-    return `${firstName[0]}. ${lastName.substring(0, 5)}`;
-  };
 
   // Get rating color based on value
   const getRatingColor = (rating: number | undefined): string => {
@@ -304,7 +243,7 @@ const SquadDepthView = ({
                             "text-xs font-medium truncate",
                             isExternal ? "text-amber-950" : "text-slate-800"
                           )}>
-                            {getAbbreviatedName(player.name)}
+                            {player.name}
                           </span>
                           <span className={cn(
                             "text-xs font-bold tabular-nums shrink-0",
