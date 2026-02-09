@@ -361,6 +361,17 @@ export const MatchScoutingDrawer: React.FC<MatchScoutingDrawerProps> = ({
             </div>
           )}
         </ScrollArea>
+
+        {/* Footer Save Button */}
+        <div className="shrink-0 border-t border-border px-4 py-3 bg-background">
+          <Button
+            className="w-full"
+            onClick={() => onOpenChange(false)}
+          >
+            <Check className="h-4 w-4 mr-1" />
+            Save
+          </Button>
+        </div>
       </SheetContent>
     </Sheet>
   );
