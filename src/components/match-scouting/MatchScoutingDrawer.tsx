@@ -289,11 +289,6 @@ export const MatchScoutingDrawer: React.FC<MatchScoutingDrawerProps> = ({
           <Badge variant="secondary" className="text-xs bg-blue-900 text-white border-blue-800">
             {players.length}
           </Badge>
-          {notedCount > 0 && (
-            <Badge variant="outline" className="text-xs border-primary/30 text-primary">
-              {notedCount} noted
-            </Badge>
-          )}
         </div>
         <div className="space-y-2">
           {players.length > 0 ? (
