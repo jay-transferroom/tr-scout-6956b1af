@@ -286,7 +286,7 @@ export const MatchScoutingDrawer: React.FC<MatchScoutingDrawerProps> = ({
         <div className="flex items-center gap-2 mb-3 sticky top-0 bg-background z-10 py-2">
           <ClubBadge clubName={teamName} size="sm" />
           <h3 className="font-semibold text-base">{teamName}</h3>
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="text-xs bg-blue-900 text-white border-blue-800">
             {players.length}
           </Badge>
           {notedCount > 0 && (
