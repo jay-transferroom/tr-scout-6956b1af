@@ -10,6 +10,7 @@ import { Player } from "@/types/player";
 import PlayerSearchTableFilters, { PlayerSearchFilterCriteria } from "@/components/player-search/PlayerSearchTableFilters";
 import PlayerSearchTable from "@/components/player-search/PlayerSearchTable";
 import { isNationalityInRegion } from "@/utils/regionMapping";
+import CustomiseMyRatingDialog, { CategoryWeights, DEFAULT_MY_RATING_WEIGHTS, computeMyRating } from "@/components/player-search/CustomiseMyRatingDialog";
 
 const SearchResults = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,6 +21,8 @@ const SearchResults = () => {
   const initialQuery = searchParams.get('q') || '';
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredPlayers, setFilteredPlayers] = useState<Player[]>([]);
+  const [myRatingWeights, setMyRatingWeights] = useState<CategoryWeights[]>(DEFAULT_MY_RATING_WEIGHTS);
+  const [showMyRatingDialog, setShowMyRatingDialog] = useState(false);
   const [searchFilters, setSearchFilters] = useState<PlayerSearchFilterCriteria>({
     searchTerm: initialQuery,
     sortBy: 'name',
@@ -150,26 +153,27 @@ const SearchResults = () => {
     results.sort((a, b) => {
       switch (searchFilters.sortBy) {
         case "rating":
-          return (b.transferroomRating || 0) - (a.transferroomRating || 0); // High to Low
+          return (b.transferroomRating || 0) - (a.transferroomRating || 0);
+        case "myRating":
+          return (computeMyRating(b, myRatingWeights) || 0) - (computeMyRating(a, myRatingWeights) || 0);
         case "potential":
-          return (b.futureRating || 0) - (a.futureRating || 0); // High to Low
+          return (b.futureRating || 0) - (a.futureRating || 0);
         case "contract-expiry":
-          // Soonest first (ascending date order)
           if (!a.contractExpiry && !b.contractExpiry) return 0;
           if (!a.contractExpiry) return 1;
           if (!b.contractExpiry) return -1;
           return new Date(a.contractExpiry).getTime() - new Date(b.contractExpiry).getTime();
         case "age":
-          return a.age - b.age; // Low to High
+          return a.age - b.age;
         case "name":
         default:
-          return a.name.localeCompare(b.name); // A to Z
+          return a.name.localeCompare(b.name);
       }
     });
     
     setFilteredPlayers(results);
     setCurrentPage(1); // Reset to first page when filters change
-  }, [searchFilters, localPlayers, remotePlayers]);
+  }, [searchFilters, localPlayers, remotePlayers, myRatingWeights]);
 
   // Initialize filters from URL parameters
   useEffect(() => {
@@ -233,6 +237,7 @@ const SearchResults = () => {
         filters={searchFilters}
         onFiltersChange={setSearchFilters}
         availableNationalities={availableNationalities}
+        onCustomiseMyRating={() => setShowMyRatingDialog(true)}
       />
 
       <div className="mb-4">
@@ -247,6 +252,14 @@ const SearchResults = () => {
         getTeamLogo={getTeamLogo}
         currentSort={searchFilters.sortBy}
         onSort={(sortBy) => setSearchFilters({ ...searchFilters, sortBy })}
+        myRatingWeights={myRatingWeights}
+      />
+
+      <CustomiseMyRatingDialog
+        open={showMyRatingDialog}
+        onOpenChange={setShowMyRatingDialog}
+        weights={myRatingWeights}
+        onWeightsChange={setMyRatingWeights}
       />
 
       {totalPages > 1 && (

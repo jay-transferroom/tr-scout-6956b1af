@@ -3,7 +3,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/player";
-import { Star, ArrowUpDown, ArrowDown } from "lucide-react";
+import { Star, ArrowUpDown, ArrowDown, User } from "lucide-react";
+import { CategoryWeights, computeMyRating } from "./CustomiseMyRatingDialog";
 
 interface PlayerSearchTableProps {
   players: Player[];
@@ -11,10 +12,11 @@ interface PlayerSearchTableProps {
   getTeamLogo: (clubName: string) => string | undefined;
   currentSort: string;
   onSort: (sortBy: string) => void;
+  myRatingWeights: CategoryWeights[];
 }
 
-const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, onSort }: PlayerSearchTableProps) => {
-  const formatRating = (rating: number | undefined) => {
+const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, onSort, myRatingWeights }: PlayerSearchTableProps) => {
+  const formatRating = (rating: number | undefined | null) => {
     if (!rating) return '-';
     return rating.toFixed(1);
   };
@@ -38,7 +40,7 @@ const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, o
 
   const getSortIcon = (column: string) => {
     if (currentSort !== column) return <ArrowUpDown className="h-3 w-3" />;
-    return <ArrowDown className="h-3 w-3" />; // Since we sort descending by default for rating/potential
+    return <ArrowDown className="h-3 w-3" />;
   };
 
   const SortableHeader = ({ column, children }: { column: string; children: React.ReactNode }) => (
@@ -69,6 +71,12 @@ const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, o
               <span>Rating</span>
             </div>
           </SortableHeader>
+          <SortableHeader column="myRating">
+            <div className="flex items-center gap-1">
+              <User className="h-3 w-3 text-primary" />
+              <span>My Rating</span>
+            </div>
+          </SortableHeader>
           <SortableHeader column="potential">Potential</SortableHeader>
         </TableRow>
       </TableHeader>
@@ -76,6 +84,7 @@ const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, o
         {players.length > 0 ? (
           players.map((player) => {
             const teamLogo = getTeamLogo(player.club);
+            const myRating = computeMyRating(player, myRatingWeights);
             
             return (
               <TableRow 
@@ -150,6 +159,15 @@ const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, o
                     )}
                   </div>
                 </TableCell>
+
+                <TableCell>
+                  <div className="flex items-center gap-1">
+                    <span className={myRating ? "font-medium" : ""}>{formatRating(myRating)}</span>
+                    {myRating && (
+                      <User className="h-3 w-3 text-primary" />
+                    )}
+                  </div>
+                </TableCell>
                 
                 <TableCell>
                   <span>{formatRating(player.futureRating)}</span>
@@ -159,7 +177,7 @@ const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, o
           })
         ) : (
           <TableRow>
-            <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
+            <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
               No players found matching your criteria
             </TableCell>
           </TableRow>

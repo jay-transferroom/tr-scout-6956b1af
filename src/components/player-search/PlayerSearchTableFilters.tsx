@@ -3,8 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, X } from "lucide-react";
+import { Search, Filter, X, SlidersHorizontal } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 
 export interface PlayerSearchFilterCriteria {
   searchTerm: string;
@@ -20,9 +21,10 @@ interface PlayerSearchFiltersProps {
   filters: PlayerSearchFilterCriteria;
   onFiltersChange: (filters: PlayerSearchFilterCriteria) => void;
   availableNationalities: string[];
+  onCustomiseMyRating?: () => void;
 }
 
-const PlayerSearchFilters = ({ filters, onFiltersChange, availableNationalities }: PlayerSearchFiltersProps) => {
+const PlayerSearchFilters = ({ filters, onFiltersChange, availableNationalities, onCustomiseMyRating }: PlayerSearchFiltersProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const updateFilter = (key: keyof PlayerSearchFilterCriteria, value: string) => {
@@ -93,6 +95,7 @@ const PlayerSearchFilters = ({ filters, onFiltersChange, availableNationalities 
                   <SelectContent>
                     <SelectItem value="name">Name</SelectItem>
                     <SelectItem value="rating">Rating</SelectItem>
+                    <SelectItem value="myRating">My Rating</SelectItem>
                     <SelectItem value="potential">Potential</SelectItem>
                     <SelectItem value="age">Age</SelectItem>
                     <SelectItem value="contract-expiry">Contract expiry</SelectItem>
@@ -190,15 +193,19 @@ const PlayerSearchFilters = ({ filters, onFiltersChange, availableNationalities 
               </div>
             </div>
 
-            {/* Clear Filters Button */}
-            {hasActiveFilters && (
-              <div className="mt-4 flex justify-end">
+            {/* Actions Row */}
+            <div className="mt-4 flex items-center justify-between">
+              <Button variant="outline" size="sm" onClick={() => { onCustomiseMyRating?.(); setIsOpen(false); }}>
+                <SlidersHorizontal className="h-4 w-4 mr-2" />
+                Customise My Rating
+              </Button>
+              {hasActiveFilters && (
                 <Button variant="ghost" size="sm" onClick={clearFilters}>
                   <X className="h-4 w-4 mr-2" />
                   Clear all filters
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </PopoverContent>
         </Popover>
       </div>
