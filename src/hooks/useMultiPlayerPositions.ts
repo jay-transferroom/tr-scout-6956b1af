@@ -16,6 +16,7 @@ interface UseMultiPlayerPositionsResult {
   setActivePlayer: (position: string, playerId: string) => void;
   addPlayerToPosition: (position: string, playerId: string) => void;
   removePlayerFromPosition: (position: string, playerId: string) => void;
+  reorderPlayerInPosition: (position: string, playerId: string, direction: 'up' | 'down') => void;
   loadFromAssignments: (assignments: Array<{ position: string; player_id: string }>) => void;
   getActiveAssignments: () => Array<{ position: string; player_id: string }>;
   clearAll: () => void;
@@ -149,6 +150,33 @@ export const useMultiPlayerPositions = (): UseMultiPlayerPositionsResult => {
     });
   }, []);
 
+  const reorderPlayerInPosition = useCallback((position: string, playerId: string, direction: 'up' | 'down') => {
+    setPositionSlots(prev => {
+      const existingIndex = prev.findIndex(s => s.position === position);
+      if (existingIndex === -1) return prev;
+
+      const existing = prev[existingIndex];
+      // Build ordered list: [active, ...alternates]
+      const ordered = [existing.activePlayerId, ...existing.alternatePlayerIds];
+      const playerIndex = ordered.indexOf(playerId);
+      if (playerIndex === -1) return prev;
+
+      const targetIndex = direction === 'up' ? playerIndex - 1 : playerIndex + 1;
+      if (targetIndex < 0 || targetIndex >= ordered.length) return prev;
+
+      // Swap
+      const newOrdered = [...ordered];
+      [newOrdered[playerIndex], newOrdered[targetIndex]] = [newOrdered[targetIndex], newOrdered[playerIndex]];
+
+      const updated = [...prev];
+      updated[existingIndex] = {
+        position,
+        activePlayerId: newOrdered[0],
+        alternatePlayerIds: newOrdered.slice(1),
+      };
+      return updated;
+    });
+  }, []);
   const loadFromAssignments = useCallback((assignments: Array<{ position: string; player_id: string }>) => {
     // Convert simple assignments to position slots (each position gets one active player)
     const slots: PositionPlayerSlot[] = assignments.map(a => ({
@@ -179,6 +207,7 @@ export const useMultiPlayerPositions = (): UseMultiPlayerPositionsResult => {
     setActivePlayer,
     addPlayerToPosition,
     removePlayerFromPosition,
+    reorderPlayerInPosition,
     loadFromAssignments,
     getActiveAssignments,
     clearAll
