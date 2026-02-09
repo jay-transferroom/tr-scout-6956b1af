@@ -166,7 +166,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
               Rating
             </label>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="grid grid-cols-10 gap-1">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => {
                 const isSelected = rating === value;
                 let selectedColor = "bg-primary";
@@ -182,7 +182,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
                     type="button"
                     onClick={() => setRating(isSelected ? null : value)}
                     className={cn(
-                      "h-8 w-8 rounded-md border flex items-center justify-center text-xs font-medium transition-colors",
+                      "aspect-square rounded-md border flex items-center justify-center text-xs font-medium transition-colors",
                       isSelected
                         ? `${selectedColor} text-white border-transparent`
                         : "bg-background hover:bg-muted/50 border-border"
