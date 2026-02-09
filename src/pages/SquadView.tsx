@@ -358,7 +358,11 @@ const SquadView = () => {
         clubName={userClub}
         formation={currentFormation}
         squadType={selectedSquad}
-        positionAssignments={positionAssignments}
+        positionAssignments={positionSlots.map(slot => ({
+          position: slot.position,
+          player_id: slot.activePlayerId,
+          alternate_player_ids: slot.alternatePlayerIds,
+        }))}
         allPlayers={allPlayers}
         currentConfiguration={loadedConfiguration}
       />
