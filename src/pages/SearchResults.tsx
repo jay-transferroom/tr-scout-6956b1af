@@ -10,7 +10,8 @@ import { Player } from "@/types/player";
 import PlayerSearchTableFilters, { PlayerSearchFilterCriteria } from "@/components/player-search/PlayerSearchTableFilters";
 import PlayerSearchTable from "@/components/player-search/PlayerSearchTable";
 import { isNationalityInRegion } from "@/utils/regionMapping";
-import CustomiseMyRatingDialog, { CategoryWeights, DEFAULT_MY_RATING_WEIGHTS, computeMyRating } from "@/components/player-search/CustomiseMyRatingDialog";
+import CustomiseMyRatingDialog, { CategoryWeights, DEFAULT_POSITION_WEIGHTS, computeMyRating, PositionKey } from "@/components/player-search/CustomiseMyRatingDialog";
+import { clonePositionWeights } from "@/data/myRatingWeights";
 
 const SearchResults = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,7 +22,8 @@ const SearchResults = () => {
   const initialQuery = searchParams.get('q') || '';
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredPlayers, setFilteredPlayers] = useState<Player[]>([]);
-  const [myRatingWeights, setMyRatingWeights] = useState<CategoryWeights[]>(DEFAULT_MY_RATING_WEIGHTS);
+  const [myRatingWeights, setMyRatingWeights] = useState<Record<PositionKey, CategoryWeights[]>>(() => clonePositionWeights(DEFAULT_POSITION_WEIGHTS));
+  const [leagueAdjustments, setLeagueAdjustments] = useState(true);
   const [showMyRatingDialog, setShowMyRatingDialog] = useState(false);
   const [searchFilters, setSearchFilters] = useState<PlayerSearchFilterCriteria>({
     searchTerm: initialQuery,
@@ -155,7 +157,7 @@ const SearchResults = () => {
         case "rating":
           return (b.transferroomRating || 0) - (a.transferroomRating || 0);
         case "myRating":
-          return (computeMyRating(b, myRatingWeights) || 0) - (computeMyRating(a, myRatingWeights) || 0);
+          return (computeMyRating(b, myRatingWeights['CM']) || 0) - (computeMyRating(a, myRatingWeights['CM']) || 0);
         case "potential":
           return (b.futureRating || 0) - (a.futureRating || 0);
         case "contract-expiry":
@@ -260,6 +262,8 @@ const SearchResults = () => {
         onOpenChange={setShowMyRatingDialog}
         weights={myRatingWeights}
         onWeightsChange={setMyRatingWeights}
+        leagueAdjustments={leagueAdjustments}
+        onLeagueAdjustmentsChange={setLeagueAdjustments}
       />
 
       {totalPages > 1 && (
