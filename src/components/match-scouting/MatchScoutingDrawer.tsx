@@ -7,7 +7,7 @@ import { PlayerAvatar } from "@/components/ui/player-avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Loader2, AlertTriangle, ShieldBan } from "lucide-react";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import {
   useMatchScoutingReports,
@@ -73,6 +73,18 @@ const clubsMatch = (a?: string, b?: string) => {
   return ca === cb || ca.includes(cb) || cb.includes(ca);
 };
 
+type PlayerStatus = 'available' | 'injured' | 'suspended';
+
+// Mock function to simulate player availability status
+// In production, this would come from the database
+const getPlayerStatus = (playerId: string): { status: PlayerStatus; description?: string } => {
+  const hash = playerId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const mod = hash % 10;
+  if (mod === 3) return { status: 'injured', description: 'Hamstring injury — expected return in 2 weeks' };
+  if (mod === 7) return { status: 'suspended', description: 'Suspended — accumulation of yellow cards' };
+  return { status: 'available' };
+};
+
 interface PlayerScoutingRowProps {
   player: Player;
   existingNotes: string;
@@ -93,6 +105,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   const [rating, setRating] = useState<number | null>(existingRating);
   const [isDirty, setIsDirty] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { status, description } = getPlayerStatus(player.id);
 
   // Track changes
   useEffect(() => {
@@ -122,41 +135,68 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
     setIsDirty(false);
   };
 
-  return (
-    <div className="border border-border rounded-lg overflow-hidden">
-      {/* Player header row - always visible */}
-      <button
-        type="button"
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left"
-      >
-        <PlayerAvatar
-          playerName={player.name}
-          avatarUrl={player.image}
-          size="sm"
-        />
-        <div className="flex-1 min-w-0">
-          <div className="font-medium text-sm truncate">{player.name}</div>
-          <div className="text-xs text-muted-foreground">
-            {player.positions?.join(", ")} • {player.age}y • {player.nationality}
+    return (
+      <div className={cn(
+        "border rounded-lg overflow-hidden",
+        status === 'injured' && "border-amber-400/50 bg-amber-500/5",
+        status === 'suspended' && "border-red-400/50 bg-red-500/5",
+        status === 'available' && "border-border"
+      )}>
+        {/* Player header row - always visible */}
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className={cn(
+            "w-full flex items-center gap-3 p-3 transition-colors text-left",
+            status === 'injured' && "hover:bg-amber-500/10",
+            status === 'suspended' && "hover:bg-red-500/10",
+            status === 'available' && "hover:bg-muted/50"
+          )}
+        >
+          <PlayerAvatar
+            playerName={player.name}
+            avatarUrl={player.image}
+            size="sm"
+          />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="font-medium text-sm truncate">{player.name}</span>
+              {status === 'injured' && (
+                <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+              )}
+              {status === 'suspended' && (
+                <ShieldBan className="h-3.5 w-3.5 text-red-400 shrink-0" />
+              )}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {player.positions?.join(", ")} • {player.age}y • {player.nationality}
+            </div>
+            {status !== 'available' && description && (
+              <div className={cn(
+                "text-[10px] mt-0.5 font-medium",
+                status === 'injured' && "text-amber-600 dark:text-amber-400",
+                status === 'suspended' && "text-red-500 dark:text-red-400"
+              )}>
+                {description}
+              </div>
+            )}
           </div>
-        </div>
-        {existingRating !== null && (
-          <Badge variant="default" className="text-xs shrink-0 font-semibold">
-            {existingRating.toFixed(1)}
-          </Badge>
-        )}
-        {player.transferroomRating && (
-          <Badge variant="secondary" className="text-xs shrink-0 bg-blue-900 text-white border-blue-800">
-            {player.transferroomRating}
-          </Badge>
-        )}
-        {expanded ? (
-          <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
-        ) : (
-          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-        )}
-      </button>
+          {existingRating !== null && (
+            <Badge variant="default" className="text-xs shrink-0 font-semibold">
+              {existingRating.toFixed(1)}
+            </Badge>
+          )}
+          {player.transferroomRating && (
+            <Badge variant="secondary" className="text-xs shrink-0 bg-blue-900 text-white border-blue-800">
+              {player.transferroomRating}
+            </Badge>
+          )}
+          {expanded ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+          )}
+        </button>
 
       {/* Expanded scouting form */}
       {expanded && (
