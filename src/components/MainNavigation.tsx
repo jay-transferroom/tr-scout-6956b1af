@@ -26,7 +26,8 @@ import {
   MoreVertical,
   Search,
   SlidersHorizontal,
-  Shield
+  Shield,
+  Upload
 } from "lucide-react";
 import { useMyPermissions } from "@/hooks/useUserPermissions";
 import { useAuth } from "@/contexts/AuthContext";
@@ -213,18 +214,6 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     asChild 
-                    isActive={isActive("/settings")} 
-                    tooltip="Settings"
-                  >
-                    <Link to="/settings" onClick={handleNavClick}>
-                      <Settings className="h-4 w-4" />
-                      <span>Settings</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    asChild 
                     isActive={isActive("/club-ratings")} 
                     tooltip="Club Ratings"
                   >
@@ -257,6 +246,18 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                         <Link to="/admin/users" onClick={handleNavClick}>
                           <Shield className="h-4 w-4" />
                           <span>User Management</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive("/data-import")} 
+                        tooltip="Import Data"
+                      >
+                        <Link to="/data-import" onClick={handleNavClick}>
+                          <Upload className="h-4 w-4" />
+                          <span>Import Data</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -333,7 +334,10 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem asChild>
-                        <Link to="/profile">Profile Settings</Link>
+                        <Link to="/settings">Settings</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/profile">Profile</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={signOut}>
                         <LogOut className="h-4 w-4 mr-2" />
