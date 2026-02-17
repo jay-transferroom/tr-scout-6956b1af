@@ -14,6 +14,7 @@ import {
 import { usePlayerProfile } from "@/hooks/usePlayerProfile";
 import { calculateAge } from "@/utils/playerProfileUtils";
 import { computeMyRating, DEFAULT_POSITION_WEIGHTS, PositionKey } from "@/data/myRatingWeights";
+import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
 import { PlayerCareerTab } from "@/components/player-profile/PlayerCareerTab";
 import { PlayerFinancialsTab } from "@/components/player-profile/PlayerFinancialsTab";
 import { PlayerImpactTab } from "@/components/player-profile/PlayerImpactTab";
@@ -51,10 +52,12 @@ const PlayerProfile = () => {
   const [activeTab, setActiveTab] = useState("career");
 
   const { player, isLoading, error, playerReports } = usePlayerProfile(id);
+  const { data: ratingWeightsData } = useClubRatingWeights();
 
+  const positionWeights = ratingWeightsData?.weights ?? DEFAULT_POSITION_WEIGHTS;
   const clubRating = player ? computeMyRating(
     player,
-    DEFAULT_POSITION_WEIGHTS[getPositionKey(player.positions || [])]
+    positionWeights[getPositionKey(player.positions || [])]
   ) : null;
   if (isLoading) {
     return (

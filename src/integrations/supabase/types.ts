@@ -53,6 +53,44 @@ export type Database = {
         }
         Relationships: []
       }
+      club_rating_weights: {
+        Row: {
+          club_name: string
+          created_at: string
+          id: string
+          league_adjustments: boolean
+          updated_at: string
+          updated_by_user_id: string | null
+          weights: Json
+        }
+        Insert: {
+          club_name: string
+          created_at?: string
+          id?: string
+          league_adjustments?: boolean
+          updated_at?: string
+          updated_by_user_id?: string | null
+          weights?: Json
+        }
+        Update: {
+          club_name?: string
+          created_at?: string
+          id?: string
+          league_adjustments?: boolean
+          updated_at?: string
+          updated_by_user_id?: string | null
+          weights?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_rating_weights_updated_by_user_id_fkey"
+            columns: ["updated_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       club_settings: {
         Row: {
           club_name: string
