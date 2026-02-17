@@ -40,6 +40,15 @@ const TEAM_ALIASES: Record<string, string[]> = {
   "crystal palace": ["crystal palace"],
   "aston villa": ["aston villa"],
   "leeds united": ["leeds"],
+  "afc bournemouth": ["bournemouth"],
+  "arsenal fc": ["arsenal"],
+  "liverpool fc": ["liverpool"],
+  "chelsea fc": ["chelsea"],
+  "fulham fc": ["fulham"],
+  "brentford fc": ["brentford"],
+  "burnley fc": ["burnley"],
+  "everton fc": ["everton"],
+  "sunderland afc": ["sunderland"],
 };
 
 const normalizeTeamName = (name?: string) => {
@@ -47,7 +56,8 @@ const normalizeTeamName = (name?: string) => {
   return name
     .toLowerCase()
     .replace(/\./g, "")
-    .replace(/\bf\.?c\.?\b/g, "")
+    .replace(/\bf\.?c\.?\b/gi, "")
+    .replace(/\bafc\b/gi, "")
     .replace(/football club/g, "")
     .replace(/[^a-z0-9&'\s-]/g, "")
     .replace(/'/g, "'")
