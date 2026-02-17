@@ -361,16 +361,34 @@ export const MatchScoutingDrawer: React.FC<MatchScoutingDrawerProps> = ({
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const dragSourceRef = useRef<string | null>(null);
   const dragTeamRef = useRef<'home' | 'away' | null>(null);
+  const prevMatchRef = useRef<string | null>(null);
+
+  // Reset order when match changes or drawer opens with new teams
+  useEffect(() => {
+    const matchKey = `${homeTeam}-${awayTeam}-${matchDate}`;
+    if (prevMatchRef.current !== matchKey) {
+      prevMatchRef.current = matchKey;
+      setHomeOrder([]);
+      setAwayOrder([]);
+    }
+  }, [homeTeam, awayTeam, matchDate]);
 
   useEffect(() => {
-    if (homePlayers.length && homeOrder.length === 0) setHomeOrder(homePlayers.map(p => p.id));
-  }, [homePlayers.length]);
-  useEffect(() => {
-    if (awayPlayers.length && awayOrder.length === 0) setAwayOrder(awayPlayers.map(p => p.id));
-  }, [awayPlayers.length]);
+    if (homePlayers.length > 0 && homeOrder.length === 0) {
+      setHomeOrder(homePlayers.map(p => p.id));
+    }
+  }, [homePlayers.length, homeOrder.length]);
 
-  const orderedHome = homeOrder.length ? homeOrder.map(id => homePlayers.find(p => p.id === id)).filter(Boolean) as Player[] : homePlayers;
-  const orderedAway = awayOrder.length ? awayOrder.map(id => awayPlayers.find(p => p.id === id)).filter(Boolean) as Player[] : awayPlayers;
+  useEffect(() => {
+    if (awayPlayers.length > 0 && awayOrder.length === 0) {
+      setAwayOrder(awayPlayers.map(p => p.id));
+    }
+  }, [awayPlayers.length, awayOrder.length]);
+
+  const mappedHome = homeOrder.length ? homeOrder.map(id => homePlayers.find(p => p.id === id)).filter(Boolean) as Player[] : [];
+  const mappedAway = awayOrder.length ? awayOrder.map(id => awayPlayers.find(p => p.id === id)).filter(Boolean) as Player[] : [];
+  const orderedHome = mappedHome.length > 0 ? mappedHome : homePlayers;
+  const orderedAway = mappedAway.length > 0 ? mappedAway : awayPlayers;
 
   const handleDragStart = useCallback((team: 'home' | 'away') => (e: React.DragEvent, playerId: string) => {
     dragSourceRef.current = playerId;
