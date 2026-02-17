@@ -10,10 +10,11 @@ import ReportsTable from "@/components/reports/ReportsTable";
 import GroupedReportsTable from "@/components/reports/GroupedReportsTable";
 import MatchReportsTable from "@/components/reports/MatchReportsTable";
 import PlayerReportsModal from "@/components/reports/PlayerReportsModal";
+import MatchReportDetailDialog from "@/components/reports/MatchReportDetailDialog";
 import ReportsFilters, { ReportsFilterCriteria } from "@/components/reports/ReportsFilters";
 import { getRecommendation } from "@/utils/reportDataExtraction";
 import { groupReportsByPlayer } from "@/utils/reportGrouping";
-import { useAllMatchScoutingReports } from "@/hooks/useAllMatchScoutingReports";
+import { useAllMatchScoutingReports, GroupedMatchReport } from "@/hooks/useAllMatchScoutingReports";
 import { SlidingToggle } from "@/components/ui/sliding-toggle";
 import { List, Users, ClipboardList } from "lucide-react";
 
@@ -27,6 +28,7 @@ const ReportsList = () => {
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [selectedPlayerName, setSelectedPlayerName] = useState<string>("");
   const [playerReportsModalOpen, setPlayerReportsModalOpen] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState<GroupedMatchReport | null>(null);
   const [searchFilters, setSearchFilters] = useState<ReportsFilterCriteria>({
     searchTerm: '',
     playerName: '',
@@ -240,7 +242,7 @@ const ReportsList = () => {
             matchReportsLoading ? (
               <div className="text-center py-8">Loading match reports...</div>
             ) : (
-              <MatchReportsTable matchReports={matchReports} />
+              <MatchReportsTable matchReports={matchReports} onSelectMatch={(m) => setSelectedMatch(m)} />
             )
           ) : viewMode === "individual" ? (
             <ReportsTable
@@ -325,6 +327,12 @@ const ReportsList = () => {
         onViewReport={handleViewReport}
         onEditReport={handleEditReport}
         onDeleteReport={handleDeleteReport}
+      />
+
+      <MatchReportDetailDialog
+        match={selectedMatch}
+        open={!!selectedMatch}
+        onOpenChange={(open) => { if (!open) setSelectedMatch(null); }}
       />
     </div>
   );
