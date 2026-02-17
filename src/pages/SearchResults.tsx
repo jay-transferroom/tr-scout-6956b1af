@@ -222,17 +222,11 @@ const SearchResults = () => {
 
   return (
     <div className="container mx-auto py-8 max-w-7xl">
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2">
-          <ArrowLeft size={16} />
-          Back
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold">Player Search</h1>
-          <p className="text-muted-foreground mt-2">
-            {searchFilters.searchTerm ? `Results for "${searchFilters.searchTerm}"` : "All players"}
-          </p>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">Player Search</h1>
+        <p className="text-muted-foreground mt-2">
+          {searchFilters.searchTerm ? `Results for "${searchFilters.searchTerm}"` : "Recommended players"}
+        </p>
       </div>
 
       <PlayerSearchTableFilters 

@@ -23,7 +23,8 @@ import {
   UserCheck,
   Bookmark,
   LogOut,
-  MoreVertical
+  MoreVertical,
+  Search
 } from "lucide-react";
 import { useMyPermissions } from "@/hooks/useUserPermissions";
 import { useAuth } from "@/contexts/AuthContext";
@@ -66,6 +67,12 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
       icon: Home,
       permission: "dashboard",
       exact: true
+    },
+    {
+      title: "Player Search",
+      url: "/search",
+      icon: Search,
+      permission: "dashboard",
     },
     {
       title: "Scout Management",
@@ -139,7 +146,7 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
           <div className="px-3 mb-4">
             <UnifiedPlayerSearch 
               variant="header"
-              placeholder="Search..."
+              placeholder="Quick search..."
             />
           </div>
         )}
