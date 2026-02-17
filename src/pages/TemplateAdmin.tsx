@@ -6,8 +6,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { 
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
@@ -32,7 +30,6 @@ const TemplateAdmin = () => {
   const [currentTemplateId, setCurrentTemplateId] = useState<string>(
     templates[0]?.id || ""
   );
-  const [isEditing, setIsEditing] = useState(false);
   // Global rating system state
   const [globalRatingSystem, setGlobalRatingSystem] = useState<RatingSystem>(DEFAULT_RATING_SYSTEMS["numeric-1-10"]);
   const [showGlobalSettings, setShowGlobalSettings] = useState(false);
@@ -50,7 +47,6 @@ const TemplateAdmin = () => {
     
     setTemplates([...templates, newTemplate]);
     setCurrentTemplateId(newTemplate.id);
-    setIsEditing(true);
   };
   
   const handleCloneTemplate = () => {
@@ -65,7 +61,6 @@ const TemplateAdmin = () => {
     
     setTemplates([...templates, clonedTemplate]);
     setCurrentTemplateId(clonedTemplate.id);
-    setIsEditing(true);
   };
   
   const handleDeleteTemplate = () => {
@@ -270,9 +265,9 @@ const TemplateAdmin = () => {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle>Global Rating System</CardTitle>
-            <CardDescription>
+            <p className="text-sm text-muted-foreground">
               Configure the default rating system used across all templates
-            </CardDescription>
+            </p>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -317,192 +312,166 @@ const TemplateAdmin = () => {
         </Card>
       )}
       
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-1">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Templates</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1 pb-3">
-              {templates.map(template => (
-                <Button
-                  key={template.id}
-                  variant={currentTemplateId === template.id ? "default" : "ghost"}
-                  className="w-full justify-start font-normal text-sm h-9"
-                  onClick={() => setCurrentTemplateId(template.id)}
-                >
-                  {template.name}
-                  {template.defaultTemplate && (
-                    <span className="ml-auto text-xs bg-primary/20 text-primary-foreground px-1.5 py-0.5 rounded-full">
-                      Default
-                    </span>
-                  )}
-                </Button>
-              ))}
-            </CardContent>
-            <Separator />
-            <div className="p-3 flex items-center justify-between">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={handleCreateTemplate}
-                className="gap-1 h-8 text-xs"
-              >
-                <Plus size={14} />
-                New
-              </Button>
-              <div className="flex gap-1">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={handleCloneTemplate}
-                  className="gap-1 h-8 text-xs"
-                  disabled={!currentTemplate}
-                >
-                  <Copy size={14} />
-                  Clone
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleDeleteTemplate}
-                  className="gap-1 h-8 text-xs text-destructive hover:text-destructive"
-                  disabled={!currentTemplate || templates.length <= 1}
-                >
-                  <Trash2 size={14} />
-                  Delete
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-        
-        <div className="lg:col-span-3">
-          {currentTemplate && (
-            <Card>
-              <CardHeader>
-                <div className="space-y-2">
-                  <Input
-                    value={currentTemplate.name}
-                    onChange={(e) => handleNameChange(e.target.value)}
-                    className="text-xl font-bold"
-                  />
-                  <Textarea
-                    value={currentTemplate.description}
-                    onChange={(e) => handleDescriptionChange(e.target.value)}
-                    className="resize-none text-sm text-muted-foreground"
-                  />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="sections" className="w-full">
-                  <TabsList>
-                    <TabsTrigger value="sections">Sections</TabsTrigger>
-                    <TabsTrigger value="settings">Rating System</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="sections" className="space-y-4 pt-4">
-                    <TemplateSectionEditor
-                      sections={currentTemplate.sections}
-                      onUpdate={handleUpdateSections}
-                      defaultRatingSystem={currentTemplate.defaultRatingSystem}
-                    />
-                  </TabsContent>
-                  <TabsContent value="settings" className="space-y-4 pt-4">
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="defaultTemplate"
-                          checked={!!currentTemplate.defaultTemplate}
-                          onChange={(e) => {
-                            // Only one template can be default
-                            if (e.target.checked) {
-                              // Unset default on all templates
-                              const updatedTemplates = templates.map(t => ({
-                                ...t,
-                                defaultTemplate: false
-                              }));
-                              
-                              // Set current as default
-                              const updatedCurrentTemplate = {
-                                ...currentTemplate,
-                                defaultTemplate: true
-                              };
-                              
-                              // Update templates array
-                              setTemplates(
-                                updatedTemplates.map(t => 
-                                  t.id === currentTemplateId ? updatedCurrentTemplate : t
-                                )
-                              );
-                            } else {
-                              handleUpdateTemplate({
-                                ...currentTemplate,
-                                defaultTemplate: false
-                              });
-                            }
-                          }}
-                        />
-                        <label htmlFor="defaultTemplate">Set as default template</label>
-                      </div>
+      {/* Template selector row */}
+      <div className="flex items-center gap-3 mb-6">
+        <Select value={currentTemplateId} onValueChange={setCurrentTemplateId}>
+          <SelectTrigger className="w-[280px]">
+            <SelectValue placeholder="Select a template" />
+          </SelectTrigger>
+          <SelectContent className="bg-background border shadow-lg z-50">
+            {templates.map(template => (
+              <SelectItem key={template.id} value={template.id}>
+                {template.name}
+                {template.defaultTemplate ? " (Default)" : ""}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-                      <Separator className="my-4" />
-                      
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-medium">Template Rating System</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Set the rating system used for all ratings in this template
-                        </p>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="rating-system">Rating System Type</Label>
-                          <Select 
-                            value={currentTemplate.defaultRatingSystem?.type || "numeric-1-10"} 
-                            onValueChange={(value) => handleDefaultRatingSystemTypeChange(value as RatingSystemType)}
-                          >
-                            <SelectTrigger id="default-rating-system">
-                              <SelectValue placeholder="Select rating system" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="numeric-1-5">Numeric (1-5)</SelectItem>
-                              <SelectItem value="numeric-1-10">Numeric (1-10)</SelectItem>
-                              <SelectItem value="letter">Letter Grades</SelectItem>
-                              <SelectItem value="custom-tags">Custom Tags</SelectItem>
-                              <SelectItem value="percentage">Percentage</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2 mb-4">
-                          <Button
-                            variant="outline"
-                            onClick={() => {
-                              if (globalRatingSystem && confirm("Use global rating system for this template?")) {
-                                handleDefaultRatingSystemUpdate(globalRatingSystem);
-                              }
-                            }}
-                          >
-                            Use Global Rating System
-                          </Button>
-                        </div>
-                        
-                        {currentTemplate.defaultRatingSystem && currentTemplate.defaultRatingSystem.type !== "percentage" && (
-                          <div className="border p-4 rounded-md">
-                            <RatingOptionsEditor 
-                              ratingSystem={currentTemplate.defaultRatingSystem}
-                              onUpdate={handleDefaultRatingSystemUpdate}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+        <Button variant="outline" size="sm" onClick={handleCreateTemplate} className="gap-1">
+          <Plus size={14} />
+          New
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={handleCloneTemplate}
+          className="gap-1"
+          disabled={!currentTemplate}
+        >
+          <Copy size={14} />
+          Clone
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleDeleteTemplate}
+          className="gap-1 text-destructive hover:text-destructive"
+          disabled={!currentTemplate || templates.length <= 1}
+        >
+          <Trash2 size={14} />
+          Delete
+        </Button>
       </div>
+
+      {/* Full-width template editor */}
+      {currentTemplate && (
+        <Card>
+          <CardHeader>
+            <div className="space-y-2">
+              <Input
+                value={currentTemplate.name}
+                onChange={(e) => handleNameChange(e.target.value)}
+                className="text-xl font-bold"
+              />
+              <Textarea
+                value={currentTemplate.description}
+                onChange={(e) => handleDescriptionChange(e.target.value)}
+                className="resize-none text-sm text-muted-foreground"
+              />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="sections" className="w-full">
+              <TabsList>
+                <TabsTrigger value="sections">Sections</TabsTrigger>
+                <TabsTrigger value="settings">Rating System</TabsTrigger>
+              </TabsList>
+              <TabsContent value="sections" className="space-y-4 pt-4">
+                <TemplateSectionEditor
+                  sections={currentTemplate.sections}
+                  onUpdate={handleUpdateSections}
+                  defaultRatingSystem={currentTemplate.defaultRatingSystem}
+                />
+              </TabsContent>
+              <TabsContent value="settings" className="space-y-4 pt-4">
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="defaultTemplate"
+                      checked={!!currentTemplate.defaultTemplate}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          const updatedTemplates = templates.map(t => ({
+                            ...t,
+                            defaultTemplate: false
+                          }));
+                          const updatedCurrentTemplate = {
+                            ...currentTemplate,
+                            defaultTemplate: true
+                          };
+                          setTemplates(
+                            updatedTemplates.map(t => 
+                              t.id === currentTemplateId ? updatedCurrentTemplate : t
+                            )
+                          );
+                        } else {
+                          handleUpdateTemplate({
+                            ...currentTemplate,
+                            defaultTemplate: false
+                          });
+                        }
+                      }}
+                    />
+                    <label htmlFor="defaultTemplate">Set as default template</label>
+                  </div>
+
+                  <Separator className="my-4" />
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Template Rating System</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Set the rating system used for all ratings in this template
+                    </p>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="rating-system">Rating System Type</Label>
+                      <Select 
+                        value={currentTemplate.defaultRatingSystem?.type || "numeric-1-10"} 
+                        onValueChange={(value) => handleDefaultRatingSystemTypeChange(value as RatingSystemType)}
+                      >
+                        <SelectTrigger id="default-rating-system">
+                          <SelectValue placeholder="Select rating system" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border shadow-lg z-50">
+                          <SelectItem value="numeric-1-5">Numeric (1-5)</SelectItem>
+                          <SelectItem value="numeric-1-10">Numeric (1-10)</SelectItem>
+                          <SelectItem value="letter">Letter Grades</SelectItem>
+                          <SelectItem value="custom-tags">Custom Tags</SelectItem>
+                          <SelectItem value="percentage">Percentage</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 mb-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          if (globalRatingSystem && confirm("Use global rating system for this template?")) {
+                            handleDefaultRatingSystemUpdate(globalRatingSystem);
+                          }
+                        }}
+                      >
+                        Use Global Rating System
+                      </Button>
+                    </div>
+                    
+                    {currentTemplate.defaultRatingSystem && currentTemplate.defaultRatingSystem.type !== "percentage" && (
+                      <div className="border p-4 rounded-md">
+                        <RatingOptionsEditor 
+                          ratingSystem={currentTemplate.defaultRatingSystem}
+                          onUpdate={handleDefaultRatingSystemUpdate}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
