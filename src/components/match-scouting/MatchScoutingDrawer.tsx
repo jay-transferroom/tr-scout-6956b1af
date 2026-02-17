@@ -321,6 +321,20 @@ export const MatchScoutingDrawer: React.FC<MatchScoutingDrawerProps> = ({
   const homePlayers = allPlayers.filter((p) => clubsMatch(p.club, homeTeam));
   const awayPlayers = allPlayers.filter((p) => clubsMatch(p.club, awayTeam));
 
+  // Debug logging for team matching
+  if (open && allPlayers.length > 0) {
+    console.log('Match Scouting Drawer debug:', {
+      homeTeam,
+      awayTeam,
+      totalPlayers: allPlayers.length,
+      homePlayersFound: homePlayers.length,
+      awayPlayersFound: awayPlayers.length,
+      sampleClubs: [...new Set(allPlayers.slice(0, 20).map(p => p.club))],
+      homeNormalized: normalizeTeamName(homeTeam),
+      awayNormalized: normalizeTeamName(awayTeam),
+    });
+  }
+
   const hasScore = homeScore !== null && homeScore !== undefined && awayScore !== null && awayScore !== undefined;
 
   const handleSave = useCallback(
