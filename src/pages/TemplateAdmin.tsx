@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,7 +19,7 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Save, ArrowLeft, Copy, Trash2, Settings } from "lucide-react";
+import { Plus, Save, Copy, Trash2, Settings } from "lucide-react";
 import { mockTemplates } from "@/data/mockTemplates";
 import { ReportTemplate, DEFAULT_RATING_SYSTEMS, RatingSystem, RatingSystemType } from "@/types/report";
 import TemplateSectionEditor from "@/components/TemplateSectionEditor";
@@ -29,7 +28,6 @@ import { Label } from "@/components/ui/label";
 import RatingOptionsEditor from "@/components/RatingOptionsEditor";
 
 const TemplateAdmin = () => {
-  const navigate = useNavigate();
   const [templates, setTemplates] = useState<ReportTemplate[]>(mockTemplates);
   const [currentTemplateId, setCurrentTemplateId] = useState<string>(
     templates[0]?.id || ""
@@ -246,29 +244,26 @@ const TemplateAdmin = () => {
 
   return (
     <div className="container mx-auto py-8 max-w-6xl">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex space-x-2">
-          <Button variant="ghost" onClick={() => navigate("/")} className="gap-2">
-            <ArrowLeft size={16} />
-            Back to Dashboard
-          </Button>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Scouting Templates</h1>
+          <p className="text-muted-foreground">Manage and configure your report templates</p>
+        </div>
+        <div className="flex gap-2">
           <Button 
             variant="outline" 
             onClick={() => setShowGlobalSettings(!showGlobalSettings)}
             className="gap-2"
           >
             <Settings size={16} />
-            {showGlobalSettings ? "Hide Global Settings" : "Show Global Settings"}
+            {showGlobalSettings ? "Hide Global Settings" : "Global Settings"}
+          </Button>
+          <Button onClick={handleSaveChanges} className="gap-2">
+            <Save size={16} />
+            Save All Changes
           </Button>
         </div>
-        
-        <Button onClick={handleSaveChanges} className="gap-2">
-          <Save size={16} />
-          Save All Changes
-        </Button>
       </div>
-      
-      <h1 className="text-3xl font-bold mb-6">Template Management</h1>
       
       {/* Global Rating System Section */}
       {showGlobalSettings && (
@@ -325,64 +320,60 @@ const TemplateAdmin = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-1">
           <Card>
-            <CardHeader>
-              <CardTitle>Templates</CardTitle>
-              <CardDescription>
-                Manage your report templates
-              </CardDescription>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Templates</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="space-y-1">
-                {templates.map(template => (
-                  <Button
-                    key={template.id}
-                    variant={currentTemplateId === template.id ? "default" : "ghost"}
-                    className="w-full justify-start font-normal"
-                    onClick={() => setCurrentTemplateId(template.id)}
-                  >
-                    {template.name}
-                    {template.defaultTemplate && (
-                      <span className="ml-2 text-xs bg-primary/20 text-primary px-1.5 rounded-full">
-                        Default
-                      </span>
-                    )}
-                  </Button>
-                ))}
-              </div>
+            <CardContent className="space-y-1 pb-3">
+              {templates.map(template => (
+                <Button
+                  key={template.id}
+                  variant={currentTemplateId === template.id ? "default" : "ghost"}
+                  className="w-full justify-start font-normal text-sm h-9"
+                  onClick={() => setCurrentTemplateId(template.id)}
+                >
+                  {template.name}
+                  {template.defaultTemplate && (
+                    <span className="ml-auto text-xs bg-primary/20 text-primary-foreground px-1.5 py-0.5 rounded-full">
+                      Default
+                    </span>
+                  )}
+                </Button>
+              ))}
             </CardContent>
-            <CardFooter className="flex justify-between">
+            <Separator />
+            <div className="p-3 flex items-center justify-between">
               <Button 
                 variant="ghost" 
                 size="sm"
                 onClick={handleCreateTemplate}
-                className="gap-1"
+                className="gap-1 h-8 text-xs"
               >
-                <Plus size={16} />
+                <Plus size={14} />
                 New
               </Button>
-              <div className="space-x-1">
+              <div className="flex gap-1">
                 <Button 
                   variant="ghost" 
                   size="sm"
                   onClick={handleCloneTemplate}
-                  className="gap-1"
+                  className="gap-1 h-8 text-xs"
                   disabled={!currentTemplate}
                 >
-                  <Copy size={16} />
+                  <Copy size={14} />
                   Clone
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={handleDeleteTemplate}
-                  className="gap-1 text-destructive hover:text-destructive"
+                  className="gap-1 h-8 text-xs text-destructive hover:text-destructive"
                   disabled={!currentTemplate || templates.length <= 1}
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={14} />
                   Delete
                 </Button>
               </div>
-            </CardFooter>
+            </div>
           </Card>
         </div>
         
