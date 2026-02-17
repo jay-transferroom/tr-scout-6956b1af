@@ -12,12 +12,14 @@ import PlayerSearchTable from "@/components/player-search/PlayerSearchTable";
 import { isNationalityInRegion } from "@/utils/regionMapping";
 import CustomiseMyRatingDialog, { CategoryWeights, DEFAULT_POSITION_WEIGHTS, computeMyRating, PositionKey } from "@/components/player-search/CustomiseMyRatingDialog";
 import { clonePositionWeights } from "@/data/myRatingWeights";
+import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
 
 const SearchResults = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { data: localPlayers = [], isLoading: localLoading } = useUnifiedPlayersData();
   const { data: teams = [] } = useTeamsData();
+  const { data: savedWeightsData } = useClubRatingWeights();
   
   const initialQuery = searchParams.get('q') || '';
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,6 +27,14 @@ const SearchResults = () => {
   const [myRatingWeights, setMyRatingWeights] = useState<Record<PositionKey, CategoryWeights[]>>(() => clonePositionWeights(DEFAULT_POSITION_WEIGHTS));
   const [leagueAdjustments, setLeagueAdjustments] = useState(true);
   const [showMyRatingDialog, setShowMyRatingDialog] = useState(false);
+
+  // Load persisted weights
+  useEffect(() => {
+    if (savedWeightsData) {
+      setMyRatingWeights(clonePositionWeights(savedWeightsData.weights));
+      setLeagueAdjustments(savedWeightsData.leagueAdjustments);
+    }
+  }, [savedWeightsData]);
   const [searchFilters, setSearchFilters] = useState<PlayerSearchFilterCriteria>({
     searchTerm: initialQuery,
     sortBy: 'name',

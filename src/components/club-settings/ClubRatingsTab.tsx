@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { RotateCcw, Save, Info, ChevronDown, ChevronRight, HelpCircle, SlidersHorizontal } from "lucide-react";
+import { RotateCcw, Save, Info, ChevronDown, ChevronRight, HelpCircle, SlidersHorizontal, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   CategoryWeights,
@@ -15,15 +15,27 @@ import {
   clonePositionWeights,
 } from "@/data/myRatingWeights";
 import { toast } from "@/hooks/use-toast";
+import { useClubRatingWeights, useSaveClubRatingWeights } from "@/hooks/useClubRatingWeights";
 
 const POSITIONS: PositionKey[] = ['GK', 'CB', 'RB', 'LB', 'DM', 'CM', 'AM', 'W', 'F'];
 
 const ClubRatingsTab = () => {
+  const { data: savedData, isLoading: isLoadingWeights } = useClubRatingWeights();
+  const saveWeightsMutation = useSaveClubRatingWeights();
+  
   const [weights, setWeights] = useState<Record<PositionKey, CategoryWeights[]>>(() => clonePositionWeights(DEFAULT_POSITION_WEIGHTS));
   const [leagueAdjustments, setLeagueAdjustments] = useState(true);
   const [selectedPosition, setSelectedPosition] = useState<PositionKey>('CM');
   const [advanced, setAdvanced] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+
+  // Load saved weights when data arrives
+  useEffect(() => {
+    if (savedData) {
+      setWeights(clonePositionWeights(savedData.weights));
+      setLeagueAdjustments(savedData.leagueAdjustments);
+    }
+  }, [savedData]);
 
   const currentCategories = weights[selectedPosition];
 
@@ -57,8 +69,28 @@ const ClubRatingsTab = () => {
   };
 
   const handleSave = () => {
-    toast({ title: "Ratings saved", description: "Your club rating weights have been updated." });
+    saveWeightsMutation.mutate(
+      { weights, leagueAdjustments },
+      {
+        onSuccess: () => {
+          toast({ title: "Ratings saved", description: "Your club rating weights have been updated." });
+        },
+        onError: (err) => {
+          toast({ title: "Error saving", description: err.message, variant: "destructive" });
+        },
+      }
+    );
   };
+
+  if (isLoadingWeights) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   const handleResetPosition = () => {
     setWeights(prev => ({
