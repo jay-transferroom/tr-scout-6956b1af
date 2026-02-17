@@ -3,6 +3,8 @@ import { Player } from "@/types/player";
 import { Users } from "lucide-react";
 import pitchBackground from "@/assets/pitch.svg";
 import { cn } from "@/lib/utils";
+import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
+import { getClubRating } from "@/utils/clubRating";
 
 interface PositionPlayerSlot {
   position: string;
@@ -76,6 +78,8 @@ const SquadDepthView = ({
   onPositionClick,
   selectedPosition,
 }: SquadDepthViewProps) => {
+  const { data: clubRatingData } = useClubRatingWeights();
+  const clubWeights = clubRatingData?.weights;
   const currentFormation = DEPTH_FORMATION_CONFIGS[formation] || DEPTH_FORMATION_CONFIGS['4-3-3'];
 
   // Create a map of position -> ALL assigned player IDs (active + alternates) for quick lookup
@@ -147,7 +151,7 @@ const SquadDepthView = ({
         positionEntries.forEach(([position]) => {
           const players = getPositionDepth(position);
           const ratings = players
-            .map(p => p.transferroomRating || p.xtvScore)
+            .map(p => getClubRating(p, clubWeights) ?? p.xtvScore)
             .filter((r): r is number => r !== null && r !== undefined);
           const avg = ratings.length > 0 ? Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length) : null;
           positionAvgMap.set(position, avg);
@@ -214,7 +218,7 @@ const SquadDepthView = ({
               <div className="p-1.5 space-y-1">
               {displayPlayers.length > 0 ? (
                   displayPlayers.map((player) => {
-                    const rating = player.transferroomRating || player.xtvScore;
+                    const rating = getClubRating(player, clubWeights) ?? player.xtvScore;
                     const isExternal = player.isExternal || false;
                     
                     return (

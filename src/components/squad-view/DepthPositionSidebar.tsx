@@ -11,6 +11,8 @@ import { useShortlists } from "@/hooks/useShortlists";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
 import { cn } from "@/lib/utils";
 import { PositionPlayerSlot } from "@/hooks/useMultiPlayerPositions";
+import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
+import { getClubRating } from "@/utils/clubRating";
 
 interface DepthPositionSidebarProps {
   selectedPosition: string | null;
@@ -75,6 +77,8 @@ const DepthPositionSidebar = ({
   const navigate = useNavigate();
   const { shortlists } = useShortlists();
   const { data: recommendations = [] } = useSquadRecommendations();
+  const { data: clubRatingData } = useClubRatingWeights();
+  const clubWeights = clubRatingData?.weights;
   const [availableTab, setAvailableTab] = useState<'squad' | 'shortlisted' | 'recommended'>('squad');
   const [selectedShortlistId, setSelectedShortlistId] = useState<string>('all');
 
@@ -114,7 +118,7 @@ const DepthPositionSidebar = ({
         p.positions.some(pos => allowedPositions.includes(pos)) &&
         !assignedPlayerIds.includes(p.id)
       )
-      .sort((a, b) => (b.transferroomRating || b.xtvScore || 0) - (a.transferroomRating || a.xtvScore || 0));
+      .sort((a, b) => (getClubRating(b, clubWeights) || b.xtvScore || 0) - (getClubRating(a, clubWeights) || a.xtvScore || 0));
   }, [selectedPosition, squadPlayers, assignedPlayerIds]);
 
   // Available shortlisted players
@@ -134,7 +138,7 @@ const DepthPositionSidebar = ({
       shortlistPlayerIds.includes(p.id) &&
       p.positions.some(pos => requiredPositions.includes(pos)) &&
       !assignedPlayerIds.includes(p.id)
-    ).sort((a, b) => (b.transferroomRating || b.xtvScore || 0) - (a.transferroomRating || a.xtvScore || 0));
+    ).sort((a, b) => (getClubRating(b, clubWeights) || b.xtvScore || 0) - (getClubRating(a, clubWeights) || a.xtvScore || 0));
   }, [selectedPosition, shortlists, allPlayers, assignedPlayerIds, selectedShortlistId]);
 
   // Available recommended players
@@ -166,9 +170,9 @@ const DepthPositionSidebar = ({
         !assignedPlayerIds.includes(p.id) &&
         !squadPlayerIds.includes(p.id) &&
         p.positions.some(pos => requiredPositions.includes(pos)) &&
-        (p.transferroomRating || 0) >= 70
+        (getClubRating(p, clubWeights) || 0) >= 70
       )
-      .sort((a, b) => (b.transferroomRating || b.xtvScore || 0) - (a.transferroomRating || a.xtvScore || 0))
+      .sort((a, b) => (getClubRating(b, clubWeights) || b.xtvScore || 0) - (getClubRating(a, clubWeights) || a.xtvScore || 0))
       .slice(0, 10);
   }, [selectedPosition, recommendations, allPlayers, squadPlayers, assignedPlayerIds]);
 
@@ -204,7 +208,7 @@ const DepthPositionSidebar = ({
               <div className="space-y-1.5">
                 {assignedPlayers.map((player, index) => {
                   const isActive = player.id === activePlayerId;
-                  const rating = player.transferroomRating || player.xtvScore;
+                   const rating = getClubRating(player, clubWeights) ?? player.xtvScore;
                   const isClub = player.club?.toLowerCase().includes('chelsea');
 
                   return (
@@ -367,7 +371,7 @@ const DepthPositionSidebar = ({
             <div className="space-y-1">
               {currentAvailablePlayers.length > 0 ? (
                 currentAvailablePlayers.map(player => {
-                  const rating = player.transferroomRating || player.xtvScore;
+                  const rating = getClubRating(player, clubWeights) ?? player.xtvScore;
                   return (
                     <div
                       key={player.id}

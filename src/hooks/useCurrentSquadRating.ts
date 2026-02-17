@@ -1,5 +1,7 @@
 import { useMemo } from "react";
 import { Player } from "@/types/player";
+import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
+import { getClubRating } from "@/utils/clubRating";
 
 interface PositionAssignment {
   position: string;
@@ -44,6 +46,9 @@ export const useCurrentSquadRating = (
   positionAssignments: PositionAssignment[],
   allPlayers: Player[]
 ): CurrentSquadRating | null => {
+  const { data: clubRatingData } = useClubRatingWeights();
+  const clubWeights = clubRatingData?.weights;
+
   return useMemo(() => {
     if (positionAssignments.length === 0 || allPlayers.length === 0) {
       return null;
@@ -76,15 +81,16 @@ export const useCurrentSquadRating = (
 
     assignedPlayers.forEach(player => {
       const category = getPositionCategory(player.assignedPosition);
-      if (category && player.transferroomRating) {
-        positionGroups[category].push(player.transferroomRating);
+      const rating = getClubRating(player, clubWeights);
+      if (category && rating) {
+        positionGroups[category].push(rating);
         
         // Also add to broader categories
         if (category === 'CentreBackRating' || category === 'LeftBackRating' || category === 'RightBackRating') {
-          positionGroups.DefenderRating.push(player.transferroomRating);
+          positionGroups.DefenderRating.push(rating);
         }
         if (category === 'CentreMidfielderRating') {
-          positionGroups.MidfielderRating.push(player.transferroomRating);
+          positionGroups.MidfielderRating.push(rating);
         }
         if (category === 'AttackerRating' || category === 'ForwardRating' || category === 'WingerRating') {
           // These are already distinct
@@ -117,7 +123,7 @@ export const useCurrentSquadRating = (
 
     // Calculate overall average from all assigned players
     const allRatings = assignedPlayers
-      .map(p => p.transferroomRating)
+      .map(p => getClubRating(p, clubWeights))
       .filter((r): r is number => r !== null && r !== undefined);
     
     if (allRatings.length > 0) {
@@ -125,5 +131,5 @@ export const useCurrentSquadRating = (
     }
 
     return ratings;
-  }, [positionAssignments, allPlayers]);
+  }, [positionAssignments, allPlayers, clubWeights]);
 };
