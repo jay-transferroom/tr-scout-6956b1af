@@ -6,9 +6,10 @@ import { Users, Calendar, Star } from "lucide-react";
 
 interface MatchReportsTableProps {
   matchReports: GroupedMatchReport[];
+  onSelectMatch?: (match: GroupedMatchReport) => void;
 }
 
-const MatchReportsTable = ({ matchReports }: MatchReportsTableProps) => {
+const MatchReportsTable = ({ matchReports, onSelectMatch }: MatchReportsTableProps) => {
   if (matchReports.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -51,7 +52,7 @@ const MatchReportsTable = ({ matchReports }: MatchReportsTableProps) => {
             );
 
             return (
-              <TableRow key={match.match_identifier}>
+              <TableRow key={match.match_identifier} className="cursor-pointer hover:bg-muted/50" onClick={() => onSelectMatch?.(match)}>
                 <TableCell>
                   <div className="font-medium">
                     {match.homeTeam} vs {match.awayTeam}
