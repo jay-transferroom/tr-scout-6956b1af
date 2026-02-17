@@ -113,7 +113,7 @@ const CustomiseMyRatingDialog = ({
             <DialogTitle className="text-lg">Edit Game Model Weights</DialogTitle>
           </div>
           <DialogDescription>
-            Customize how "My Rating" is calculated for each position by adjusting attribute weights.
+            Customize how "Club Rating" is calculated for each position by adjusting attribute weights.
           </DialogDescription>
         </DialogHeader>
 

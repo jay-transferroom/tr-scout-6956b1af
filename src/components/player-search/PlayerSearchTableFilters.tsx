@@ -95,7 +95,7 @@ const PlayerSearchFilters = ({ filters, onFiltersChange, availableNationalities,
                   <SelectContent>
                     <SelectItem value="name">Name</SelectItem>
                     <SelectItem value="rating">Rating</SelectItem>
-                    <SelectItem value="myRating">My Rating</SelectItem>
+                    <SelectItem value="myRating">Club Rating</SelectItem>
                     <SelectItem value="potential">Potential</SelectItem>
                     <SelectItem value="age">Age</SelectItem>
                     <SelectItem value="contract-expiry">Contract expiry</SelectItem>
