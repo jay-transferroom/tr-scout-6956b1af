@@ -16,7 +16,7 @@ import {
   Users, 
   FileText, 
   Calendar, 
-  Settings, 
+  Settings,
   Sparkles,
   MessageSquare,
   Kanban,
@@ -25,9 +25,6 @@ import {
   LogOut,
   MoreVertical,
   Search,
-  SlidersHorizontal,
-  Shield,
-  Upload
 } from "lucide-react";
 import { useMyPermissions } from "@/hooks/useUserPermissions";
 import { useAuth } from "@/contexts/AuthContext";
@@ -206,7 +203,7 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
         <div className="mt-auto">
           <Separator className="mb-4" />
 
-          {/* Club Settings Group */}
+          {/* Club Settings */}
           <SidebarGroup>
             <SidebarGroupLabel>CLUB SETTINGS</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -214,55 +211,15 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     asChild 
-                    isActive={isActive("/club-ratings")} 
-                    tooltip="Club Ratings"
+                    isActive={isActive("/club-settings")} 
+                    tooltip="Club Settings"
                   >
-                    <Link to="/club-ratings" onClick={handleNavClick}>
-                      <SlidersHorizontal className="h-4 w-4" />
-                      <span>Club Ratings</span>
+                    <Link to="/club-settings" onClick={handleNavClick}>
+                      <Settings className="h-4 w-4" />
+                      <span>Club Settings</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                {isAdmin && (
-                  <>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton 
-                        asChild 
-                        isActive={isActive("/template-admin")} 
-                        tooltip="Scouting Templates"
-                      >
-                        <Link to="/template-admin" onClick={handleNavClick}>
-                          <FileText className="h-4 w-4" />
-                          <span>Scouting Templates</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton 
-                        asChild 
-                        isActive={isActive("/admin/users")} 
-                        tooltip="User Management"
-                      >
-                        <Link to="/admin/users" onClick={handleNavClick}>
-                          <Shield className="h-4 w-4" />
-                          <span>User Management</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton 
-                        asChild 
-                        isActive={isActive("/data-import")} 
-                        tooltip="Import Data"
-                      >
-                        <Link to="/data-import" onClick={handleNavClick}>
-                          <Upload className="h-4 w-4" />
-                          <span>Import Data</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  </>
-                )}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

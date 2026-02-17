@@ -18,11 +18,9 @@ import Calendar from "@/pages/Calendar";
 import Settings from "@/pages/Settings";
 import Profile from "@/pages/Profile";
 import NotFound from "@/pages/NotFound";
-import TemplateAdmin from "@/pages/TemplateAdmin";
 import ScoutManagement from "@/pages/ScoutManagement";
 import ScoutingDashboard from "@/pages/ScoutingDashboard";
 import AssignedPlayers from "@/pages/AssignedPlayers";
-import UserManagement from "@/pages/admin/UserManagement";
 import NotificationsList from "@/pages/NotificationsList";
 import Shortlists from "@/pages/Shortlists";
 import SquadView from "@/pages/SquadView";
@@ -37,8 +35,7 @@ import PlayerPitches from "@/pages/transfers/PlayerPitches";
 import DataImport from "@/pages/transfers/DataImport";
 import SavedConversations from "@/pages/SavedChats";
 import MatchScouting from "@/pages/MatchScouting";
-import ClubRatings from "@/pages/ClubRatings";
-import DataImportPage from "@/pages/DataImportPage";
+import ClubSettings from "@/pages/ClubSettings";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -65,18 +62,20 @@ function App() {
                 <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                <Route path="/template-admin" element={<ProtectedRoute><TemplateAdmin /></ProtectedRoute>} />
                 <Route path="/scout-management" element={<ProtectedRoute><ScoutManagement /></ProtectedRoute>} />
                 <Route path="/scouting-dashboard" element={<ProtectedRoute><ScoutingDashboard /></ProtectedRoute>} />
                 <Route path="/assigned-players" element={<ProtectedRoute><AssignedPlayers /></ProtectedRoute>} />
-                <Route path="/admin/users" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
                 <Route path="/notifications" element={<ProtectedRoute><NotificationsList /></ProtectedRoute>} />
                 <Route path="/shortlists" element={<ProtectedRoute><Shortlists /></ProtectedRoute>} />
                 <Route path="/saved-conversations" element={<ProtectedRoute><SavedConversations /></ProtectedRoute>} />
                 <Route path="/match-scouting" element={<ProtectedRoute><MatchScouting /></ProtectedRoute>} />
                 <Route path="/squad-view" element={<ProtectedRoute><SquadView /></ProtectedRoute>} />
-                <Route path="/club-ratings" element={<ProtectedRoute><ClubRatings /></ProtectedRoute>} />
-                <Route path="/data-import" element={<ProtectedRoute><DataImportPage /></ProtectedRoute>} />
+                <Route path="/club-settings" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
+                {/* Legacy redirects */}
+                <Route path="/club-ratings" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
+                <Route path="/template-admin" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
+                <Route path="/admin/users" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
+                <Route path="/data-import" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
                 <Route path="/transfers-in" element={<ProtectedRoute><TransfersIn /></ProtectedRoute>} />
                 <Route path="/transfers-in/requirement/:requirementName" element={<ProtectedRoute><RequirementDetailsPage /></ProtectedRoute>} />
                 <Route path="/transfers" element={<ProtectedRoute><TransfersLayout /></ProtectedRoute>}>
