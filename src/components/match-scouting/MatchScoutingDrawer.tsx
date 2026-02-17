@@ -7,7 +7,7 @@ import { PlayerAvatar } from "@/components/ui/player-avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronDown, ChevronUp, Loader2, AlertTriangle, ShieldBan } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Loader2, AlertTriangle, ShieldBan, GripVertical } from "lucide-react";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import {
   useMatchScoutingReports,
@@ -91,6 +91,10 @@ interface PlayerScoutingRowProps {
   existingRating: number | null;
   onSave: (playerId: string, notes: string, rating: number | null) => void;
   isSaving: boolean;
+  onDragStart: (e: React.DragEvent, playerId: string) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent, playerId: string) => void;
+  isDragTarget: boolean;
 }
 
 const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
@@ -99,6 +103,10 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   existingRating,
   onSave,
   isSaving,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  isDragTarget,
 }) => {
   const [expanded, setExpanded] = useState(existingNotes.length > 0 || existingRating !== null);
   const [notes, setNotes] = useState(existingNotes);
@@ -136,23 +144,31 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   };
 
     return (
-      <div className={cn(
-        "border rounded-lg overflow-hidden",
+    <div
+      className={cn(
+        "border rounded-lg overflow-hidden transition-all",
         status === 'injured' && "border-amber-400/50 bg-amber-500/5",
         status === 'suspended' && "border-red-400/50 bg-red-500/5",
-        status === 'available' && "border-border"
-      )}>
+        status === 'available' && "border-border",
+        isDragTarget && "border-primary ring-1 ring-primary/30"
+      )}
+      draggable
+      onDragStart={(e) => onDragStart(e, player.id)}
+      onDragOver={onDragOver}
+      onDrop={(e) => onDrop(e, player.id)}
+    >
         {/* Player header row - always visible */}
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
           className={cn(
-            "w-full flex items-center gap-3 p-3 transition-colors text-left",
+            "w-full flex items-center gap-2 p-3 transition-colors text-left",
             status === 'injured' && "hover:bg-amber-500/10",
             status === 'suspended' && "hover:bg-red-500/10",
             status === 'available' && "hover:bg-muted/50"
           )}
         >
+          <GripVertical className="h-4 w-4 text-muted-foreground/50 shrink-0 cursor-grab active:cursor-grabbing" />
           <PlayerAvatar
             playerName={player.name}
             avatarUrl={player.image}
@@ -315,12 +331,55 @@ export const MatchScoutingDrawer: React.FC<MatchScoutingDrawerProps> = ({
     [upsertReport, toast]
   );
 
-  const renderTeamSection = (teamName: string, players: Player[]) => {
-    const notedCount = players.filter((p) => {
-      const report = getReportForPlayer(p.id);
-      return report && (report.notes || report.rating !== null);
-    }).length;
+  // Reorder state per team
+  const [homeOrder, setHomeOrder] = useState<string[]>([]);
+  const [awayOrder, setAwayOrder] = useState<string[]>([]);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const dragSourceRef = useRef<string | null>(null);
+  const dragTeamRef = useRef<'home' | 'away' | null>(null);
 
+  useEffect(() => {
+    if (homePlayers.length && homeOrder.length === 0) setHomeOrder(homePlayers.map(p => p.id));
+  }, [homePlayers.length]);
+  useEffect(() => {
+    if (awayPlayers.length && awayOrder.length === 0) setAwayOrder(awayPlayers.map(p => p.id));
+  }, [awayPlayers.length]);
+
+  const orderedHome = homeOrder.length ? homeOrder.map(id => homePlayers.find(p => p.id === id)).filter(Boolean) as Player[] : homePlayers;
+  const orderedAway = awayOrder.length ? awayOrder.map(id => awayPlayers.find(p => p.id === id)).filter(Boolean) as Player[] : awayPlayers;
+
+  const handleDragStart = useCallback((team: 'home' | 'away') => (e: React.DragEvent, playerId: string) => {
+    dragSourceRef.current = playerId;
+    dragTeamRef.current = team;
+    e.dataTransfer.effectAllowed = 'move';
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const handleDrop = useCallback((team: 'home' | 'away') => (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    const sourceId = dragSourceRef.current;
+    if (!sourceId || sourceId === targetId || dragTeamRef.current !== team) {
+      setDragOverId(null);
+      return;
+    }
+    const [order, setOrder] = team === 'home' ? [homeOrder, setHomeOrder] as const : [awayOrder, setAwayOrder] as const;
+    const newOrder = [...order];
+    const srcIdx = newOrder.indexOf(sourceId);
+    const tgtIdx = newOrder.indexOf(targetId);
+    if (srcIdx === -1 || tgtIdx === -1) return;
+    newOrder.splice(srcIdx, 1);
+    newOrder.splice(tgtIdx, 0, sourceId);
+    setOrder(newOrder);
+    dragSourceRef.current = null;
+    dragTeamRef.current = null;
+    setDragOverId(null);
+  }, [homeOrder, awayOrder]);
+
+  const renderTeamSection = (teamName: string, players: Player[], team: 'home' | 'away') => {
     return (
       <div>
         <div className="flex items-center gap-2 mb-3 sticky top-0 bg-background z-10 py-2">
@@ -342,6 +401,10 @@ export const MatchScoutingDrawer: React.FC<MatchScoutingDrawerProps> = ({
                   existingRating={existing?.rating ?? null}
                   onSave={handleSave}
                   isSaving={upsertReport.isPending}
+                  onDragStart={handleDragStart(team)}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop(team)}
+                  isDragTarget={dragOverId === player.id}
                 />
               );
             })
@@ -389,7 +452,7 @@ export const MatchScoutingDrawer: React.FC<MatchScoutingDrawerProps> = ({
             </SheetTitle>
           </SheetHeader>
           <p className="text-white/70 text-xs text-center mt-2">
-            Match Scouting — click a player to add notes &amp; rating
+            Match Scouting — drag to reorder players, click to add notes &amp; rating
           </p>
         </div>
 
@@ -401,8 +464,8 @@ export const MatchScoutingDrawer: React.FC<MatchScoutingDrawerProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-4">
-              {renderTeamSection(homeTeam, homePlayers)}
-              {renderTeamSection(awayTeam, awayPlayers)}
+              {renderTeamSection(homeTeam, orderedHome, 'home')}
+              {renderTeamSection(awayTeam, orderedAway, 'away')}
             </div>
           )}
         </ScrollArea>
