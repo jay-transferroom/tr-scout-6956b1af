@@ -38,6 +38,7 @@ import DataImport from "@/pages/transfers/DataImport";
 import SavedConversations from "@/pages/SavedChats";
 import MatchScouting from "@/pages/MatchScouting";
 import ClubRatings from "@/pages/ClubRatings";
+import DataImportPage from "@/pages/DataImportPage";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -75,6 +76,7 @@ function App() {
                 <Route path="/match-scouting" element={<ProtectedRoute><MatchScouting /></ProtectedRoute>} />
                 <Route path="/squad-view" element={<ProtectedRoute><SquadView /></ProtectedRoute>} />
                 <Route path="/club-ratings" element={<ProtectedRoute><ClubRatings /></ProtectedRoute>} />
+                <Route path="/data-import" element={<ProtectedRoute><DataImportPage /></ProtectedRoute>} />
                 <Route path="/transfers-in" element={<ProtectedRoute><TransfersIn /></ProtectedRoute>} />
                 <Route path="/transfers-in/requirement/:requirementName" element={<ProtectedRoute><RequirementDetailsPage /></ProtectedRoute>} />
                 <Route path="/transfers" element={<ProtectedRoute><TransfersLayout /></ProtectedRoute>}>
