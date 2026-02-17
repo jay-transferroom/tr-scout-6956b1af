@@ -391,27 +391,26 @@ export function computeMyRating(
   const totalCategoryWeight = weights.reduce((sum, c) => sum + c.weight, 0);
   if (totalCategoryWeight === 0) return null;
 
+  // Weighted average: each category contributes (category.weight / totalWeight) of the score.
+  // The category score is the base rating scaled by category emphasis (weight/100).
+  // Higher category weight = more influence, higher attribute weights within = more emphasis.
   let weightedScore = 0;
-  let usedWeight = 0;
 
   for (const category of weights) {
     if (category.weight === 0) continue;
-    const catAvgAttrWeight = category.attributes.length > 0
-      ? category.attributes.reduce((s, a) => s + a.weight, 0) / category.attributes.length / 100
-      : 0.5;
+    const categoryInfluence = category.weight / 100; // 0-1 how important this category is
 
     let categoryScore: number;
     if (category.id === 'potential') {
       const ageBonus = player.age ? Math.max(0, (28 - player.age) * 0.5) : 0;
-      categoryScore = pot * catAvgAttrWeight + ageBonus;
+      categoryScore = pot + ageBonus;
     } else {
-      categoryScore = base * catAvgAttrWeight;
+      categoryScore = base;
     }
 
-    weightedScore += categoryScore * category.weight;
-    usedWeight += category.weight;
+    // Scale score by category influence and its proportion of total weight
+    weightedScore += categoryScore * categoryInfluence * (category.weight / totalCategoryWeight);
   }
 
-  const result = usedWeight > 0 ? weightedScore / usedWeight : 0;
-  return Math.min(100, Math.max(0, Math.round(result * 10) / 10));
+  return Math.min(100, Math.max(0, Math.round(weightedScore * 10) / 10));
 }
