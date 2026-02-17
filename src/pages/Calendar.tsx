@@ -25,7 +25,8 @@ import { MatchPlayersSheet } from "@/components/MatchPlayersSheet";
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
 import { getMatchGradient } from "@/components/fixtures/FixtureCard";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
-
+import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
+import { getClubRating } from "@/utils/clubRating";
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -48,6 +49,8 @@ const Calendar = () => {
   const { data: allPlayers = [] } = usePlayersData();
   const { data: assignments = [], refetch: refetchAssignments } = useScoutingAssignments();
   const { shortlists, addPlayerToShortlist } = useShortlists();
+  const { data: clubRatingData } = useClubRatingWeights();
+  const clubWeights = clubRatingData?.weights;
 
   // Check if user can assign scouts (recruitment or director roles)
   const canAssignScouts = profile?.role === 'recruitment' || profile?.role === 'director';
@@ -169,8 +172,8 @@ const Calendar = () => {
     // Prioritize recommendations: high XTV score, good ratings, young age
     const recommendedPlayers = unassignedPlayers
       .sort((a, b) => {
-        const scoreA = (a.xtvScore || 0) + (a.transferroomRating || 0) * 100000 + (30 - (a.age || 30)) * 50000;
-        const scoreB = (b.xtvScore || 0) + (b.transferroomRating || 0) * 100000 + (30 - (b.age || 30)) * 50000;
+        const scoreA = (a.xtvScore || 0) + (getClubRating(a, clubWeights) || 0) * 100000 + (30 - (a.age || 30)) * 50000;
+        const scoreB = (b.xtvScore || 0) + (getClubRating(b, clubWeights) || 0) * 100000 + (30 - (b.age || 30)) * 50000;
         return scoreB - scoreA;
       })
       .slice(0, 3);
@@ -910,7 +913,7 @@ const Calendar = () => {
                                           <div className="text-xs text-muted-foreground">
                                             {player.club} • {player.positions?.[0] || 'Unknown'}
                                             {player.age && ` • ${player.age}y`}
-                                            {player.transferroomRating && ` • ${player.transferroomRating}`}
+                                            {(() => { const cr = getClubRating(player, clubWeights); return cr ? ` • ${cr.toFixed(1)}` : ''; })()}
                                           </div>
                                           {assignedScouts.length > 0 && (
                                             <div className="mt-1">
@@ -982,7 +985,7 @@ const Calendar = () => {
                           <div className="text-xs text-muted-foreground">
                             {player.club} • {player.positions?.[0] || 'Unknown'}
                             {player.age && ` • ${player.age}y`}
-                            {player.transferroomRating && ` • ${player.transferroomRating}`}
+                            {(() => { const cr = getClubRating(player, clubWeights); return cr ? ` • ${cr.toFixed(1)}` : ''; })()}
                             {player.xtvScore && ` • €${(player.xtvScore / 1000000).toFixed(1)}M`}
                           </div>
                           {assignedScouts.length > 0 && (

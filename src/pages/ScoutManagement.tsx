@@ -5,6 +5,7 @@ import { useScoutUsers } from "@/hooks/useScoutUsers";
 import { useShortlists } from "@/hooks/useShortlists";
 import { useUnifiedPlayersData } from "@/hooks/useUnifiedPlayersData";
 import { useReports } from "@/hooks/useReports";
+import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
 import { Button } from "@/components/ui/button";
 import ScoutManagementHeader from "@/components/scout-management/ScoutManagementHeader";
@@ -50,6 +51,7 @@ const ScoutManagement = () => {
   const { data: allPlayers = [], isLoading: playersLoading } = useUnifiedPlayersData();
   const { reports = [], loading: reportsLoading } = useReports();
   const { shortlists, loading: shortlistsLoading } = useShortlists();
+  const { data: clubRatingData } = useClubRatingWeights();
 
   const isLoading = assignmentsLoading || playersLoading || reportsLoading || shortlistsLoading;
 
@@ -123,7 +125,8 @@ const ScoutManagement = () => {
       reports,
       scoutingAssignmentList,
       selectedScout,
-      searchTerm
+      searchTerm,
+      clubRatingData?.weights
     );
 
     console.log('Final assignment-based kanban data:', {
@@ -133,7 +136,7 @@ const ScoutManagement = () => {
     });
 
     setKanbanData(newKanbanData);
-  }, [assignments, scouts, allPlayers, reports, selectedScout, searchTerm, isLoading, scoutingAssignmentList?.playerIds]);
+  }, [assignments, scouts, allPlayers, reports, selectedScout, searchTerm, isLoading, scoutingAssignmentList?.playerIds, clubRatingData?.weights]);
 
   const getUpdatedTime = (status: string) => {
     const times = {

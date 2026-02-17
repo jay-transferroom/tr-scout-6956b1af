@@ -1,5 +1,7 @@
 // Assignment-based status determination logic for Scout Management
 // This shows one row per scout assignment instead of one row per player
+import { CategoryWeights, PositionKey } from "@/data/myRatingWeights";
+import { getClubRating, formatRating } from "@/utils/clubRating";
 
 export type AssignmentStatus = 'marked_for_scouting' | 'assigned' | 'in_progress' | 'completed' | 'reviewed';
 
@@ -90,7 +92,8 @@ export const transformToAssignmentBased = (
   reports: any[],
   scoutingAssignmentList: any,
   selectedScout: string,
-  searchTerm: string
+  searchTerm: string,
+  clubWeights?: Record<PositionKey, CategoryWeights[]> | null
 ) => {
   const kanbanData = {
     shortlisted: [] as any[],
@@ -159,7 +162,7 @@ export const transformToAssignmentBased = (
     playerName,
     club,
     position: playerData.positions?.[0] || 'Unknown',
-    rating: playerData.transferroomRating?.toFixed(1) || 'N/A',
+      rating: formatRating(getClubRating(playerData, clubWeights)),
     assignedTo: scoutName,
     updatedAt: getTimeAgo(assignment.updated_at || new Date().toISOString()),
     lastStatusChange: getLastStatusChange(statusInfo.status, assignment.updated_at || new Date().toISOString()),
@@ -221,7 +224,7 @@ export const transformToAssignmentBased = (
       playerName,
       club,
       position: playerData.positions?.[0] || 'Unknown',
-      rating: playerData.transferroomRating?.toFixed(1) || 'N/A',
+      rating: formatRating(getClubRating(playerData, clubWeights)),
       assignedTo: scoutName,
       updatedAt: getTimeAgo(report.updatedAt?.toISOString() || new Date().toISOString()),
       lastStatusChange: getLastStatusChange('completed', report.updatedAt?.toISOString() || new Date().toISOString()),
@@ -275,7 +278,7 @@ export const transformToAssignmentBased = (
       playerName,
       club,
       position: playerData.positions?.[0] || 'Unknown',
-      rating: playerData.transferroomRating?.toFixed(1) || 'N/A',
+      rating: formatRating(getClubRating(playerData, clubWeights)),
       assignedTo: 'Unassigned',
       updatedAt: 'N/A',
       lastStatusChange: 'Marked for scouting',
