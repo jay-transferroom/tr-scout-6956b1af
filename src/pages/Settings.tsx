@@ -3,28 +3,20 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings as SettingsIcon, Users, FileText, Upload, Bell } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { Settings as SettingsIcon, Upload, Bell } from 'lucide-react';
 
-// Import existing admin components
-import UserManagement from './admin/UserManagement';
-import TemplateAdmin from './TemplateAdmin';
 import ReportDataImport from '@/components/ReportDataImport';
 import NotificationPreferences from '@/components/settings/NotificationPreferences';
 
 const Settings = () => {
-  const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState("preferences");
-
-  const isAdmin = profile?.role === 'recruitment' || profile?.role === 'director';
 
   return (
     <div className="container mx-auto pt-8 pb-16 max-w-7xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Settings</h1>
-        <p className="text-muted-foreground">Manage your application preferences and administration</p>
+        <p className="text-muted-foreground">Manage your application preferences</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -41,18 +33,6 @@ const Settings = () => {
             <Upload className="h-4 w-4" />
             Import Data
           </TabsTrigger>
-          {isAdmin && (
-            <>
-              <TabsTrigger value="user-management" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                User Management
-              </TabsTrigger>
-              <TabsTrigger value="templates" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Templates
-              </TabsTrigger>
-            </>
-          )}
         </TabsList>
 
         <TabsContent value="preferences" className="mt-6">
@@ -89,18 +69,6 @@ const Settings = () => {
         <TabsContent value="import" className="mt-6">
           <ReportDataImport />
         </TabsContent>
-
-        {isAdmin && (
-          <>
-            <TabsContent value="user-management" className="mt-6">
-              <UserManagement />
-            </TabsContent>
-
-            <TabsContent value="templates" className="mt-6">
-              <TemplateAdmin />
-            </TabsContent>
-          </>
-        )}
       </Tabs>
     </div>
   );

@@ -24,7 +24,9 @@ import {
   Bookmark,
   LogOut,
   MoreVertical,
-  Search
+  Search,
+  SlidersHorizontal,
+  Shield
 } from "lucide-react";
 import { useMyPermissions } from "@/hooks/useUserPermissions";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,7 +47,8 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
   const { data: permissions } = useMyPermissions();
   const { isMobile, setOpenMobile, state } = useSidebar();
   const isCollapsed = state === "collapsed";
-  
+  const isAdmin = profile?.role === 'recruitment' || profile?.role === 'director';
+
   const handleNavClick = () => {
     if (isMobile) {
       setOpenMobile(false);
@@ -201,22 +204,67 @@ const MainNavigation = ({ onAIAssistantClick }: { onAIAssistantClick?: () => voi
         {/* Bottom Section */}
         <div className="mt-auto">
           <Separator className="mb-4" />
-          
-          {/* Settings */}
-          <SidebarMenu className="px-2 mb-2">
-            <SidebarMenuItem>
-              <SidebarMenuButton 
-                asChild 
-                isActive={isActive("/settings")} 
-                tooltip="Settings"
-              >
-                <Link to="/settings" onClick={handleNavClick}>
-                  <Settings className="h-4 w-4" />
-                  <span>Settings</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
+
+          {/* Club Settings Group */}
+          <SidebarGroup>
+            <SidebarGroupLabel>CLUB SETTINGS</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isActive("/settings")} 
+                    tooltip="Settings"
+                  >
+                    <Link to="/settings" onClick={handleNavClick}>
+                      <Settings className="h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isActive("/club-ratings")} 
+                    tooltip="Club Ratings"
+                  >
+                    <Link to="/club-ratings" onClick={handleNavClick}>
+                      <SlidersHorizontal className="h-4 w-4" />
+                      <span>Club Ratings</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                {isAdmin && (
+                  <>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive("/template-admin")} 
+                        tooltip="Scouting Templates"
+                      >
+                        <Link to="/template-admin" onClick={handleNavClick}>
+                          <FileText className="h-4 w-4" />
+                          <span>Scouting Templates</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive("/admin/users")} 
+                        tooltip="User Management"
+                      >
+                        <Link to="/admin/users" onClick={handleNavClick}>
+                          <Shield className="h-4 w-4" />
+                          <span>User Management</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </>
+                )}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
           {/* AI Assistant & Saved Chats */}
           <SidebarMenu className="px-2 mb-4">

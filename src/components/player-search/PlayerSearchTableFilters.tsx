@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, X, SlidersHorizontal } from "lucide-react";
+import { Search, Filter, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 
@@ -194,18 +194,14 @@ const PlayerSearchFilters = ({ filters, onFiltersChange, availableNationalities,
             </div>
 
             {/* Actions Row */}
-            <div className="mt-4 flex items-center justify-between">
-              <Button variant="outline" size="sm" onClick={() => { onCustomiseMyRating?.(); setIsOpen(false); }}>
-                <SlidersHorizontal className="h-4 w-4 mr-2" />
-                Customise My Rating
-              </Button>
-              {hasActiveFilters && (
+            {hasActiveFilters && (
+              <div className="mt-4 flex items-center justify-end">
                 <Button variant="ghost" size="sm" onClick={clearFilters}>
                   <X className="h-4 w-4 mr-2" />
                   Clear all filters
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
           </PopoverContent>
         </Popover>
       </div>
