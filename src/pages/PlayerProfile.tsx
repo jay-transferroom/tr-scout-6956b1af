@@ -10,11 +10,10 @@ import {
   ArrowLeft, 
   Sparkles, 
   Info, 
-  TrendingUp, 
-  Users
 } from "lucide-react";
 import { usePlayerProfile } from "@/hooks/usePlayerProfile";
 import { calculateAge } from "@/utils/playerProfileUtils";
+import { computeMyRating, DEFAULT_POSITION_WEIGHTS, PositionKey } from "@/data/myRatingWeights";
 import { PlayerCareerTab } from "@/components/player-profile/PlayerCareerTab";
 import { PlayerFinancialsTab } from "@/components/player-profile/PlayerFinancialsTab";
 import { PlayerImpactTab } from "@/components/player-profile/PlayerImpactTab";
@@ -26,6 +25,26 @@ import { PlayerRecentResults } from "@/components/player-profile/PlayerRecentRes
 import { PlayerUpcomingFixtures } from "@/components/player-profile/PlayerUpcomingFixtures";
 import PlayerStatusActions from "@/components/PlayerStatusActions";
 
+const POSITION_MAP: Record<string, PositionKey> = {
+  'Goalkeeper': 'GK', 'Keeper': 'GK',
+  'Centre-Back': 'CB', 'Central Defender': 'CB',
+  'Right-Back': 'RB', 'Right Back': 'RB',
+  'Left-Back': 'LB', 'Left Back': 'LB',
+  'Defensive Midfield': 'DM', 'Defensive Midfielder': 'DM',
+  'Central Midfield': 'CM', 'Centre-Midfield': 'CM', 'Central Midfielder': 'CM',
+  'Attacking Midfield': 'AM', 'Attacking Midfielder': 'AM',
+  'Left Winger': 'W', 'Right Winger': 'W', 'Left Midfield': 'W', 'Right Midfield': 'W', 'Winger': 'W',
+  'Centre-Forward': 'F', 'Striker': 'F', 'Second Striker': 'F', 'Forward': 'F',
+};
+
+const getPositionKey = (positions: string[]): PositionKey => {
+  for (const pos of positions) {
+    const key = POSITION_MAP[pos];
+    if (key) return key;
+  }
+  return 'CM'; // fallback
+};
+
 const PlayerProfile = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -33,7 +52,10 @@ const PlayerProfile = () => {
 
   const { player, isLoading, error, playerReports } = usePlayerProfile(id);
 
-
+  const clubRating = player ? computeMyRating(
+    player,
+    DEFAULT_POSITION_WEIGHTS[getPositionKey(player.positions || [])]
+  ) : null;
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -110,11 +132,21 @@ const PlayerProfile = () => {
                 <div className="flex gap-3 sm:gap-4">
                   <div className="text-left sm:text-right">
                     <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                      <span className="text-xs sm:text-sm text-muted-foreground">Club Rating</span>
+                      <Info className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
+                    </div>
+                    <span className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">
+                      {clubRating?.toFixed(1) || 'N/A'}
+                    </span>
+                  </div>
+
+                  <div className="text-left sm:text-right">
+                    <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
                       <span className="text-xs sm:text-sm text-muted-foreground">Rating (Pot)</span>
                       <Info className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                     </div>
                     <div className="flex items-baseline gap-1.5 sm:gap-2">
-                      <span className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-600">
+                      <span className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">
                         {player.transferroomRating?.toFixed(1) || 'N/A'}
                       </span>
                       <span className="text-base sm:text-lg md:text-xl text-muted-foreground">
@@ -128,7 +160,7 @@ const PlayerProfile = () => {
                       <span className="text-xs sm:text-sm text-muted-foreground">xTV</span>
                       <Info className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                     </div>
-                    <span className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-600">
+                    <span className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">
                       {player.xtvScore ? `€${player.xtvScore.toLocaleString()}` : 'N/A'}
                     </span>
                   </div>
