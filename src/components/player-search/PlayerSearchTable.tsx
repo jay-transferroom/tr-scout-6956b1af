@@ -75,7 +75,7 @@ const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, o
           <SortableHeader column="myRating">
             <div className="flex items-center gap-1">
               <User className="h-3 w-3 text-primary" />
-              <span>My Rating</span>
+              <span>Club Rating</span>
             </div>
           </SortableHeader>
           <SortableHeader column="potential">Potential</SortableHeader>

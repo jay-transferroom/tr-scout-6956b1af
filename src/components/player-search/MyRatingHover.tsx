@@ -44,7 +44,7 @@ const MyRatingHover = ({ rating, categories, children }: MyRatingHoverProps) => 
         {/* Header */}
         <div className="px-4 pt-3 pb-2 border-b">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-medium">My Rating</span>
+            <span className="text-xs text-muted-foreground font-medium">Club Rating</span>
             <span className={cn("text-lg tabular-nums", ratingInfo.className)}>
               {rating.toFixed(1)}
             </span>
