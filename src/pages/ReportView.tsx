@@ -5,9 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Edit, Download, Flag, Calendar, MapPin, User, Clock } from "lucide-react";
+import { ArrowLeft, Edit, Download, Flag, Calendar, MapPin, User, Clock, Trash2 } from "lucide-react";
 import { ReportWithPlayer } from "@/types/report";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReportPlayerData } from "@/hooks/useReportPlayerData";
 import { extractReportDataForDisplay } from "@/utils/reportDataExtraction";
@@ -186,6 +198,23 @@ const ReportView = () => {
   const reportData = extractReportDataForDisplay(report, template);
   const canEdit = report.scoutId === user?.id;
 
+  const handleDeleteReport = async () => {
+    try {
+      const { error: deleteError } = await supabase
+        .from('reports')
+        .delete()
+        .eq('id', report.id);
+
+      if (deleteError) throw deleteError;
+
+      toast.success("Report deleted successfully");
+      navigate("/reports");
+    } catch (err) {
+      console.error('Error deleting report:', err);
+      toast.error("Failed to delete report");
+    }
+  };
+
   return (
     <div className="container mx-auto py-3 sm:py-6 max-w-5xl px-3 sm:px-4">
       {/* Header Actions */}
@@ -197,6 +226,29 @@ const ReportView = () => {
         </Button>
         
         <div className="flex gap-1 sm:gap-2">
+          {canEdit && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10 border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700">
+                  <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Delete Report</span>
+                  <span className="sm:hidden">Delete</span>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure you want to delete this report?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the report.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>No</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteReport}>Yes</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           {canEdit && (
             <Button onClick={() => navigate(`/report/${report.id}/edit`)} className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10">
               <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
