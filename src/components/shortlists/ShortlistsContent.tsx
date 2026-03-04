@@ -741,6 +741,46 @@ export const ShortlistsContent = ({
           excludePlayerIds={sortedPlayers.map(p => p.id.toString())}
         />
       )}
+
+      {/* New Shortlist Dialog */}
+      <Dialog open={newListDialogOpen} onOpenChange={setNewListDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Shortlist</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <Label htmlFor="new-shortlist-name">Shortlist Name</Label>
+              <Input
+                id="new-shortlist-name"
+                placeholder="e.g. Summer Transfer Targets"
+                value={newListName}
+                onChange={(e) => setNewListName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="new-shortlist-desc">Description (optional)</Label>
+              <Textarea
+                id="new-shortlist-desc"
+                placeholder="Brief description..."
+                value={newListDescription}
+                onChange={(e) => setNewListDescription(e.target.value)}
+                rows={2}
+              />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {newListPlayerIds.length} player{newListPlayerIds.length !== 1 ? 's' : ''} will be added to this shortlist.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNewListDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleCreateNewList} disabled={!newListName.trim()}>
+              <Plus className="h-4 w-4 mr-1" />
+              Create Shortlist
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
