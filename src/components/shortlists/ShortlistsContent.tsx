@@ -707,7 +707,6 @@ export const ShortlistsContent = ({
           open={isSearchDialogOpen}
           onOpenChange={setIsSearchDialogOpen}
           onAddPlayers={onAddPlayersToShortlist}
-          onCreateShortlistWithPlayers={onCreateShortlistWithPlayers}
           excludePlayerIds={sortedPlayers.map(p => p.id.toString())}
         />
       )}
