@@ -576,6 +576,13 @@ export const ShortlistsContent = ({
               Remove
             </Button>
 
+            {onCreateShortlistWithPlayers && (
+              <Button size="sm" variant="outline" className="gap-1" onClick={() => openNewListDialog(Array.from(selectedPlayerIds))}>
+                <Plus className="h-3.5 w-3.5" />
+                New Shortlist
+              </Button>
+            )}
+
             <Button size="sm" variant="ghost" className="ml-auto" onClick={clearSelection}>
               Clear
             </Button>
