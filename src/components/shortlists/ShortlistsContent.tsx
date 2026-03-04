@@ -671,6 +671,7 @@ export const ShortlistsContent = ({
                 sortedPlayers.map((player) => {
                   const assignmentBadgeProps = getAssignmentBadge(player.id.toString());
                   const euGbeBadgeProps = getEuGbeBadge(player.euGbeStatus || 'Pass');
+                  const isSelected = selectedPlayerIds.has(player.id.toString());
                   
                   return (
                     <ShortlistPlayerRow 
@@ -683,12 +684,14 @@ export const ShortlistsContent = ({
                       onAssignScout={onAssignScout}
                       onRemovePlayer={onRemovePlayer}
                       canManageShortlists={canManageShortlists}
+                      isSelected={isSelected}
+                      onToggleSelect={() => togglePlayerSelect(player.id.toString())}
                     />
                   );
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
+                  <TableCell colSpan={canManageShortlists ? 11 : 10} className="text-center py-6 text-muted-foreground">
                     No players found matching your criteria.
                   </TableCell>
                 </TableRow>
