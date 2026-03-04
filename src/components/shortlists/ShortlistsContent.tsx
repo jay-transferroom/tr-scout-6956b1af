@@ -46,6 +46,7 @@ interface ShortlistsContentProps {
   onRemovePlayer: (playerId: string) => void;
   onExportList: () => void;
   onAddPlayersToShortlist: (playerIds: string[]) => void;
+  onCreateShortlistWithPlayers?: (name: string, description: string, playerIds: string[]) => Promise<void>;
 }
 
 export const ShortlistsContent = ({
