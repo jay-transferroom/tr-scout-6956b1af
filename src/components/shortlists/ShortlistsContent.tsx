@@ -796,7 +796,8 @@ const ShortlistPlayerRow = ({
   onRemovePlayer,
   canManageShortlists,
   isSelected = false,
-  onToggleSelect
+  onToggleSelect,
+  onAddToNewList
 }: {
   player: any;
   assignmentBadgeProps: any;
@@ -808,6 +809,7 @@ const ShortlistPlayerRow = ({
   canManageShortlists: boolean;
   isSelected?: boolean;
   onToggleSelect?: () => void;
+  onAddToNewList?: (playerId: string) => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
 
