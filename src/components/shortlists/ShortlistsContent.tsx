@@ -717,6 +717,7 @@ export const ShortlistsContent = ({
                       canManageShortlists={canManageShortlists}
                       isSelected={isSelected}
                       onToggleSelect={() => togglePlayerSelect(player.id.toString())}
+                      onAddToNewList={onCreateShortlistWithPlayers ? (pid) => openNewListDialog([pid]) : undefined}
                     />
                   );
                 })
