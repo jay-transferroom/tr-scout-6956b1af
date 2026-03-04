@@ -12,6 +12,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreHorizontal, Eye, FileText, UserPlus, Bookmark, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PlayerSearchDialog } from "./PlayerSearchDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { ClubBadge } from "@/components/ui/club-badge";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
@@ -92,6 +95,10 @@ export const ShortlistsContent = ({
 }: ShortlistsContentProps) => {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<Set<string>>(new Set());
+  const [newListDialogOpen, setNewListDialogOpen] = useState(false);
+  const [newListPlayerIds, setNewListPlayerIds] = useState<string[]>([]);
+  const [newListName, setNewListName] = useState("");
+  const [newListDescription, setNewListDescription] = useState("");
   const { profile } = useAuth();
 
   // Check if user can manage shortlists (director or recruitment)
@@ -197,6 +204,23 @@ export const ShortlistsContent = ({
 
   const handleBulkRemove = () => {
     onBulkRemove?.(Array.from(selectedPlayerIds));
+    clearSelection();
+  };
+
+  const openNewListDialog = (playerIds: string[]) => {
+    setNewListPlayerIds(playerIds);
+    setNewListName("");
+    setNewListDescription("");
+    setNewListDialogOpen(true);
+  };
+
+  const handleCreateNewList = async () => {
+    if (!newListName.trim() || !onCreateShortlistWithPlayers) return;
+    await onCreateShortlistWithPlayers(newListName.trim(), newListDescription.trim(), newListPlayerIds);
+    setNewListDialogOpen(false);
+    setNewListPlayerIds([]);
+    setNewListName("");
+    setNewListDescription("");
     clearSelection();
   };
 
@@ -555,6 +579,13 @@ export const ShortlistsContent = ({
               Remove
             </Button>
 
+            {onCreateShortlistWithPlayers && (
+              <Button size="sm" variant="outline" className="gap-1" onClick={() => openNewListDialog(Array.from(selectedPlayerIds))}>
+                <Plus className="h-3.5 w-3.5" />
+                New Shortlist
+              </Button>
+            )}
+
             <Button size="sm" variant="ghost" className="ml-auto" onClick={clearSelection}>
               Clear
             </Button>
@@ -588,6 +619,7 @@ export const ShortlistsContent = ({
                       onAssignScout={onAssignScout}
                       onRemovePlayer={onRemovePlayer}
                       canManageShortlists={canManageShortlists}
+                      onAddToNewList={onCreateShortlistWithPlayers ? (pid) => openNewListDialog([pid]) : undefined}
                     />
                   </div>
                 </div>
@@ -686,6 +718,7 @@ export const ShortlistsContent = ({
                       canManageShortlists={canManageShortlists}
                       isSelected={isSelected}
                       onToggleSelect={() => togglePlayerSelect(player.id.toString())}
+                      onAddToNewList={onCreateShortlistWithPlayers ? (pid) => openNewListDialog([pid]) : undefined}
                     />
                   );
                 })
@@ -707,10 +740,49 @@ export const ShortlistsContent = ({
           open={isSearchDialogOpen}
           onOpenChange={setIsSearchDialogOpen}
           onAddPlayers={onAddPlayersToShortlist}
-          onCreateShortlistWithPlayers={onCreateShortlistWithPlayers}
           excludePlayerIds={sortedPlayers.map(p => p.id.toString())}
         />
       )}
+
+      {/* New Shortlist Dialog */}
+      <Dialog open={newListDialogOpen} onOpenChange={setNewListDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Shortlist</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <Label htmlFor="new-shortlist-name">Shortlist Name</Label>
+              <Input
+                id="new-shortlist-name"
+                placeholder="e.g. Summer Transfer Targets"
+                value={newListName}
+                onChange={(e) => setNewListName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="new-shortlist-desc">Description (optional)</Label>
+              <Textarea
+                id="new-shortlist-desc"
+                placeholder="Brief description..."
+                value={newListDescription}
+                onChange={(e) => setNewListDescription(e.target.value)}
+                rows={2}
+              />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {newListPlayerIds.length} player{newListPlayerIds.length !== 1 ? 's' : ''} will be added to this shortlist.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNewListDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleCreateNewList} disabled={!newListName.trim()}>
+              <Plus className="h-4 w-4 mr-1" />
+              Create Shortlist
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
@@ -726,7 +798,8 @@ const ShortlistPlayerRow = ({
   onRemovePlayer,
   canManageShortlists,
   isSelected = false,
-  onToggleSelect
+  onToggleSelect,
+  onAddToNewList
 }: {
   player: any;
   assignmentBadgeProps: any;
@@ -738,6 +811,7 @@ const ShortlistPlayerRow = ({
   canManageShortlists: boolean;
   isSelected?: boolean;
   onToggleSelect?: () => void;
+  onAddToNewList?: (playerId: string) => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
 
@@ -838,10 +912,12 @@ const ShortlistPlayerRow = ({
                 {scouts.length > 0 ? "Assign Another Scout" : "Assign Scout"}
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem>
-              <Bookmark className="h-4 w-4 mr-2" />
-              Move to list
-            </DropdownMenuItem>
+            {onAddToNewList && (
+              <DropdownMenuItem onClick={() => onAddToNewList(player.id.toString())}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add to new shortlist
+              </DropdownMenuItem>
+            )}
             {canManageShortlists && (
               <DropdownMenuItem 
                 className="text-destructive"
@@ -867,7 +943,8 @@ const ShortlistPlayerCard = ({
   handleCreateReport,
   onAssignScout,
   onRemovePlayer,
-  canManageShortlists
+  canManageShortlists,
+  onAddToNewList
 }: {
   player: any;
   assignmentBadgeProps: any;
@@ -877,6 +954,7 @@ const ShortlistPlayerCard = ({
   onAssignScout: (player: any) => void;
   onRemovePlayer: (playerId: string) => void;
   canManageShortlists: boolean;
+  onAddToNewList?: (playerId: string) => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
 
@@ -925,10 +1003,12 @@ const ShortlistPlayerCard = ({
                   {scouts.length > 0 ? "Assign Another Scout" : "Assign Scout"}
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem>
-                <Bookmark className="h-4 w-4 mr-2" />
-                Move to list
-              </DropdownMenuItem>
+              {onAddToNewList && (
+                <DropdownMenuItem onClick={() => onAddToNewList(player.id.toString())}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add to new shortlist
+                </DropdownMenuItem>
+              )}
               {canManageShortlists && (
                 <DropdownMenuItem 
                   className="text-destructive"
