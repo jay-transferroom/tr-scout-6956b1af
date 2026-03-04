@@ -48,6 +48,11 @@ interface ShortlistsContentProps {
   onExportList: () => void;
   onAddPlayersToShortlist: (playerIds: string[]) => void;
   onCreateShortlistWithPlayers?: (name: string, description: string, playerIds: string[]) => Promise<void>;
+  onBulkCopyToShortlist?: (playerIds: string[], targetShortlistId: string) => void;
+  onBulkMoveToShortlist?: (playerIds: string[], targetShortlistId: string) => void;
+  onBulkRemove?: (playerIds: string[]) => void;
+  allShortlists?: any[];
+  currentListId?: string | null;
 }
 
 export const ShortlistsContent = ({
