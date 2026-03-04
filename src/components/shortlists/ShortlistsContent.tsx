@@ -17,6 +17,7 @@ import { ClubBadge } from "@/components/ui/club-badge";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { usePlayerScouts } from "@/hooks/usePlayerScouts";
 import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ShortlistsContentProps {
   currentList: any;
@@ -47,6 +48,11 @@ interface ShortlistsContentProps {
   onExportList: () => void;
   onAddPlayersToShortlist: (playerIds: string[]) => void;
   onCreateShortlistWithPlayers?: (name: string, description: string, playerIds: string[]) => Promise<void>;
+  onBulkCopyToShortlist?: (playerIds: string[], targetShortlistId: string) => void;
+  onBulkMoveToShortlist?: (playerIds: string[], targetShortlistId: string) => void;
+  onBulkRemove?: (playerIds: string[]) => void;
+  allShortlists?: any[];
+  currentListId?: string | null;
 }
 
 export const ShortlistsContent = ({
@@ -77,9 +83,15 @@ export const ShortlistsContent = ({
   onRemovePlayer,
   onExportList,
   onAddPlayersToShortlist,
-  onCreateShortlistWithPlayers
+  onCreateShortlistWithPlayers,
+  onBulkCopyToShortlist,
+  onBulkMoveToShortlist,
+  onBulkRemove,
+  allShortlists = [],
+  currentListId
 }: ShortlistsContentProps) => {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<Set<string>>(new Set());
   const { profile } = useAuth();
 
   // Check if user can manage shortlists (director or recruitment)
@@ -147,8 +159,45 @@ export const ShortlistsContent = ({
   };
 
   const handleCreateReport = (player: any) => {
-    // This will be handled by the parent component
     console.log("Creating report for:", player);
+  };
+
+  // Bulk selection helpers
+  const togglePlayerSelect = (playerId: string) => {
+    setSelectedPlayerIds(prev => {
+      const next = new Set(prev);
+      if (next.has(playerId)) next.delete(playerId);
+      else next.add(playerId);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedPlayerIds.size === sortedPlayers.length) {
+      setSelectedPlayerIds(new Set());
+    } else {
+      setSelectedPlayerIds(new Set(sortedPlayers.map(p => p.id.toString())));
+    }
+  };
+
+  const clearSelection = () => setSelectedPlayerIds(new Set());
+
+  const otherShortlists = allShortlists
+    .filter(list => !list.is_scouting_assignment_list && list.id !== currentListId);
+
+  const handleBulkCopy = (targetId: string) => {
+    onBulkCopyToShortlist?.(Array.from(selectedPlayerIds), targetId);
+    clearSelection();
+  };
+
+  const handleBulkMove = (targetId: string) => {
+    onBulkMoveToShortlist?.(Array.from(selectedPlayerIds), targetId);
+    clearSelection();
+  };
+
+  const handleBulkRemove = () => {
+    onBulkRemove?.(Array.from(selectedPlayerIds));
+    clearSelection();
   };
 
   // Sortable table header component
@@ -458,24 +507,90 @@ export const ShortlistsContent = ({
           </div>
         )}
 
+        {/* Bulk Actions Bar */}
+        {canManageShortlists && selectedPlayerIds.size > 0 && (
+          <div className="mb-4 flex items-center gap-3 p-3 rounded-lg border bg-primary/5 border-primary/20">
+            <Badge variant="secondary" className="shrink-0">
+              {selectedPlayerIds.size} selected
+            </Badge>
+            
+            {otherShortlists.length > 0 && (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="outline" className="gap-1">
+                      <Bookmark className="h-3.5 w-3.5" />
+                      Copy to
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {otherShortlists.map(list => (
+                      <DropdownMenuItem key={list.id} onClick={() => handleBulkCopy(list.id)}>
+                        {list.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="outline" className="gap-1">
+                      <Bookmark className="h-3.5 w-3.5" />
+                      Move to
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {otherShortlists.map(list => (
+                      <DropdownMenuItem key={list.id} onClick={() => handleBulkMove(list.id)}>
+                        {list.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
+
+            <Button size="sm" variant="outline" className="gap-1 border-destructive/30 text-destructive hover:bg-destructive/10" onClick={handleBulkRemove}>
+              <Trash2 className="h-3.5 w-3.5" />
+              Remove
+            </Button>
+
+            <Button size="sm" variant="ghost" className="ml-auto" onClick={clearSelection}>
+              Clear
+            </Button>
+          </div>
+        )}
+
         {/* Players - Mobile cards and desktop table */}
         <div className="block md:hidden space-y-3 w-full max-w-full overflow-hidden">
           {sortedPlayers.length > 0 ? (
             sortedPlayers.map((player) => {
               const assignmentBadgeProps = getAssignmentBadge(player.id.toString());
               const euGbeBadgeProps = getEuGbeBadge(player.euGbeStatus || 'Pass');
+              const isSelected = selectedPlayerIds.has(player.id.toString());
               return (
-                <ShortlistPlayerCard
-                  key={player.id}
-                  player={player}
-                  assignmentBadgeProps={assignmentBadgeProps}
-                  euGbeBadgeProps={euGbeBadgeProps}
-                  formatXtvScore={formatXtvScore}
-                  handleCreateReport={handleCreateReport}
-                  onAssignScout={onAssignScout}
-                  onRemovePlayer={onRemovePlayer}
-                  canManageShortlists={canManageShortlists}
-                />
+                <div key={player.id} className="flex items-start gap-2">
+                  {canManageShortlists && (
+                    <div className="pt-4">
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => togglePlayerSelect(player.id.toString())}
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <ShortlistPlayerCard
+                      player={player}
+                      assignmentBadgeProps={assignmentBadgeProps}
+                      euGbeBadgeProps={euGbeBadgeProps}
+                      formatXtvScore={formatXtvScore}
+                      handleCreateReport={handleCreateReport}
+                      onAssignScout={onAssignScout}
+                      onRemovePlayer={onRemovePlayer}
+                      canManageShortlists={canManageShortlists}
+                    />
+                  </div>
+                </div>
               );
             })
           ) : (
@@ -489,6 +604,14 @@ export const ShortlistsContent = ({
           <Table>
             <TableHeader>
               <TableRow>
+                {canManageShortlists && (
+                  <TableHead className="w-10">
+                    <Checkbox
+                      checked={sortedPlayers.length > 0 && selectedPlayerIds.size === sortedPlayers.length}
+                      onCheckedChange={toggleSelectAll}
+                    />
+                  </TableHead>
+                )}
                 <SortableTableHead 
                   column="name" 
                   currentSort={sortBy} 
@@ -548,6 +671,7 @@ export const ShortlistsContent = ({
                 sortedPlayers.map((player) => {
                   const assignmentBadgeProps = getAssignmentBadge(player.id.toString());
                   const euGbeBadgeProps = getEuGbeBadge(player.euGbeStatus || 'Pass');
+                  const isSelected = selectedPlayerIds.has(player.id.toString());
                   
                   return (
                     <ShortlistPlayerRow 
@@ -560,12 +684,14 @@ export const ShortlistsContent = ({
                       onAssignScout={onAssignScout}
                       onRemovePlayer={onRemovePlayer}
                       canManageShortlists={canManageShortlists}
+                      isSelected={isSelected}
+                      onToggleSelect={() => togglePlayerSelect(player.id.toString())}
                     />
                   );
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
+                  <TableCell colSpan={canManageShortlists ? 11 : 10} className="text-center py-6 text-muted-foreground">
                     No players found matching your criteria.
                   </TableCell>
                 </TableRow>
@@ -598,7 +724,9 @@ const ShortlistPlayerRow = ({
   handleCreateReport,
   onAssignScout,
   onRemovePlayer,
-  canManageShortlists
+  canManageShortlists,
+  isSelected = false,
+  onToggleSelect
 }: {
   player: any;
   assignmentBadgeProps: any;
@@ -608,11 +736,18 @@ const ShortlistPlayerRow = ({
   onAssignScout: (player: any) => void;
   onRemovePlayer: (playerId: string) => void;
   canManageShortlists: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: () => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
 
   return (
-    <TableRow>
+    <TableRow className={isSelected ? "bg-primary/5" : ""}>
+      {canManageShortlists && (
+        <TableCell>
+          <Checkbox checked={isSelected} onCheckedChange={onToggleSelect} />
+        </TableCell>
+      )}
       <TableCell>
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
