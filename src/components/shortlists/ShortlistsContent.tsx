@@ -76,7 +76,8 @@ export const ShortlistsContent = ({
   onAssignScout,
   onRemovePlayer,
   onExportList,
-  onAddPlayersToShortlist
+  onAddPlayersToShortlist,
+  onCreateShortlistWithPlayers
 }: ShortlistsContentProps) => {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const { profile } = useAuth();
