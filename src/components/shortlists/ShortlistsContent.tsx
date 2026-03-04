@@ -159,8 +159,45 @@ export const ShortlistsContent = ({
   };
 
   const handleCreateReport = (player: any) => {
-    // This will be handled by the parent component
     console.log("Creating report for:", player);
+  };
+
+  // Bulk selection helpers
+  const togglePlayerSelect = (playerId: string) => {
+    setSelectedPlayerIds(prev => {
+      const next = new Set(prev);
+      if (next.has(playerId)) next.delete(playerId);
+      else next.add(playerId);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedPlayerIds.size === sortedPlayers.length) {
+      setSelectedPlayerIds(new Set());
+    } else {
+      setSelectedPlayerIds(new Set(sortedPlayers.map(p => p.id.toString())));
+    }
+  };
+
+  const clearSelection = () => setSelectedPlayerIds(new Set());
+
+  const otherShortlists = allShortlists
+    .filter(list => !list.is_scouting_assignment_list && list.id !== currentListId);
+
+  const handleBulkCopy = (targetId: string) => {
+    onBulkCopyToShortlist?.(Array.from(selectedPlayerIds), targetId);
+    clearSelection();
+  };
+
+  const handleBulkMove = (targetId: string) => {
+    onBulkMoveToShortlist?.(Array.from(selectedPlayerIds), targetId);
+    clearSelection();
+  };
+
+  const handleBulkRemove = () => {
+    onBulkRemove?.(Array.from(selectedPlayerIds));
+    clearSelection();
   };
 
   // Sortable table header component
