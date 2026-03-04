@@ -83,9 +83,15 @@ export const ShortlistsContent = ({
   onRemovePlayer,
   onExportList,
   onAddPlayersToShortlist,
-  onCreateShortlistWithPlayers
+  onCreateShortlistWithPlayers,
+  onBulkCopyToShortlist,
+  onBulkMoveToShortlist,
+  onBulkRemove,
+  allShortlists = [],
+  currentListId
 }: ShortlistsContentProps) => {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<Set<string>>(new Set());
   const { profile } = useAuth();
 
   // Check if user can manage shortlists (director or recruitment)
