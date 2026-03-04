@@ -92,6 +92,10 @@ export const ShortlistsContent = ({
 }: ShortlistsContentProps) => {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<Set<string>>(new Set());
+  const [newListDialogOpen, setNewListDialogOpen] = useState(false);
+  const [newListPlayerIds, setNewListPlayerIds] = useState<string[]>([]);
+  const [newListName, setNewListName] = useState("");
+  const [newListDescription, setNewListDescription] = useState("");
   const { profile } = useAuth();
 
   // Check if user can manage shortlists (director or recruitment)
