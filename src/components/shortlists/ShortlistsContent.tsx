@@ -910,10 +910,12 @@ const ShortlistPlayerRow = ({
                 {scouts.length > 0 ? "Assign Another Scout" : "Assign Scout"}
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem>
-              <Bookmark className="h-4 w-4 mr-2" />
-              Move to list
-            </DropdownMenuItem>
+            {onAddToNewList && (
+              <DropdownMenuItem onClick={() => onAddToNewList(player.id.toString())}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add to new shortlist
+              </DropdownMenuItem>
+            )}
             {canManageShortlists && (
               <DropdownMenuItem 
                 className="text-destructive"
