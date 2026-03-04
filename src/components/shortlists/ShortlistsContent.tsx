@@ -507,24 +507,90 @@ export const ShortlistsContent = ({
           </div>
         )}
 
+        {/* Bulk Actions Bar */}
+        {canManageShortlists && selectedPlayerIds.size > 0 && (
+          <div className="mb-4 flex items-center gap-3 p-3 rounded-lg border bg-primary/5 border-primary/20">
+            <Badge variant="secondary" className="shrink-0">
+              {selectedPlayerIds.size} selected
+            </Badge>
+            
+            {otherShortlists.length > 0 && (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="outline" className="gap-1">
+                      <Bookmark className="h-3.5 w-3.5" />
+                      Copy to
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {otherShortlists.map(list => (
+                      <DropdownMenuItem key={list.id} onClick={() => handleBulkCopy(list.id)}>
+                        {list.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="outline" className="gap-1">
+                      <Bookmark className="h-3.5 w-3.5" />
+                      Move to
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {otherShortlists.map(list => (
+                      <DropdownMenuItem key={list.id} onClick={() => handleBulkMove(list.id)}>
+                        {list.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
+
+            <Button size="sm" variant="outline" className="gap-1 border-destructive/30 text-destructive hover:bg-destructive/10" onClick={handleBulkRemove}>
+              <Trash2 className="h-3.5 w-3.5" />
+              Remove
+            </Button>
+
+            <Button size="sm" variant="ghost" className="ml-auto" onClick={clearSelection}>
+              Clear
+            </Button>
+          </div>
+        )}
+
         {/* Players - Mobile cards and desktop table */}
         <div className="block md:hidden space-y-3 w-full max-w-full overflow-hidden">
           {sortedPlayers.length > 0 ? (
             sortedPlayers.map((player) => {
               const assignmentBadgeProps = getAssignmentBadge(player.id.toString());
               const euGbeBadgeProps = getEuGbeBadge(player.euGbeStatus || 'Pass');
+              const isSelected = selectedPlayerIds.has(player.id.toString());
               return (
-                <ShortlistPlayerCard
-                  key={player.id}
-                  player={player}
-                  assignmentBadgeProps={assignmentBadgeProps}
-                  euGbeBadgeProps={euGbeBadgeProps}
-                  formatXtvScore={formatXtvScore}
-                  handleCreateReport={handleCreateReport}
-                  onAssignScout={onAssignScout}
-                  onRemovePlayer={onRemovePlayer}
-                  canManageShortlists={canManageShortlists}
-                />
+                <div key={player.id} className="flex items-start gap-2">
+                  {canManageShortlists && (
+                    <div className="pt-4">
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => togglePlayerSelect(player.id.toString())}
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <ShortlistPlayerCard
+                      player={player}
+                      assignmentBadgeProps={assignmentBadgeProps}
+                      euGbeBadgeProps={euGbeBadgeProps}
+                      formatXtvScore={formatXtvScore}
+                      handleCreateReport={handleCreateReport}
+                      onAssignScout={onAssignScout}
+                      onRemovePlayer={onRemovePlayer}
+                      canManageShortlists={canManageShortlists}
+                    />
+                  </div>
+                </div>
               );
             })
           ) : (
@@ -538,6 +604,14 @@ export const ShortlistsContent = ({
           <Table>
             <TableHeader>
               <TableRow>
+                {canManageShortlists && (
+                  <TableHead className="w-10">
+                    <Checkbox
+                      checked={sortedPlayers.length > 0 && selectedPlayerIds.size === sortedPlayers.length}
+                      onCheckedChange={toggleSelectAll}
+                    />
+                  </TableHead>
+                )}
                 <SortableTableHead 
                   column="name" 
                   currentSort={sortBy} 
