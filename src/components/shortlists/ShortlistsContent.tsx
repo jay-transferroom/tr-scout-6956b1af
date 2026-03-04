@@ -724,7 +724,9 @@ const ShortlistPlayerRow = ({
   handleCreateReport,
   onAssignScout,
   onRemovePlayer,
-  canManageShortlists
+  canManageShortlists,
+  isSelected = false,
+  onToggleSelect
 }: {
   player: any;
   assignmentBadgeProps: any;
@@ -734,10 +736,18 @@ const ShortlistPlayerRow = ({
   onAssignScout: (player: any) => void;
   onRemovePlayer: (playerId: string) => void;
   canManageShortlists: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: () => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
 
   return (
+    <TableRow className={isSelected ? "bg-primary/5" : ""}>
+      {canManageShortlists && (
+        <TableCell>
+          <Checkbox checked={isSelected} onCheckedChange={onToggleSelect} />
+        </TableCell>
+      )}
     <TableRow>
       <TableCell>
         <div className="flex items-center gap-3">
