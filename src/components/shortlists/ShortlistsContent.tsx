@@ -748,7 +748,6 @@ const ShortlistPlayerRow = ({
           <Checkbox checked={isSelected} onCheckedChange={onToggleSelect} />
         </TableCell>
       )}
-    <TableRow>
       <TableCell>
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
