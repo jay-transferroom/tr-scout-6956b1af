@@ -619,6 +619,7 @@ export const ShortlistsContent = ({
                       onAssignScout={onAssignScout}
                       onRemovePlayer={onRemovePlayer}
                       canManageShortlists={canManageShortlists}
+                      onAddToNewList={onCreateShortlistWithPlayers ? (pid) => openNewListDialog([pid]) : undefined}
                     />
                   </div>
                 </div>
