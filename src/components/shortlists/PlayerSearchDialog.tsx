@@ -4,7 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, Plus, X } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Search, Plus, X, FolderPlus } from "lucide-react";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { usePrivatePlayers } from "@/hooks/usePrivatePlayers";
 
@@ -12,6 +14,7 @@ interface PlayerSearchDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAddPlayers: (playerIds: string[]) => void;
+  onCreateShortlistWithPlayers?: (name: string, description: string, playerIds: string[]) => Promise<void>;
   excludePlayerIds?: string[];
 }
 
@@ -19,15 +22,18 @@ export const PlayerSearchDialog = ({
   open,
   onOpenChange,
   onAddPlayers,
+  onCreateShortlistWithPlayers,
   excludePlayerIds = []
 }: PlayerSearchDialogProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
+  const [addToNewList, setAddToNewList] = useState(false);
+  const [newListName, setNewListName] = useState("");
+  const [newListDescription, setNewListDescription] = useState("");
   
   const { data: allPlayers = [] } = usePlayersData();
   const { privatePlayers } = usePrivatePlayers();
 
-  // Combine public and private players
   const allAvailablePlayers = useMemo(() => {
     const publicPlayers = allPlayers.map(player => ({
       ...player,
@@ -43,16 +49,13 @@ export const PlayerSearchDialog = ({
     return [...publicPlayers, ...privatePlayersFormatted];
   }, [allPlayers, privatePlayers]);
 
-  // Filter players based on search and exclude list
   const filteredPlayers = useMemo(() => {
     if (!searchTerm.trim()) return [];
     
     return allAvailablePlayers
       .filter(player => {
-        // Exclude players already in the shortlist
         if (excludePlayerIds.includes(player.id)) return false;
         
-        // Search filter
         const searchLower = searchTerm.toLowerCase();
         return (
           player.name.toLowerCase().includes(searchLower) ||
@@ -60,7 +63,7 @@ export const PlayerSearchDialog = ({
           player.positions?.some((pos: string) => pos?.toLowerCase().includes(searchLower))
         );
       })
-      .slice(0, 20); // Limit results
+      .slice(0, 20);
   }, [allAvailablePlayers, searchTerm, excludePlayerIds]);
 
   const togglePlayerSelection = (playerId: string) => {
@@ -71,23 +74,31 @@ export const PlayerSearchDialog = ({
     );
   };
 
-  const handleAddSelected = () => {
-    if (selectedPlayerIds.length > 0) {
+  const handleAddSelected = async () => {
+    if (selectedPlayerIds.length === 0) return;
+
+    if (addToNewList && onCreateShortlistWithPlayers && newListName.trim()) {
+      await onCreateShortlistWithPlayers(newListName.trim(), newListDescription.trim(), selectedPlayerIds);
+    } else if (!addToNewList) {
       onAddPlayers(selectedPlayerIds);
-      setSelectedPlayerIds([]);
-      setSearchTerm("");
-      onOpenChange(false);
     }
+
+    resetAndClose();
   };
 
-  const handleClose = () => {
+  const resetAndClose = () => {
     setSelectedPlayerIds([]);
     setSearchTerm("");
+    setAddToNewList(false);
+    setNewListName("");
+    setNewListDescription("");
     onOpenChange(false);
   };
 
+  const canSubmit = selectedPlayerIds.length > 0 && (!addToNewList || newListName.trim().length > 0);
+
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={resetAndClose}>
       <DialogContent className="max-w-2xl max-h-[80vh]">
         <DialogHeader>
           <DialogTitle>Add Players to Shortlist</DialogTitle>
@@ -123,7 +134,7 @@ export const PlayerSearchDialog = ({
           )}
 
           {/* Search Results */}
-          <div className="max-h-[400px] overflow-y-auto space-y-2">
+          <div className="max-h-[300px] overflow-y-auto space-y-2">
             {searchTerm.trim() === "" ? (
               <div className="text-center text-muted-foreground py-8">
                 Start typing to search for players
@@ -207,19 +218,61 @@ export const PlayerSearchDialog = ({
             )}
           </div>
 
+          {/* Add to new shortlist toggle */}
+          {onCreateShortlistWithPlayers && selectedPlayerIds.length > 0 && (
+            <div className="border rounded-lg p-3 space-y-3">
+              <Button
+                variant={addToNewList ? "default" : "outline"}
+                size="sm"
+                className="gap-2"
+                onClick={() => setAddToNewList(!addToNewList)}
+              >
+                <FolderPlus className="h-4 w-4" />
+                {addToNewList ? "Adding to new shortlist" : "Add to a new shortlist instead?"}
+              </Button>
+
+              {addToNewList && (
+                <div className="space-y-3 pt-1">
+                  <div className="space-y-1">
+                    <Label htmlFor="new-list-name" className="text-sm">Shortlist Name</Label>
+                    <Input
+                      id="new-list-name"
+                      placeholder="e.g. Summer Transfer Targets"
+                      value={newListName}
+                      onChange={(e) => setNewListName(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="new-list-desc" className="text-sm">Description (optional)</Label>
+                    <Textarea
+                      id="new-list-desc"
+                      placeholder="Brief description..."
+                      value={newListDescription}
+                      onChange={(e) => setNewListDescription(e.target.value)}
+                      rows={2}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4 border-t">
             <Button
               onClick={handleAddSelected}
-              disabled={selectedPlayerIds.length === 0}
+              disabled={!canSubmit}
               className="flex-1"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Add {selectedPlayerIds.length} Player{selectedPlayerIds.length !== 1 ? 's' : ''}
+              {addToNewList
+                ? `Create List & Add ${selectedPlayerIds.length} Player${selectedPlayerIds.length !== 1 ? 's' : ''}`
+                : `Add ${selectedPlayerIds.length} Player${selectedPlayerIds.length !== 1 ? 's' : ''}`
+              }
             </Button>
             <Button
               variant="outline"
-              onClick={handleClose}
+              onClick={resetAndClose}
               className="flex-1"
             >
               Cancel
