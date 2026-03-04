@@ -180,6 +180,7 @@ const Shortlists = () => {
         onRemovePlayer={handleRemovePlayer}
         onExportList={handleExportList}
         onAddPlayersToShortlist={handleAddPlayersToShortlist}
+        onCreateShortlistWithPlayers={handleCreateShortlist}
       />
 
       {/* Assign Scout Dialog */}
