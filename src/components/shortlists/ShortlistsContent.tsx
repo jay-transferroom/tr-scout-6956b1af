@@ -204,6 +204,23 @@ export const ShortlistsContent = ({
     clearSelection();
   };
 
+  const openNewListDialog = (playerIds: string[]) => {
+    setNewListPlayerIds(playerIds);
+    setNewListName("");
+    setNewListDescription("");
+    setNewListDialogOpen(true);
+  };
+
+  const handleCreateNewList = async () => {
+    if (!newListName.trim() || !onCreateShortlistWithPlayers) return;
+    await onCreateShortlistWithPlayers(newListName.trim(), newListDescription.trim(), newListPlayerIds);
+    setNewListDialogOpen(false);
+    setNewListPlayerIds([]);
+    setNewListName("");
+    setNewListDescription("");
+    clearSelection();
+  };
+
   // Sortable table header component
   const SortableTableHead = ({ 
     column, 
