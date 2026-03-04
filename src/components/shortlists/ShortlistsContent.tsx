@@ -46,6 +46,7 @@ interface ShortlistsContentProps {
   onRemovePlayer: (playerId: string) => void;
   onExportList: () => void;
   onAddPlayersToShortlist: (playerIds: string[]) => void;
+  onCreateShortlistWithPlayers?: (name: string, description: string, playerIds: string[]) => Promise<void>;
 }
 
 export const ShortlistsContent = ({
@@ -75,7 +76,8 @@ export const ShortlistsContent = ({
   onAssignScout,
   onRemovePlayer,
   onExportList,
-  onAddPlayersToShortlist
+  onAddPlayersToShortlist,
+  onCreateShortlistWithPlayers
 }: ShortlistsContentProps) => {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const { profile } = useAuth();
@@ -579,6 +581,7 @@ export const ShortlistsContent = ({
           open={isSearchDialogOpen}
           onOpenChange={setIsSearchDialogOpen}
           onAddPlayers={onAddPlayersToShortlist}
+          onCreateShortlistWithPlayers={onCreateShortlistWithPlayers}
           excludePlayerIds={sortedPlayers.map(p => p.id.toString())}
         />
       )}
