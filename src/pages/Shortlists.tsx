@@ -119,6 +119,35 @@ const Shortlists = () => {
     }
   };
 
+  const handleBulkCopyToShortlist = (playerIds: string[], targetShortlistId: string) => {
+    playerIds.forEach(playerId => {
+      addPlayerToShortlist(targetShortlistId, playerId);
+    });
+  };
+
+  const handleBulkMoveToShortlist = async (playerIds: string[], targetShortlistId: string) => {
+    // Add to target
+    playerIds.forEach(playerId => {
+      addPlayerToShortlist(targetShortlistId, playerId);
+    });
+    // Remove from current
+    if (selectedList) {
+      for (const playerId of playerIds) {
+        await removePlayerFromShortlist(selectedList, playerId);
+      }
+      await refreshShortlists();
+    }
+  };
+
+  const handleBulkRemove = async (playerIds: string[]) => {
+    if (selectedList) {
+      for (const playerId of playerIds) {
+        await removePlayerFromShortlist(selectedList, playerId);
+      }
+      await refreshShortlists();
+    }
+  };
+
   const handleUpdateShortlist = async (id: string, name: string, description: string) => {
     updateShortlist(id, { name, description });
   };
