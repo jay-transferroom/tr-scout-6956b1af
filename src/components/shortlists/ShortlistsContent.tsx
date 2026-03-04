@@ -942,7 +942,8 @@ const ShortlistPlayerCard = ({
   handleCreateReport,
   onAssignScout,
   onRemovePlayer,
-  canManageShortlists
+  canManageShortlists,
+  onAddToNewList
 }: {
   player: any;
   assignmentBadgeProps: any;
@@ -952,6 +953,7 @@ const ShortlistPlayerCard = ({
   onAssignScout: (player: any) => void;
   onRemovePlayer: (playerId: string) => void;
   canManageShortlists: boolean;
+  onAddToNewList?: (playerId: string) => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
 
