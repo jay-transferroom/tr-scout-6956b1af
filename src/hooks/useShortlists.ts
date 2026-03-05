@@ -163,7 +163,8 @@ export const useShortlists = () => {
 
       const newShortlist: Shortlist = {
         ...shortlistData,
-        playerIds
+        playerIds,
+        playerAvailability: {}
       };
 
       setShortlists(prev => [...prev, newShortlist]);
