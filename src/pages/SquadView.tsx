@@ -313,6 +313,8 @@ const SquadView = () => {
                   selectedPosition={selectedPosition}
                   onPlayerChange={handlePlayerChange}
                   onAddPlayerToPosition={handleAddPlayerToPosition}
+                  onRemovePlayerFromPosition={removePlayerFromPosition}
+                  positionSlots={positionSlots}
                 />
               </div>
             </div>

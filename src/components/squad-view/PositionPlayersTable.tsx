@@ -83,6 +83,8 @@ const PositionPlayersTable = ({
   selectedPosition,
   onPlayerChange,
   onAddPlayerToPosition,
+  onRemovePlayerFromPosition,
+  positionSlots = [],
 }: PositionPlayersTableProps) => {
   const navigate = useNavigate();
   const { shortlists, addPlayerToShortlist } = useShortlists();
