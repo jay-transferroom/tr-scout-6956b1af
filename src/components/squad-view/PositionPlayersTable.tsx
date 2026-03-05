@@ -3,7 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/player";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
-import { Plus, ArrowRight, AlertTriangle, Star, TrendingDown, Target, TrendingUp, ListPlus, UserPlus, Sparkles, Users, Heart, Filter } from "lucide-react";
+import { Plus, ArrowRight, AlertTriangle, Star, TrendingDown, Target, TrendingUp, ListPlus, UserPlus, Sparkles, Users, Heart, Filter, ChevronRight } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { useShortlists } from "@/hooks/useShortlists";
@@ -525,6 +526,32 @@ const PositionPlayersTable = ({
                 </div>
               )}
             </div>
+
+            {/* All Squad - collapsed by default */}
+            {selectedPosition && (
+              <Collapsible>
+                <CollapsibleTrigger className="flex items-center gap-2 w-full px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors border-t mt-1 [&[data-state=open]>svg]:rotate-90">
+                  <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200" />
+                  <Users className="h-3.5 w-3.5" />
+                  All Squad
+                  <Badge variant="secondary" className="text-xs ml-auto">
+                    {squadPlayers.filter(p => !eligiblePlayers.some(ep => ep.id === p.id)).length}
+                  </Badge>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="divide-y">
+                    {squadPlayers
+                      .filter(p => !eligiblePlayers.some(ep => ep.id === p.id))
+                      .sort((a, b) => {
+                        const ratingA = a.transferroomRating || a.xtvScore || 0;
+                        const ratingB = b.transferroomRating || b.xtvScore || 0;
+                        return ratingB - ratingA;
+                      })
+                      .map((player) => renderPlayerRow(player))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
           </ScrollArea>
         )}
         
