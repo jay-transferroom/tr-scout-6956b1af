@@ -71,20 +71,27 @@ export const useShortlists = () => {
         shortlistsData.map(async (shortlist) => {
           const { data: playersData, error: playersError } = await supabase
             .from('shortlist_players')
-            .select('player_id')
+            .select('player_id, availability')
             .eq('shortlist_id', shortlist.id);
 
           if (playersError) {
             console.error('Error fetching players for shortlist:', playersError);
             return {
               ...shortlist,
-              playerIds: []
+              playerIds: [],
+              playerAvailability: {}
             };
           }
 
+          const playerAvailability: Record<string, PlayerAvailability | null> = {};
+          playersData?.forEach(p => {
+            playerAvailability[p.player_id] = (p as any).availability || null;
+          });
+
           return {
             ...shortlist,
-            playerIds: playersData?.map(p => p.player_id) || []
+            playerIds: playersData?.map(p => p.player_id) || [],
+            playerAvailability
           };
         })
       );
