@@ -76,9 +76,7 @@ export const usePlayerProfile = (playerId?: string) => {
     queryFn: async (): Promise<ReportWithPlayer[]> => {
       if (!playerId || !player) return [];
 
-      console.log('Fetching reports for player:', { playerId, playerName: player.name });
-
-      // Try to find reports by player_id (could be stored as string version of integer ID or player name)
+      // Fetch standard reports
       const { data, error } = await supabase
         .from('reports')
         .select(`
@@ -90,33 +88,16 @@ export const usePlayerProfile = (playerId?: string) => {
 
       if (error) {
         console.error('Error fetching player reports:', error);
-        return [];
       }
 
-      console.log('Found reports for player:', data?.length || 0);
-
-      // Transform the data to match our ReportWithPlayer interface
       const transformedReports: ReportWithPlayer[] = (data || []).map((report: any) => {
-        // Parse sections if it's a string
         let sections = report.sections;
         if (typeof sections === 'string') {
-          try {
-            sections = JSON.parse(sections);
-          } catch (e) {
-            console.log(`Failed to parse sections for report ${report.id}:`, e);
-            sections = [];
-          }
+          try { sections = JSON.parse(sections); } catch { sections = []; }
         }
-
-        // Parse match_context if it's a string
         let matchContext = report.match_context;
         if (typeof matchContext === 'string') {
-          try {
-            matchContext = JSON.parse(matchContext);
-          } catch (e) {
-            console.log(`Failed to parse match_context for report ${report.id}:`, e);
-            matchContext = null;
-          }
+          try { matchContext = JSON.parse(matchContext); } catch { matchContext = null; }
         }
 
         return {
@@ -131,12 +112,68 @@ export const usePlayerProfile = (playerId?: string) => {
           matchContext: matchContext,
           tags: report.tags || [],
           flaggedForReview: report.flagged_for_review || false,
-          player: player, // Include the player data
+          player: player,
           scoutProfile: report.scout_profile,
         };
       });
 
-      return transformedReports;
+      // Fetch match scouting reports for this player
+      const { data: matchData, error: matchError } = await supabase
+        .from('match_scouting_reports')
+        .select('*')
+        .eq('player_id', playerId)
+        .order('created_at', { ascending: false });
+
+      let matchReports: ReportWithPlayer[] = [];
+      if (!matchError && matchData && matchData.length > 0) {
+        // Fetch scout profiles
+        const scoutIds = [...new Set(matchData.map(r => r.scout_id))];
+        const scoutProfiles = new Map<string, any>();
+        if (scoutIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, first_name, last_name, email, role')
+            .in('id', scoutIds);
+          (profiles || []).forEach((p: any) => scoutProfiles.set(p.id, p));
+        }
+
+        matchReports = matchData.map((report) => {
+          const [teams, date] = (report.match_identifier || '').split('|');
+          const [homeTeam, awayTeam] = (teams || '').split(' vs ');
+
+          return {
+            id: report.id,
+            playerId: report.player_id,
+            templateId: 'match-scouting',
+            scoutId: report.scout_id,
+            createdAt: new Date(report.created_at),
+            updatedAt: new Date(report.updated_at),
+            status: 'submitted' as const,
+            sections: report.rating != null ? [{
+              sectionId: 'match-rating',
+              fields: [
+                { fieldId: 'overall-rating', value: report.rating },
+                ...(report.notes ? [{ fieldId: 'notes', value: report.notes }] : [])
+              ]
+            }] : [],
+            matchContext: {
+              date: date?.trim() || '',
+              opposition: awayTeam?.trim() || homeTeam?.trim() || '',
+              competition: 'Match Scouting',
+              minutesPlayed: 0,
+            },
+            watchMethod: 'Live' as const,
+            tags: ['match-scouting'],
+            flaggedForReview: false,
+            player: player,
+            scoutProfile: scoutProfiles.get(report.scout_id) || undefined,
+          } as ReportWithPlayer;
+        });
+      }
+
+      const allReports = [...transformedReports, ...matchReports];
+      allReports.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      return allReports;
     },
     enabled: !!playerId && !!player,
   });

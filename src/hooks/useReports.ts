@@ -194,14 +194,105 @@ export const useReports = () => {
         })
       );
 
-      console.log('Final transformed reports:', transformedReports);
-      console.log('Reports by status:', {
-        submitted: transformedReports.filter(r => r.status === 'submitted').length,
-        draft: transformedReports.filter(r => r.status === 'draft').length,
-        total: transformedReports.length
-      });
+      // Fetch match scouting reports and merge them in
+      let matchQuery = supabase
+        .from('match_scouting_reports')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (profile?.role === 'scout') {
+        matchQuery = matchQuery.eq('scout_id', user.id);
+      }
+
+      const { data: matchData, error: matchError } = await matchQuery;
+
+      let matchTransformed: any[] = [];
+      if (!matchError && matchData && matchData.length > 0) {
+        // Fetch scout profiles for match reports
+        const matchScoutIds = [...new Set(matchData.map(r => r.scout_id))];
+        const matchScoutProfiles = new Map<string, any>();
+        if (matchScoutIds.length > 0) {
+          const { data: mProfiles } = await supabase
+            .from('profiles')
+            .select('id, first_name, last_name, email, role')
+            .in('id', matchScoutIds);
+          (mProfiles || []).forEach((p: any) => matchScoutProfiles.set(p.id, p));
+        }
+
+        matchTransformed = await Promise.all(
+          matchData.map(async (report) => {
+            // Fetch player data
+            let playerData = null;
+            if (report.player_id && /^\d+$/.test(report.player_id)) {
+              const { data: playerNewData } = await supabase
+                .from('players_new')
+                .select('*')
+                .eq('id', parseInt(report.player_id))
+                .single();
+              if (playerNewData) {
+                playerData = {
+                  id: playerNewData.id.toString(),
+                  name: playerNewData.name,
+                  club: playerNewData.currentteam || playerNewData.parentteam || 'Unknown',
+                  age: playerNewData.age || 0,
+                  dateOfBirth: playerNewData.birthdate || '',
+                  positions: [playerNewData.firstposition, playerNewData.secondposition].filter(Boolean),
+                  dominantFoot: 'Right' as const,
+                  nationality: playerNewData.firstnationality || 'Unknown',
+                  contractStatus: 'Under Contract' as const,
+                  contractExpiry: playerNewData.contractexpiration,
+                  region: 'Europe',
+                  image: playerNewData.imageurl,
+                };
+              }
+            }
+
+            // Parse match context from match_identifier
+            const [teams, date] = (report.match_identifier || '').split('|');
+            const [homeTeam, awayTeam] = (teams || '').split(' vs ');
+
+            const scoutProfile = matchScoutProfiles.get(report.scout_id) || null;
+
+            return {
+              id: report.id,
+              playerId: report.player_id,
+              templateId: 'match-scouting',
+              templateName: 'Match Scouting',
+              scoutId: report.scout_id,
+              createdAt: new Date(report.created_at),
+              updatedAt: new Date(report.updated_at),
+              status: 'submitted' as const,
+              sections: report.rating != null ? [{
+                sectionId: 'match-rating',
+                fields: [
+                  { fieldId: 'overall-rating', value: report.rating },
+                  ...(report.notes ? [{ fieldId: 'notes', value: report.notes }] : [])
+                ]
+              }] : [],
+              matchContext: {
+                date: date?.trim() || '',
+                opposition: awayTeam?.trim() || homeTeam?.trim() || '',
+                competition: 'Match Scouting',
+                minutesPlayed: 0,
+              },
+              watchMethod: 'Live' as const,
+              tags: ['match-scouting'],
+              flaggedForReview: false,
+              player: playerData,
+              scoutProfile,
+              isMatchScoutingReport: true,
+            };
+          })
+        );
+      }
+
+      const allReports = [...transformedReports, ...matchTransformed];
+      // Sort by date descending
+      allReports.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+      console.log('Final transformed reports (with match):', allReports.length);
       
-      setReports(transformedReports);
+      setReports(allReports);
     } catch (error) {
       console.error('Error fetching reports:', error);
     } finally {
