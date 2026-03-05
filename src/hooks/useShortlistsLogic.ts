@@ -194,7 +194,7 @@ export const useShortlistsLogic = ({
 
   // Apply sorting
   const sortedPlayers = useMemo(() => {
-    return [...statusFilteredPlayers].sort((a, b) => {
+    return [...availabilityFilteredPlayers].sort((a, b) => {
       let aValue: any, bValue: any;
       
       switch (sortBy) {
