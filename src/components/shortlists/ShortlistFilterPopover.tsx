@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Filter, X } from "lucide-react";
-import { AVAILABILITY_OPTIONS, type PlayerAvailability } from "@/hooks/useShortlists";
+import { AVAILABILITY_OPTIONS } from "@/hooks/useShortlists";
 
 interface ShortlistFilterPopoverProps {
   positionFilter: string;
