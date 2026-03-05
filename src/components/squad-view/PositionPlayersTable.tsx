@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/player";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
-import { Plus, ArrowRight, AlertTriangle, Star, TrendingDown, Target, TrendingUp, ListPlus, UserPlus, Sparkles, Users, Heart, Filter, ChevronRight } from "lucide-react";
+import { Plus, X, ArrowRight, AlertTriangle, Star, TrendingDown, Target, TrendingUp, ListPlus, UserPlus, Sparkles, Users, Heart, Filter, ChevronRight } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
@@ -13,12 +13,16 @@ import AssignScoutDialog from "@/components/AssignScoutDialog";
 import { toast } from "@/hooks/use-toast";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
 import { cn } from "@/lib/utils";
+import { PositionPlayerSlot } from "@/hooks/useMultiPlayerPositions";
+
 interface PositionPlayersTableProps {
   squadPlayers: Player[];
   allPlayers?: Player[];
   selectedPosition: string | null;
   onPlayerChange?: (position: string, playerId: string) => void;
   onAddPlayerToPosition?: (position: string, playerId: string) => void;
+  onRemovePlayerFromPosition?: (position: string, playerId: string) => void;
+  positionSlots?: PositionPlayerSlot[];
 }
 
 const getPositionMapping = (pos: string): string[] => {
@@ -79,6 +83,8 @@ const PositionPlayersTable = ({
   selectedPosition,
   onPlayerChange,
   onAddPlayerToPosition,
+  onRemovePlayerFromPosition,
+  positionSlots = [],
 }: PositionPlayersTableProps) => {
   const navigate = useNavigate();
   const { shortlists, addPlayerToShortlist } = useShortlists();
@@ -310,7 +316,14 @@ const PositionPlayersTable = ({
     setPlayerToAssign(player);
   };
 
+  const isPlayerAssignedToPosition = (playerId: string, position: string): boolean => {
+    const slot = positionSlots.find(s => s.position === position);
+    if (!slot) return false;
+    return slot.activePlayerId === playerId || slot.alternatePlayerIds.includes(playerId);
+  };
+
   const renderPlayerRow = (player: Player, showShortlistActions = false) => {
+    const isAssigned = selectedPosition ? isPlayerAssignedToPosition(player.id, selectedPosition) : false;
     return (
       <div
         key={player.id}
@@ -338,18 +351,22 @@ const PositionPlayersTable = ({
               {player.transferroomRating}
             </Badge>
           )}
-          {/* Add to position button - always show */}
+          {/* Add/Remove from position button */}
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0"
+            className={cn("h-7 w-7 p-0", isAssigned && "text-destructive hover:text-destructive")}
             onClick={(e) => {
               e.stopPropagation();
-              onAddPlayerToPosition?.(selectedPosition!, player.id);
+              if (isAssigned) {
+                onRemovePlayerFromPosition?.(selectedPosition!, player.id);
+              } else {
+                onAddPlayerToPosition?.(selectedPosition!, player.id);
+              }
             }}
-            title="Add to position"
+            title={isAssigned ? "Remove from position" : "Add to position"}
           >
-            <Plus className="h-3.5 w-3.5" />
+            {isAssigned ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
           </Button>
           {/* Shortlist actions - only for non-squad players */}
           {showShortlistActions && (
