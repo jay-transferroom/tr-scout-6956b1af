@@ -235,7 +235,7 @@ export const useShortlistsLogic = ({
         return aValue < bValue ? 1 : -1;
       }
     });
-  }, [statusFilteredPlayers, sortBy, sortOrder]);
+  }, [availabilityFilteredPlayers, sortBy, sortOrder]);
 
   const formatXtvScore = (score: number) => {
     return (score / 1000000).toFixed(1);
