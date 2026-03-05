@@ -439,6 +439,38 @@ export const useShortlists = () => {
     }
   }, [getScoutingAssignmentList, removePlayerFromShortlist, loadShortlists, toast]);
 
+  const updatePlayerAvailability = useCallback(async (shortlistId: string, playerId: string, availability: PlayerAvailability | null) => {
+    try {
+      const { error } = await supabase
+        .from('shortlist_players')
+        .update({ availability } as any)
+        .eq('shortlist_id', shortlistId)
+        .eq('player_id', playerId);
+
+      if (error) throw error;
+
+      setShortlists(prev => prev.map(shortlist => {
+        if (shortlist.id === shortlistId) {
+          return {
+            ...shortlist,
+            playerAvailability: {
+              ...shortlist.playerAvailability,
+              [playerId]: availability
+            }
+          };
+        }
+        return shortlist;
+      }));
+    } catch (error) {
+      console.error('Error updating player availability:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update availability",
+        variant: "destructive"
+      });
+    }
+  }, [toast]);
+
   return {
     shortlists,
     loading,
@@ -452,5 +484,6 @@ export const useShortlists = () => {
     getScoutingAssignmentList,
     addPlayerToScoutingAssignment,
     removePlayerFromScoutingAssignment,
+    updatePlayerAvailability,
   };
 };
