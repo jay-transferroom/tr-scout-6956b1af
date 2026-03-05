@@ -17,6 +17,7 @@ interface UseShortlistsLogicProps {
   xtvRange: [number, number];
   scoutedFilter: string;
   statusFilter: string;
+  availabilityFilter: string;
 }
 
 export const useShortlistsLogic = ({
