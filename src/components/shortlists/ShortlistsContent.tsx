@@ -721,7 +721,9 @@ const ShortlistPlayerRow = ({
   canManageShortlists,
   isSelected = false,
   onToggleSelect,
-  onAddToNewList
+  onAddToNewList,
+  availability,
+  onUpdateAvailability
 }: {
   player: any;
   assignmentBadgeProps: any;
@@ -734,6 +736,8 @@ const ShortlistPlayerRow = ({
   isSelected?: boolean;
   onToggleSelect?: () => void;
   onAddToNewList?: (playerId: string) => void;
+  availability?: PlayerAvailability | null;
+  onUpdateAvailability?: (playerId: string, availability: PlayerAvailability | null) => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
 
