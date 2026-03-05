@@ -1,6 +1,7 @@
 
 import { useMemo } from "react";
 import { determinePlayerStatus, getStatusBadgeProps } from "@/utils/playerStatusUtils";
+import { type PlayerAvailability } from "@/hooks/useShortlists";
 
 interface UseShortlistsLogicProps {
   allPlayers: any[];

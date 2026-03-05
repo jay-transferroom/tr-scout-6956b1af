@@ -21,7 +21,7 @@ import { ClubBadge } from "@/components/ui/club-badge";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { usePlayerScouts } from "@/hooks/usePlayerScouts";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AVAILABILITY_OPTIONS, type PlayerAvailability } from "@/hooks/useShortlists";
+import { type PlayerAvailability } from "@/hooks/useShortlists";
 
 interface ShortlistsContentProps {
   currentList: any;
