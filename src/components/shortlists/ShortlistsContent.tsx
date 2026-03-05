@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreHorizontal, Eye, FileText, UserPlus, Bookmark, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PlayerSearchDialog } from "./PlayerSearchDialog";
+import { ShortlistFilterPopover } from "./ShortlistFilterPopover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,8 +20,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ClubBadge } from "@/components/ui/club-badge";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { usePlayerScouts } from "@/hooks/usePlayerScouts";
-import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
+import { AVAILABILITY_OPTIONS, type PlayerAvailability } from "@/hooks/useShortlists";
 
 interface ShortlistsContentProps {
   currentList: any;
