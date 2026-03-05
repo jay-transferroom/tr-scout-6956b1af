@@ -612,6 +612,7 @@ export const ShortlistsContent = ({
                   XTV (£M)
                 </SortableTableHead>
                 <TableHead>EU/GBE</TableHead>
+                <TableHead>Availability</TableHead>
                 <TableHead>Scouts</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
