@@ -790,6 +790,26 @@ const ShortlistPlayerRow = ({
         {!player.isPrivate && <Badge {...euGbeBadgeProps} />}
       </TableCell>
       <TableCell>
+        <Select
+          value={availability || "unset"}
+          onValueChange={(val) => {
+            onUpdateAvailability?.(player.id.toString(), val === "unset" ? null : val as PlayerAvailability);
+          }}
+        >
+          <SelectTrigger className="h-7 text-xs w-[140px] border-dashed">
+            <SelectValue placeholder="Set..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="unset">
+              <span className="text-muted-foreground">Not Set</span>
+            </SelectItem>
+            {AVAILABILITY_OPTIONS.map(opt => (
+              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </TableCell>
+      <TableCell>
         {!player.isPrivate && scouts.length > 0 ? (
           <ScoutAvatars scouts={scouts} size="sm" maxVisible={3} />
         ) : (
