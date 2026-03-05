@@ -59,7 +59,6 @@ interface ShortlistsContentProps {
   onBulkRemove?: (playerIds: string[]) => void;
   allShortlists?: any[];
   currentListId?: string | null;
-  onUpdateAvailability?: (playerId: string, availability: PlayerAvailability | null) => void;
 }
 
 export const ShortlistsContent = ({
