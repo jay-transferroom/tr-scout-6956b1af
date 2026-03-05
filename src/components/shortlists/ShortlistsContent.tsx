@@ -1026,3 +1026,38 @@ const ShortlistPlayerCard = ({
     </Card>
   );
 };
+
+// Mock availability badge - statuses will be derived from backend services
+const MOCK_AVAILABILITIES: (PlayerAvailability | null)[] = [
+  'Pitched', 'Available to buy', 'Available to buy & loan', 'Shortlisted', 'Interest Declared', null, null
+];
+
+const availabilityColorMap: Record<string, string> = {
+  'Pitched': 'bg-blue-100 text-blue-800 border-blue-200',
+  'Available to buy': 'bg-green-100 text-green-800 border-green-200',
+  'Available to buy & loan': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  'Shortlisted': 'bg-amber-100 text-amber-800 border-amber-200',
+  'Interest Declared': 'bg-violet-100 text-violet-800 border-violet-200',
+};
+
+const getMockAvailability = (playerId: string): PlayerAvailability | null => {
+  // Deterministic mock based on player ID hash
+  let hash = 0;
+  for (let i = 0; i < playerId.length; i++) {
+    hash = ((hash << 5) - hash) + playerId.charCodeAt(i);
+    hash |= 0;
+  }
+  return MOCK_AVAILABILITIES[Math.abs(hash) % MOCK_AVAILABILITIES.length];
+};
+
+const AvailabilityBadge = ({ playerId }: { playerId: string }) => {
+  const status = getMockAvailability(playerId);
+  if (!status) {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+  return (
+    <Badge variant="outline" className={`text-xs whitespace-nowrap ${availabilityColorMap[status]}`}>
+      {status}
+    </Badge>
+  );
+};
