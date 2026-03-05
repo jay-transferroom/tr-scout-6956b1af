@@ -13,12 +13,16 @@ import AssignScoutDialog from "@/components/AssignScoutDialog";
 import { toast } from "@/hooks/use-toast";
 import { useSquadRecommendations } from "@/hooks/useSquadRecommendations";
 import { cn } from "@/lib/utils";
+import { PositionPlayerSlot } from "@/hooks/useMultiPlayerPositions";
+
 interface PositionPlayersTableProps {
   squadPlayers: Player[];
   allPlayers?: Player[];
   selectedPosition: string | null;
   onPlayerChange?: (position: string, playerId: string) => void;
   onAddPlayerToPosition?: (position: string, playerId: string) => void;
+  onRemovePlayerFromPosition?: (position: string, playerId: string) => void;
+  positionSlots?: PositionPlayerSlot[];
 }
 
 const getPositionMapping = (pos: string): string[] => {
