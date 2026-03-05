@@ -324,7 +324,7 @@ const PositionPlayersTable = ({
 
   const renderPlayerRow = (player: Player, showShortlistActions = false) => {
     const isAssigned = selectedPosition ? isPlayerAssignedToPosition(player.id, selectedPosition) : false;
-      <div
+    return (
         key={player.id}
         className="flex items-center justify-between px-3 py-2 hover:bg-muted/30 transition-colors cursor-pointer rounded-md mx-1"
         onClick={() => navigate(player.isPrivatePlayer ? `/private-player/${player.id}` : `/player/${player.id}`)}
