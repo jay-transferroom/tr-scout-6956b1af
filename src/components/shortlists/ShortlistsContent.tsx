@@ -639,6 +639,8 @@ export const ShortlistsContent = ({
                       isSelected={isSelected}
                       onToggleSelect={() => togglePlayerSelect(player.id.toString())}
                       onAddToNewList={onCreateShortlistWithPlayers ? (pid) => openNewListDialog([pid]) : undefined}
+                      availability={currentList?.playerAvailability?.[player.id.toString()] || null}
+                      onUpdateAvailability={onUpdateAvailability}
                     />
                   );
                 })
