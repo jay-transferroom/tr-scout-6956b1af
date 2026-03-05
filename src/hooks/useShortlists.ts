@@ -3,12 +3,23 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
+export type PlayerAvailability = 'Pitched' | 'Available to buy' | 'Available to buy & loan' | 'Shortlisted' | 'Interest Declared';
+
+export const AVAILABILITY_OPTIONS: PlayerAvailability[] = [
+  'Pitched',
+  'Available to buy',
+  'Available to buy & loan',
+  'Shortlisted',
+  'Interest Declared'
+];
+
 export interface Shortlist {
   id: string;
   name: string;
   description: string;
   color: string;
   playerIds: string[]; // For compatibility with existing code
+  playerAvailability: Record<string, PlayerAvailability | null>; // playerId -> availability
   created_at?: string;
   updated_at?: string;
   requirement_id?: string; // For director users
