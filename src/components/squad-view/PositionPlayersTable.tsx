@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Player } from "@/types/player";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
-import { Plus, ArrowRight, AlertTriangle, Star, TrendingDown, Target, TrendingUp, ListPlus, UserPlus, Sparkles, Users, Heart, Filter, ChevronRight } from "lucide-react";
+import { Plus, X, ArrowRight, AlertTriangle, Star, TrendingDown, Target, TrendingUp, ListPlus, UserPlus, Sparkles, Users, Heart, Filter, ChevronRight } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
