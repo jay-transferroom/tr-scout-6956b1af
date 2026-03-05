@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Filter, X, Search } from "lucide-react";
+import { Filter, X } from "lucide-react";
 import { AVAILABILITY_OPTIONS } from "@/hooks/useShortlists";
 
 interface ShortlistFilterPopoverProps {
@@ -22,8 +21,6 @@ interface ShortlistFilterPopoverProps {
   xtvRange: [number, number];
   onXtvRangeChange: (value: [number, number]) => void;
   maxXtv: number;
-  searchTerm: string;
-  onSearchChange: (value: string) => void;
   onClearFilters: () => void;
 }
 
@@ -41,14 +38,11 @@ export const ShortlistFilterPopover = ({
   xtvRange,
   onXtvRangeChange,
   maxXtv,
-  searchTerm,
-  onSearchChange,
   onClearFilters,
 }: ShortlistFilterPopoverProps) => {
   const [open, setOpen] = useState(false);
 
   const activeFilterCount = [
-    searchTerm.length > 0,
     positionFilter !== "all",
     scoutedFilter !== "all",
     statusFilter !== "all",
@@ -84,20 +78,6 @@ export const ShortlistFilterPopover = ({
           </DialogHeader>
 
           <div className="space-y-4 max-h-[60vh] overflow-y-auto py-2">
-            {/* Name / Club Search */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Player or Club Name</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by name or club..."
-                  value={searchTerm}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                  className="pl-10 h-8 text-sm"
-                />
-              </div>
-            </div>
-
             {/* Position */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Position</label>
