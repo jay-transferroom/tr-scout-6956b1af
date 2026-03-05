@@ -83,6 +83,8 @@ export const ShortlistsContent = ({
   onScoutedFilterChange,
   statusFilter,
   onStatusFilterChange,
+  availabilityFilter,
+  onAvailabilityFilterChange,
   getAssignmentBadge,
   getEuGbeBadge,
   formatXtvScore,
@@ -95,7 +97,8 @@ export const ShortlistsContent = ({
   onBulkMoveToShortlist,
   onBulkRemove,
   allShortlists = [],
-  currentListId
+  currentListId,
+  onUpdateAvailability
 }: ShortlistsContentProps) => {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<Set<string>>(new Set());
