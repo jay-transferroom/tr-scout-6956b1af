@@ -44,6 +44,8 @@ interface ShortlistsContentProps {
   onScoutedFilterChange: (value: string) => void;
   statusFilter: string;
   onStatusFilterChange: (value: string) => void;
+  availabilityFilter: string;
+  onAvailabilityFilterChange: (value: string) => void;
   getAssignmentBadge: (playerId: string) => { variant: any; className?: string; children: string };
   getEuGbeBadge: (status: string) => { variant: any; className?: string; children: string };
   formatXtvScore: (score: number) => string;
@@ -57,6 +59,7 @@ interface ShortlistsContentProps {
   onBulkRemove?: (playerIds: string[]) => void;
   allShortlists?: any[];
   currentListId?: string | null;
+  onUpdateAvailability?: (playerId: string, availability: PlayerAvailability | null) => void;
 }
 
 export const ShortlistsContent = ({
