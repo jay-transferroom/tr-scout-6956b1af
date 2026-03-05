@@ -27,12 +27,13 @@ const Shortlists = () => {
   const [xtvRange, setXtvRange] = useState<[number, number]>([0, 100]);
   const [scoutedFilter, setScoutedFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [availabilityFilter, setAvailabilityFilter] = useState<string>("all");
 
   const { data: allPlayers = [], isLoading } = usePlayersData();
   const { data: assignments = [], refetch: refetchAssignments } = useScoutingAssignments();
   const { reports = [] } = useReports();
   const { privatePlayers } = usePrivatePlayers();
-  const { shortlists, createShortlist, updateShortlist, deleteShortlist, addPlayerToShortlist, removePlayerFromShortlist, getPlayerShortlists, refreshShortlists } = useShortlists();
+  const { shortlists, createShortlist, updateShortlist, deleteShortlist, addPlayerToShortlist, removePlayerFromShortlist, getPlayerShortlists, refreshShortlists, updatePlayerAvailability } = useShortlists();
   const queryClient = useQueryClient();
 
   const shortlistsLogic = useShortlistsLogic({
@@ -49,7 +50,8 @@ const Shortlists = () => {
     positionFilter,
     xtvRange,
     scoutedFilter,
-    statusFilter
+    statusFilter,
+    availabilityFilter
   });
 
   // Handle URL parameters for selected shortlist - exclude scouting assignment list
