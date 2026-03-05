@@ -721,9 +721,7 @@ const ShortlistPlayerRow = ({
   canManageShortlists,
   isSelected = false,
   onToggleSelect,
-  onAddToNewList,
-  availability,
-  onUpdateAvailability
+  onAddToNewList
 }: {
   player: any;
   assignmentBadgeProps: any;
