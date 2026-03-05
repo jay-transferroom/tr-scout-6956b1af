@@ -204,6 +204,8 @@ const Shortlists = () => {
         onScoutedFilterChange={setScoutedFilter}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
+        availabilityFilter={availabilityFilter}
+        onAvailabilityFilterChange={setAvailabilityFilter}
         getAssignmentBadge={shortlistsLogic.getAssignmentBadge}
         getEuGbeBadge={shortlistsLogic.getEuGbeBadge}
         formatXtvScore={shortlistsLogic.formatXtvScore}
@@ -217,6 +219,11 @@ const Shortlists = () => {
         onBulkRemove={handleBulkRemove}
         allShortlists={shortlists}
         currentListId={selectedList}
+        onUpdateAvailability={(playerId, availability) => {
+          if (selectedList) {
+            updatePlayerAvailability(selectedList, playerId, availability);
+          }
+        }}
       />
 
       {/* Assign Scout Dialog */}
