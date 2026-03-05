@@ -316,8 +316,14 @@ const PositionPlayersTable = ({
     setPlayerToAssign(player);
   };
 
+  const isPlayerAssignedToPosition = (playerId: string, position: string): boolean => {
+    const slot = positionSlots.find(s => s.position === position);
+    if (!slot) return false;
+    return slot.activePlayerId === playerId || slot.alternatePlayerIds.includes(playerId);
+  };
+
   const renderPlayerRow = (player: Player, showShortlistActions = false) => {
-    return (
+    const isAssigned = selectedPosition ? isPlayerAssignedToPosition(player.id, selectedPosition) : false;
       <div
         key={player.id}
         className="flex items-center justify-between px-3 py-2 hover:bg-muted/30 transition-colors cursor-pointer rounded-md mx-1"
