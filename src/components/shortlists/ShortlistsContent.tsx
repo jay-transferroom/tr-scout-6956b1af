@@ -21,7 +21,7 @@ import { ClubBadge } from "@/components/ui/club-badge";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { usePlayerScouts } from "@/hooks/usePlayerScouts";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AVAILABILITY_OPTIONS, type PlayerAvailability } from "@/hooks/useShortlists";
+import { type PlayerAvailability } from "@/hooks/useShortlists";
 
 interface ShortlistsContentProps {
   currentList: any;
@@ -59,7 +59,6 @@ interface ShortlistsContentProps {
   onBulkRemove?: (playerIds: string[]) => void;
   allShortlists?: any[];
   currentListId?: string | null;
-  onUpdateAvailability?: (playerId: string, availability: PlayerAvailability | null) => void;
 }
 
 export const ShortlistsContent = ({
@@ -97,8 +96,7 @@ export const ShortlistsContent = ({
   onBulkMoveToShortlist,
   onBulkRemove,
   allShortlists = [],
-  currentListId,
-  onUpdateAvailability
+  currentListId
 }: ShortlistsContentProps) => {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<Set<string>>(new Set());
@@ -639,8 +637,6 @@ export const ShortlistsContent = ({
                       isSelected={isSelected}
                       onToggleSelect={() => togglePlayerSelect(player.id.toString())}
                       onAddToNewList={onCreateShortlistWithPlayers ? (pid) => openNewListDialog([pid]) : undefined}
-                      availability={currentList?.playerAvailability?.[player.id.toString()] || null}
-                      onUpdateAvailability={onUpdateAvailability}
                     />
                   );
                 })
@@ -721,9 +717,7 @@ const ShortlistPlayerRow = ({
   canManageShortlists,
   isSelected = false,
   onToggleSelect,
-  onAddToNewList,
-  availability,
-  onUpdateAvailability
+  onAddToNewList
 }: {
   player: any;
   assignmentBadgeProps: any;
@@ -736,8 +730,6 @@ const ShortlistPlayerRow = ({
   isSelected?: boolean;
   onToggleSelect?: () => void;
   onAddToNewList?: (playerId: string) => void;
-  availability?: PlayerAvailability | null;
-  onUpdateAvailability?: (playerId: string, availability: PlayerAvailability | null) => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
 
@@ -790,24 +782,7 @@ const ShortlistPlayerRow = ({
         {!player.isPrivate && <Badge {...euGbeBadgeProps} />}
       </TableCell>
       <TableCell>
-        <Select
-          value={availability || "unset"}
-          onValueChange={(val) => {
-            onUpdateAvailability?.(player.id.toString(), val === "unset" ? null : val as PlayerAvailability);
-          }}
-        >
-          <SelectTrigger className="h-7 text-xs w-[140px] border-dashed">
-            <SelectValue placeholder="Set..." />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="unset">
-              <span className="text-muted-foreground">Not Set</span>
-            </SelectItem>
-            {AVAILABILITY_OPTIONS.map(opt => (
-              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <AvailabilityBadge playerId={player.id.toString()} />
       </TableCell>
       <TableCell>
         {!player.isPrivate && scouts.length > 0 ? (
@@ -1041,5 +1016,40 @@ const ShortlistPlayerCard = ({
         </div>
       </CardContent>
     </Card>
+  );
+};
+
+// Mock availability badge - statuses will be derived from backend services
+const MOCK_AVAILABILITIES: (PlayerAvailability | null)[] = [
+  'Pitched', 'Available to buy', 'Available to buy & loan', 'Shortlisted', 'Interest Declared', null, null
+];
+
+const availabilityColorMap: Record<string, string> = {
+  'Pitched': 'bg-blue-100 text-blue-800 border-blue-200',
+  'Available to buy': 'bg-green-100 text-green-800 border-green-200',
+  'Available to buy & loan': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  'Shortlisted': 'bg-amber-100 text-amber-800 border-amber-200',
+  'Interest Declared': 'bg-violet-100 text-violet-800 border-violet-200',
+};
+
+const getMockAvailability = (playerId: string): PlayerAvailability | null => {
+  // Deterministic mock based on player ID hash
+  let hash = 0;
+  for (let i = 0; i < playerId.length; i++) {
+    hash = ((hash << 5) - hash) + playerId.charCodeAt(i);
+    hash |= 0;
+  }
+  return MOCK_AVAILABILITIES[Math.abs(hash) % MOCK_AVAILABILITIES.length];
+};
+
+const AvailabilityBadge = ({ playerId }: { playerId: string }) => {
+  const status = getMockAvailability(playerId);
+  if (!status) {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+  return (
+    <Badge variant="outline" className={`text-xs whitespace-nowrap ${availabilityColorMap[status]}`}>
+      {status}
+    </Badge>
   );
 };

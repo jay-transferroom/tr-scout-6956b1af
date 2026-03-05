@@ -1,6 +1,7 @@
 
 import { useMemo } from "react";
 import { determinePlayerStatus, getStatusBadgeProps } from "@/utils/playerStatusUtils";
+import { AVAILABILITY_OPTIONS, type PlayerAvailability } from "@/hooks/useShortlists";
 
 interface UseShortlistsLogicProps {
   allPlayers: any[];
@@ -183,11 +184,24 @@ export const useShortlistsLogic = ({
         return status === statusFilter;
       });
 
+  // Mock availability helper (same hash as UI component)
+  const getMockAvailability = (playerId: string): PlayerAvailability | null => {
+    const mockOptions: (PlayerAvailability | null)[] = [
+      ...AVAILABILITY_OPTIONS, null, null
+    ];
+    let hash = 0;
+    for (let i = 0; i < playerId.length; i++) {
+      hash = ((hash << 5) - hash) + playerId.charCodeAt(i);
+      hash |= 0;
+    }
+    return mockOptions[Math.abs(hash) % mockOptions.length];
+  };
+
   // Apply availability filter
   const availabilityFilteredPlayers = availabilityFilter === "all"
     ? statusFilteredPlayers
     : statusFilteredPlayers.filter(player => {
-        const playerAvailability = currentList?.playerAvailability?.[player.id.toString()] || null;
+        const playerAvailability = getMockAvailability(player.id.toString());
         if (availabilityFilter === "unset") return !playerAvailability;
         return playerAvailability === availabilityFilter;
       });
