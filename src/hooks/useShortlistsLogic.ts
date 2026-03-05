@@ -34,7 +34,8 @@ export const useShortlistsLogic = ({
   positionFilter,
   xtvRange,
   scoutedFilter,
-  statusFilter
+  statusFilter,
+  availabilityFilter
 }: UseShortlistsLogicProps) => {
   
   // Get real private players for shortlists from usePrivatePlayers hook
