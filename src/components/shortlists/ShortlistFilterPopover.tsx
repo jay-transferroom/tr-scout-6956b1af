@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Filter, X } from "lucide-react";
+import { Filter, X, Search } from "lucide-react";
 import { AVAILABILITY_OPTIONS } from "@/hooks/useShortlists";
 
 interface ShortlistFilterPopoverProps {
@@ -64,7 +65,7 @@ export const ShortlistFilterPopover = ({
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <DialogTitle>Filters</DialogTitle>
@@ -77,7 +78,7 @@ export const ShortlistFilterPopover = ({
             </div>
           </DialogHeader>
 
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto py-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
             {/* Position */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Position</label>
