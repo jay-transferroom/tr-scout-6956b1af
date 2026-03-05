@@ -183,6 +183,15 @@ export const useShortlistsLogic = ({
         return status === statusFilter;
       });
 
+  // Apply availability filter
+  const availabilityFilteredPlayers = availabilityFilter === "all"
+    ? statusFilteredPlayers
+    : statusFilteredPlayers.filter(player => {
+        const playerAvailability = currentList?.playerAvailability?.[player.id.toString()] || null;
+        if (availabilityFilter === "unset") return !playerAvailability;
+        return playerAvailability === availabilityFilter;
+      });
+
   // Apply sorting
   const sortedPlayers = useMemo(() => {
     return [...statusFilteredPlayers].sort((a, b) => {
