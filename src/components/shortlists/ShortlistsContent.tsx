@@ -96,8 +96,7 @@ export const ShortlistsContent = ({
   onBulkMoveToShortlist,
   onBulkRemove,
   allShortlists = [],
-  currentListId,
-  onUpdateAvailability
+  currentListId
 }: ShortlistsContentProps) => {
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const [selectedPlayerIds, setSelectedPlayerIds] = useState<Set<string>>(new Set());
