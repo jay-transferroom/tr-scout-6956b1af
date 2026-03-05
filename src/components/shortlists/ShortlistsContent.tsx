@@ -315,7 +315,7 @@ export const ShortlistsContent = ({
       <CardContent className="w-full max-w-full overflow-hidden px-4 sm:px-6">
         {/* Search and Filters */}
         <div className="space-y-4 mb-6">
-          {/* Row 1: Search and Sort */}
+          {/* Search, Sort, and Filters */}
           <div className="flex flex-col md:flex-row gap-4 w-full max-w-full min-w-0">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -327,7 +327,7 @@ export const ShortlistsContent = ({
               />
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto min-w-0">
+            <div className="flex gap-2 w-full md:w-auto min-w-0">
               <Select value={sortBy} onValueChange={onSortByChange}>
                 <SelectTrigger className="w-full sm:w-40 max-w-full">
                   <SelectValue placeholder="Sort by" />
@@ -350,119 +350,31 @@ export const ShortlistsContent = ({
               >
                 <ArrowUpDown className="h-4 w-4" />
               </Button>
-            </div>
-          </div>
 
-          {/* Row 2: Filters */}
-          <div className="flex flex-wrap gap-3 items-end">
-            {/* Position Filter */}
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-muted-foreground">Position</span>
-              <Select value={positionFilter} onValueChange={onPositionFilterChange}>
-                <SelectTrigger className="w-28">
-                  <SelectValue placeholder="All" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="GK">GK</SelectItem>
-                  <SelectItem value="CB">CB</SelectItem>
-                  <SelectItem value="LB">LB</SelectItem>
-                  <SelectItem value="RB">RB</SelectItem>
-                  <SelectItem value="CDM">CDM</SelectItem>
-                  <SelectItem value="CM">CM</SelectItem>
-                  <SelectItem value="CAM">CAM</SelectItem>
-                  <SelectItem value="LW">LW</SelectItem>
-                  <SelectItem value="RW">RW</SelectItem>
-                  <SelectItem value="ST">ST</SelectItem>
-                  <SelectItem value="CF">CF</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Scouted Filter */}
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-muted-foreground">Scouted</span>
-              <Select value={scoutedFilter} onValueChange={onScoutedFilterChange}>
-                <SelectTrigger className="w-24">
-                  <SelectValue placeholder="All" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="yes">Yes</SelectItem>
-                  <SelectItem value="no">No</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Status Filter */}
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-muted-foreground">Status</span>
-              <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="All" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="not_scouted">Not Scouted</SelectItem>
-                  <SelectItem value="assigned">Assigned</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="reported">Reported</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* EU/GBE Filter */}
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-muted-foreground">EU/GBE</span>
-              <Select value={euGbeFilter} onValueChange={onEuGbeFilterChange}>
-                <SelectTrigger className="w-24">
-                  <SelectValue placeholder="All" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="pass">Pass</SelectItem>
-                  <SelectItem value="fail">Fail</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* xTV Range Filter */}
-            <div className="flex flex-col gap-1.5 flex-1 min-w-[200px] max-w-[400px]">
-              <span className="text-xs font-medium text-muted-foreground">
-                xTV Range: £{xtvRange[0]}M - £{xtvRange[1]}M
-              </span>
-              <div className="h-9 flex items-center">
-                <Slider
-                  value={xtvRange}
-                  onValueChange={(value) => onXtvRangeChange(value as [number, number])}
-                  min={0}
-                  max={maxXtv}
-                  step={1}
-                  className="w-full"
-                />
-              </div>
-            </div>
-
-            {/* Clear Filters Button */}
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-transparent">Clear</span>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="h-9"
-                onClick={() => {
+              <ShortlistFilterPopover
+                positionFilter={positionFilter}
+                onPositionFilterChange={onPositionFilterChange}
+                scoutedFilter={scoutedFilter}
+                onScoutedFilterChange={onScoutedFilterChange}
+                statusFilter={statusFilter}
+                onStatusFilterChange={onStatusFilterChange}
+                euGbeFilter={euGbeFilter}
+                onEuGbeFilterChange={onEuGbeFilterChange}
+                availabilityFilter={availabilityFilter}
+                onAvailabilityFilterChange={onAvailabilityFilterChange}
+                xtvRange={xtvRange}
+                onXtvRangeChange={onXtvRangeChange}
+                maxXtv={maxXtv}
+                onClearFilters={() => {
                   onPositionFilterChange("all");
                   onXtvRangeChange([0, maxXtv]);
                   onScoutedFilterChange("all");
                   onStatusFilterChange("all");
                   onEuGbeFilterChange("all");
+                  onAvailabilityFilterChange("all");
                   onSearchChange("");
                 }}
-              >
-                Clear Filters
-              </Button>
+              />
             </div>
           </div>
         </div>
