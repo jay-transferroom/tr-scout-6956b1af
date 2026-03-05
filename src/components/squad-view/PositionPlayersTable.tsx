@@ -351,18 +351,22 @@ const PositionPlayersTable = ({
               {player.transferroomRating}
             </Badge>
           )}
-          {/* Add to position button - always show */}
+          {/* Add/Remove from position button */}
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0"
+            className={cn("h-7 w-7 p-0", isAssigned && "text-destructive hover:text-destructive")}
             onClick={(e) => {
               e.stopPropagation();
-              onAddPlayerToPosition?.(selectedPosition!, player.id);
+              if (isAssigned) {
+                onRemovePlayerFromPosition?.(selectedPosition!, player.id);
+              } else {
+                onAddPlayerToPosition?.(selectedPosition!, player.id);
+              }
             }}
-            title="Add to position"
+            title={isAssigned ? "Remove from position" : "Add to position"}
           >
-            <Plus className="h-3.5 w-3.5" />
+            {isAssigned ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
           </Button>
           {/* Shortlist actions - only for non-squad players */}
           {showShortlistActions && (
