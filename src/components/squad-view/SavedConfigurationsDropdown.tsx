@@ -109,59 +109,91 @@ const SavedConfigurationsDropdown = ({
             No saved configurations yet
           </div>
         ) : (
-          configurations.map((config) => {
-            const isLoaded = config.id === loadedConfigurationId;
-            return (
-              <DropdownMenuItem
-                key={config.id}
-                className={`flex items-center justify-between p-2 cursor-pointer ${isLoaded ? 'bg-primary/10' : ''}`}
-                onClick={() => handleLoad(config)}
-              >
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div className="flex flex-col min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className={`font-medium text-sm truncate ${isLoaded ? 'text-primary' : ''}`}>
-                        {config.name}
-                      </span>
-                      {config.is_default && (
-                        <Star className="h-3 w-3 fill-primary text-primary shrink-0" />
-                      )}
-                      {isLoaded && (
-                        <Badge variant="default" className="text-[10px] h-4 px-1">Active</Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <span>{config.formation}</span>
-                      {config.overall_rating && (
-                        <>
-                          <span>•</span>
-                          <span>⭐ {config.overall_rating}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={(e) => handleSetDefault(config, e)}
-                  >
-                    <Star className={`h-3 w-3 ${config.is_default ? 'fill-primary text-primary' : 'text-muted-foreground'}`} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                    onClick={(e) => handleDelete(config, e)}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </DropdownMenuItem>
-            );
-          })
+          (() => {
+            const grouped = configurations.reduce<Record<string, SquadConfiguration[]>>((acc, config) => {
+              const key = config.squad_type || 'first-team';
+              if (!acc[key]) acc[key] = [];
+              acc[key].push(config);
+              return acc;
+            }, {});
+
+            const squadOrder = ['first-team', 'u21', 'u18', 'shadow-squad', 'on-loan'];
+            const squadLabels: Record<string, string> = {
+              'first-team': 'First Team',
+              'u21': 'Under 21s',
+              'u18': 'Under 18s',
+              'shadow-squad': 'Shadow Squad',
+              'on-loan': 'On Loan',
+            };
+
+            const sortedKeys = Object.keys(grouped).sort((a, b) => {
+              const ai = squadOrder.indexOf(a);
+              const bi = squadOrder.indexOf(b);
+              return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+            });
+
+            return sortedKeys.map((squadType, groupIdx) => (
+              <div key={squadType}>
+                {groupIdx > 0 && <DropdownMenuSeparator />}
+                <DropdownMenuLabel className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  {squadLabels[squadType] || squadType}
+                </DropdownMenuLabel>
+                {grouped[squadType].map((config) => {
+                  const isLoaded = config.id === loadedConfigurationId;
+                  return (
+                    <DropdownMenuItem
+                      key={config.id}
+                      className={`flex items-center justify-between p-2 cursor-pointer ${isLoaded ? 'bg-primary/10' : ''}`}
+                      onClick={() => handleLoad(config)}
+                    >
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className="flex flex-col min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className={`font-medium text-sm truncate ${isLoaded ? 'text-primary' : ''}`}>
+                              {config.name}
+                            </span>
+                            {config.is_default && (
+                              <Star className="h-3 w-3 fill-primary text-primary shrink-0" />
+                            )}
+                            {isLoaded && (
+                              <Badge variant="default" className="text-[10px] h-4 px-1">Active</Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <span>{config.formation}</span>
+                            {config.overall_rating && (
+                              <>
+                                <span>•</span>
+                                <span>⭐ {config.overall_rating}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                          onClick={(e) => handleSetDefault(config, e)}
+                        >
+                          <Star className={`h-3 w-3 ${config.is_default ? 'fill-primary text-primary' : 'text-muted-foreground'}`} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                          onClick={(e) => handleDelete(config, e)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </DropdownMenuItem>
+                  );
+                })}
+              </div>
+            ));
+          })()
         )}
       </DropdownMenuContent>
     </DropdownMenu>
