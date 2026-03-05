@@ -1,0 +1,1 @@
+ALTER TABLE public.shortlist_players ADD COLUMN availability text DEFAULT NULL;

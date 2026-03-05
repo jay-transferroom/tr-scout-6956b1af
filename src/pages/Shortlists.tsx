@@ -27,12 +27,13 @@ const Shortlists = () => {
   const [xtvRange, setXtvRange] = useState<[number, number]>([0, 100]);
   const [scoutedFilter, setScoutedFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [availabilityFilter, setAvailabilityFilter] = useState<string>("all");
 
   const { data: allPlayers = [], isLoading } = usePlayersData();
   const { data: assignments = [], refetch: refetchAssignments } = useScoutingAssignments();
   const { reports = [] } = useReports();
   const { privatePlayers } = usePrivatePlayers();
-  const { shortlists, createShortlist, updateShortlist, deleteShortlist, addPlayerToShortlist, removePlayerFromShortlist, getPlayerShortlists, refreshShortlists } = useShortlists();
+  const { shortlists, createShortlist, updateShortlist, deleteShortlist, addPlayerToShortlist, removePlayerFromShortlist, getPlayerShortlists, refreshShortlists, updatePlayerAvailability } = useShortlists();
   const queryClient = useQueryClient();
 
   const shortlistsLogic = useShortlistsLogic({
@@ -49,7 +50,8 @@ const Shortlists = () => {
     positionFilter,
     xtvRange,
     scoutedFilter,
-    statusFilter
+    statusFilter,
+    availabilityFilter
   });
 
   // Handle URL parameters for selected shortlist - exclude scouting assignment list
@@ -202,6 +204,8 @@ const Shortlists = () => {
         onScoutedFilterChange={setScoutedFilter}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
+        availabilityFilter={availabilityFilter}
+        onAvailabilityFilterChange={setAvailabilityFilter}
         getAssignmentBadge={shortlistsLogic.getAssignmentBadge}
         getEuGbeBadge={shortlistsLogic.getEuGbeBadge}
         formatXtvScore={shortlistsLogic.formatXtvScore}
@@ -215,6 +219,11 @@ const Shortlists = () => {
         onBulkRemove={handleBulkRemove}
         allShortlists={shortlists}
         currentListId={selectedList}
+        onUpdateAvailability={(playerId, availability) => {
+          if (selectedList) {
+            updatePlayerAvailability(selectedList, playerId, availability);
+          }
+        }}
       />
 
       {/* Assign Scout Dialog */}

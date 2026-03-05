@@ -3,12 +3,23 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
+export type PlayerAvailability = 'Pitched' | 'Available to buy' | 'Available to buy & loan' | 'Shortlisted' | 'Interest Declared';
+
+export const AVAILABILITY_OPTIONS: PlayerAvailability[] = [
+  'Pitched',
+  'Available to buy',
+  'Available to buy & loan',
+  'Shortlisted',
+  'Interest Declared'
+];
+
 export interface Shortlist {
   id: string;
   name: string;
   description: string;
   color: string;
   playerIds: string[]; // For compatibility with existing code
+  playerAvailability: Record<string, PlayerAvailability | null>; // playerId -> availability
   created_at?: string;
   updated_at?: string;
   requirement_id?: string; // For director users
@@ -60,20 +71,27 @@ export const useShortlists = () => {
         shortlistsData.map(async (shortlist) => {
           const { data: playersData, error: playersError } = await supabase
             .from('shortlist_players')
-            .select('player_id')
+            .select('player_id, availability')
             .eq('shortlist_id', shortlist.id);
 
           if (playersError) {
             console.error('Error fetching players for shortlist:', playersError);
             return {
               ...shortlist,
-              playerIds: []
+              playerIds: [],
+              playerAvailability: {}
             };
           }
 
+          const playerAvailability: Record<string, PlayerAvailability | null> = {};
+          playersData?.forEach(p => {
+            playerAvailability[p.player_id] = (p as any).availability || null;
+          });
+
           return {
             ...shortlist,
-            playerIds: playersData?.map(p => p.player_id) || []
+            playerIds: playersData?.map(p => p.player_id) || [],
+            playerAvailability
           };
         })
       );
@@ -145,7 +163,8 @@ export const useShortlists = () => {
 
       const newShortlist: Shortlist = {
         ...shortlistData,
-        playerIds
+        playerIds,
+        playerAvailability: {}
       };
 
       setShortlists(prev => [...prev, newShortlist]);
@@ -420,6 +439,38 @@ export const useShortlists = () => {
     }
   }, [getScoutingAssignmentList, removePlayerFromShortlist, loadShortlists, toast]);
 
+  const updatePlayerAvailability = useCallback(async (shortlistId: string, playerId: string, availability: PlayerAvailability | null) => {
+    try {
+      const { error } = await supabase
+        .from('shortlist_players')
+        .update({ availability } as any)
+        .eq('shortlist_id', shortlistId)
+        .eq('player_id', playerId);
+
+      if (error) throw error;
+
+      setShortlists(prev => prev.map(shortlist => {
+        if (shortlist.id === shortlistId) {
+          return {
+            ...shortlist,
+            playerAvailability: {
+              ...shortlist.playerAvailability,
+              [playerId]: availability
+            }
+          };
+        }
+        return shortlist;
+      }));
+    } catch (error) {
+      console.error('Error updating player availability:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update availability",
+        variant: "destructive"
+      });
+    }
+  }, [toast]);
+
   return {
     shortlists,
     loading,
@@ -433,5 +484,6 @@ export const useShortlists = () => {
     getScoutingAssignmentList,
     addPlayerToScoutingAssignment,
     removePlayerFromScoutingAssignment,
+    updatePlayerAvailability,
   };
 };

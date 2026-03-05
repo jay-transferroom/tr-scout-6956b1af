@@ -17,6 +17,7 @@ interface UseShortlistsLogicProps {
   xtvRange: [number, number];
   scoutedFilter: string;
   statusFilter: string;
+  availabilityFilter: string;
 }
 
 export const useShortlistsLogic = ({
@@ -33,7 +34,8 @@ export const useShortlistsLogic = ({
   positionFilter,
   xtvRange,
   scoutedFilter,
-  statusFilter
+  statusFilter,
+  availabilityFilter
 }: UseShortlistsLogicProps) => {
   
   // Get real private players for shortlists from usePrivatePlayers hook
@@ -181,9 +183,18 @@ export const useShortlistsLogic = ({
         return status === statusFilter;
       });
 
+  // Apply availability filter
+  const availabilityFilteredPlayers = availabilityFilter === "all"
+    ? statusFilteredPlayers
+    : statusFilteredPlayers.filter(player => {
+        const playerAvailability = currentList?.playerAvailability?.[player.id.toString()] || null;
+        if (availabilityFilter === "unset") return !playerAvailability;
+        return playerAvailability === availabilityFilter;
+      });
+
   // Apply sorting
   const sortedPlayers = useMemo(() => {
-    return [...statusFilteredPlayers].sort((a, b) => {
+    return [...availabilityFilteredPlayers].sort((a, b) => {
       let aValue: any, bValue: any;
       
       switch (sortBy) {
@@ -224,7 +235,7 @@ export const useShortlistsLogic = ({
         return aValue < bValue ? 1 : -1;
       }
     });
-  }, [statusFilteredPlayers, sortBy, sortOrder]);
+  }, [availabilityFilteredPlayers, sortBy, sortOrder]);
 
   const formatXtvScore = (score: number) => {
     return (score / 1000000).toFixed(1);
