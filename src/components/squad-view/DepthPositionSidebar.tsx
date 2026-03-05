@@ -411,6 +411,62 @@ const DepthPositionSidebar = ({
                 </div>
               )}
             </div>
+
+            {/* All Squad - collapsed by default, only on Squad tab */}
+            {availableTab === 'squad' && selectedPosition && (() => {
+              const allSquadRemainder = squadPlayers.filter(p =>
+                !availableSquadPlayers.some(sp => sp.id === p.id) &&
+                !assignedPlayerIds.includes(p.id)
+              ).sort((a, b) => (getClubRating(b, clubWeights) || b.xtvScore || 0) - (getClubRating(a, clubWeights) || a.xtvScore || 0));
+
+              return allSquadRemainder.length > 0 ? (
+                <Collapsible>
+                  <CollapsibleTrigger className="flex items-center gap-2 w-full px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors border-t mt-2 [&[data-state=open]>svg]:rotate-90">
+                    <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200" />
+                    <Users className="h-3.5 w-3.5" />
+                    All Squad
+                    <Badge variant="secondary" className="text-xs ml-auto">{allSquadRemainder.length}</Badge>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="space-y-1 mt-1">
+                      {allSquadRemainder.map(player => {
+                        const rating = getClubRating(player, clubWeights) ?? player.xtvScore;
+                        return (
+                          <div
+                            key={player.id}
+                            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer"
+                            onClick={() => navigate(player.isPrivatePlayer ? `/private-player/${player.id}` : `/player/${player.id}`)}
+                          >
+                            <PlayerAvatar playerName={player.name} avatarUrl={player.image} size="sm" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{player.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {player.positions.join(', ')} • {player.age}y
+                              </p>
+                            </div>
+                            {rating && (
+                              <Badge variant="outline" className="text-xs shrink-0 tabular-nums">{rating}</Badge>
+                            )}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 px-2 text-xs shrink-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onAddPlayerToPosition(selectedPosition, player.id);
+                              }}
+                            >
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              ) : null;
+            })()}
           </div>
         </div>
       </ScrollArea>
