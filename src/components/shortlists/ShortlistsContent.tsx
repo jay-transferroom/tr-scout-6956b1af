@@ -1,10 +1,9 @@
 
 import { useState, useMemo } from "react";
-import { ArrowUpDown, ChevronUp, ChevronDown, Download, Plus, Wand2 } from "lucide-react";
+import { Search, ArrowUpDown, ChevronUp, ChevronDown, Download, Plus, Wand2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -311,30 +310,17 @@ export const ShortlistsContent = ({
       )}
       
       <CardContent className="w-full max-w-full overflow-hidden px-4 sm:px-6">
-        {/* Sort and Filters */}
+        {/* Search and Filters */}
         <div className="flex gap-2 mb-6 w-full max-w-full min-w-0">
-          <Select value={sortBy} onValueChange={onSortByChange}>
-            <SelectTrigger className="w-full sm:w-40 max-w-full">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="name">Name</SelectItem>
-              <SelectItem value="age">Age</SelectItem>
-              <SelectItem value="rating">Rating</SelectItem>
-              <SelectItem value="potential">Potential</SelectItem>
-              <SelectItem value="xtv">XTV</SelectItem>
-              <SelectItem value="contract">Contract</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Button 
-            variant="outline" 
-            size="icon"
-            onClick={onSortOrderChange}
-            className="shrink-0"
-          >
-            <ArrowUpDown className="h-4 w-4" />
-          </Button>
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by player or club name..."
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
           <ShortlistFilterPopover
             positionFilter={positionFilter}
@@ -350,8 +336,6 @@ export const ShortlistsContent = ({
             xtvRange={xtvRange}
             onXtvRangeChange={onXtvRangeChange}
             maxXtv={maxXtv}
-            searchTerm={searchTerm}
-            onSearchChange={onSearchChange}
             onClearFilters={() => {
               onPositionFilterChange("all");
               onXtvRangeChange([0, maxXtv]);
@@ -359,7 +343,6 @@ export const ShortlistsContent = ({
               onStatusFilterChange("all");
               onEuGbeFilterChange("all");
               onAvailabilityFilterChange("all");
-              onSearchChange("");
             }}
           />
         </div>
