@@ -941,18 +941,21 @@ export type Database = {
       shortlist_players: {
         Row: {
           added_at: string
+          availability: string | null
           id: string
           player_id: string
           shortlist_id: string
         }
         Insert: {
           added_at?: string
+          availability?: string | null
           id?: string
           player_id: string
           shortlist_id: string
         }
         Update: {
           added_at?: string
+          availability?: string | null
           id?: string
           player_id?: string
           shortlist_id?: string
