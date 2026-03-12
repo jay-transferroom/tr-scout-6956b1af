@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -8,7 +9,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { Save, ChevronDown, Star, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Save, ChevronDown, Star, Trash2, Pencil } from "lucide-react";
 import { 
   useSquadConfigurations, 
   useDeleteSquadConfiguration,
@@ -16,7 +25,6 @@ import {
   SquadConfiguration 
 } from "@/hooks/useSquadConfigurations";
 import { toast } from "@/hooks/use-toast";
-
 
 interface SavedConfigurationsDropdownProps {
   clubName: string;
@@ -32,6 +40,8 @@ const SavedConfigurationsDropdown = ({
   const { data: configurations = [], isLoading } = useSquadConfigurations(clubName);
   const deleteConfiguration = useDeleteSquadConfiguration();
   const updateConfiguration = useUpdateSquadConfiguration();
+  const [renameConfig, setRenameConfig] = useState<SquadConfiguration | null>(null);
+  const [newName, setNewName] = useState("");
 
   const handleSetDefault = async (config: SquadConfiguration, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -41,7 +51,6 @@ const SavedConfigurationsDropdown = ({
         is_default: !config.is_default,
         club_name: config.club_name,
       });
-
       toast({
         title: config.is_default ? "Default removed" : "Default set",
         description: config.is_default 
@@ -49,11 +58,7 @@ const SavedConfigurationsDropdown = ({
           : `${config.name} is now the default configuration`,
       });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update default configuration",
-        variant: "destructive"
-      });
+      toast({ title: "Error", description: "Failed to update default configuration", variant: "destructive" });
     }
   };
 
@@ -61,16 +66,30 @@ const SavedConfigurationsDropdown = ({
     e.stopPropagation();
     try {
       await deleteConfiguration.mutateAsync({ id: config.id, clubName });
-      toast({
-        title: "Configuration deleted",
-        description: `${config.name} has been removed`,
-      });
+      toast({ title: "Configuration deleted", description: `${config.name} has been removed` });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete configuration",
-        variant: "destructive"
+      toast({ title: "Error", description: "Failed to delete configuration", variant: "destructive" });
+    }
+  };
+
+  const handleRenameClick = (config: SquadConfiguration, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setRenameConfig(config);
+    setNewName(config.name);
+  };
+
+  const handleRenameSubmit = async () => {
+    if (!renameConfig || !newName.trim()) return;
+    try {
+      await updateConfiguration.mutateAsync({
+        id: renameConfig.id,
+        name: newName.trim(),
+        club_name: renameConfig.club_name,
       });
+      toast({ title: "Renamed", description: `Configuration renamed to "${newName.trim()}"` });
+      setRenameConfig(null);
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to rename configuration", variant: "destructive" });
     }
   };
 
@@ -81,122 +100,148 @@ const SavedConfigurationsDropdown = ({
   const loadedConfig = configurations.find(c => c.id === loadedConfigurationId);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="h-9 gap-2">
-          <Save className="h-4 w-4" />
-          <span className="hidden sm:inline">
-            {loadedConfig ? loadedConfig.name : 'Configurations'}
-          </span>
-          <Badge variant="secondary" className="h-5 min-w-5 px-1 text-xs">
-            {configurations.length}
-          </Badge>
-          <ChevronDown className="h-3 w-3 opacity-50" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72">
-        <DropdownMenuLabel className="text-xs text-muted-foreground">
-          Saved Configurations
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        
-        {isLoading ? (
-          <div className="p-3 text-center text-sm text-muted-foreground">
-            Loading...
-          </div>
-        ) : configurations.length === 0 ? (
-          <div className="p-3 text-center text-sm text-muted-foreground">
-            No saved configurations yet
-          </div>
-        ) : (
-          (() => {
-            const grouped = configurations.reduce<Record<string, SquadConfiguration[]>>((acc, config) => {
-              const key = config.squad_type || 'first-team';
-              if (!acc[key]) acc[key] = [];
-              acc[key].push(config);
-              return acc;
-            }, {});
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" className="h-9 gap-2">
+            <Save className="h-4 w-4" />
+            <span className="hidden sm:inline">
+              {loadedConfig ? loadedConfig.name : 'Configurations'}
+            </span>
+            <Badge variant="secondary" className="h-5 min-w-5 px-1 text-xs">
+              {configurations.length}
+            </Badge>
+            <ChevronDown className="h-3 w-3 opacity-50" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-72">
+          <DropdownMenuLabel className="text-xs text-muted-foreground">
+            Saved Configurations
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          
+          {isLoading ? (
+            <div className="p-3 text-center text-sm text-muted-foreground">Loading...</div>
+          ) : configurations.length === 0 ? (
+            <div className="p-3 text-center text-sm text-muted-foreground">No saved configurations yet</div>
+          ) : (
+            (() => {
+              const grouped = configurations.reduce<Record<string, SquadConfiguration[]>>((acc, config) => {
+                const key = config.squad_type || 'first-team';
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(config);
+                return acc;
+              }, {});
 
-            const squadOrder = ['first-team', 'u21', 'u18', 'shadow-squad', 'on-loan'];
-            const squadLabels: Record<string, string> = {
-              'first-team': 'First Team',
-              'u21': 'Under 21s',
-              'u18': 'Under 18s',
-              'shadow-squad': 'Shadow Squad',
-              'on-loan': 'On Loan',
-            };
+              const squadOrder = ['first-team', 'u21', 'u18', 'shadow-squad', 'on-loan'];
+              const squadLabels: Record<string, string> = {
+                'first-team': 'First Team',
+                'u21': 'Under 21s',
+                'u18': 'Under 18s',
+                'shadow-squad': 'Shadow Squad',
+                'on-loan': 'On Loan',
+              };
 
-            const sortedKeys = Object.keys(grouped).sort((a, b) => {
-              const ai = squadOrder.indexOf(a);
-              const bi = squadOrder.indexOf(b);
-              return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-            });
+              const sortedKeys = Object.keys(grouped).sort((a, b) => {
+                const ai = squadOrder.indexOf(a);
+                const bi = squadOrder.indexOf(b);
+                return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+              });
 
-            return sortedKeys.map((squadType, groupIdx) => (
-              <div key={squadType}>
-                {groupIdx > 0 && <DropdownMenuSeparator />}
-                <DropdownMenuLabel className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-                  {squadLabels[squadType] || squadType}
-                </DropdownMenuLabel>
-                {grouped[squadType].map((config) => {
-                  const isLoaded = config.id === loadedConfigurationId;
-                  return (
-                    <DropdownMenuItem
-                      key={config.id}
-                      className={`flex items-center justify-between p-2 cursor-pointer ${isLoaded ? 'bg-primary/10' : ''}`}
-                      onClick={() => handleLoad(config)}
-                    >
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div className="flex flex-col min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className={`font-medium text-sm truncate ${isLoaded ? 'text-primary' : ''}`}>
-                              {config.name}
-                            </span>
-                            {config.is_default && (
-                              <Star className="h-3 w-3 fill-primary text-primary shrink-0" />
-                            )}
-                            {isLoaded && (
-                              <Badge variant="default" className="text-[10px] h-4 px-1">Active</Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <span>{config.formation}</span>
-                            {config.overall_rating && (
-                              <>
-                                <span>•</span>
-                                <span>⭐ {config.overall_rating}</span>
-                              </>
-                            )}
+              return sortedKeys.map((squadType, groupIdx) => (
+                <div key={squadType}>
+                  {groupIdx > 0 && <DropdownMenuSeparator />}
+                  <DropdownMenuLabel className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    {squadLabels[squadType] || squadType}
+                  </DropdownMenuLabel>
+                  {grouped[squadType].map((config) => {
+                    const isLoaded = config.id === loadedConfigurationId;
+                    return (
+                      <DropdownMenuItem
+                        key={config.id}
+                        className={`flex items-center justify-between p-2 cursor-pointer ${isLoaded ? 'bg-primary/10' : ''}`}
+                        onClick={() => handleLoad(config)}
+                      >
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <div className="flex flex-col min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className={`font-medium text-sm truncate ${isLoaded ? 'text-primary' : ''}`}>
+                                {config.name}
+                              </span>
+                              {config.is_default && (
+                                <Star className="h-3 w-3 fill-primary text-primary shrink-0" />
+                              )}
+                              {isLoaded && (
+                                <Badge variant="default" className="text-[10px] h-4 px-1">Active</Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <span>{config.formation}</span>
+                              {config.overall_rating && (
+                                <>
+                                  <span>•</span>
+                                  <span>⭐ {config.overall_rating}</span>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0"
-                          onClick={(e) => handleSetDefault(config, e)}
-                        >
-                          <Star className={`h-3 w-3 ${config.is_default ? 'fill-primary text-primary' : 'text-muted-foreground'}`} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                          onClick={(e) => handleDelete(config, e)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </DropdownMenuItem>
-                  );
-                })}
-              </div>
-            ));
-          })()
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={(e) => handleRenameClick(config, e)}
+                          >
+                            <Pencil className="h-3 w-3 text-muted-foreground" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={(e) => handleSetDefault(config, e)}
+                          >
+                            <Star className={`h-3 w-3 ${config.is_default ? 'fill-primary text-primary' : 'text-muted-foreground'}`} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                            onClick={(e) => handleDelete(config, e)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </div>
+              ));
+            })()
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Dialog open={!!renameConfig} onOpenChange={(open) => !open && setRenameConfig(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Rename Configuration</DialogTitle>
+          </DialogHeader>
+          <Input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="Configuration name"
+            onKeyDown={(e) => e.key === 'Enter' && handleRenameSubmit()}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRenameConfig(null)}>Cancel</Button>
+            <Button onClick={handleRenameSubmit} disabled={!newName.trim() || updateConfiguration.isPending}>
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
