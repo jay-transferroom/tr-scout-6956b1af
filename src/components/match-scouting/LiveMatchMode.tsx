@@ -27,7 +27,7 @@ const LiveMatchMode = ({ template, report, onUpdate, onSave, onBack }: LiveMatch
 
   // Timer for live match
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (isLive) {
       interval = setInterval(() => {
         setCurrentTime(prev => prev + 1);

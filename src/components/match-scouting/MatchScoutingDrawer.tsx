@@ -122,7 +122,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   const [notes, setNotes] = useState(existingNotes);
   const [rating, setRating] = useState<number | null>(existingRating);
   const [isDirty, setIsDirty] = useState(false);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { status, description } = getPlayerStatus(player.id);
 
   // Track changes
