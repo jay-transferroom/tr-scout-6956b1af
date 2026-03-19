@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Player } from "@/types/player";
@@ -10,6 +9,7 @@ import TemplateSelectionScreen from "@/components/report-builder/TemplateSelecti
 import ReportForm from "@/components/report-builder/ReportForm";
 import { useReportBuilder } from "@/hooks/useReportBuilder";
 import { usePlayerData } from "@/hooks/usePlayerData";
+import { useTemplates } from "@/hooks/useTemplates";
 
 interface LocationState {
   player?: Player;
@@ -18,27 +18,26 @@ interface LocationState {
   selectedPrivatePlayer?: PrivatePlayer;
 }
 
-// Transform private player to regular player format for report building
 const transformPrivatePlayerToPlayer = (privatePlayer: PrivatePlayer): Player => ({
   id: `private-${privatePlayer.id}`,
   name: privatePlayer.name,
-  club: privatePlayer.club || 'Unknown',
+  club: privatePlayer.club || "Unknown",
   age: privatePlayer.age || 0,
-  dateOfBirth: privatePlayer.date_of_birth || '',
+  dateOfBirth: privatePlayer.date_of_birth || "",
   positions: privatePlayer.positions || [],
-  dominantFoot: privatePlayer.dominant_foot || 'Right',
-  nationality: privatePlayer.nationality || 'Unknown',
-  contractStatus: 'Under Contract',
+  dominantFoot: privatePlayer.dominant_foot || "Right",
+  nationality: privatePlayer.nationality || "Unknown",
+  contractStatus: "Under Contract",
   contractExpiry: undefined,
-  region: privatePlayer.region || 'Unknown',
+  region: privatePlayer.region || "Unknown",
   image: undefined,
   xtvScore: undefined,
   transferroomRating: undefined,
   futureRating: undefined,
-  euGbeStatus: 'Pass',
+  euGbeStatus: "Pass",
   recentForm: undefined,
   isPrivatePlayer: true,
-  privatePlayerData: privatePlayer
+  privatePlayerData: privatePlayer,
 });
 
 const ReportBuilder = () => {
@@ -53,77 +52,83 @@ const ReportBuilder = () => {
   const [showTemplateSelection, setShowTemplateSelection] = useState(false);
   const { user } = useAuth();
   const { initializeReport, handleSaveReport, isSubmitting } = useReportBuilder();
+  const { templates } = useTemplates();
 
   const state = location.state as LocationState;
-  
-  // Get playerId from URL parameters or state
-  const playerIdFromUrl = searchParams.get('playerId');
-  const assignmentId = searchParams.get('assignmentId');
+  const playerIdFromUrl = searchParams.get("playerId");
+  const templateIdFromUrl = searchParams.get("templateId");
   const playerIdToFetch = playerIdFromUrl || state?.selectedPlayerId;
-  
-  // Fetch player data if we have a playerId
   const { data: fetchedPlayer, isLoading: playerLoading } = usePlayerData(playerIdToFetch || undefined);
 
-  // Initialize the component state only once
   useEffect(() => {
     if (initialized) return;
 
-    console.log('ReportBuilder initializing once...');
-    
-    // Case 1: Both player and template provided via state
+    const applyMatchContext = (baseReport: Report): Report => ({
+      ...baseReport,
+      matchContext: searchParams.get("matchDate") && searchParams.get("opposition")
+        ? {
+            fixtureId: searchParams.get("fixtureId") || undefined,
+            date: searchParams.get("matchDate") || "",
+            opposition: searchParams.get("opposition") || "",
+            competition: searchParams.get("competition") || "Match Scouting",
+            minutesPlayed: Number(searchParams.get("minutesPlayed") || 0),
+            roleContext: searchParams.get("roleContext") || undefined,
+          }
+        : baseReport.matchContext,
+      watchMethod: (searchParams.get("watchMethod") as Report["watchMethod"]) || baseReport.watchMethod,
+    });
+
+    const initializeWithPlayerAndTemplate = (selectedPlayer: Player, selectedTemplate: ReportTemplate) => {
+      setPlayer(selectedPlayer);
+      setTemplate(selectedTemplate);
+      setShowPlayerSearch(false);
+      setShowTemplateSelection(false);
+      setReport(applyMatchContext(initializeReport(selectedPlayer, selectedTemplate)));
+      setInitialized(true);
+    };
+
     if (state?.player && state?.template) {
-      console.log('Both player and template provided via state');
-      setPlayer(state.player);
-      setTemplate(state.template);
-      const newReport = initializeReport(state.player, state.template);
-      setReport(newReport);
-      setInitialized(true);
+      initializeWithPlayerAndTemplate(state.player, state.template);
       return;
     }
 
-    // Case 2: Only player provided via state
     if (state?.player) {
-      console.log('Player provided via state, showing template selection');
       setPlayer(state.player);
       setShowTemplateSelection(true);
       setInitialized(true);
       return;
     }
 
-    // Case 3: Private player provided via state
     if (state?.selectedPrivatePlayer) {
-      console.log('Private player provided via state, converting and showing template selection');
-      const convertedPlayer = transformPrivatePlayerToPlayer(state.selectedPrivatePlayer);
-      setPlayer(convertedPlayer);
+      setPlayer(transformPrivatePlayerToPlayer(state.selectedPrivatePlayer));
       setShowTemplateSelection(true);
       setInitialized(true);
       return;
     }
 
-    // Case 4: Player fetched from URL/state ID
+    if (playerIdToFetch && playerLoading) {
+      return;
+    }
+
+    if (playerIdToFetch && fetchedPlayer && templateIdFromUrl) {
+      const matchedTemplate = templates.find((item) => item.id === templateIdFromUrl);
+      if (!matchedTemplate) return;
+      initializeWithPlayerAndTemplate(fetchedPlayer, matchedTemplate);
+      return;
+    }
+
     if (playerIdToFetch && fetchedPlayer) {
-      console.log('Player fetched from ID, going to template selection');
       setPlayer(fetchedPlayer);
       setShowTemplateSelection(true);
       setInitialized(true);
       return;
     }
 
-    // Case 5: No player data available
     if (!playerIdToFetch && !state?.player && !state?.selectedPrivatePlayer && !playerLoading) {
-      console.log('No player data provided, showing player selection');
       setShowPlayerSearch(true);
       setInitialized(true);
-      return;
     }
-
-    // Case 6: Still loading player data
-    if (playerIdToFetch && playerLoading) {
-      console.log('Waiting for player to be fetched');
-      return;
-    }
-
-  }, [state, fetchedPlayer, playerLoading, playerIdToFetch, initializeReport, initialized]);
+  }, [fetchedPlayer, initializeReport, initialized, playerIdToFetch, playerLoading, searchParams, state, templateIdFromUrl, templates]);
 
   const handlePlayerSelect = useCallback((selectedPlayer: Player) => {
     setPlayer(selectedPlayer);
@@ -132,38 +137,29 @@ const ReportBuilder = () => {
   }, []);
 
   const handleTemplateSelect = useCallback((selectedPlayer: Player, selectedTemplate: ReportTemplate) => {
-    console.log('Template selected:', selectedTemplate);
     setTemplate(selectedTemplate);
     setShowTemplateSelection(false);
-    const newReport = initializeReport(selectedPlayer, selectedTemplate);
-    setReport(newReport);
+    setReport(initializeReport(selectedPlayer, selectedTemplate));
   }, [initializeReport]);
 
-  const handleFieldChange = useCallback((
-    sectionId: string,
-    fieldId: string,
-    value: any,
-    notes?: string
-  ) => {
+  const handleFieldChange = useCallback((sectionId: string, fieldId: string, value: any, notes?: string) => {
     setReport((prevReport) => {
       if (!prevReport) return null;
 
       const updatedSections = prevReport.sections.map((section) => {
         if (section.sectionId !== sectionId) return section;
 
-        const updatedFields = section.fields.map((field) => {
-          if (field.fieldId !== fieldId) return field;
-
-          return {
-            ...field,
-            value,
-            notes,
-          };
-        });
-
         return {
           ...section,
-          fields: updatedFields,
+          fields: section.fields.map((field) => {
+            if (field.fieldId !== fieldId) return field;
+
+            return {
+              ...field,
+              value,
+              notes,
+            };
+          }),
         };
       });
 
@@ -175,40 +171,25 @@ const ReportBuilder = () => {
     });
   }, []);
 
-  // Show loading state while fetching player
   if (playerIdToFetch && playerLoading) {
     return (
-      <div className="container mx-auto py-8 flex items-center justify-center">
+      <div className="container mx-auto flex items-center justify-center py-8">
         <p>Loading player information...</p>
       </div>
     );
   }
 
-  // Show player search if no player is available
   if (showPlayerSearch) {
-    return (
-      <PlayerSelectionScreen
-        onSelectPlayer={handlePlayerSelect}
-        onBack={() => navigate("/")}
-      />
-    );
+    return <PlayerSelectionScreen onSelectPlayer={handlePlayerSelect} onBack={() => navigate("/")} />;
   }
 
-  // Show template selection if we have a player but no template
   if (showTemplateSelection && player) {
-    return (
-      <TemplateSelectionScreen
-        player={player}
-        onSelectTemplate={handleTemplateSelect}
-        onBack={() => navigate(-1)}
-      />
-    );
+    return <TemplateSelectionScreen player={player} onSelectTemplate={handleTemplateSelect} onBack={() => navigate(-1)} />;
   }
 
-  // Show loading while initializing
   if (!initialized || !report || !player) {
     return (
-      <div className="container mx-auto py-8 flex items-center justify-center">
+      <div className="container mx-auto flex items-center justify-center py-8">
         <p>Loading report builder...</p>
       </div>
     );

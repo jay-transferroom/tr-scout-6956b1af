@@ -35,64 +35,70 @@ import PlayerPitches from "@/pages/transfers/PlayerPitches";
 import DataImport from "@/pages/transfers/DataImport";
 import SavedConversations from "@/pages/SavedChats";
 import MatchScouting from "@/pages/MatchScouting";
+import MatchScoutingReport from "@/pages/MatchScoutingReport";
 import ClubSettings from "@/pages/ClubSettings";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      refetchOnWindowFocus: false
-    }
-  }
+      refetchOnWindowFocus: false,
+    },
+  },
 });
+
 function App() {
-  return <QueryClientProvider client={queryClient}>
+  return (
+    <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route element={<Layout />}>
-                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-                <Route path="/player/:id" element={<ProtectedRoute><PlayerProfile /></ProtectedRoute>} />
-                <Route path="/private-player/:id" element={<ProtectedRoute><PrivatePlayerProfile /></ProtectedRoute>} />
-                <Route path="/report-builder" element={<ProtectedRoute><ReportBuilder /></ProtectedRoute>} />
-                <Route path="/report/:id" element={<ProtectedRoute><ReportView /></ProtectedRoute>} />
-                <Route path="/report/:id/edit" element={<ProtectedRoute><ReportEdit /></ProtectedRoute>} />
-                <Route path="/reports" element={<ProtectedRoute><ReportsList /></ProtectedRoute>} />
-                <Route path="/search" element={<ProtectedRoute><SearchResults /></ProtectedRoute>} />
-                <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
-                <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                <Route path="/scout-management" element={<ProtectedRoute><ScoutManagement /></ProtectedRoute>} />
-                <Route path="/scouting-dashboard" element={<ProtectedRoute><ScoutingDashboard /></ProtectedRoute>} />
-                <Route path="/assigned-players" element={<ProtectedRoute><AssignedPlayers /></ProtectedRoute>} />
-                <Route path="/notifications" element={<ProtectedRoute><NotificationsList /></ProtectedRoute>} />
-                <Route path="/shortlists" element={<ProtectedRoute><Shortlists /></ProtectedRoute>} />
-                <Route path="/saved-conversations" element={<ProtectedRoute><SavedConversations /></ProtectedRoute>} />
-                <Route path="/match-scouting" element={<ProtectedRoute><MatchScouting /></ProtectedRoute>} />
-                <Route path="/squad-view" element={<ProtectedRoute><SquadView /></ProtectedRoute>} />
-                <Route path="/club-settings" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
-                {/* Legacy redirects */}
-                <Route path="/club-ratings" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
-                <Route path="/template-admin" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
-                <Route path="/admin/users" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
-                <Route path="/data-import" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
-                <Route path="/transfers-in" element={<ProtectedRoute><TransfersIn /></ProtectedRoute>} />
-                <Route path="/transfers-in/requirement/:requirementName" element={<ProtectedRoute><RequirementDetailsPage /></ProtectedRoute>} />
-                <Route path="/transfers" element={<ProtectedRoute><TransfersLayout /></ProtectedRoute>}>
-                  <Route index element={<RequirementsList />} />
-                  <Route path="requirements/:id" element={<TransfersRequirementDetails />} />
-                  <Route path="scouting-tasks" element={<ScoutingTasks />} />
-                  <Route path="upcoming-matches" element={<UpcomingMatches />} />
-                  <Route path="player-pitches" element={<PlayerPitches />} />
-                  <Route path="data-import" element={<DataImport />} />
-                </Route>
-                <Route path="*" element={<NotFound />} />
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route element={<Layout />}>
+              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="/player/:id" element={<ProtectedRoute><PlayerProfile /></ProtectedRoute>} />
+              <Route path="/private-player/:id" element={<ProtectedRoute><PrivatePlayerProfile /></ProtectedRoute>} />
+              <Route path="/report-builder" element={<ProtectedRoute><ReportBuilder /></ProtectedRoute>} />
+              <Route path="/report/:id" element={<ProtectedRoute><ReportView /></ProtectedRoute>} />
+              <Route path="/report/:id/edit" element={<ProtectedRoute><ReportEdit /></ProtectedRoute>} />
+              <Route path="/reports" element={<ProtectedRoute><ReportsList /></ProtectedRoute>} />
+              <Route path="/search" element={<ProtectedRoute><SearchResults /></ProtectedRoute>} />
+              <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/scout-management" element={<ProtectedRoute><ScoutManagement /></ProtectedRoute>} />
+              <Route path="/scouting-dashboard" element={<ProtectedRoute><ScoutingDashboard /></ProtectedRoute>} />
+              <Route path="/assigned-players" element={<ProtectedRoute><AssignedPlayers /></ProtectedRoute>} />
+              <Route path="/notifications" element={<ProtectedRoute><NotificationsList /></ProtectedRoute>} />
+              <Route path="/shortlists" element={<ProtectedRoute><Shortlists /></ProtectedRoute>} />
+              <Route path="/saved-conversations" element={<ProtectedRoute><SavedConversations /></ProtectedRoute>} />
+              <Route path="/match-scouting" element={<ProtectedRoute><MatchScouting /></ProtectedRoute>} />
+              <Route path="/match-scouting/report" element={<ProtectedRoute><MatchScoutingReport /></ProtectedRoute>} />
+              <Route path="/squad-view" element={<ProtectedRoute><SquadView /></ProtectedRoute>} />
+              <Route path="/club-settings" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
+              <Route path="/club-ratings" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
+              <Route path="/template-admin" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
+              <Route path="/admin/users" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
+              <Route path="/data-import" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
+              <Route path="/transfers-in" element={<ProtectedRoute><TransfersIn /></ProtectedRoute>} />
+              <Route path="/transfers-in/requirement/:requirementName" element={<ProtectedRoute><RequirementDetailsPage /></ProtectedRoute>} />
+              <Route path="/transfers" element={<ProtectedRoute><TransfersLayout /></ProtectedRoute>}>
+                <Route index element={<RequirementsList />} />
+                <Route path="requirements/:id" element={<TransfersRequirementDetails />} />
+                <Route path="scouting-tasks" element={<ScoutingTasks />} />
+                <Route path="upcoming-matches" element={<UpcomingMatches />} />
+                <Route path="player-pitches" element={<PlayerPitches />} />
+                <Route path="data-import" element={<DataImport />} />
               </Route>
-            </Routes>
-            <Toaster />
-            <SonnerToaster />
-          </Router>
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+          <Toaster />
+          <SonnerToaster />
+        </Router>
       </AuthProvider>
-    </QueryClientProvider>;
+    </QueryClientProvider>
+  );
 }
+
 export default App;
