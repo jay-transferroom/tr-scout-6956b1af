@@ -421,8 +421,8 @@ const DepthPositionSidebar = ({
 
               return allSquadRemainder.length > 0 ? (
                 <Collapsible>
-                  <CollapsibleTrigger className="flex items-center gap-2 w-full px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors border-t mt-2 [&[data-state=open]>svg]:rotate-90">
-                    <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200" />
+                  <CollapsibleTrigger className="flex items-center gap-2 w-full px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors border-t mt-2 [&[data-state=open]>svg:first-child]:rotate-90">
+                    <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 shrink-0" />
                     <Users className="h-3.5 w-3.5" />
                     All Squad
                     <Badge variant="secondary" className="text-xs ml-auto">{allSquadRemainder.length}</Badge>
