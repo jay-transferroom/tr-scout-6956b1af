@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Calendar as CalendarIcon, Clock, MapPin, UserCheck, Plus, Search, Star, Target, ClipboardList } from "lucide-react";
+import FixtureBrowser from "@/components/fixtures/FixtureBrowser";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday, addWeeks, subWeeks, isSameWeek, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useFixturesData, Fixture } from "@/hooks/useFixturesData";
