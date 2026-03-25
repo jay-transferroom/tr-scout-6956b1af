@@ -1150,6 +1150,8 @@ const Calendar = () => {
         homeScore={scoutingFixture?.home_score}
         awayScore={scoutingFixture?.away_score}
       />
+      </>
+      )}
     </div>
   );
 };
