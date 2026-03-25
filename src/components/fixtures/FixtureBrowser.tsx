@@ -303,11 +303,11 @@ const FixtureBrowser: React.FC = () => {
                         )}
 
                         {/* Shortlisted badge */}
-                        {shortlistedCount > 0 && (
-                          <Badge variant="secondary" className="text-[10px] gap-1 shrink-0">
-                            <Star className="h-3 w-3 text-amber-500" />
-                            {shortlistedCount}
-                          </Badge>
+{shortlistedCount > 0 && (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground bg-muted/30 rounded px-1.5 py-0.5 shrink-0">
+                            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                            {shortlistedCount} shortlisted
+                          </span>
                         )}
 
                         {/* Match Report button */}
