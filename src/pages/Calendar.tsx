@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Calendar as CalendarIcon, Clock, MapPin, UserCheck, Plus, Search, Star, Target, ClipboardList } from "lucide-react";
+import FixtureBrowser from "@/components/fixtures/FixtureBrowser";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday, addWeeks, subWeeks, isSameWeek, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useFixturesData, Fixture } from "@/hooks/useFixturesData";
@@ -29,6 +30,7 @@ import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
 import { getClubRating } from "@/utils/clubRating";
 
 const Calendar = () => {
+  const [activeTab, setActiveTab] = useState<'schedule' | 'browser'>('schedule');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedScout, setSelectedScout] = useState<string>("all");
@@ -338,7 +340,38 @@ const Calendar = () => {
             </p>
           </div>
         </div>
+
+        {/* Tab Toggle */}
+        <div className="inline-flex items-center rounded-lg bg-muted p-1 gap-1">
+          <button
+            onClick={() => setActiveTab('schedule')}
+            className={cn(
+              "px-4 py-2 text-sm font-medium rounded-md transition-all",
+              activeTab === 'schedule'
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            My Schedule
+          </button>
+          <button
+            onClick={() => setActiveTab('browser')}
+            className={cn(
+              "px-4 py-2 text-sm font-medium rounded-md transition-all",
+              activeTab === 'browser'
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Fixture Browser
+          </button>
+        </div>
       </div>
+
+      {activeTab === 'browser' ? (
+        <FixtureBrowser />
+      ) : (
+      <>
 
       {/* Filters */}
       <div className="mb-4 sm:mb-6 space-y-3">
@@ -1117,6 +1150,8 @@ const Calendar = () => {
         homeScore={scoutingFixture?.home_score}
         awayScore={scoutingFixture?.away_score}
       />
+      </>
+      )}
     </div>
   );
 };
