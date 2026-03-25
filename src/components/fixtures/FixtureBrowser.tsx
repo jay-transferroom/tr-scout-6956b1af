@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, MapPin, Clock, Star, ClipboardList, Globe, Trophy } from "lucide-react";
-import { format, addDays, isAfter, isBefore, isSameDay, startOfDay } from "date-fns";
+import { format, addDays, isAfter, isBefore, startOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useFixturesData, Fixture } from "@/hooks/useFixturesData";
 import { useTeamsData } from "@/hooks/useTeamsData";
@@ -15,6 +15,29 @@ import { usePlayersData } from "@/hooks/usePlayersData";
 import { ClubBadge } from "@/components/ui/club-badge";
 import { getMatchGradient } from "@/components/fixtures/FixtureCard";
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
+
+// Map competition names to countries for matching
+const COMPETITION_COUNTRY_MAP: Record<string, string> = {
+  "Premier League": "England",
+  "La Liga": "Spain",
+  "Bundesliga": "Germany",
+  "Serie A": "Italy",
+  "Ligue 1": "France",
+  "Eredivisie": "Netherlands",
+  "Primeira Liga": "Portugal",
+  "Championship": "England",
+};
+
+// Country -> known leagues
+const COUNTRY_LEAGUES: Record<string, string[]> = {
+  "England": ["Premier League", "Championship"],
+  "Spain": ["La Liga"],
+  "Germany": ["Bundesliga"],
+  "Italy": ["Serie A"],
+  "France": ["Ligue 1"],
+  "Netherlands": ["Eredivisie"],
+  "Portugal": ["Primeira Liga"],
+};
 
 const FixtureBrowser: React.FC = () => {
   const [selectedCountry, setSelectedCountry] = useState<string>("");
@@ -29,37 +52,44 @@ const FixtureBrowser: React.FC = () => {
   const { shortlists } = useShortlists();
   const { data: allPlayers = [] } = usePlayersData();
 
-  // Get all shortlisted player IDs
-  const allShortlistedPlayerIds = useMemo(() => 
+  const allShortlistedPlayerIds = useMemo(() =>
     new Set(shortlists.flatMap(s => s.playerIds || [])),
     [shortlists]
   );
 
-  // Build country -> leagues map from teams
-  const countryLeagueMap = useMemo(() => {
-    const map: Record<string, string[]> = {};
-    teams.forEach(t => {
-      if (!map[t.country]) map[t.country] = [];
-      if (!map[t.country].includes(t.league)) map[t.country].push(t.league);
+  // Build available countries from teams table + competition map
+  const countries = useMemo(() => {
+    const fromTeams = new Set(teams.map(t => t.country));
+    // Also add countries from competitions present in fixtures
+    fixtures.forEach(f => {
+      if (f.competition && COMPETITION_COUNTRY_MAP[f.competition]) {
+        fromTeams.add(COMPETITION_COUNTRY_MAP[f.competition]);
+      }
     });
-    return map;
-  }, [teams]);
+    return Array.from(fromTeams).sort();
+  }, [teams, fixtures]);
 
-  const countries = useMemo(() => Object.keys(countryLeagueMap).sort(), [countryLeagueMap]);
-  const leagues = useMemo(() => 
-    selectedCountry ? (countryLeagueMap[selectedCountry] || []).sort() : [],
-    [selectedCountry, countryLeagueMap]
-  );
+  // Leagues for selected country
+  const leagues = useMemo(() => {
+    if (!selectedCountry) return [];
+    const fromConfig = COUNTRY_LEAGUES[selectedCountry] || [];
+    const fromTeams = [...new Set(teams.filter(t => t.country === selectedCountry).map(t => t.league))];
+    return [...new Set([...fromConfig, ...fromTeams])].sort();
+  }, [selectedCountry, teams]);
 
-  // Get team names for selected country/league
-  const filteredTeamNames = useMemo(() => {
+  // Get competitions that belong to selected country
+  const countryCompetitions = useMemo(() => {
     if (!selectedCountry) return new Set<string>();
-    return new Set(
-      teams
-        .filter(t => t.country === selectedCountry && (!selectedLeague || t.league === selectedLeague))
-        .map(t => t.name)
-    );
-  }, [teams, selectedCountry, selectedLeague]);
+    const comps = new Set<string>();
+    Object.entries(COMPETITION_COUNTRY_MAP).forEach(([comp, country]) => {
+      if (country === selectedCountry) comps.add(comp);
+    });
+    // If a specific league is selected, only include that
+    if (selectedLeague) {
+      return new Set([selectedLeague]);
+    }
+    return comps;
+  }, [selectedCountry, selectedLeague]);
 
   // Normalize for matching
   const normalizeTeamName = (name: string) =>
@@ -71,7 +101,14 @@ const FixtureBrowser: React.FC = () => {
     return na === nb || na.includes(nb) || nb.includes(na);
   };
 
-  // Filter fixtures
+  // Team names for the selected country
+  const countryTeamNames = useMemo(() => {
+    return teams
+      .filter(t => t.country === selectedCountry && (!selectedLeague || t.league === selectedLeague))
+      .map(t => t.name);
+  }, [teams, selectedCountry, selectedLeague]);
+
+  // Filter fixtures by competition match OR team name match
   const filteredFixtures = useMemo(() => {
     if (!selectedCountry) return [];
 
@@ -80,12 +117,16 @@ const FixtureBrowser: React.FC = () => {
       const inRange = !isBefore(fDate, startOfDay(dateFrom)) && !isAfter(fDate, addDays(startOfDay(dateTo), 1));
       if (!inRange) return false;
 
-      // Check if either team belongs to filtered teams
-      const homeMatch = Array.from(filteredTeamNames).some(tn => clubsMatch(tn, f.home_team));
-      const awayMatch = Array.from(filteredTeamNames).some(tn => clubsMatch(tn, f.away_team));
-      return homeMatch || awayMatch;
+      // Match by competition name
+      if (f.competition && countryCompetitions.has(f.competition)) return true;
+
+      // Fallback: match by team names from teams table
+      const teamMatch = countryTeamNames.some(tn =>
+        clubsMatch(tn, f.home_team) || clubsMatch(tn, f.away_team)
+      );
+      return teamMatch;
     }).sort((a, b) => new Date(a.match_date_utc).getTime() - new Date(b.match_date_utc).getTime());
-  }, [fixtures, selectedCountry, filteredTeamNames, dateFrom, dateTo]);
+  }, [fixtures, selectedCountry, countryCompetitions, countryTeamNames, dateFrom, dateTo]);
 
   // Group by date
   const groupedFixtures = useMemo(() => {
@@ -98,7 +139,6 @@ const FixtureBrowser: React.FC = () => {
     return groups;
   }, [filteredFixtures]);
 
-  // Count shortlisted players in a fixture
   const getShortlistedCount = (fixture: Fixture) => {
     return allPlayers.filter(p => {
       if (!allShortlistedPlayerIds.has(p.id.toString())) return false;
@@ -119,41 +159,30 @@ const FixtureBrowser: React.FC = () => {
       <Card>
         <CardContent className="py-4">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-end">
-            {/* Country */}
             <div className="flex-1 min-w-[160px]">
               <label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
                 <Globe className="h-3.5 w-3.5" /> Country
               </label>
               <Select value={selectedCountry} onValueChange={handleCountryChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select country" />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
                 <SelectContent>
-                  {countries.map(c => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
+                  {countries.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* League */}
             <div className="flex-1 min-w-[160px]">
               <label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
                 <Trophy className="h-3.5 w-3.5" /> League
               </label>
               <Select value={selectedLeague} onValueChange={setSelectedLeague} disabled={!selectedCountry}>
-                <SelectTrigger>
-                  <SelectValue placeholder={selectedCountry ? "All leagues" : "Select country first"} />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={selectedCountry ? "All leagues" : "Select country first"} /></SelectTrigger>
                 <SelectContent>
-                  {leagues.map(l => (
-                    <SelectItem key={l} value={l}>{l}</SelectItem>
-                  ))}
+                  {leagues.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Date From */}
             <div className="flex-1 min-w-[160px]">
               <label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
                 <CalendarIcon className="h-3.5 w-3.5" /> From
@@ -166,18 +195,11 @@ const FixtureBrowser: React.FC = () => {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateFrom}
-                    onSelect={(d) => d && setDateFrom(d)}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
+                  <Calendar mode="single" selected={dateFrom} onSelect={(d) => d && setDateFrom(d)} initialFocus className="p-3 pointer-events-auto" />
                 </PopoverContent>
               </Popover>
             </div>
 
-            {/* Date To */}
             <div className="flex-1 min-w-[160px]">
               <label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
                 <CalendarIcon className="h-3.5 w-3.5" /> To
@@ -190,13 +212,7 @@ const FixtureBrowser: React.FC = () => {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateTo}
-                    onSelect={(d) => d && setDateTo(d)}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
+                  <Calendar mode="single" selected={dateTo} onSelect={(d) => d && setDateTo(d)} initialFocus className="p-3 pointer-events-auto" />
                 </PopoverContent>
               </Popover>
             </div>
@@ -230,97 +246,93 @@ const FixtureBrowser: React.FC = () => {
         <div className="space-y-6">
           {Object.entries(groupedFixtures).map(([dateKey, dayFixtures]) => (
             <div key={dateKey}>
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-2">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                   {format(new Date(dateKey), "EEEE, d MMMM yyyy")}
                 </h3>
                 <Badge variant="secondary" className="text-xs">{dayFixtures.length}</Badge>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {dayFixtures.map((fixture, idx) => {
-                  const gradient = getMatchGradient(fixture.home_team, fixture.away_team);
-                  const hasScore = fixture.home_score !== null && fixture.away_score !== null;
-                  const shortlistedCount = getShortlistedCount(fixture);
 
-                  return (
-                    <Card key={`${fixture.match_number}-${idx}`} className="overflow-hidden hover:shadow-md transition-shadow">
-                      {/* Gradient Header */}
+              <Card>
+                <div className="divide-y">
+                  {dayFixtures.map((fixture, idx) => {
+                    const gradient = getMatchGradient(fixture.home_team, fixture.away_team);
+                    const hasScore = fixture.home_score !== null && fixture.away_score !== null;
+                    const shortlistedCount = getShortlistedCount(fixture);
+
+                    return (
                       <div
-                        className="px-4 py-3 text-white"
-                        style={{
-                          background: `linear-gradient(135deg, ${gradient.from} 0%, ${gradient.to} 100%)`
-                        }}
+                        key={`${fixture.match_number}-${idx}`}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors"
                       >
-                        <div className="flex items-center justify-center gap-2 sm:gap-3">
-                          <div className="flex items-center gap-2 flex-1 justify-end">
-                            <ClubBadge clubName={fixture.home_team} size="sm" className="bg-white/20 rounded-full p-0.5" />
-                            <span className="font-semibold text-sm truncate">{fixture.home_team}</span>
-                          </div>
-                          <div className="shrink-0 px-2">
-                            {hasScore ? (
-                              <span className="font-bold text-base">{fixture.home_score} - {fixture.away_score}</span>
-                            ) : (
-                              <span className="text-white/80 font-medium text-xs">vs</span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 flex-1">
-                            <span className="font-semibold text-sm truncate">{fixture.away_team}</span>
-                            <ClubBadge clubName={fixture.away_team} size="sm" className="bg-white/20 rounded-full p-0.5" />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Card Body */}
-                      <div className="px-4 py-3 bg-card">
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mb-2">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            <span>{format(new Date(fixture.match_date_utc), "HH:mm")}</span>
-                          </div>
-                          {fixture.venue && (
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              <span className="truncate max-w-[140px]">{fixture.venue}</span>
-                            </div>
-                          )}
-                          {fixture.competition && (
-                            <Badge variant="outline" className="text-[10px] py-0 px-1.5">{fixture.competition}</Badge>
-                          )}
+                        {/* Time */}
+                        <div className="w-14 shrink-0 text-xs text-muted-foreground font-medium text-center">
+                          {format(new Date(fixture.match_date_utc), "HH:mm")}
                         </div>
 
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {shortlistedCount > 0 && (
-                              <Badge variant="secondary" className="text-xs gap-1">
-                                <Star className="h-3 w-3 text-amber-500" />
-                                {shortlistedCount} shortlisted
-                              </Badge>
-                            )}
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 text-xs gap-1.5"
-                            onClick={() => {
-                              setScoutingFixture(fixture);
-                              setMatchScoutingOpen(true);
-                            }}
-                          >
-                            <ClipboardList className="h-3.5 w-3.5" />
-                            Match Report
-                          </Button>
+                        {/* Teams */}
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <ClubBadge clubName={fixture.home_team} size="sm" />
+                          <span className="text-sm font-medium truncate">{fixture.home_team}</span>
+
+                          {hasScore ? (
+                            <span className="text-sm font-bold shrink-0 px-2">
+                              {fixture.home_score} - {fixture.away_score}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground shrink-0 px-2">vs</span>
+                          )}
+
+                          <span className="text-sm font-medium truncate">{fixture.away_team}</span>
+                          <ClubBadge clubName={fixture.away_team} size="sm" />
                         </div>
+
+                        {/* Venue */}
+                        {fixture.venue && (
+                          <div className="hidden md:flex items-center gap-1 text-xs text-muted-foreground shrink-0 max-w-[160px]">
+                            <MapPin className="h-3 w-3 shrink-0" />
+                            <span className="truncate">{fixture.venue}</span>
+                          </div>
+                        )}
+
+                        {/* Competition */}
+                        {fixture.competition && (
+                          <Badge variant="outline" className="hidden sm:inline-flex text-[10px] py-0 px-1.5 shrink-0">
+                            {fixture.competition}
+                          </Badge>
+                        )}
+
+                        {/* Shortlisted badge */}
+                        {shortlistedCount > 0 && (
+                          <Badge variant="secondary" className="text-[10px] gap-1 shrink-0">
+                            <Star className="h-3 w-3 text-amber-500" />
+                            {shortlistedCount}
+                          </Badge>
+                        )}
+
+                        {/* Match Report button */}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 text-xs gap-1 shrink-0"
+                          onClick={() => {
+                            setScoutingFixture(fixture);
+                            setMatchScoutingOpen(true);
+                          }}
+                        >
+                          <ClipboardList className="h-3.5 w-3.5" />
+                          <span className="hidden sm:inline">Report</span>
+                        </Button>
                       </div>
-                    </Card>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              </Card>
             </div>
           ))}
         </div>
       )}
 
-      {/* Match Scouting Drawer */}
       <MatchScoutingDrawer
         open={matchScoutingOpen}
         onOpenChange={setMatchScoutingOpen}
