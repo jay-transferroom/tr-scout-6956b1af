@@ -30,6 +30,7 @@ import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
 import { getClubRating } from "@/utils/clubRating";
 
 const Calendar = () => {
+  const [activeTab, setActiveTab] = useState<'schedule' | 'browser'>('schedule');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedScout, setSelectedScout] = useState<string>("all");
