@@ -61,7 +61,7 @@ export const ScoutAccessCell = ({
   if (!isEditable) {
     return (
       <div className="flex flex-wrap gap-1">
-        <Badge variant="secondary" className="text-xs">{mode === 'all' ? 'All' : 'Custom'}</Badge>
+        <Badge variant="outline" className={cn("text-xs bg-muted/60 text-muted-foreground border-border", mode === 'custom' && "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400")}>{mode === 'all' ? 'All' : 'Custom'}</Badge>
         {mode === 'custom' && selectedScoutIds.map(id => (
           <Badge key={id} variant="outline" className="text-[10px] font-normal">
             {getScoutName(id)}
@@ -77,10 +77,10 @@ export const ScoutAccessCell = ({
         <PopoverTrigger asChild>
           <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs font-normal">
             <Badge
-              variant="secondary"
+              variant="outline"
               className={cn(
-                "text-xs pointer-events-none",
-                mode === 'custom' && "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                "text-xs pointer-events-none bg-muted/60 text-muted-foreground border-border",
+                mode === 'custom' && "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800"
               )}
             >
               {mode === 'all' ? 'All' : 'Custom'}
@@ -177,7 +177,7 @@ export const ShortlistAccessCell = ({
 
   if (!isEditable) {
     return (
-      <Badge variant="secondary" className={cn("text-xs", badgeClass)}>
+      <Badge variant="outline" className={cn("text-xs bg-muted/60 text-muted-foreground border-border", badgeClass)}>
         {mode === 'all' ? 'All' : 'Own only'}
       </Badge>
     );
@@ -188,8 +188,8 @@ export const ShortlistAccessCell = ({
       <PopoverTrigger asChild>
         <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs font-normal">
           <Badge
-            variant="secondary"
-            className={cn("text-xs pointer-events-none", badgeClass)}
+            variant="outline"
+            className={cn("text-xs pointer-events-none bg-muted/60 text-muted-foreground border-border", badgeClass)}
           >
             {mode === 'all' ? 'All' : 'Own only'}
           </Badge>
