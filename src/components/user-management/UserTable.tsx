@@ -130,11 +130,14 @@ export const UserTable = ({
               </TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
-                <Badge variant={
-                  user.role === 'recruitment' ? 'default' : 
-                  user.role === 'director' ? 'destructive' : 
-                  'secondary'
-                }>
+                <Badge 
+                  variant="outline"
+                  className={
+                    user.role === 'scout' 
+                      ? "text-xs bg-muted text-muted-foreground border-border" 
+                      : "text-xs bg-muted/60 text-muted-foreground border-border"
+                  }
+                >
                   {user.role}
                 </Badge>
               </TableCell>
