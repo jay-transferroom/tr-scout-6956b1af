@@ -105,7 +105,6 @@ export const UserTable = ({
           <TableHead>Role</TableHead>
           <TableHead>Scout Access</TableHead>
           <TableHead>Shortlist Access</TableHead>
-          <TableHead>Joined</TableHead>
           <TableHead className="w-[50px]"></TableHead>
         </TableRow>
       </TableHeader>
