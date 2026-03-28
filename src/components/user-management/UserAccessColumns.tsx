@@ -177,7 +177,7 @@ export const ShortlistAccessCell = ({
 
   if (!isEditable) {
     return (
-      <Badge variant="secondary" className={cn("text-xs", badgeClass)}>
+      <Badge variant="outline" className={cn("text-xs bg-muted/60 text-muted-foreground border-border", badgeClass)}>
         {mode === 'all' ? 'All' : 'Own only'}
       </Badge>
     );
