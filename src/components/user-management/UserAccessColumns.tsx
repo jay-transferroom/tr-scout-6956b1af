@@ -188,8 +188,8 @@ export const ShortlistAccessCell = ({
       <PopoverTrigger asChild>
         <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs font-normal">
           <Badge
-            variant="secondary"
-            className={cn("text-xs pointer-events-none", badgeClass)}
+            variant="outline"
+            className={cn("text-xs pointer-events-none bg-muted/60 text-muted-foreground border-border", badgeClass)}
           >
             {mode === 'all' ? 'All' : 'Own only'}
           </Badge>
