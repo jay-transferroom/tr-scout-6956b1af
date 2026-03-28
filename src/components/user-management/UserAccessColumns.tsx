@@ -77,10 +77,10 @@ export const ScoutAccessCell = ({
         <PopoverTrigger asChild>
           <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs font-normal">
             <Badge
-              variant="secondary"
+              variant="outline"
               className={cn(
-                "text-xs pointer-events-none",
-                mode === 'custom' && "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                "text-xs pointer-events-none bg-muted/60 text-muted-foreground border-border",
+                mode === 'custom' && "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800"
               )}
             >
               {mode === 'all' ? 'All' : 'Custom'}
