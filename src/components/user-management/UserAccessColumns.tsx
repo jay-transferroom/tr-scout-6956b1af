@@ -61,7 +61,7 @@ export const ScoutAccessCell = ({
   if (!isEditable) {
     return (
       <div className="flex flex-wrap gap-1">
-        <Badge variant="secondary" className="text-xs">{mode === 'all' ? 'All' : 'Custom'}</Badge>
+        <Badge variant="outline" className={cn("text-xs bg-muted/60 text-muted-foreground border-border", mode === 'custom' && "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400")}>{mode === 'all' ? 'All' : 'Custom'}</Badge>
         {mode === 'custom' && selectedScoutIds.map(id => (
           <Badge key={id} variant="outline" className="text-[10px] font-normal">
             {getScoutName(id)}
