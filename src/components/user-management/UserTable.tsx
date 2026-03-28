@@ -178,9 +178,6 @@ export const UserTable = ({
                 )}
               </TableCell>
               <TableCell>
-                {new Date(user.created_at).toLocaleDateString()}
-              </TableCell>
-              <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
