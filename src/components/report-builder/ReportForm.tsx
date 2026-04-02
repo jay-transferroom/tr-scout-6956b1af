@@ -37,8 +37,8 @@ const ReportForm = ({
 }: ReportFormProps) => {
   // Track manual match state
   const existingManual = report.matchContext?.isManual ? {
-    homeTeam: (report.matchContext as any).homeTeam || '',
-    awayTeam: (report.matchContext as any).awayTeam || '',
+    homeTeam: report.matchContext.homeTeam || '',
+    awayTeam: report.matchContext.awayTeam || '',
     date: report.matchContext.date,
     competition: report.matchContext.competition !== 'Unknown' ? report.matchContext.competition : undefined,
   } : null;
