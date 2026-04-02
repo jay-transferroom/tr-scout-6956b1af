@@ -200,8 +200,10 @@ const ReportForm = ({
             <label className="text-sm font-medium mb-2 block">Match (Optional)</label>
             <FixtureSelector
               player={player}
-              selectedFixtureId={getSelectedFixtureId()}
+              selectedFixtureId={manualMatch ? undefined : getSelectedFixtureId()}
               onFixtureSelect={handleFixtureSelect}
+              manualMatch={manualMatch}
+              onManualMatchChange={handleManualMatchChange}
             />
           </div>
           <div>
