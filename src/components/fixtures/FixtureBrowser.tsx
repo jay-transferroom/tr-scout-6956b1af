@@ -224,7 +224,15 @@ const FixtureBrowser: React.FC = () => {
           <PlayerAvatar playerName={player.name} avatarUrl={player.image} size="md" />
           <ClubBadge clubName={player.club} size="sm" />
           <div className="flex-1">
-            <div className="text-sm font-medium">{player.name}</div>
+            <a 
+              href={player.isPrivatePlayer ? `/private-player/${player.privatePlayerData?.id}` : `/player/${player.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium hover:underline cursor-pointer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {player.name}
+            </a>
             <div className="text-xs text-muted-foreground">
               {player.club} • {player.positions?.[0] || 'Unknown'}
               {player.age && ` • ${player.age}y`}
