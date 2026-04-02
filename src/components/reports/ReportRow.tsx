@@ -1,5 +1,6 @@
 
 import { TableCell, TableRow } from "@/components/ui/table";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Edit, Eye, User, Trash2, MoreHorizontal } from "lucide-react";
 import { ReportWithPlayer } from "@/types/report";
@@ -92,10 +93,25 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
       </TableCell>
       <TableCell>
         {report.matchContext ? (
-          <div className="text-sm text-grey-700">
-            <div className="font-medium">{report.matchContext.opposition}</div>
-            <div className="text-xs text-grey-500">{report.matchContext.competition}</div>
-          </div>
+          report.matchContext.isManual ? (
+            <div className="text-sm text-grey-700">
+              <div className="flex items-center gap-1.5">
+                <span className="font-medium">{report.matchContext.homeTeam} vs {report.matchContext.awayTeam}</span>
+                <Badge variant="outline" className="text-[9px] py-0 px-1 bg-muted/60 text-muted-foreground border-border">
+                  Manual
+                </Badge>
+              </div>
+              <div className="text-xs text-grey-500">
+                {report.matchContext.date && format(new Date(report.matchContext.date), "dd MMM yyyy")}
+                {report.matchContext.competition && report.matchContext.competition !== 'Unknown' && ` • ${report.matchContext.competition}`}
+              </div>
+            </div>
+          ) : (
+            <div className="text-sm text-grey-700">
+              <div className="font-medium">{report.matchContext.opposition}</div>
+              <div className="text-xs text-grey-500">{report.matchContext.competition}</div>
+            </div>
+          )
         ) : (
           <span className="text-grey-400 text-sm">-</span>
         )}

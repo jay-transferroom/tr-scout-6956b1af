@@ -59,6 +59,10 @@ export interface Report {
     minutesPlayed: number;
     conditions?: string;
     roleContext?: string;
+    // Manual match fields
+    isManual?: boolean;
+    homeTeam?: string;
+    awayTeam?: string;
   };
   watchMethod?: 'Live' | 'Video' | 'Data';
   tags?: string[];

@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { format } from "date-fns";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -385,28 +386,54 @@ const ReportView = () => {
           {report.matchContext && (
             <>
               <Separator className="my-3 sm:my-4" />
-              <div>
+               <div>
                 <h4 className="text-sm sm:text-base font-medium mb-2 sm:mb-3 flex items-center gap-2">
                   <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                   Match Context
+                  {report.matchContext.isManual && (
+                    <Badge variant="outline" className="text-[10px] py-0 px-1.5 bg-muted/60 text-muted-foreground border-border">
+                      Manual
+                    </Badge>
+                  )}
                 </h4>
                 <div className="grid grid-cols-2 gap-2 sm:gap-4 bg-gray-50 p-2 sm:p-4 rounded-lg text-xs sm:text-sm">
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Date</p>
-                    <p className="font-medium">{report.matchContext.date}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Opposition</p>
-                    <p className="font-medium">{report.matchContext.opposition}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Competition</p>
-                    <p className="font-medium">{report.matchContext.competition}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Minutes Played</p>
-                    <p className="font-medium">{report.matchContext.minutesPlayed}'</p>
-                  </div>
+                  {report.matchContext.isManual ? (
+                    <>
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Match</p>
+                        <p className="font-medium">{report.matchContext.homeTeam} vs {report.matchContext.awayTeam}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Date</p>
+                        <p className="font-medium">{report.matchContext.date ? format(new Date(report.matchContext.date), "dd MMM yyyy") : '-'}</p>
+                      </div>
+                      {report.matchContext.competition && report.matchContext.competition !== 'Unknown' && (
+                        <div>
+                          <p className="text-sm text-gray-500 mb-1">Competition</p>
+                          <p className="font-medium">{report.matchContext.competition}</p>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Date</p>
+                        <p className="font-medium">{report.matchContext.date}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Opposition</p>
+                        <p className="font-medium">{report.matchContext.opposition}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Competition</p>
+                        <p className="font-medium">{report.matchContext.competition}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Minutes Played</p>
+                        <p className="font-medium">{report.matchContext.minutesPlayed}'</p>
+                      </div>
+                    </>
+                  )}
                   {report.watchMethod && (
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Watch Method</p>
