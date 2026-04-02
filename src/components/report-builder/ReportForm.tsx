@@ -1,11 +1,12 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Send, Settings } from "lucide-react";
 import { Player } from "@/types/player";
 import { ReportTemplate, Report } from "@/types/report";
 import ReportSection from "@/components/ReportSection";
 import TestDataFiller from "./TestDataFiller";
-import FixtureSelector from "./FixtureSelector";
+import FixtureSelector, { ManualMatch } from "./FixtureSelector";
 import { Fixture } from "@/hooks/useFixturesData";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -34,16 +35,29 @@ const ReportForm = ({
   onManageTemplates,
   onReportUpdate,
 }: ReportFormProps) => {
+  // Track manual match state
+  const existingManual = report.matchContext?.isManual ? {
+    homeTeam: (report.matchContext as any).homeTeam || '',
+    awayTeam: (report.matchContext as any).awayTeam || '',
+    date: report.matchContext.date,
+    competition: report.matchContext.competition !== 'Unknown' ? report.matchContext.competition : undefined,
+  } : null;
+  
+  const [manualMatch, setManualMatch] = useState<ManualMatch | null>(existingManual);
+
   // Separate overall section from other sections
   const overallSection = template.sections.find(section => section.id === "overall");
   const otherSections = template.sections.filter(section => section.id !== "overall");
 
   const handleFixtureSelect = (fixture: Fixture | null) => {
     if (!fixture) {
-      onReportUpdate({
-        ...report,
-        matchContext: undefined,
-      });
+      // Only clear if not switching to manual
+      if (!manualMatch) {
+        onReportUpdate({
+          ...report,
+          matchContext: undefined,
+        });
+      }
       return;
     }
 
@@ -59,6 +73,7 @@ const ReportForm = ({
 
     const isHome = normalize(fixture.home_team) === normalize(player.club);
 
+    setManualMatch(null);
     onReportUpdate({
       ...report,
       matchContext: {
@@ -69,6 +84,29 @@ const ReportForm = ({
         minutesPlayed: 0,
       },
     });
+  };
+
+  const handleManualMatchChange = (match: ManualMatch | null) => {
+    setManualMatch(match);
+    if (match) {
+      onReportUpdate({
+        ...report,
+        matchContext: {
+          date: match.date,
+          opposition: match.awayTeam, // Store away as opposition for compatibility
+          competition: match.competition || "Unknown",
+          minutesPlayed: 0,
+          homeTeam: match.homeTeam,
+          awayTeam: match.awayTeam,
+          isManual: true,
+        } as any,
+      });
+    } else {
+      onReportUpdate({
+        ...report,
+        matchContext: undefined,
+      });
+    }
   };
 
   const getSelectedFixtureId = () => {
