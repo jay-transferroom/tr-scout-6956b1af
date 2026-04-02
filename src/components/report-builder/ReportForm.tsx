@@ -93,13 +93,13 @@ const ReportForm = ({
         ...report,
         matchContext: {
           date: match.date,
-          opposition: match.awayTeam, // Store away as opposition for compatibility
+          opposition: match.awayTeam,
           competition: match.competition || "Unknown",
           minutesPlayed: 0,
           homeTeam: match.homeTeam,
           awayTeam: match.awayTeam,
           isManual: true,
-        } as any,
+        },
       });
     } else {
       onReportUpdate({
