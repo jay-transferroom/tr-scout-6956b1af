@@ -131,25 +131,24 @@ const SquadDepthView = ({
     return 'text-orange-500';
   };
 
-  // Get color for report rating (1-10 or 1-5 scale, or letter grades)
-  const getReportRatingColor = (rating: number | string): string => {
+  // Get bg + text color for report rating as a pill
+  const getReportRatingStyles = (rating: number | string): string => {
     if (typeof rating === 'string') {
       const letter = rating.trim().toUpperCase();
       switch (letter) {
-        case 'A': return 'text-emerald-500';
-        case 'B': return 'text-green-500';
-        case 'C': return 'text-yellow-500';
-        case 'D': return 'text-orange-500';
-        case 'E': return 'text-red-500';
-        default: return 'text-primary';
+        case 'A': return 'bg-emerald-500 text-white';
+        case 'B': return 'bg-green-500 text-white';
+        case 'C': return 'bg-yellow-400 text-yellow-950';
+        case 'D': return 'bg-orange-400 text-orange-950';
+        case 'E': return 'bg-red-500 text-white';
+        default: return 'bg-primary text-primary-foreground';
       }
     }
-    // Numeric: assume 1-10 scale
-    if (rating >= 8) return 'text-emerald-500';
-    if (rating >= 6) return 'text-green-500';
-    if (rating >= 5) return 'text-yellow-500';
-    if (rating >= 3) return 'text-orange-500';
-    return 'text-red-500';
+    if (rating >= 8) return 'bg-emerald-500 text-white';
+    if (rating >= 6) return 'bg-green-500 text-white';
+    if (rating >= 5) return 'bg-yellow-400 text-yellow-950';
+    if (rating >= 3) return 'bg-orange-400 text-orange-950';
+    return 'bg-red-500 text-white';
   };
 
   return (
