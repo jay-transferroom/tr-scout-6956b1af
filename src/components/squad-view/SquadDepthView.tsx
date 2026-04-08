@@ -23,6 +23,7 @@ interface SquadDepthViewProps {
   multiPlayerSlots?: PositionPlayerSlot[];
   onPositionClick?: (position: string) => void;
   selectedPosition?: string | null;
+  playerReportRatings?: Map<string, { rating: number | string; raw: any }>;
 }
 
 // Horizontal layout - GK on left, attackers on right (shifted right to prevent GK cutoff)
