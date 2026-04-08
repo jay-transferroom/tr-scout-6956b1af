@@ -54,6 +54,25 @@ const SquadView = () => {
   } = usePlayersData();
   const userClub = "Chelsea F.C.";
 
+  // Fetch reports to get player report ratings
+  const { reports } = useReports();
+  
+  // Build a map of playerId -> latest report rating
+  const playerReportRatings = useMemo(() => {
+    const map = new Map<string, { rating: number | string; raw: any }>();
+    if (!reports?.length) return map;
+    
+    // Reports are already sorted by createdAt desc, so first match = latest
+    for (const report of reports) {
+      if (!report.playerId || map.has(report.playerId)) continue;
+      const rating = getOverallRating(report);
+      if (rating !== null && rating !== undefined) {
+        map.set(report.playerId, { rating, raw: rating });
+      }
+    }
+    return map;
+  }, [reports]);
+
   // Get formations list
   const { data: formations = [] } = useMarescaFormations();
   
