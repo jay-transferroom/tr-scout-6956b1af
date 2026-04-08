@@ -23,6 +23,7 @@ interface SquadDepthViewProps {
   multiPlayerSlots?: PositionPlayerSlot[];
   onPositionClick?: (position: string) => void;
   selectedPosition?: string | null;
+  playerReportRatings?: Map<string, { rating: number | string; raw: any }>;
 }
 
 // Horizontal layout - GK on left, attackers on right (shifted right to prevent GK cutoff)
@@ -77,6 +78,7 @@ const SquadDepthView = ({
   multiPlayerSlots = [],
   onPositionClick,
   selectedPosition,
+  playerReportRatings = new Map(),
 }: SquadDepthViewProps) => {
   const { data: clubRatingData } = useClubRatingWeights();
   const clubWeights = clubRatingData?.weights;
@@ -127,6 +129,27 @@ const SquadDepthView = ({
     if (rating >= 70) return 'text-primary';
     if (rating >= 60) return 'text-yellow-500';
     return 'text-orange-500';
+  };
+
+  // Get color for report rating (1-10 or 1-5 scale, or letter grades)
+  const getReportRatingColor = (rating: number | string): string => {
+    if (typeof rating === 'string') {
+      const letter = rating.trim().toUpperCase();
+      switch (letter) {
+        case 'A': return 'text-emerald-500';
+        case 'B': return 'text-green-500';
+        case 'C': return 'text-yellow-500';
+        case 'D': return 'text-orange-500';
+        case 'E': return 'text-red-500';
+        default: return 'text-primary';
+      }
+    }
+    // Numeric: assume 1-10 scale
+    if (rating >= 8) return 'text-emerald-500';
+    if (rating >= 6) return 'text-green-500';
+    if (rating >= 5) return 'text-yellow-500';
+    if (rating >= 3) return 'text-orange-500';
+    return 'text-red-500';
   };
 
   return (
@@ -218,7 +241,12 @@ const SquadDepthView = ({
               <div className="p-1.5 space-y-1">
               {displayPlayers.length > 0 ? (
                   displayPlayers.map((player) => {
-                    const rating = getClubRating(player, clubWeights) ?? player.xtvScore;
+                    const reportRating = playerReportRatings.get(player.id);
+                    const clubRating = getClubRating(player, clubWeights) ?? player.xtvScore;
+                    const displayRating = reportRating ? reportRating.rating : clubRating;
+                    const ratingColorClass = reportRating 
+                      ? getReportRatingColor(reportRating.rating)
+                      : getRatingColor(clubRating);
                     const isExternal = player.isExternal || false;
                     
                     return (
@@ -240,9 +268,9 @@ const SquadDepthView = ({
                           </span>
                           <span className={cn(
                             "text-xs font-bold tabular-nums shrink-0",
-                            getRatingColor(rating)
+                            ratingColorClass
                           )}>
-                            {rating || '-'}
+                            {displayRating || '-'}
                           </span>
                         </div>
                       </div>
