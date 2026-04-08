@@ -242,10 +242,8 @@ const SquadDepthView = ({
                   displayPlayers.map((player) => {
                     const reportRating = playerReportRatings.get(player.id);
                     const clubRating = getClubRating(player, clubWeights) ?? player.xtvScore;
-                    const displayRating = reportRating ? reportRating.rating : clubRating;
-                    const ratingColorClass = reportRating 
-                      ? getReportRatingColor(reportRating.rating)
-                      : getRatingColor(clubRating);
+                    const hasReport = !!reportRating;
+                    const displayRating = hasReport ? reportRating.rating : clubRating;
                     const isExternal = player.isExternal || false;
                     
                     return (
@@ -265,12 +263,21 @@ const SquadDepthView = ({
                           )}>
                             {player.name}
                           </span>
-                          <span className={cn(
-                            "text-xs font-bold tabular-nums shrink-0",
-                            ratingColorClass
-                          )}>
-                            {displayRating || '-'}
-                          </span>
+                          {hasReport ? (
+                            <span className={cn(
+                              "text-xs font-bold tabular-nums shrink-0 rounded px-1.5 py-0.5",
+                              getReportRatingStyles(reportRating.rating)
+                            )}>
+                              {displayRating}
+                            </span>
+                          ) : (
+                            <span className={cn(
+                              "text-xs font-bold tabular-nums shrink-0",
+                              getRatingColor(clubRating)
+                            )}>
+                              {displayRating || '-'}
+                            </span>
+                          )}
                         </div>
                       </div>
                     );
