@@ -350,6 +350,7 @@ const SquadView = () => {
                 multiPlayerSlots={positionSlots}
                 onPositionClick={setSelectedPosition}
                 selectedPosition={selectedPosition}
+                playerReportRatings={playerReportRatings}
               />
             </div>
           )}
