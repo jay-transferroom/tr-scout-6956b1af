@@ -78,6 +78,7 @@ const SquadDepthView = ({
   multiPlayerSlots = [],
   onPositionClick,
   selectedPosition,
+  playerReportRatings = new Map(),
 }: SquadDepthViewProps) => {
   const { data: clubRatingData } = useClubRatingWeights();
   const clubWeights = clubRatingData?.weights;
