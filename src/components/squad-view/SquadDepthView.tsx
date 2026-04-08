@@ -241,7 +241,12 @@ const SquadDepthView = ({
               <div className="p-1.5 space-y-1">
               {displayPlayers.length > 0 ? (
                   displayPlayers.map((player) => {
-                    const rating = getClubRating(player, clubWeights) ?? player.xtvScore;
+                    const reportRating = playerReportRatings.get(player.id);
+                    const clubRating = getClubRating(player, clubWeights) ?? player.xtvScore;
+                    const displayRating = reportRating ? reportRating.rating : clubRating;
+                    const ratingColorClass = reportRating 
+                      ? getReportRatingColor(reportRating.rating)
+                      : getRatingColor(clubRating);
                     const isExternal = player.isExternal || false;
                     
                     return (
@@ -263,9 +268,9 @@ const SquadDepthView = ({
                           </span>
                           <span className={cn(
                             "text-xs font-bold tabular-nums shrink-0",
-                            getRatingColor(rating)
+                            ratingColorClass
                           )}>
-                            {rating || '-'}
+                            {displayRating || '-'}
                           </span>
                         </div>
                       </div>
