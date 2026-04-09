@@ -11,7 +11,6 @@ import { ReportTemplate, DEFAULT_RATING_SYSTEMS, RatingSystem, RatingSystemType 
 import TemplateSectionEditor from "@/components/TemplateSectionEditor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RatingOptionsEditor from "@/components/RatingOptionsEditor";
-import RatingOptionsEditor from "@/components/RatingOptionsEditor";
 
 const RATING_SYSTEM_TYPES: { key: RatingSystemType; label: string }[] = [
   { key: 'numeric-1-5', label: 'Numeric (1-5)' },
