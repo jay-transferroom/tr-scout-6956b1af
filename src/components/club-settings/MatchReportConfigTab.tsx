@@ -159,7 +159,7 @@ const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabPr
             {/* Notes field (always present, not configurable) */}
             <div className="border rounded-md px-3 py-2.5 bg-muted/30">
               <div className="flex items-center gap-2">
-                <div className="w-5" />
+                <div className="w-4" />
                 <span className="text-sm font-medium text-muted-foreground">Notes</span>
                 <span className="text-xs text-muted-foreground ml-auto">Always included</span>
               </div>
