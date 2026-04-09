@@ -48,7 +48,8 @@ const createNewSection = (defaultRatingSystem?: RatingSystem): ReportSection => 
     id: `section-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     title: "New Section",
     fields: [ratingField, recommendationField, descriptionField],
-    optional: false
+    optional: false,
+    ratingSystem: defaultRatingSystem ? { ...defaultRatingSystem } : undefined
   };
 };
 
