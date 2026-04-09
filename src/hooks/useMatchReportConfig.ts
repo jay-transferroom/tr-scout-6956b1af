@@ -29,15 +29,14 @@ export const useSaveMatchReportConfig = () => {
 
   return useMutation({
     mutationFn: async (config: MatchReportConfig) => {
+      const payload = {
+        club_name: CLUB_NAME,
+        ratings: JSON.parse(JSON.stringify(config.ratings)),
+      };
+
       const { data, error } = await supabase
         .from('match_report_config')
-        .upsert(
-          {
-            club_name: CLUB_NAME,
-            ratings: config.ratings as unknown as Record<string, unknown>[],
-          },
-          { onConflict: 'club_name' }
-        )
+        .upsert(payload, { onConflict: 'club_name' })
         .select()
         .single();
 
