@@ -52,6 +52,9 @@ const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availa
   };
 
   const handleDeleteSection = (sectionId: string) => {
+    const section = sections.find(s => s.id === sectionId);
+    if (section?.isOverall) return; // Cannot delete overall section
+    
     const updatedSections = sections.filter(section => section.id !== sectionId);
     onUpdate(updatedSections);
     
@@ -124,6 +127,8 @@ const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availa
 
   const handleMoveSectionUp = (index: number) => {
     if (index === 0) return;
+    // Don't allow moving past the overall section
+    if (sections[index - 1]?.isOverall) return;
     
     const updatedSections = [...sections];
     const temp = updatedSections[index];
@@ -171,6 +176,7 @@ const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availa
           isDragged={draggedSectionId === section.id}
           editingFieldId={editingFieldId}
           availableRatingSystems={availableRatingSystems}
+          isOverall={!!section.isOverall}
           onUpdateSection={handleUpdateSection}
           onDeleteSection={handleDeleteSection}
           onMoveUp={handleMoveSectionUp}
@@ -180,7 +186,7 @@ const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availa
               expandedSectionId === section.id ? null : section.id
             );
           }}
-          onDragStart={() => setDraggedSectionId(section.id)}
+          onDragStart={() => !section.isOverall && setDraggedSectionId(section.id)}
           onDragEnd={() => setDraggedSectionId(null)}
           onAddField={(types) => handleAddField(section.id, types)}
           onDeleteField={(fieldId) => handleDeleteField(section.id, fieldId)}

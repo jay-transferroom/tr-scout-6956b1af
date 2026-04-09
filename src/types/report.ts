@@ -18,6 +18,7 @@ export interface ReportSection {
   optional?: boolean;
   fieldType?: ReportFieldType;
   ratingSystem?: RatingSystem;
+  isOverall?: boolean;
 }
 
 export type ReportFieldType = 'rating' | 'text' | 'dropdown' | 'checkbox' | 'number' | 'percentage';

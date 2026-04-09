@@ -11,6 +11,7 @@ export const DEFAULT_TEMPLATES: ReportTemplate[] = [
       {
         id: "overall",
         title: "Overall Assessment",
+        isOverall: true,
         fields: [
           {
             id: "overallRating",
@@ -177,6 +178,7 @@ export const DEFAULT_TEMPLATES: ReportTemplate[] = [
       {
         id: "overall",
         title: "Overall Assessment",
+        isOverall: true,
         fields: [
           {
             id: "overallRating",
@@ -260,6 +262,7 @@ export const DEFAULT_TEMPLATES: ReportTemplate[] = [
       {
         id: "overall",
         title: "Overall Assessment",
+        isOverall: true,
         fields: [
           {
             id: "overallRating",

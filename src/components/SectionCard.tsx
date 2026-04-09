@@ -27,6 +27,7 @@ interface SectionCardProps {
   onUpdateField: (field: ReportField) => void;
   onSetEditingField: (fieldId: string | null) => void;
   onMoveField?: (sectionId: string, fromIndex: number, toIndex: number) => void;
+  isOverall?: boolean;
 }
 
 const SectionCard = ({
@@ -48,7 +49,8 @@ const SectionCard = ({
   onDeleteField,
   onUpdateField,
   onSetEditingField,
-  onMoveField
+  onMoveField,
+  isOverall = false
 }: SectionCardProps) => {
   const hasRatingFields = section.fields.some(f => f.type === 'rating');
 
@@ -71,7 +73,9 @@ const SectionCard = ({
     <div 
       className={cn(
         "border rounded-lg transition-colors",
-        isExpanded ? "border-primary/30 bg-card" : "border-border bg-card",
+        isOverall 
+          ? "border-primary/40 bg-primary/5" 
+          : isExpanded ? "border-primary/30 bg-card" : "border-border bg-card",
         isDragged ? "opacity-50" : ""
       )}
     >
@@ -88,6 +92,7 @@ const SectionCard = ({
           onToggleExpand={onToggleExpand}
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
+          isOverall={isOverall}
         />
       </div>
       
@@ -115,21 +120,23 @@ const SectionCard = ({
                 </div>
               ) : <div />}
 
-              <div className="flex items-center space-x-2">
-                <label 
-                  htmlFor={`section-required-${section.id}`}
-                  className="text-xs text-muted-foreground"
-                >
-                  Required section
-                </label>
-                <Checkbox
-                  id={`section-required-${section.id}`}
-                  checked={!section.optional}
-                  onCheckedChange={(checked) => {
-                    onUpdateSection({ ...section, optional: !checked });
-                  }}
-                />
-              </div>
+              {!isOverall && (
+                <div className="flex items-center space-x-2">
+                  <label 
+                    htmlFor={`section-required-${section.id}`}
+                    className="text-xs text-muted-foreground"
+                  >
+                    Required section
+                  </label>
+                  <Checkbox
+                    id={`section-required-${section.id}`}
+                    checked={!section.optional}
+                    onCheckedChange={(checked) => {
+                      onUpdateSection({ ...section, optional: !checked });
+                    }}
+                  />
+                </div>
+              )}
             </div>
             
             <FieldsList
