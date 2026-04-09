@@ -1,5 +1,5 @@
 
-import { ReportField } from "@/types/report";
+import { ReportField, NamedRatingSystem } from "@/types/report";
 import { Button } from "@/components/ui/button";
 import { Plus, File, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,7 @@ import FieldEditor from "@/components/FieldEditor";
 interface FieldsListProps {
   fields: ReportField[];
   editingFieldId: string | null;
+  availableRatingSystems?: NamedRatingSystem[];
   onAddField: () => void;
   onDeleteField: (fieldId: string) => void;
   onUpdateField: (field: ReportField) => void;
@@ -17,6 +18,7 @@ interface FieldsListProps {
 const FieldsList = ({
   fields,
   editingFieldId,
+  availableRatingSystems,
   onAddField,
   onDeleteField,
   onUpdateField,
@@ -85,6 +87,7 @@ const FieldsList = ({
                 <FieldEditor
                   field={field}
                   onUpdate={onUpdateField}
+                  availableRatingSystems={availableRatingSystems}
                 />
               </div>
             )}

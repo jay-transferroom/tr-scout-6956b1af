@@ -1,5 +1,5 @@
 
-import { ReportSection, ReportField } from "@/types/report";
+import { ReportSection, ReportField, NamedRatingSystem } from "@/types/report";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,7 @@ interface SectionCardProps {
   isExpanded: boolean;
   isDragged: boolean;
   editingFieldId: string | null;
+  availableRatingSystems?: NamedRatingSystem[];
   onUpdateSection: (section: ReportSection) => void;
   onDeleteSection: (sectionId: string) => void;
   onMoveUp: (index: number) => void;
@@ -33,6 +34,7 @@ const SectionCard = ({
   isExpanded,
   isDragged,
   editingFieldId,
+  availableRatingSystems,
   onUpdateSection,
   onDeleteSection,
   onMoveUp,
@@ -94,6 +96,7 @@ const SectionCard = ({
             <FieldsList
               fields={section.fields}
               editingFieldId={editingFieldId}
+              availableRatingSystems={availableRatingSystems}
               onAddField={onAddField}
               onDeleteField={onDeleteField}
               onUpdateField={onUpdateField}
