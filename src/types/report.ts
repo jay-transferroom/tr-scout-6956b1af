@@ -18,7 +18,13 @@ export interface ReportSection {
   optional?: boolean;
 }
 
-export type ReportFieldType = 'rating' | 'text' | 'dropdown' | 'checkbox' | 'number';
+export type ReportFieldType = 'rating' | 'text' | 'dropdown' | 'checkbox' | 'number' | 'percentage';
+
+export interface NamedRatingSystem {
+  id: string;
+  name: string;
+  ratingSystem: RatingSystem;
+}
 
 export interface ReportField {
   id: string;
