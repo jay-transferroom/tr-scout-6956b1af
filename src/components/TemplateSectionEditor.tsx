@@ -83,26 +83,25 @@ const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availa
     onUpdate(updatedSections);
   };
 
-  const handleAddField = (sectionId: string) => {
-    const newField: ReportField = {
-      id: `field-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      label: "New Field",
-      type: "text",
-      required: false
-    };
+  const handleAddField = (sectionId: string, types: Array<"rating" | "text">) => {
+    const newFields: ReportField[] = types.map(type => ({
+      id: `field-${type}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      label: type === "rating" ? "Rating" : "Notes",
+      type,
+      required: type === "rating"
+    }));
 
     const updatedSections = sections.map(section => {
       if (section.id === sectionId) {
         return {
           ...section,
-          fields: [...section.fields, newField]
+          fields: [...section.fields, ...newFields]
         };
       }
       return section;
     });
     
     onUpdate(updatedSections);
-    setEditingFieldId(newField.id);
   };
 
   const handleDeleteField = (sectionId: string, fieldId: string) => {
