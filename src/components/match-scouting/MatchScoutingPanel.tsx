@@ -446,12 +446,13 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
     }
   }, [awayOrder.length, awayPlayers]);
 
-  const handleDraftChange = useCallback((playerId: string, notes: string, rating: number | null) => {
+  const handleDraftChange = useCallback((playerId: string, notes: string, rating: number | null, ratings?: Record<string, string>) => {
     setPlayerDrafts((currentDrafts) => ({
       ...currentDrafts,
       [playerId]: {
         notes,
         rating,
+        ratings,
       },
     }));
   }, []);
@@ -566,6 +567,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                   savedRating={existingReport?.rating ?? null}
                   draftNotes={draft?.notes}
                   draftRating={draft?.rating ?? null}
+                  draftRatings={draft?.ratings}
                   onDraftChange={handleDraftChange}
                   onSave={handleSave}
                   onCreateFullReport={setSelectedPlayerForFullReport}
@@ -574,6 +576,8 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                   onDragOver={handleDragOver}
                   onDrop={handleDrop(team)}
                   isDragTarget={dragOverId === player.id}
+                  matchReportConfig={matchReportConfig}
+                  ratingSystems={availableRatingSystems}
                 />
               );
             })
