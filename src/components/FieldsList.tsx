@@ -123,7 +123,7 @@ const FieldsList = ({
                     </div>
                   )}
                   <span className="text-sm font-medium">{field.label}</span>
-                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal">
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal bg-blue-950/10 text-blue-900 dark:bg-blue-400/10 dark:text-blue-300">
                     {field.type}
                   </Badge>
                   {field.type === 'rating' && ratingLabel && (

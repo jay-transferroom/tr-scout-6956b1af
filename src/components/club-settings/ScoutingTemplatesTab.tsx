@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Save, Copy, Trash2 } from "lucide-react";
+import { Plus, Save, Copy, Trash2, Undo2 } from "lucide-react";
 import { mockTemplates } from "@/data/mockTemplates";
 import { ReportTemplate, NamedRatingSystem } from "@/types/report";
 import TemplateSectionEditor from "@/components/TemplateSectionEditor";
@@ -17,8 +17,13 @@ interface ScoutingTemplatesTabProps {
 const ScoutingTemplatesTab = ({ availableRatingSystems }: ScoutingTemplatesTabProps) => {
   const [templates, setTemplates] = useState<ReportTemplate[]>(mockTemplates);
   const [currentTemplateId, setCurrentTemplateId] = useState<string>(templates[0]?.id || "");
+  const savedSnapshotRef = useRef<string>(JSON.stringify(mockTemplates));
 
   const currentTemplate = templates.find(t => t.id === currentTemplateId);
+
+  const hasChanges = useMemo(() => {
+    return JSON.stringify(templates) !== savedSnapshotRef.current;
+  }, [templates]);
 
   const handleCreateTemplate = () => {
     const newTemplate: ReportTemplate = {
@@ -54,13 +59,21 @@ const ScoutingTemplatesTab = ({ availableRatingSystems }: ScoutingTemplatesTabPr
     setCurrentTemplateId(updatedTemplates[0].id);
   };
 
-  const handleUpdateTemplate = (updatedTemplate: ReportTemplate) => {
-    setTemplates(templates.map(t => t.id === updatedTemplate.id ? updatedTemplate : t));
-  };
+  const handleUpdateTemplate = useCallback((updatedTemplate: ReportTemplate) => {
+    setTemplates(prev => prev.map(t => t.id === updatedTemplate.id ? updatedTemplate : t));
+  }, []);
 
   const handleSaveChanges = () => {
     console.log("Saving templates:", templates);
+    savedSnapshotRef.current = JSON.stringify(templates);
+    setTemplates([...templates]); // trigger re-render for hasChanges
     toast({ title: "Changes Saved", description: "Your template changes have been saved." });
+  };
+
+  const handleClearChanges = () => {
+    const restored = JSON.parse(savedSnapshotRef.current) as ReportTemplate[];
+    setTemplates(restored);
+    setCurrentTemplateId(restored[0]?.id || "");
   };
 
   const handleNameChange = (name: string) => {
@@ -99,9 +112,16 @@ const ScoutingTemplatesTab = ({ availableRatingSystems }: ScoutingTemplatesTabPr
           <Button variant="outline" size="sm" onClick={handleCloneTemplate} className="gap-1" disabled={!currentTemplate}><Copy size={14} /> Clone</Button>
           <Button variant="outline" size="sm" onClick={handleDeleteTemplate} className="gap-1 text-destructive hover:text-destructive" disabled={!currentTemplate || templates.length <= 1}><Trash2 size={14} /> Delete</Button>
         </div>
-        <Button onClick={handleSaveChanges} className="gap-2">
-          <Save size={16} /> Save All Changes
-        </Button>
+        <div className="flex items-center gap-2">
+          {hasChanges && (
+            <Button variant="ghost" size="sm" onClick={handleClearChanges} className="gap-1 text-muted-foreground">
+              <Undo2 size={14} /> Clear changes
+            </Button>
+          )}
+          <Button onClick={handleSaveChanges} className="gap-2" disabled={!hasChanges}>
+            <Save size={16} /> Save All Changes
+          </Button>
+        </div>
       </div>
 
       {/* Template editor */}
