@@ -50,7 +50,7 @@ const SectionHeader = ({
           </div>
         )}
         
-        {isEditing ? (
+        {isEditing && !isOverall ? (
           <Input
             value={section.title}
             onChange={(e) => onUpdateSection({ ...section, title: e.target.value })}
@@ -61,25 +61,29 @@ const SectionHeader = ({
         ) : (
           <div className="text-base font-medium flex-1 flex items-center gap-1">
             {section.title}
-            <button
-              className="text-muted-foreground hover:text-foreground p-0.5"
-              onClick={() => setIsEditing(true)}
-            >
-              <Edit size={13} />
-            </button>
+            {!isOverall && (
+              <button
+                className="text-muted-foreground hover:text-foreground p-0.5"
+                onClick={() => setIsEditing(true)}
+              >
+                <Edit size={13} />
+              </button>
+            )}
           </div>
         )}
         
         <div className="flex items-center space-x-2 ml-auto">
           
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-            onClick={() => onDeleteSection(section.id)}
-          >
-            <Trash2 size={16} />
-          </Button>
+          {!isOverall && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+              onClick={() => onDeleteSection(section.id)}
+            >
+              <Trash2 size={16} />
+            </Button>
+          )}
           
           <Button
             variant="ghost"
