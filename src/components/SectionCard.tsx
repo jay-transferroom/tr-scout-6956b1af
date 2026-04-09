@@ -96,7 +96,7 @@ const SectionCard = ({
           <div className="border-t border-border/50 pt-3">
             {/* Section-level settings row */}
             <div className="flex items-center justify-between mb-3">
-              {hasRatingFields && availableRatingSystems.length > 0 ? (
+              {availableRatingSystems.length > 0 ? (
                 <div className="flex items-center gap-2">
                   <label className="text-xs text-muted-foreground whitespace-nowrap">Rating System</label>
                   <Select 
