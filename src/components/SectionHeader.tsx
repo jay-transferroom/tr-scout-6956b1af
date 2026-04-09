@@ -17,6 +17,7 @@ interface SectionHeaderProps {
   onToggleExpand: () => void;
   onDragStart: () => void;
   onDragEnd: () => void;
+  isOverall?: boolean;
 }
 
 const SectionHeader = ({
@@ -30,21 +31,24 @@ const SectionHeader = ({
   onMoveDown,
   onToggleExpand,
   onDragStart,
-  onDragEnd
+  onDragEnd,
+  isOverall = false
 }: SectionHeaderProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
   return (
     <div className="py-3 flex flex-row items-center justify-between space-y-0">
       <div className="flex items-center space-x-2 w-full">
-        <div
-          className="cursor-move p-1 hover:bg-muted rounded"
-          draggable
-          onDragStart={onDragStart}
-          onDragEnd={onDragEnd}
-        >
-          <GripVertical size={16} className="text-muted-foreground" />
-        </div>
+        {!isOverall && (
+          <div
+            className="cursor-move p-1 hover:bg-muted rounded"
+            draggable
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+          >
+            <GripVertical size={16} className="text-muted-foreground" />
+          </div>
+        )}
         
         {isEditing ? (
           <Input
