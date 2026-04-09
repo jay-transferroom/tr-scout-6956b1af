@@ -90,7 +90,7 @@ const ScoutingTemplatesTab = ({ availableRatingSystems }: ScoutingTemplatesTabPr
             <SelectContent className="bg-background border shadow-lg z-50">
               {templates.map(template => (
                 <SelectItem key={template.id} value={template.id}>
-                  {template.name}{template.defaultTemplate ? " (Default)" : ""}
+                  {template.name}
                 </SelectItem>
               ))}
             </SelectContent>
