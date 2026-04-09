@@ -12,14 +12,6 @@ interface TemplateSectionEditorProps {
   availableRatingSystems?: NamedRatingSystem[];
 }
 
-// Standard scout recommendations
-const SCOUT_RECOMMENDATIONS = [
-  "Sign / Proceed to next stage",
-  "Monitor / Track Further", 
-  "Further Scouting Required",
-  "Concerns / With Reservations",
-  "Do Not Pursue"
-];
 
 const createNewSection = (defaultRatingSystem?: RatingSystem): ReportSection => {
   const ratingField: ReportField = {
