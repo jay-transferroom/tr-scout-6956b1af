@@ -1,18 +1,21 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SlidersHorizontal, FileText, Shield, Upload } from "lucide-react";
+import { SlidersHorizontal, FileText, Shield, Upload, Star } from "lucide-react";
 import ClubRatingsTab from "@/components/club-settings/ClubRatingsTab";
+import RatingSystemsTab, { createDefaultNamedSystems } from "@/components/club-settings/RatingSystemsTab";
 import ScoutingTemplatesTab from "@/components/club-settings/ScoutingTemplatesTab";
 import UserManagementTab from "@/components/club-settings/UserManagementTab";
 import DataImportTab from "@/components/club-settings/DataImportTab";
 import { useAuth } from "@/contexts/AuthContext";
+import { NamedRatingSystem } from "@/types/report";
 
 const ClubSettings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const defaultTab = searchParams.get("tab") || "ratings";
   const { profile } = useAuth();
   const isAdmin = profile?.role === 'recruitment' || profile?.role === 'director';
+  const [namedRatingSystems, setNamedRatingSystems] = useState<NamedRatingSystem[]>(createDefaultNamedSystems());
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value }, { replace: true });
@@ -35,6 +38,10 @@ const ClubSettings = () => {
           </TabsTrigger>
           {isAdmin && (
             <>
+              <TabsTrigger value="rating-systems" className="gap-2">
+                <Star className="h-4 w-4" />
+                Rating Systems
+              </TabsTrigger>
               <TabsTrigger value="templates" className="gap-2">
                 <FileText className="h-4 w-4" />
                 Scouting Templates
@@ -56,8 +63,11 @@ const ClubSettings = () => {
         </TabsContent>
         {isAdmin && (
           <>
+            <TabsContent value="rating-systems">
+              <RatingSystemsTab namedRatingSystems={namedRatingSystems} onUpdate={setNamedRatingSystems} />
+            </TabsContent>
             <TabsContent value="templates">
-              <ScoutingTemplatesTab />
+              <ScoutingTemplatesTab availableRatingSystems={namedRatingSystems} />
             </TabsContent>
             <TabsContent value="users">
               <UserManagementTab />
