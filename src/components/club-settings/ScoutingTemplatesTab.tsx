@@ -36,7 +36,7 @@ const ScoutingTemplatesTab = () => {
       name: "New Template",
       description: "Description of the new template",
       sections: [],
-      defaultRatingSystem: globalRatingSystem
+      defaultRatingSystem: globalRatingSystems['numeric-1-10']
     };
     setTemplates([...templates, newTemplate]);
     setCurrentTemplateId(newTemplate.id);
