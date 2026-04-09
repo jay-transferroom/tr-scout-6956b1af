@@ -81,22 +81,6 @@ const RatingOptionsEditor = ({ ratingSystem, onUpdate }: RatingOptionsEditorProp
       <div className="space-y-3">
         {ratingSystem.values.map((option, index) => (
           <div key={index} className="grid grid-cols-12 gap-2 items-center">
-            {/* Color swatch that opens native picker */}
-            <div className="col-span-1">
-              <label className="relative cursor-pointer block w-7 h-7">
-                <div 
-                  className="w-7 h-7 rounded border border-border" 
-                  style={{ backgroundColor: option.color || "#000000" }}
-                />
-                <input
-                  type="color"
-                  value={option.color || "#000000"}
-                  onChange={(e) => handleUpdateOption(index, "color", e.target.value)}
-                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                />
-              </label>
-            </div>
-
             {/* Value */}
             <div className="col-span-2">
               <Input
@@ -116,6 +100,22 @@ const RatingOptionsEditor = ({ ratingSystem, onUpdate }: RatingOptionsEditorProp
                 placeholder="Description (optional)"
                 className="w-full"
               />
+            </div>
+
+            {/* Color swatch that opens native picker */}
+            <div className="col-span-1 flex justify-center">
+              <label className="relative cursor-pointer block w-7 h-7">
+                <div 
+                  className="w-7 h-7 rounded border border-border" 
+                  style={{ backgroundColor: option.color || "#000000" }}
+                />
+                <input
+                  type="color"
+                  value={option.color || "#000000"}
+                  onChange={(e) => handleUpdateOption(index, "color", e.target.value)}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                />
+              </label>
             </div>
             
             {/* Delete button */}
