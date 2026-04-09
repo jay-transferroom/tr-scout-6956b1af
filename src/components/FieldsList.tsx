@@ -6,11 +6,12 @@ import { Plus, Trash2, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import FieldEditor from "@/components/FieldEditor";
 import { Badge } from "@/components/ui/badge";
+import AddFieldDialog from "@/components/AddFieldDialog";
 
 interface FieldsListProps {
   fields: ReportField[];
   editingFieldId: string | null;
-  onAddField: () => void;
+  onAddField: (types: Array<"rating" | "text">) => void;
   onDeleteField: (fieldId: string) => void;
   onUpdateField: (field: ReportField) => void;
   onSetEditingField: (fieldId: string | null) => void;
@@ -28,6 +29,7 @@ const FieldsList = ({
 }: FieldsListProps) => {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [showAddDialog, setShowAddDialog] = useState(false);
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between mb-2">
@@ -35,12 +37,17 @@ const FieldsList = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={onAddField}
+          onClick={() => setShowAddDialog(true)}
           className="gap-1 h-7 text-xs"
         >
           <Plus size={14} />
           Add Field
         </Button>
+        <AddFieldDialog
+          open={showAddDialog}
+          onOpenChange={setShowAddDialog}
+          onConfirm={onAddField}
+        />
       </div>
       
       <div className="space-y-1">
