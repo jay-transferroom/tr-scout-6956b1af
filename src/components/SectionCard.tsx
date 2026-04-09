@@ -147,6 +147,7 @@ const SectionCard = ({
               onUpdateField={onUpdateField}
               onSetEditingField={onSetEditingField}
               onMoveField={onMoveField ? (fromIndex, toIndex) => onMoveField(section.id, fromIndex, toIndex) : undefined}
+              readOnly={isOverall}
             />
           </div>
         </div>

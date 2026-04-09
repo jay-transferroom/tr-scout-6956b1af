@@ -16,6 +16,7 @@ interface FieldsListProps {
   onUpdateField: (field: ReportField) => void;
   onSetEditingField: (fieldId: string | null) => void;
   onMoveField?: (fromIndex: number, toIndex: number) => void;
+  readOnly?: boolean;
 }
 
 const FieldsList = ({
@@ -25,7 +26,8 @@ const FieldsList = ({
   onDeleteField,
   onUpdateField,
   onSetEditingField,
-  onMoveField
+  onMoveField,
+  readOnly = false
 }: FieldsListProps) => {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -35,20 +37,24 @@ const FieldsList = ({
     <div className="space-y-1">
       <div className="flex items-center justify-between mb-2">
         <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Subsections</div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowAddDialog(true)}
-          className="gap-1 h-7 text-xs"
-        >
-          <Plus size={14} />
-          Add Subsection
-        </Button>
-        <AddFieldDialog
-          open={showAddDialog}
-          onOpenChange={setShowAddDialog}
-          onConfirm={onAddField}
-        />
+        {!readOnly && (
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAddDialog(true)}
+              className="gap-1 h-7 text-xs"
+            >
+              <Plus size={14} />
+              Add Subsection
+            </Button>
+            <AddFieldDialog
+              open={showAddDialog}
+              onOpenChange={setShowAddDialog}
+              onConfirm={onAddField}
+            />
+          </>
+        )}
       </div>
       
       <div className="space-y-1">
