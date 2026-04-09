@@ -95,35 +95,38 @@ const ScoutingTemplatesTab = () => {
 
   return (
     <div className="space-y-6">
-      {/* Global Rating System - always visible */}
+      {/* Rating Systems Configuration */}
       <Card>
         <CardHeader>
-          <CardTitle>Global Rating System</CardTitle>
-          <p className="text-sm text-muted-foreground">Configure the default rating system used across all templates. When adding rating fields to templates, scouts will select from these options.</p>
+          <CardTitle>Rating Systems</CardTitle>
+          <p className="text-sm text-muted-foreground">Define your rating systems. These can then be applied to any rating field within your templates.</p>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="global-rating-system">Rating System Type</Label>
-              <Select value={globalRatingSystem?.type || "numeric-1-10"} onValueChange={(value) => handleGlobalRatingSystemTypeChange(value as RatingSystemType)}>
-                <SelectTrigger id="global-rating-system"><SelectValue placeholder="Select rating system" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="numeric-1-5">Numeric (1-5)</SelectItem>
-                  <SelectItem value="numeric-1-10">Numeric (1-10)</SelectItem>
-                  <SelectItem value="letter">Letter Grades</SelectItem>
-                  <SelectItem value="custom-tags">Custom Tags</SelectItem>
-                  <SelectItem value="percentage">Percentage</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {globalRatingSystem && globalRatingSystem.type !== "percentage" && (
-              <div className="border p-4 rounded-md">
-                <RatingOptionsEditor ratingSystem={globalRatingSystem} onUpdate={handleGlobalRatingSystemUpdate} />
+          <div className="space-y-3">
+            {RATING_SYSTEM_TYPES.map(({ key, label }) => (
+              <div key={key} className="border rounded-md">
+                <button
+                  className="w-full flex items-center justify-between p-3 text-left hover:bg-muted/50 transition-colors"
+                  onClick={() => setEditingRatingType(editingRatingType === key ? null : key)}
+                >
+                  <span className="font-medium text-sm">{label}</span>
+                  <span className="text-xs text-muted-foreground">{editingRatingType === key ? 'Collapse' : 'Customise'}</span>
+                </button>
+                {editingRatingType === key && key !== 'percentage' && (
+                  <div className="p-4 pt-0 border-t">
+                    <RatingOptionsEditor 
+                      ratingSystem={globalRatingSystems[key]} 
+                      onUpdate={(rs) => handleGlobalRatingSystemUpdate(key, rs)} 
+                    />
+                  </div>
+                )}
+                {editingRatingType === key && key === 'percentage' && (
+                  <div className="p-4 pt-0 border-t">
+                    <p className="text-sm text-muted-foreground">Percentage ratings use a 0-100 scale with no additional configuration needed.</p>
+                  </div>
+                )}
               </div>
-            )}
-            <div className="flex justify-end">
-              <Button onClick={() => applyGlobalRatingSystemToAllTemplates(globalRatingSystem)} className="gap-2">Apply To All Templates</Button>
-            </div>
+            ))}
           </div>
         </CardContent>
       </Card>
