@@ -18,7 +18,6 @@ const ScoutingTemplatesTab = () => {
   const [templates, setTemplates] = useState<ReportTemplate[]>(mockTemplates);
   const [currentTemplateId, setCurrentTemplateId] = useState<string>(templates[0]?.id || "");
   const [globalRatingSystem, setGlobalRatingSystem] = useState<RatingSystem>(DEFAULT_RATING_SYSTEMS["numeric-1-10"]);
-  const [showGlobalSettings, setShowGlobalSettings] = useState(false);
 
   const currentTemplate = templates.find(t => t.id === currentTemplateId);
 
