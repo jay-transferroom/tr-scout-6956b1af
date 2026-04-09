@@ -48,31 +48,6 @@ const SectionCard = ({
   onSetEditingField,
   onMoveField
 }: SectionCardProps) => {
-  // Check if section has any rating fields
-  const hasRatingFields = section.fields.some(f => f.type === 'rating');
-
-  // Match current section rating system to a named one
-  const currentRatingSystemId = availableRatingSystems.find(
-    rs => rs.ratingSystem.type === section.ratingSystem?.type
-  )?.id || availableRatingSystems.find(
-    rs => rs.ratingSystem.type.startsWith('numeric')
-  )?.id || availableRatingSystems[0]?.id;
-
-  const handleRatingSystemChange = (ratingSystemId: string) => {
-    const selected = availableRatingSystems.find(rs => rs.id === ratingSystemId);
-    if (selected) {
-      onUpdateSection({
-        ...section,
-        ratingSystem: { ...selected.ratingSystem },
-        fields: section.fields.map(field => 
-          field.type === 'rating' 
-            ? { ...field, ratingSystem: { ...selected.ratingSystem } }
-            : field
-        )
-      });
-    }
-  };
-
   return (
     <div 
       className={cn(
