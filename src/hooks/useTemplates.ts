@@ -63,7 +63,10 @@ export const useTemplates = () => {
         id: template.id,
         name: template.name,
         description: template.description || '',
-        sections: Array.isArray(template.sections) ? template.sections : [],
+        sections: (Array.isArray(template.sections) ? template.sections : []).map((section: any, index: number) => ({
+          ...section,
+          isOverall: section.isOverall === true || section.id === 'overall' || (index === 0 && section.title?.toLowerCase().includes('overall')),
+        })),
         defaultTemplate: template.default_template || false,
         defaultRatingSystem: template.default_rating_system || undefined,
       }));
