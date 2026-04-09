@@ -581,6 +581,7 @@ export const ShortlistsContent = ({
                 </SortableTableHead>
                 <TableHead>EU/GBE</TableHead>
                 <TableHead>Availability</TableHead>
+                <TableHead>Scouting Grade</TableHead>
                 <TableHead>Scouts</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
@@ -753,6 +754,9 @@ const ShortlistPlayerRow = ({
       </TableCell>
       <TableCell>
         <AvailabilityBadge playerId={player.id.toString()} />
+      </TableCell>
+      <TableCell>
+        <PlayerScoutingGrade playerId={player.id.toString()} />
       </TableCell>
       <TableCell>
         {!player.isPrivate && scouts.length > 0 ? (
