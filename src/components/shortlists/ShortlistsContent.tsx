@@ -21,6 +21,9 @@ import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { usePlayerScouts } from "@/hooks/usePlayerScouts";
 import { Checkbox } from "@/components/ui/checkbox";
 import { type PlayerAvailability } from "@/hooks/useShortlists";
+import { ScoutingGrade } from "@/components/ui/scouting-grade";
+import { useReports } from "@/hooks/useReports";
+import { groupReportsByPlayer } from "@/utils/reportGrouping";
 
 interface ShortlistsContentProps {
   currentList: any;
@@ -581,6 +584,7 @@ export const ShortlistsContent = ({
                 </SortableTableHead>
                 <TableHead>EU/GBE</TableHead>
                 <TableHead>Availability</TableHead>
+                <TableHead>Scouting Grade</TableHead>
                 <TableHead>Scouts</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
@@ -753,6 +757,9 @@ const ShortlistPlayerRow = ({
       </TableCell>
       <TableCell>
         <AvailabilityBadge playerId={player.id.toString()} />
+      </TableCell>
+      <TableCell>
+        <PlayerScoutingGrade playerId={player.id.toString()} />
       </TableCell>
       <TableCell>
         {!player.isPrivate && scouts.length > 0 ? (
@@ -987,6 +994,26 @@ const ShortlistPlayerCard = ({
       </CardContent>
     </Card>
   );
+};
+
+// Player scouting grade component - fetches reports for a player and shows avg grade
+const PlayerScoutingGrade = ({ playerId }: { playerId: string }) => {
+  const { reports } = useReports();
+  
+  const playerReports = (reports || []).filter(r => r.playerId === playerId);
+  
+  if (playerReports.length === 0) {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+
+  const grouped = groupReportsByPlayer(playerReports);
+  const group = grouped[0];
+  
+  if (!group || group.avgRating === null) {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+
+  return <ScoutingGrade grade={group.avgRating} displayFormat={group.displayFormat} />;
 };
 
 // Mock availability badge - statuses will be derived from backend services

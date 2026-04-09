@@ -114,7 +114,7 @@ const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteR
       </TableCell>
       <TableCell>
         {groupedReport.avgRating !== null && groupedReport.avgRating !== undefined ? (
-          <ScoutingGrade grade={groupedReport.avgRating} />
+          <ScoutingGrade grade={groupedReport.avgRating} displayFormat={groupedReport.displayFormat} />
         ) : (
           <span className="text-grey-400 text-sm">-</span>
         )}

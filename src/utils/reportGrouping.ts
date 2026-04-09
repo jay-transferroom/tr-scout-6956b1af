@@ -1,12 +1,14 @@
 
 import { ReportWithPlayer } from "@/types/report";
 import { getOverallRating, getRecommendation } from "./reportDataExtraction";
+import { convertRatingToNumeric, detectRatingSystemType } from "./ratingConversion";
 
 export interface GroupedReport extends ReportWithPlayer {
   reportCount: number;
   avgRating: number | null;
   recommendation: string | null;
   allReports: ReportWithPlayer[];
+  displayFormat: string;
 }
 
 // Helper function to group reports by player
@@ -28,12 +30,16 @@ export const groupReportsByPlayer = (reports: ReportWithPlayer[]): GroupedReport
 
     const mostRecentReport = sortedReports[0];
     
-    // Get all ratings for this player
+    // Detect display format from the most recent report
+    const displayFormat = detectRatingSystemType(mostRecentReport.sections);
+    
+    // Get all ratings for this player, using convertRatingToNumeric for all types
     const ratings = sortedReports
-      .map(report => getOverallRating(report))
-      .filter(rating => rating !== null && rating !== undefined && typeof rating === "number") as number[];
-
-    console.log(`Player ${mostRecentReport.player?.name} all ratings:`, ratings);
+      .map(report => {
+        const raw = getOverallRating(report);
+        return convertRatingToNumeric(raw);
+      })
+      .filter((rating): rating is number => rating !== null);
 
     // Calculate average rating
     const avgRating = ratings.length > 0 
@@ -42,15 +48,14 @@ export const groupReportsByPlayer = (reports: ReportWithPlayer[]): GroupedReport
 
     // Get the most recent recommendation
     const recommendation = getRecommendation(mostRecentReport);
-    console.log(`Player ${mostRecentReport.player?.name} recommendation:`, recommendation);
-    console.log(`Player ${mostRecentReport.player?.name} avg rating:`, avgRating);
 
     return {
       ...mostRecentReport,
       reportCount: sortedReports.length,
       avgRating,
       recommendation,
-      allReports: sortedReports
+      allReports: sortedReports,
+      displayFormat
     };
   });
 };
