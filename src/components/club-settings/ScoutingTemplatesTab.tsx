@@ -10,7 +10,7 @@ import { mockTemplates } from "@/data/mockTemplates";
 import { ReportTemplate, DEFAULT_RATING_SYSTEMS, RatingSystem, RatingSystemType } from "@/types/report";
 import TemplateSectionEditor from "@/components/TemplateSectionEditor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import RatingOptionsEditor from "@/components/RatingOptionsEditor";
 import RatingOptionsEditor from "@/components/RatingOptionsEditor";
 
 const RATING_SYSTEM_TYPES: { key: RatingSystemType; label: string }[] = [
