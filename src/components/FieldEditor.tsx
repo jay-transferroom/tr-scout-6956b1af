@@ -68,9 +68,12 @@ const FieldEditor = ({ field, onUpdate, availableRatingSystems = [] }: FieldEdit
   };
 
   // Find which named rating system matches the current field's rating system
+  // Default to first numeric system if no match (for existing templates with ratings already applied)
   const currentRatingSystemId = availableRatingSystems.find(
     rs => rs.ratingSystem.type === field.ratingSystem?.type
-  )?.id;
+  )?.id || availableRatingSystems.find(
+    rs => rs.ratingSystem.type.startsWith('numeric')
+  )?.id || availableRatingSystems[0]?.id;
 
   return (
     <div className="space-y-4">
