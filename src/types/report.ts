@@ -16,6 +16,7 @@ export interface ReportSection {
   title: string;
   fields: ReportField[];
   optional?: boolean;
+  fieldType?: ReportFieldType;
   ratingSystem?: RatingSystem;
 }
 

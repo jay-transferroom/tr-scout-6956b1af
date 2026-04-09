@@ -1,6 +1,5 @@
 import { ReportField } from "@/types/report";
 import FieldBasicInfo from "@/components/field-editor/FieldBasicInfo";
-import FieldTypeSelector from "@/components/field-editor/FieldTypeSelector";
 import DropdownOptionsEditor from "@/components/field-editor/DropdownOptionsEditor";
 import { STANDARD_SCOUT_VERDICTS } from "@/utils/recommendationHelpers";
 
@@ -10,22 +9,6 @@ interface FieldEditorProps {
 }
 
 const FieldEditor = ({ field, onUpdate }: FieldEditorProps) => {
-  const handleFieldTypeChange = (type: string) => {
-    let updatedField = { ...field, type: type as any };
-    
-    if (type === 'dropdown') {
-      if (field.label.toLowerCase().includes('recommendation') || 
-          field.label.toLowerCase().includes('verdict') ||
-          field.label.toLowerCase().includes('decision')) {
-        updatedField.options = [...STANDARD_SCOUT_VERDICTS];
-      } else {
-        updatedField.options = ['Option 1', 'Option 2', 'Option 3'];
-      }
-    }
-    
-    onUpdate(updatedField);
-  };
-
   const handleAddDropdownOption = () => {
     const currentOptions = (field.options as string[]) || [];
     onUpdate({
@@ -59,11 +42,6 @@ const FieldEditor = ({ field, onUpdate }: FieldEditorProps) => {
         onLabelChange={(value) => onUpdate({ ...field, label: value })}
         onDescriptionChange={(value) => onUpdate({ ...field, description: value })}
         onRequiredChange={(value) => onUpdate({ ...field, required: value })}
-      />
-      
-      <FieldTypeSelector
-        value={field.type}
-        onChange={handleFieldTypeChange}
       />
       
       {field.type === 'dropdown' && (
