@@ -4,6 +4,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import SectionHeader from "@/components/SectionHeader";
 import FieldsList from "@/components/FieldsList";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 interface SectionCardProps {
   section: ReportSection;
@@ -48,6 +50,23 @@ const SectionCard = ({
   onSetEditingField,
   onMoveField
 }: SectionCardProps) => {
+  const hasRatingFields = section.fields.some(f => f.type === 'rating');
+
+  const currentRatingSystemId = section.ratingSystem
+    ? availableRatingSystems.find(rs => rs.ratingSystem.type === section.ratingSystem?.type)?.id
+    : undefined;
+
+  const currentRatingLabel = currentRatingSystemId
+    ? availableRatingSystems.find(rs => rs.id === currentRatingSystemId)?.name
+    : null;
+
+  const handleRatingSystemChange = (ratingSystemId: string) => {
+    const selected = availableRatingSystems.find(rs => rs.id === ratingSystemId);
+    if (selected) {
+      onUpdateSection({ ...section, ratingSystem: { ...selected.ratingSystem } });
+    }
+  };
+
   return (
     <div 
       className={cn(
@@ -76,7 +95,7 @@ const SectionCard = ({
         <div className="px-4 pb-4 space-y-3">
           <div className="border-t border-border/50 pt-3">
             {/* Section-level settings row */}
-            <div className="flex items-center mb-3">
+            <div className="flex items-center gap-4 mb-3">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id={`section-required-${section.id}`}
@@ -92,12 +111,30 @@ const SectionCard = ({
                   Required section
                 </label>
               </div>
+
+              {hasRatingFields && availableRatingSystems.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-muted-foreground whitespace-nowrap">Rating System</label>
+                  <Select 
+                    value={currentRatingSystemId || ''} 
+                    onValueChange={handleRatingSystemChange}
+                  >
+                    <SelectTrigger className="h-7 text-xs w-[180px]">
+                      <SelectValue placeholder="Select rating system" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableRatingSystems.map((rs) => (
+                        <SelectItem key={rs.id} value={rs.id} className="text-xs">{rs.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
             
             <FieldsList
               fields={section.fields}
               editingFieldId={editingFieldId}
-              availableRatingSystems={availableRatingSystems}
               onAddField={onAddField}
               onDeleteField={onDeleteField}
               onUpdateField={onUpdateField}
