@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Save, Copy, Trash2, Settings } from "lucide-react";
+import { Plus, Save, Copy, Trash2 } from "lucide-react";
 import { mockTemplates } from "@/data/mockTemplates";
 import { ReportTemplate, DEFAULT_RATING_SYSTEMS, RatingSystem, RatingSystemType } from "@/types/report";
 import TemplateSectionEditor from "@/components/TemplateSectionEditor";
