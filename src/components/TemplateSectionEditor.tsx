@@ -29,14 +29,6 @@ const createNewSection = (defaultRatingSystem?: RatingSystem): ReportSection => 
     required: true,
   };
 
-  const recommendationField: ReportField = {
-    id: `field-recommendation-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    label: "Recommendation",
-    type: "dropdown",
-    required: true,
-    options: [...SCOUT_RECOMMENDATIONS]
-  };
-
   const descriptionField: ReportField = {
     id: `field-desc-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     label: "Notes",
@@ -47,7 +39,7 @@ const createNewSection = (defaultRatingSystem?: RatingSystem): ReportSection => 
   return {
     id: `section-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     title: "New Section",
-    fields: [ratingField, recommendationField, descriptionField],
+    fields: [ratingField, descriptionField],
     optional: false,
     ratingSystem: defaultRatingSystem ? { ...defaultRatingSystem } : undefined
   };
