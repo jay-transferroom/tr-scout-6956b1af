@@ -38,8 +38,18 @@ const createNewSection = (defaultRatingSystem?: RatingSystem): ReportSection => 
 };
 
 const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availableRatingSystems = [] }: TemplateSectionEditorProps) => {
+  const isOverallSection = (section: ReportSection, index: number) => {
+    return (
+      section.isOverall === true ||
+      section.id === "overall" ||
+      (index === 0 && section.title.toLowerCase().includes("overall"))
+    );
+  };
+
   const [expandedSectionId, setExpandedSectionId] = useState<string | null>(
-    sections.length ? sections[0].id : null
+    sections.length
+      ? sections.find((section, index) => isOverallSection(section, index))?.id ?? sections[0].id
+      : null
   );
   const [editingFieldId, setEditingFieldId] = useState<string | null>(null);
   const [draggedSectionId, setDraggedSectionId] = useState<string | null>(null);
@@ -52,9 +62,10 @@ const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availa
   };
 
   const handleDeleteSection = (sectionId: string) => {
-    const section = sections.find(s => s.id === sectionId);
-    if (section?.isOverall) return; // Cannot delete overall section
-    
+    const sectionIndex = sections.findIndex(section => section.id === sectionId);
+    const section = sections[sectionIndex];
+    if (!section || isOverallSection(section, sectionIndex)) return;
+
     const updatedSections = sections.filter(section => section.id !== sectionId);
     onUpdate(updatedSections);
     
@@ -127,8 +138,8 @@ const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availa
 
   const handleMoveSectionUp = (index: number) => {
     if (index === 0) return;
-    // Don't allow moving past the overall section
-    if (sections[index - 1]?.isOverall) return;
+    if (isOverallSection(sections[index], index)) return;
+    if (isOverallSection(sections[index - 1], index - 1)) return;
     
     const updatedSections = [...sections];
     const temp = updatedSections[index];
@@ -140,6 +151,8 @@ const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availa
 
   const handleMoveSectionDown = (index: number) => {
     if (index === sections.length - 1) return;
+    if (isOverallSection(sections[index], index)) return;
+    if (isOverallSection(sections[index + 1], index + 1)) return;
     
     const updatedSections = [...sections];
     const temp = updatedSections[index];
@@ -166,35 +179,39 @@ const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availa
 
   return (
     <div className="space-y-4">
-      {sections.map((section, sectionIndex) => (
-        <SectionCard
-          key={section.id}
-          section={section}
-          sectionIndex={sectionIndex}
-          totalSections={sections.length}
-          isExpanded={expandedSectionId === section.id}
-          isDragged={draggedSectionId === section.id}
-          editingFieldId={editingFieldId}
-          availableRatingSystems={availableRatingSystems}
-          isOverall={!!section.isOverall}
-          onUpdateSection={handleUpdateSection}
-          onDeleteSection={handleDeleteSection}
-          onMoveUp={handleMoveSectionUp}
-          onMoveDown={handleMoveSectionDown}
-          onToggleExpand={() => {
-            setExpandedSectionId(
-              expandedSectionId === section.id ? null : section.id
-            );
-          }}
-          onDragStart={() => !section.isOverall && setDraggedSectionId(section.id)}
-          onDragEnd={() => setDraggedSectionId(null)}
-          onAddField={(types) => handleAddField(section.id, types)}
-          onDeleteField={(fieldId) => handleDeleteField(section.id, fieldId)}
-          onUpdateField={(field) => handleUpdateField(section.id, field)}
-          onSetEditingField={setEditingFieldId}
-          onMoveField={handleMoveField}
-        />
-      ))}
+      {sections.map((section, sectionIndex) => {
+        const isOverall = isOverallSection(section, sectionIndex);
+
+        return (
+          <SectionCard
+            key={section.id}
+            section={section}
+            sectionIndex={sectionIndex}
+            totalSections={sections.length}
+            isExpanded={expandedSectionId === section.id}
+            isDragged={draggedSectionId === section.id}
+            editingFieldId={editingFieldId}
+            availableRatingSystems={availableRatingSystems}
+            isOverall={isOverall}
+            onUpdateSection={handleUpdateSection}
+            onDeleteSection={handleDeleteSection}
+            onMoveUp={handleMoveSectionUp}
+            onMoveDown={handleMoveSectionDown}
+            onToggleExpand={() => {
+              setExpandedSectionId(
+                expandedSectionId === section.id ? null : section.id
+              );
+            }}
+            onDragStart={() => !isOverall && setDraggedSectionId(section.id)}
+            onDragEnd={() => setDraggedSectionId(null)}
+            onAddField={(types) => handleAddField(section.id, types)}
+            onDeleteField={(fieldId) => handleDeleteField(section.id, fieldId)}
+            onUpdateField={(field) => handleUpdateField(section.id, field)}
+            onSetEditingField={setEditingFieldId}
+            onMoveField={handleMoveField}
+          />
+        );
+      })}
       
       <Button 
         variant="outline" 
