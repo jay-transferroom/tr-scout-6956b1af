@@ -55,18 +55,18 @@ const SectionHeader = ({
             autoFocus
           />
         ) : (
-          <div className="text-base font-medium flex-1">{section.title}</div>
+          <div className="text-base font-medium flex-1 flex items-center gap-1">
+            {section.title}
+            <button
+              className="text-muted-foreground hover:text-foreground p-0.5"
+              onClick={() => setIsEditing(true)}
+            >
+              <Edit size={13} />
+            </button>
+          </div>
         )}
         
         <div className="flex items-center space-x-2 ml-auto">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 p-0"
-            onClick={() => setIsEditing(true)}
-          >
-            <Edit size={16} />
-          </Button>
           
           <Button
             variant="ghost"

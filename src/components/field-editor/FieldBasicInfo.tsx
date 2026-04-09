@@ -49,7 +49,7 @@ const FieldBasicInfo = ({
           checked={required}
           onCheckedChange={(checked) => onRequiredChange(!!checked)}
         />
-        <label htmlFor="field-required" className="text-sm">Required field</label>
+        <label htmlFor="field-required" className="text-sm">Required subsection</label>
       </div>
     </>
   );
