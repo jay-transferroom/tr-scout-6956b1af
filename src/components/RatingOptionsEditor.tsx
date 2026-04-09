@@ -75,79 +75,63 @@ const RatingOptionsEditor = ({ ratingSystem, onUpdate }: RatingOptionsEditorProp
   };
 
   return (
-    <div className="space-y-3">
-      <div className="text-sm font-medium">Rating Options</div>
+    <div className="space-y-2">
+      <div className="text-xs font-medium text-muted-foreground">Rating Options</div>
       
-      <div className="space-y-3">
+      <div className="space-y-1.5">
         {ratingSystem.values.map((option, index) => (
-          <div key={index} className="grid grid-cols-12 gap-2 items-center">
-            {/* Value */}
-            <div className="col-span-2">
-              <Input
-                type={isNumeric ? "number" : "text"}
-                value={option.value.toString()}
-                onChange={(e) => handleUpdateOption(index, "value", e.target.value)}
-                disabled={isNumeric}
-                className="w-full"
+          <div key={index} className="flex items-center gap-2">
+            <Input
+              type={isNumeric ? "number" : "text"}
+              value={option.value.toString()}
+              onChange={(e) => handleUpdateOption(index, "value", e.target.value)}
+              disabled={isNumeric}
+              className="w-20 h-8 text-sm"
+            />
+            <Input
+              value={option.description || ""}
+              onChange={(e) => handleUpdateOption(index, "description", e.target.value)}
+              placeholder="Description (optional)"
+              className="flex-1 h-8 text-sm"
+            />
+            <label className="relative cursor-pointer block w-7 h-7 shrink-0">
+              <div 
+                className="w-7 h-7 rounded border border-border" 
+                style={{ backgroundColor: option.color || "#000000" }}
               />
-            </div>
-            
-            {/* Description */}
-            <div className="col-span-7">
-              <Input
-                value={option.description || ""}
-                onChange={(e) => handleUpdateOption(index, "description", e.target.value)}
-                placeholder="Description (optional)"
-                className="w-full"
+              <input
+                type="color"
+                value={option.color || "#000000"}
+                onChange={(e) => handleUpdateOption(index, "color", e.target.value)}
+                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
               />
-            </div>
-
-            {/* Color swatch that opens native picker */}
-            <div className="col-span-1 flex justify-center">
-              <label className="relative cursor-pointer block w-7 h-7">
-                <div 
-                  className="w-7 h-7 rounded border border-border" 
-                  style={{ backgroundColor: option.color || "#000000" }}
-                />
-                <input
-                  type="color"
-                  value={option.color || "#000000"}
-                  onChange={(e) => handleUpdateOption(index, "color", e.target.value)}
-                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                />
-              </label>
-            </div>
-            
-            {/* Delete button */}
-            <div className="col-span-2 flex justify-end">
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`p-0 h-8 w-8 ${
-                  (isNumeric && ratingSystem.values.length <= 2) || 
-                  ((isLetter || isCustomTag) && ratingSystem.values.length <= 1)
-                    ? "opacity-50 cursor-not-allowed"
-                    : "text-destructive hover:text-destructive"
-                }`}
-                onClick={() => handleDeleteOption(index)}
-                disabled={(isNumeric && ratingSystem.values.length <= 2) || 
-                         ((isLetter || isCustomTag) && ratingSystem.values.length <= 1)}
-              >
-                <Trash2 size={16} />
-              </Button>
-            </div>
+            </label>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`p-0 h-7 w-7 shrink-0 ${
+                (isNumeric && ratingSystem.values.length <= 2) || 
+                ((isLetter || isCustomTag) && ratingSystem.values.length <= 1)
+                  ? "opacity-50 cursor-not-allowed"
+                  : "text-destructive hover:text-destructive"
+              }`}
+              onClick={() => handleDeleteOption(index)}
+              disabled={(isNumeric && ratingSystem.values.length <= 2) || 
+                       ((isLetter || isCustomTag) && ratingSystem.values.length <= 1)}
+            >
+              <Trash2 size={14} />
+            </Button>
           </div>
         ))}
       </div>
       
-      {/* Add new option button */}
       <Button
         variant="outline"
         size="sm"
-        className="w-full mt-2"
+        className="w-full h-8 text-xs"
         onClick={handleAddOption}
       >
-        <Plus size={16} className="mr-1" />
+        <Plus size={14} className="mr-1" />
         Add Rating Option
       </Button>
     </div>
