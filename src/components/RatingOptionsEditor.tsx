@@ -81,29 +81,35 @@ const RatingOptionsEditor = ({ ratingSystem, onUpdate }: RatingOptionsEditorProp
       <div className="space-y-3">
         {ratingSystem.values.map((option, index) => (
           <div key={index} className="grid grid-cols-12 gap-2 items-center">
-            {/* Display or edit the value */}
+            {/* Color swatch that opens native picker */}
+            <div className="col-span-1">
+              <label className="relative cursor-pointer block w-7 h-7">
+                <div 
+                  className="w-7 h-7 rounded border border-border" 
+                  style={{ backgroundColor: option.color || "#000000" }}
+                />
+                <input
+                  type="color"
+                  value={option.color || "#000000"}
+                  onChange={(e) => handleUpdateOption(index, "color", e.target.value)}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                />
+              </label>
+            </div>
+
+            {/* Value */}
             <div className="col-span-2">
               <Input
                 type={isNumeric ? "number" : "text"}
                 value={option.value.toString()}
                 onChange={(e) => handleUpdateOption(index, "value", e.target.value)}
-                disabled={isNumeric} // Lock numeric values
+                disabled={isNumeric}
                 className="w-full"
               />
             </div>
             
-            {/* Display or edit the label */}
-            <div className="col-span-3">
-              <Input
-                value={option.label || ""}
-                onChange={(e) => handleUpdateOption(index, "label", e.target.value)}
-                placeholder="Label (optional)"
-                className="w-full"
-              />
-            </div>
-            
-            {/* Display or edit the description */}
-            <div className="col-span-4">
+            {/* Description */}
+            <div className="col-span-7">
               <Input
                 value={option.description || ""}
                 onChange={(e) => handleUpdateOption(index, "description", e.target.value)}
@@ -112,25 +118,8 @@ const RatingOptionsEditor = ({ ratingSystem, onUpdate }: RatingOptionsEditorProp
               />
             </div>
             
-            {/* Color picker */}
-            <div className="col-span-2">
-              <div className="flex items-center gap-2">
-                <div 
-                  className="w-6 h-6 rounded border border-gray-300" 
-                  style={{ backgroundColor: option.color || "#000000" }}
-                ></div>
-                <Input
-                  type="color"
-                  value={option.color || "#000000"}
-                  onChange={(e) => handleUpdateOption(index, "color", e.target.value)}
-                  className="w-full h-8 p-1 cursor-pointer"
-                  title="Choose color for this rating"
-                />
-              </div>
-            </div>
-            
             {/* Delete button */}
-            <div className="col-span-1">
+            <div className="col-span-2 flex justify-end">
               <Button
                 variant="ghost"
                 size="sm"
