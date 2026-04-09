@@ -64,18 +64,18 @@ const FieldsList = ({
           return (
             <div 
               key={field.id}
-              draggable={!!onMoveField}
-              onDragStart={(e) => {
+              draggable={!readOnly && !!onMoveField}
+              onDragStart={readOnly ? undefined : (e) => {
                 e.stopPropagation();
                 setDraggedIndex(index);
                 e.dataTransfer.effectAllowed = 'move';
               }}
-              onDragOver={(e) => {
+              onDragOver={readOnly ? undefined : (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 setDragOverIndex(index);
               }}
-              onDrop={(e) => {
+              onDrop={readOnly ? undefined : (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 if (draggedIndex !== null && draggedIndex !== index && onMoveField) {
@@ -84,13 +84,13 @@ const FieldsList = ({
                 setDraggedIndex(null);
                 setDragOverIndex(null);
               }}
-              onDragEnd={() => {
+              onDragEnd={readOnly ? undefined : () => {
                 setDraggedIndex(null);
                 setDragOverIndex(null);
               }}
               className={cn(
                 "rounded-md transition-colors",
-                isEditing ? "bg-muted/50 p-3" : "hover:bg-muted/30",
+                isEditing && !readOnly ? "bg-muted/50 p-3" : "hover:bg-muted/30",
                 draggedIndex === index && "opacity-50",
                 dragOverIndex === index && draggedIndex !== index && "border-t-2 border-primary"
               )}
@@ -100,7 +100,7 @@ const FieldsList = ({
                 !isEditing && "px-3 py-2"
               )}>
                 <div className="flex items-center gap-2">
-                  {onMoveField && (
+                  {!readOnly && onMoveField && (
                     <div className="cursor-grab active:cursor-grabbing p-0.5 hover:bg-muted rounded">
                       <GripVertical size={14} className="text-muted-foreground" />
                     </div>
@@ -114,24 +114,26 @@ const FieldsList = ({
                   )}
                 </div>
                 
-                <div className="flex items-center gap-0.5">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 text-xs px-2"
-                    onClick={() => onSetEditingField(isEditing ? null : field.id)}
-                  >
-                    {isEditing ? "Done" : "Edit"}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-                    onClick={() => onDeleteField(field.id)}
-                  >
-                    <Trash2 size={13} />
-                  </Button>
-                </div>
+                {!readOnly && (
+                  <div className="flex items-center gap-0.5">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-xs px-2"
+                      onClick={() => onSetEditingField(isEditing ? null : field.id)}
+                    >
+                      {isEditing ? "Done" : "Edit"}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => onDeleteField(field.id)}
+                    >
+                      <Trash2 size={13} />
+                    </Button>
+                  </div>
+                )}
               </div>
               
               {isEditing && (
