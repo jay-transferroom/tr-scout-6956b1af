@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Save } from "lucide-react";
+import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Save, Undo2 } from "lucide-react";
 import { DEFAULT_RATING_SYSTEMS, RatingSystem, NamedRatingSystem } from "@/types/report";
 import RatingOptionsEditor from "@/components/RatingOptionsEditor";
 
@@ -22,6 +22,11 @@ interface RatingSystemsTabProps {
 const RatingSystemsTab = ({ namedRatingSystems, onUpdate }: RatingSystemsTabProps) => {
   const [expandedRatingId, setExpandedRatingId] = useState<string | null>(null);
   const [editingNameId, setEditingNameId] = useState<string | null>(null);
+  const savedSnapshotRef = useRef<string>(JSON.stringify(namedRatingSystems));
+
+  const hasChanges = useMemo(() => {
+    return JSON.stringify(namedRatingSystems) !== savedSnapshotRef.current;
+  }, [namedRatingSystems]);
 
   const handleUpdateRatingSystem = (id: string, ratingSystem: RatingSystem) => {
     onUpdate(namedRatingSystems.map(rs => rs.id === id ? { ...rs, ratingSystem } : rs));
@@ -60,36 +65,36 @@ const RatingSystemsTab = ({ namedRatingSystems, onUpdate }: RatingSystemsTabProp
   };
 
   const handleSave = () => {
-    console.log("Saving rating systems:", namedRatingSystems);
+    savedSnapshotRef.current = JSON.stringify(namedRatingSystems);
     toast({ title: "Changes Saved", description: "Your rating systems have been saved." });
   };
 
+  const handleClearChanges = () => {
+    const restored = JSON.parse(savedSnapshotRef.current);
+    onUpdate(restored);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Rating Systems</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Define your rating systems. These can be applied to any rating field within your scouting templates.
+              <CardTitle className="text-base">Rating Systems</CardTitle>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Define rating systems to apply to any subsection within your scouting templates.
               </p>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleAdd} className="gap-1">
-                <Plus size={14} /> Add Rating System
-              </Button>
-              <Button size="sm" onClick={handleSave} className="gap-1">
-                <Save size={14} /> Save
-              </Button>
-            </div>
+            <Button variant="outline" size="sm" onClick={handleAdd} className="gap-1 text-xs h-8">
+              <Plus size={14} /> Add Rating System
+            </Button>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
+        <CardContent className="pt-0">
+          <div className="space-y-1.5">
             {namedRatingSystems.map((namedSystem) => (
               <div key={namedSystem.id} className="border rounded-md">
-                <div className="flex items-center justify-between p-3">
+                <div className="flex items-center justify-between px-3 py-2">
                   <div className="flex items-center gap-2 flex-1">
                     {editingNameId === namedSystem.id ? (
                       <Input
@@ -102,7 +107,7 @@ const RatingSystemsTab = ({ namedRatingSystems, onUpdate }: RatingSystemsTabProp
                       />
                     ) : (
                       <button
-                        className="flex items-center gap-1.5 hover:text-primary transition-colors"
+                        className="flex items-center gap-1 hover:text-primary transition-colors"
                         onClick={() => setEditingNameId(namedSystem.id)}
                       >
                         <span className="font-medium text-sm">{namedSystem.name}</span>
@@ -113,7 +118,7 @@ const RatingSystemsTab = ({ namedRatingSystems, onUpdate }: RatingSystemsTabProp
                       {namedSystem.ratingSystem.values.length} options
                     </span>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-0.5">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -134,7 +139,7 @@ const RatingSystemsTab = ({ namedRatingSystems, onUpdate }: RatingSystemsTabProp
                   </div>
                 </div>
                 {expandedRatingId === namedSystem.id && (
-                  <div className="p-4 pt-0 border-t">
+                  <div className="px-3 pb-3 border-t pt-3">
                     <RatingOptionsEditor 
                       ratingSystem={namedSystem.ratingSystem} 
                       onUpdate={(rs) => handleUpdateRatingSystem(namedSystem.id, rs)} 
@@ -146,6 +151,17 @@ const RatingSystemsTab = ({ namedRatingSystems, onUpdate }: RatingSystemsTabProp
           </div>
         </CardContent>
       </Card>
+
+      <div className="flex items-center gap-2 justify-end">
+        {hasChanges && (
+          <Button variant="ghost" size="sm" onClick={handleClearChanges} className="gap-1 text-xs h-8">
+            <Undo2 size={14} /> Clear changes
+          </Button>
+        )}
+        <Button size="sm" onClick={handleSave} disabled={!hasChanges} className="gap-1 text-xs h-8">
+          <Save size={14} /> Save All Changes
+        </Button>
+      </div>
     </div>
   );
 };
