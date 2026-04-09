@@ -191,7 +191,7 @@ const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabPr
                       <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-muted-foreground/50 active:cursor-grabbing" />
                     )}
                     {isOverall ? (
-                      <span className="text-sm font-medium text-green-700 dark:text-green-400">Rating</span>
+                      <span className="text-sm font-medium text-green-700 dark:text-green-400 max-w-[220px] flex-1">Rating</span>
                     ) : (
                       <Input
                         value={rating.name}
