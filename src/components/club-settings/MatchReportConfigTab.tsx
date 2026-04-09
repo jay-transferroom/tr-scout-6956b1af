@@ -70,6 +70,7 @@ const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabPr
   };
 
   const handleDeleteRating = (id: string) => {
+    if (id === 'default-overall') return;
     setConfig(prev => ({
       ...prev,
       ratings: prev.ratings.filter(r => r.id !== id),
