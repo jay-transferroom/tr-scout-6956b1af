@@ -95,7 +95,7 @@ const SectionCard = ({
         <div className="px-4 pb-4 space-y-3">
           <div className="border-t border-border/50 pt-3">
             {/* Section-level settings row */}
-            <div className="flex items-center gap-4 mb-3">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id={`section-required-${section.id}`}
