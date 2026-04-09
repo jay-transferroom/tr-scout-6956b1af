@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SlidersHorizontal, FileText, Shield, Upload, Star } from "lucide-react";
+import { SlidersHorizontal, FileText, Shield, Upload, Star, ClipboardList } from "lucide-react";
 import ClubRatingsTab from "@/components/club-settings/ClubRatingsTab";
 import RatingSystemsTab, { createDefaultNamedSystems } from "@/components/club-settings/RatingSystemsTab";
 import ScoutingTemplatesTab from "@/components/club-settings/ScoutingTemplatesTab";
+import MatchReportConfigTab, { MatchReportConfig, createDefaultMatchReportConfig } from "@/components/club-settings/MatchReportConfigTab";
 import UserManagementTab from "@/components/club-settings/UserManagementTab";
 import DataImportTab from "@/components/club-settings/DataImportTab";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,6 +17,7 @@ const ClubSettings = () => {
   const { profile } = useAuth();
   const isAdmin = profile?.role === 'recruitment' || profile?.role === 'director';
   const [namedRatingSystems, setNamedRatingSystems] = useState<NamedRatingSystem[]>(createDefaultNamedSystems());
+  const [matchReportConfig, setMatchReportConfig] = useState<MatchReportConfig>(createDefaultMatchReportConfig());
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value }, { replace: true });
@@ -46,6 +48,10 @@ const ClubSettings = () => {
                 <FileText className="h-4 w-4" />
                 Scouting Templates
               </TabsTrigger>
+              <TabsTrigger value="match-reports" className="gap-2">
+                <ClipboardList className="h-4 w-4" />
+                Match Reports
+              </TabsTrigger>
               <TabsTrigger value="users" className="gap-2">
                 <Shield className="h-4 w-4" />
                 User Management
@@ -68,6 +74,9 @@ const ClubSettings = () => {
             </TabsContent>
             <TabsContent value="templates">
               <ScoutingTemplatesTab availableRatingSystems={namedRatingSystems} />
+            </TabsContent>
+            <TabsContent value="match-reports">
+              <MatchReportConfigTab config={matchReportConfig} onUpdate={setMatchReportConfig} availableRatingSystems={namedRatingSystems} />
             </TabsContent>
             <TabsContent value="users">
               <UserManagementTab />
