@@ -42,7 +42,7 @@ const AddFieldDialog = ({ open, onOpenChange, onConfirm }: AddFieldDialogProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Sub Section</DialogTitle>
+          <DialogTitle>Add Subsection</DialogTitle>
           <p className="text-sm text-muted-foreground">Choose content types</p>
         </DialogHeader>
 

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ReportSection } from "@/types/report";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { GripVertical, Edit, Trash2 } from "lucide-react";
+import { GripVertical, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 
 interface SectionHeaderProps {
   section: ReportSection;
@@ -80,10 +80,10 @@ const SectionHeader = ({
           <Button
             variant="ghost"
             size="sm"
-            className="h-8"
+            className="h-7 w-7 p-0"
             onClick={onToggleExpand}
           >
-            {isExpanded ? "Collapse" : "Expand"}
+            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </Button>
         </div>
       </div>
