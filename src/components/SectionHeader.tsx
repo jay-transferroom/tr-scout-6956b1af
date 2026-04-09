@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ReportSection } from "@/types/report";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { GripVertical, Edit, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
+import { GripVertical, Edit, Trash2 } from "lucide-react";
 
 interface SectionHeaderProps {
   section: ReportSection;
@@ -67,26 +67,6 @@ const SectionHeader = ({
           >
             <Edit size={16} />
           </Button>
-          <div className="flex items-center space-x-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0"
-              onClick={() => onMoveUp(sectionIndex)}
-              disabled={sectionIndex === 0}
-            >
-              <ChevronUp size={16} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0"
-              onClick={() => onMoveDown(sectionIndex)}
-              disabled={sectionIndex === totalSections - 1}
-            >
-              <ChevronDown size={16} />
-            </Button>
-          </div>
           
           <Button
             variant="ghost"
