@@ -144,6 +144,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   savedRating,
   draftNotes,
   draftRating,
+  draftRatings,
   onDraftChange,
   onSave,
   onCreateFullReport,
@@ -152,10 +153,14 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   onDragOver,
   onDrop,
   isDragTarget,
+  matchReportConfig,
+  ratingSystems,
 }) => {
-  const [expanded, setExpanded] = useState((draftNotes ?? savedNotes).length > 0 || (draftRating ?? savedRating) !== null);
+  const hasAnyData = (draftNotes ?? savedNotes).length > 0 || (draftRating ?? savedRating) !== null || (draftRatings && Object.values(draftRatings).some(v => v));
+  const [expanded, setExpanded] = useState(hasAnyData);
   const [notes, setNotes] = useState(draftNotes ?? savedNotes);
   const [rating, setRating] = useState<number | null>(draftRating ?? savedRating);
+  const [ratings, setRatings] = useState<Record<string, string>>(draftRatings ?? {});
   const [isDirty, setIsDirty] = useState(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { status, description } = getPlayerStatus(player.id);
@@ -175,12 +180,12 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   }, [draftNotes, savedNotes, draftRating, savedRating]);
 
   useEffect(() => {
-    setIsDirty(notes !== savedNotes || rating !== savedRating);
-  }, [notes, rating, savedNotes, savedRating]);
+    setIsDirty(notes !== savedNotes || rating !== savedRating || JSON.stringify(ratings) !== JSON.stringify(draftRatings ?? {}));
+  }, [notes, rating, ratings, savedNotes, savedRating, draftRatings]);
 
   useEffect(() => {
-    onDraftChange(player.id, notes, rating);
-  }, [notes, rating, onDraftChange, player.id]);
+    onDraftChange(player.id, notes, rating, ratings);
+  }, [notes, rating, ratings, onDraftChange, player.id]);
 
   useEffect(() => {
     if (!isDirty) return;
@@ -190,7 +195,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
     }
 
     saveTimeoutRef.current = setTimeout(() => {
-      if (notes.trim() || rating !== null) {
+      if (notes.trim() || rating !== null || Object.values(ratings).some(v => v)) {
         onSave(player.id, notes, rating);
       }
     }, 2000);
@@ -200,7 +205,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [isDirty, notes, onSave, player.id, rating]);
+  }, [isDirty, notes, onSave, player.id, rating, ratings]);
 
   const handleManualSave = () => {
     if (saveTimeoutRef.current) {
@@ -209,6 +214,17 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
 
     onSave(player.id, notes, rating);
   };
+
+  const handleRatingChange = (ratingId: string, value: string) => {
+    setRatings(prev => ({ ...prev, [ratingId]: value === '__clear__' ? '' : value }));
+  };
+
+  const getRatingSystem = (ratingSystemId: string) => {
+    return ratingSystems.find(rs => rs.id === ratingSystemId);
+  };
+
+  // Get a summary of filled ratings for the collapsed badge
+  const filledRatingsCount = Object.values(ratings).filter(v => v).length;
 
   return (
     <div
@@ -257,9 +273,9 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
             </div>
           )}
         </div>
-        {rating !== null && (
+        {filledRatingsCount > 0 && (
           <Badge variant="default" className="shrink-0 text-xs font-semibold">
-            {rating.toFixed(1)}
+            {filledRatingsCount}/{matchReportConfig.ratings.length}
           </Badge>
         )}
         {player.transferroomRating && (
@@ -275,37 +291,49 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
       </button>
 
       {expanded && (
-        <div className="space-y-3 border-t border-border bg-muted/20 px-3 pb-3 pt-1">
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Rating</label>
-            <div className="grid grid-cols-10 gap-1">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => {
-                const isSelected = rating === value;
-                let selectedColor = "bg-primary";
-
-                if (isSelected) {
-                  if (value <= 3) selectedColor = "bg-destructive";
-                  else if (value <= 5) selectedColor = "bg-yellow-500";
-                  else if (value <= 7) selectedColor = "bg-green-500";
-                  else selectedColor = "bg-emerald-500";
-                }
-
+        <div className="space-y-3 border-t border-border bg-muted/20 px-3 pb-3 pt-2">
+          {/* Configured rating dropdowns */}
+          {matchReportConfig.ratings.length > 0 && (
+            <div className="space-y-2">
+              {matchReportConfig.ratings.map((configRating) => {
+                const ratingSystem = getRatingSystem(configRating.ratingSystemId);
+                const values = ratingSystem?.ratingSystem.values || [];
                 return (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setRating(isSelected ? null : value)}
-                    className={cn(
-                      "flex aspect-square items-center justify-center rounded-md border text-xs font-medium transition-colors",
-                      isSelected ? `${selectedColor} border-transparent text-white` : "border-border bg-background hover:bg-muted/50"
-                    )}
-                  >
-                    {value}
-                  </button>
+                  <div key={configRating.id} className="flex items-center gap-2">
+                    <label className="text-xs font-medium text-muted-foreground w-[120px] shrink-0 truncate">
+                      {configRating.name || 'Unnamed'}
+                    </label>
+                    <Select
+                      value={ratings[configRating.id] || ''}
+                      onValueChange={(value) => handleRatingChange(configRating.id, value)}
+                    >
+                      <SelectTrigger className="h-7 text-xs flex-1">
+                        <SelectValue placeholder="Select..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__clear__" className="text-xs text-muted-foreground">
+                          Clear
+                        </SelectItem>
+                        {values.map((v, idx) => (
+                          <SelectItem key={idx} value={String(v.value)} className="text-xs">
+                            <span className="flex items-center gap-1.5">
+                              {v.color && (
+                                <span
+                                  className="inline-block h-2.5 w-2.5 rounded-full shrink-0"
+                                  style={{ backgroundColor: v.color }}
+                                />
+                              )}
+                              {v.label || String(v.value)}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 );
               })}
             </div>
-          </div>
+          )}
 
           <div>
             <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Notes</label>
@@ -331,7 +359,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
               size="sm"
               variant={isDirty ? "default" : "outline"}
               onClick={handleManualSave}
-              disabled={isSaving || (!notes.trim() && rating === null)}
+              disabled={isSaving || (!notes.trim() && rating === null && !Object.values(ratings).some(v => v))}
               className="h-7 text-xs"
             >
               {isSaving ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Check className="mr-1 h-3 w-3" />}
