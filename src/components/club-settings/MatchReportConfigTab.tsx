@@ -94,11 +94,13 @@ const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabPr
   };
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
+    if (id === 'default-overall') { e.preventDefault(); return; }
     setDragSourceId(id);
     e.dataTransfer.effectAllowed = "move";
   };
 
   const handleDragOver = (e: React.DragEvent, id: string) => {
+    if (id === 'default-overall') return;
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
     setDragOverId(id);
@@ -106,7 +108,7 @@ const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabPr
 
   const handleDrop = (e: React.DragEvent, targetId: string) => {
     e.preventDefault();
-    if (!dragSourceId || dragSourceId === targetId) {
+    if (targetId === 'default-overall' || !dragSourceId || dragSourceId === targetId) {
       setDragSourceId(null);
       setDragOverId(null);
       return;
@@ -164,50 +166,71 @@ const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabPr
             </div>
 
             {/* Configurable ratings */}
-            {config.ratings.map((rating) => (
-              <div
-                key={rating.id}
-                className={`border rounded-md px-3 py-2 transition-all ${dragOverId === rating.id ? 'border-primary ring-1 ring-primary/30' : ''}`}
-                draggable
-                onDragStart={(e) => handleDragStart(e, rating.id)}
-                onDragOver={(e) => handleDragOver(e, rating.id)}
-                onDrop={(e) => handleDrop(e, rating.id)}
-                onDragLeave={() => setDragOverId(null)}
-              >
-                <div className="flex items-center gap-2">
-                  <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-muted-foreground/50 active:cursor-grabbing" />
-                  <Input
-                    value={rating.name}
-                    onChange={(e) => handleUpdateRating(rating.id, { name: e.target.value })}
-                    placeholder="Rating name (e.g. Technical Ability)"
-                    className="h-7 text-sm flex-1 max-w-[220px]"
-                  />
-                  <Select
-                    value={rating.ratingSystemId}
-                    onValueChange={(value) => handleUpdateRating(rating.id, { ratingSystemId: value })}
-                  >
-                    <SelectTrigger className="h-7 text-xs w-[180px]">
-                      <SelectValue placeholder="Rating system" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableRatingSystems.map((rs) => (
-                        <SelectItem key={rs.id} value={rs.id} className="text-xs">
-                          {rs.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                    onClick={() => handleDeleteRating(rating.id)}
-                  >
-                    <Trash2 size={14} />
-                  </Button>
+            {config.ratings.map((rating) => {
+              const isOverall = rating.id === 'default-overall';
+              return (
+                <div
+                  key={rating.id}
+                  className={`border rounded-md px-3 py-2 transition-all ${
+                    isOverall
+                      ? 'border-green-500/40 bg-green-500/5'
+                      : dragOverId === rating.id
+                        ? 'border-primary ring-1 ring-primary/30'
+                        : ''
+                  }`}
+                  draggable={!isOverall}
+                  onDragStart={(e) => handleDragStart(e, rating.id)}
+                  onDragOver={(e) => handleDragOver(e, rating.id)}
+                  onDrop={(e) => handleDrop(e, rating.id)}
+                  onDragLeave={() => setDragOverId(null)}
+                >
+                  <div className="flex items-center gap-2">
+                    {isOverall ? (
+                      <div className="w-4" />
+                    ) : (
+                      <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-muted-foreground/50 active:cursor-grabbing" />
+                    )}
+                    {isOverall ? (
+                      <span className="text-sm font-medium text-green-700 dark:text-green-400">Rating</span>
+                    ) : (
+                      <Input
+                        value={rating.name}
+                        onChange={(e) => handleUpdateRating(rating.id, { name: e.target.value })}
+                        placeholder="Rating name (e.g. Technical Ability)"
+                        className="h-7 text-sm flex-1 max-w-[220px]"
+                      />
+                    )}
+                    <Select
+                      value={rating.ratingSystemId}
+                      onValueChange={(value) => handleUpdateRating(rating.id, { ratingSystemId: value })}
+                    >
+                      <SelectTrigger className="h-7 text-xs w-[180px]">
+                        <SelectValue placeholder="Rating system" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableRatingSystems.map((rs) => (
+                          <SelectItem key={rs.id} value={rs.id} className="text-xs">
+                            {rs.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {isOverall ? (
+                      <span className="text-xs text-muted-foreground ml-auto">Primary rating</span>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                        onClick={() => handleDeleteRating(rating.id)}
+                      >
+                        <Trash2 size={14} />
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {config.ratings.length === 0 && (
               <p className="text-center text-sm text-muted-foreground py-4">
