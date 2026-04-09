@@ -67,8 +67,6 @@ const FieldEditor = ({ field, onUpdate, availableRatingSystems = [] }: FieldEdit
     onUpdate({ ...field, options: [...STANDARD_SCOUT_VERDICTS] });
   };
 
-  // Find which named rating system matches the current field's rating system
-  // Default to first numeric system if no match (for existing templates with ratings already applied)
   const currentRatingSystemId = availableRatingSystems.find(
     rs => rs.ratingSystem.type === field.ratingSystem?.type
   )?.id || availableRatingSystems.find(
@@ -76,7 +74,7 @@ const FieldEditor = ({ field, onUpdate, availableRatingSystems = [] }: FieldEdit
   )?.id || availableRatingSystems[0]?.id;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <FieldBasicInfo
         label={field.label}
         description={field.description || ""}
@@ -86,10 +84,33 @@ const FieldEditor = ({ field, onUpdate, availableRatingSystems = [] }: FieldEdit
         onRequiredChange={(value) => onUpdate({ ...field, required: value })}
       />
       
-      <FieldTypeSelector
-        value={field.type}
-        onChange={handleFieldTypeChange}
-      />
+      <div className="flex items-center gap-3">
+        <div className="flex-1">
+          <FieldTypeSelector
+            value={field.type}
+            onChange={handleFieldTypeChange}
+          />
+        </div>
+        
+        {field.type === 'rating' && availableRatingSystems.length > 0 && (
+          <div className="flex-1 space-y-2">
+            <Label className="text-xs">Rating System</Label>
+            <Select 
+              value={currentRatingSystemId || availableRatingSystems[0]?.id} 
+              onValueChange={handleRatingSystemSelect}
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder="Select rating system" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableRatingSystems.map((rs) => (
+                  <SelectItem key={rs.id} value={rs.id}>{rs.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+      </div>
       
       {field.type === 'dropdown' && (
         <DropdownOptionsEditor
@@ -99,28 +120,6 @@ const FieldEditor = ({ field, onUpdate, availableRatingSystems = [] }: FieldEdit
           onRemoveOption={handleRemoveDropdownOption}
           onUseScoutRecommendations={handleUseScoutVerdicts}
         />
-      )}
-      
-      {field.type === 'rating' && availableRatingSystems.length > 0 && (
-        <div className="space-y-2 border p-4 rounded">
-          <Label>Rating System</Label>
-          <Select 
-            value={currentRatingSystemId || availableRatingSystems[0]?.id} 
-            onValueChange={handleRatingSystemSelect}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select rating system" />
-            </SelectTrigger>
-            <SelectContent>
-              {availableRatingSystems.map((rs) => (
-                <SelectItem key={rs.id} value={rs.id}>{rs.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">
-            Rating systems are configured in the Rating Systems section above
-          </p>
-        </div>
       )}
     </div>
   );
