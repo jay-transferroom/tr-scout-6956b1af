@@ -1,7 +1,7 @@
 
 import { ReportField } from "@/types/report";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import FieldEditor from "@/components/FieldEditor";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ interface FieldsListProps {
   onDeleteField: (fieldId: string) => void;
   onUpdateField: (field: ReportField) => void;
   onSetEditingField: (fieldId: string | null) => void;
+  onMoveField?: (fromIndex: number, toIndex: number) => void;
 }
 
 const FieldsList = ({
@@ -21,7 +22,8 @@ const FieldsList = ({
   onAddField,
   onDeleteField,
   onUpdateField,
-  onSetEditingField
+  onSetEditingField,
+  onMoveField
 }: FieldsListProps) => {
   return (
     <div className="space-y-1">
@@ -39,7 +41,7 @@ const FieldsList = ({
       </div>
       
       <div className="space-y-1">
-        {fields.map((field) => {
+        {fields.map((field, index) => {
           const isEditing = editingFieldId === field.id;
           return (
             <div 
@@ -54,6 +56,28 @@ const FieldsList = ({
                 !isEditing && "px-3 py-2"
               )}>
                 <div className="flex items-center gap-2">
+                  {onMoveField && (
+                    <div className="flex items-center gap-0.5">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0 text-muted-foreground"
+                        onClick={() => onMoveField(index, index - 1)}
+                        disabled={index === 0}
+                      >
+                        <ChevronUp size={13} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0 text-muted-foreground"
+                        onClick={() => onMoveField(index, index + 1)}
+                        disabled={index === fields.length - 1}
+                      >
+                        <ChevronDown size={13} />
+                      </Button>
+                    </div>
+                  )}
                   <span className="text-sm font-medium">{field.label}</span>
                   <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal">
                     {field.type}
