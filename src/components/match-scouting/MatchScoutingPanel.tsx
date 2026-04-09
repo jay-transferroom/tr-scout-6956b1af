@@ -50,7 +50,8 @@ interface PlayerScoutingRowProps {
   savedRating: number | null;
   draftNotes?: string;
   draftRating?: number | null;
-  onDraftChange: (playerId: string, notes: string, rating: number | null) => void;
+  draftRatings?: Record<string, string>;
+  onDraftChange: (playerId: string, notes: string, rating: number | null, ratings?: Record<string, string>) => void;
   onSave: (playerId: string, notes: string, rating: number | null) => void;
   onCreateFullReport: (player: Player) => void;
   isSaving: boolean;
@@ -58,6 +59,8 @@ interface PlayerScoutingRowProps {
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent, playerId: string) => void;
   isDragTarget: boolean;
+  matchReportConfig: MatchReportConfig;
+  ratingSystems: NamedRatingSystem[];
 }
 
 const TEAM_ALIASES: Record<string, string[]> = {
