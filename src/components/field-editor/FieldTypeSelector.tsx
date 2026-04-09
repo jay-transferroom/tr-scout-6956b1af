@@ -27,6 +27,7 @@ const FieldTypeSelector = ({ value, onChange }: FieldTypeSelectorProps) => {
           <SelectItem value="dropdown">Dropdown</SelectItem>
           <SelectItem value="checkbox">Checkbox</SelectItem>
           <SelectItem value="number">Number</SelectItem>
+          <SelectItem value="percentage">Percentage</SelectItem>
         </SelectContent>
       </Select>
     </div>

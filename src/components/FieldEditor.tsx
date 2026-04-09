@@ -1,4 +1,4 @@
-import { ReportField, RatingSystem, RatingSystemType, DEFAULT_RATING_SYSTEMS } from "@/types/report";
+import { ReportField, NamedRatingSystem } from "@/types/report";
 import FieldBasicInfo from "@/components/field-editor/FieldBasicInfo";
 import FieldTypeSelector from "@/components/field-editor/FieldTypeSelector";
 import DropdownOptionsEditor from "@/components/field-editor/DropdownOptionsEditor";
@@ -9,21 +9,13 @@ import { Label } from "@/components/ui/label";
 interface FieldEditorProps {
   field: ReportField;
   onUpdate: (field: ReportField) => void;
+  availableRatingSystems?: NamedRatingSystem[];
 }
 
-const RATING_SYSTEM_LABELS: Record<RatingSystemType, string> = {
-  'numeric-1-5': 'Numeric (1-5)',
-  'numeric-1-10': 'Numeric (1-10)',
-  'letter': 'Letter Grades',
-  'custom-tags': 'Custom Tags',
-  'percentage': 'Percentage',
-};
-
-const FieldEditor = ({ field, onUpdate }: FieldEditorProps) => {
+const FieldEditor = ({ field, onUpdate, availableRatingSystems = [] }: FieldEditorProps) => {
   const handleFieldTypeChange = (type: string) => {
     let updatedField = { ...field, type: type as any };
     
-    // Set default options for specific field types
     if (type === 'dropdown') {
       if (field.label.toLowerCase().includes('recommendation') || 
           field.label.toLowerCase().includes('verdict') ||
@@ -34,19 +26,21 @@ const FieldEditor = ({ field, onUpdate }: FieldEditorProps) => {
       }
     }
 
-    // Set default rating system when switching to rating type
-    if (type === 'rating' && !updatedField.ratingSystem) {
-      updatedField.ratingSystem = DEFAULT_RATING_SYSTEMS['numeric-1-10'];
+    if (type === 'rating' && !updatedField.ratingSystem && availableRatingSystems.length > 0) {
+      updatedField.ratingSystem = availableRatingSystems[0].ratingSystem;
     }
     
     onUpdate(updatedField);
   };
 
-  const handleRatingSystemTypeChange = (ratingType: RatingSystemType) => {
-    onUpdate({
-      ...field,
-      ratingSystem: DEFAULT_RATING_SYSTEMS[ratingType]
-    });
+  const handleRatingSystemSelect = (ratingSystemId: string) => {
+    const selected = availableRatingSystems.find(rs => rs.id === ratingSystemId);
+    if (selected) {
+      onUpdate({
+        ...field,
+        ratingSystem: { ...selected.ratingSystem }
+      });
+    }
   };
 
   const handleAddDropdownOption = () => {
@@ -61,26 +55,22 @@ const FieldEditor = ({ field, onUpdate }: FieldEditorProps) => {
     const currentOptions = (field.options as string[]) || [];
     const updatedOptions = [...currentOptions];
     updatedOptions[index] = value;
-    onUpdate({
-      ...field,
-      options: updatedOptions
-    });
+    onUpdate({ ...field, options: updatedOptions });
   };
 
   const handleRemoveDropdownOption = (index: number) => {
     const currentOptions = (field.options as string[]) || [];
-    onUpdate({
-      ...field,
-      options: currentOptions.filter((_, i) => i !== index)
-    });
+    onUpdate({ ...field, options: currentOptions.filter((_, i) => i !== index) });
   };
 
   const handleUseScoutVerdicts = () => {
-    onUpdate({
-      ...field,
-      options: [...STANDARD_SCOUT_VERDICTS]
-    });
+    onUpdate({ ...field, options: [...STANDARD_SCOUT_VERDICTS] });
   };
+
+  // Find which named rating system matches the current field's rating system
+  const currentRatingSystemId = availableRatingSystems.find(
+    rs => rs.ratingSystem.type === field.ratingSystem?.type
+  )?.id;
 
   return (
     <div className="space-y-4">
@@ -108,24 +98,24 @@ const FieldEditor = ({ field, onUpdate }: FieldEditorProps) => {
         />
       )}
       
-      {field.type === 'rating' && (
+      {field.type === 'rating' && availableRatingSystems.length > 0 && (
         <div className="space-y-2 border p-4 rounded">
           <Label>Rating System</Label>
           <Select 
-            value={field.ratingSystem?.type || "numeric-1-10"} 
-            onValueChange={(value) => handleRatingSystemTypeChange(value as RatingSystemType)}
+            value={currentRatingSystemId || availableRatingSystems[0]?.id} 
+            onValueChange={handleRatingSystemSelect}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select rating system" />
             </SelectTrigger>
             <SelectContent>
-              {Object.entries(RATING_SYSTEM_LABELS).map(([key, label]) => (
-                <SelectItem key={key} value={key}>{label}</SelectItem>
+              {availableRatingSystems.map((rs) => (
+                <SelectItem key={rs.id} value={rs.id}>{rs.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">
-            Rating options are configured in the Global Rating System above
+            Rating systems are configured in the Rating Systems section above
           </p>
         </div>
       )}

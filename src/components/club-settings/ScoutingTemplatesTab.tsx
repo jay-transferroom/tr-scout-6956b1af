@@ -5,37 +5,35 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Save, Copy, Trash2 } from "lucide-react";
+import { Plus, Save, Copy, Trash2, Pencil, ChevronDown, ChevronUp } from "lucide-react";
 import { mockTemplates } from "@/data/mockTemplates";
-import { ReportTemplate, DEFAULT_RATING_SYSTEMS, RatingSystem, RatingSystemType } from "@/types/report";
+import { ReportTemplate, DEFAULT_RATING_SYSTEMS, RatingSystem, NamedRatingSystem } from "@/types/report";
 import TemplateSectionEditor from "@/components/TemplateSectionEditor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RatingOptionsEditor from "@/components/RatingOptionsEditor";
 
-const RATING_SYSTEM_TYPES: { key: RatingSystemType; label: string }[] = [
-  { key: 'numeric-1-5', label: 'Numeric (1-5)' },
-  { key: 'numeric-1-10', label: 'Numeric (1-10)' },
-  { key: 'letter', label: 'Letter Grades' },
-  { key: 'custom-tags', label: 'Custom Tags' },
-  { key: 'percentage', label: 'Percentage' },
+const createDefaultNamedSystems = (): NamedRatingSystem[] => [
+  { id: 'numeric-1-5', name: 'Numeric (1-5)', ratingSystem: DEFAULT_RATING_SYSTEMS['numeric-1-5'] },
+  { id: 'numeric-1-10', name: 'Numeric (1-10)', ratingSystem: DEFAULT_RATING_SYSTEMS['numeric-1-10'] },
+  { id: 'letter', name: 'Letter Grades', ratingSystem: DEFAULT_RATING_SYSTEMS['letter'] },
+  { id: 'custom-tags', name: 'Custom Tags', ratingSystem: DEFAULT_RATING_SYSTEMS['custom-tags'] },
 ];
 
 const ScoutingTemplatesTab = () => {
   const [templates, setTemplates] = useState<ReportTemplate[]>(mockTemplates);
   const [currentTemplateId, setCurrentTemplateId] = useState<string>(templates[0]?.id || "");
-  const [globalRatingSystems, setGlobalRatingSystems] = useState<Record<RatingSystemType, RatingSystem>>({ ...DEFAULT_RATING_SYSTEMS });
-  const [editingRatingType, setEditingRatingType] = useState<RatingSystemType | null>(null);
+  const [namedRatingSystems, setNamedRatingSystems] = useState<NamedRatingSystem[]>(createDefaultNamedSystems());
+  const [expandedRatingId, setExpandedRatingId] = useState<string | null>(null);
+  const [editingNameId, setEditingNameId] = useState<string | null>(null);
 
   const currentTemplate = templates.find(t => t.id === currentTemplateId);
 
-  // ... keep existing code (all handler functions from TemplateAdmin)
   const handleCreateTemplate = () => {
     const newTemplate: ReportTemplate = {
       id: `template-${Date.now()}`,
       name: "New Template",
       description: "Description of the new template",
       sections: [],
-      defaultRatingSystem: globalRatingSystems['numeric-1-10']
     };
     setTemplates([...templates, newTemplate]);
     setCurrentTemplateId(newTemplate.id);
@@ -69,7 +67,7 @@ const ScoutingTemplatesTab = () => {
   };
 
   const handleSaveChanges = () => {
-    console.log("Saving templates:", templates);
+    console.log("Saving templates:", templates, "Rating systems:", namedRatingSystems);
     toast({ title: "Changes Saved", description: "Your template and rating system changes have been saved." });
   };
 
@@ -88,8 +86,41 @@ const ScoutingTemplatesTab = () => {
     handleUpdateTemplate({ ...currentTemplate, sections });
   };
 
-  const handleGlobalRatingSystemUpdate = (type: RatingSystemType, ratingSystem: RatingSystem) => {
-    setGlobalRatingSystems(prev => ({ ...prev, [type]: ratingSystem }));
+  // Named rating system handlers
+  const handleUpdateNamedRatingSystem = (id: string, ratingSystem: RatingSystem) => {
+    setNamedRatingSystems(prev => prev.map(rs => rs.id === id ? { ...rs, ratingSystem } : rs));
+  };
+
+  const handleRenameRatingSystem = (id: string, name: string) => {
+    setNamedRatingSystems(prev => prev.map(rs => rs.id === id ? { ...rs, name } : rs));
+  };
+
+  const handleAddRatingSystem = () => {
+    const newSystem: NamedRatingSystem = {
+      id: `rating-${Date.now()}`,
+      name: 'New Rating System',
+      ratingSystem: {
+        type: 'custom-tags',
+        values: [
+          { value: "Excellent", color: "#22C55E" },
+          { value: "Good", color: "#84CC16" },
+          { value: "Average", color: "#EAB308" },
+          { value: "Poor", color: "#EF4444" },
+        ]
+      }
+    };
+    setNamedRatingSystems(prev => [...prev, newSystem]);
+    setExpandedRatingId(newSystem.id);
+    setEditingNameId(newSystem.id);
+  };
+
+  const handleDeleteRatingSystem = (id: string) => {
+    if (namedRatingSystems.length <= 1) {
+      toast({ title: "Cannot Delete", description: "You must have at least one rating system.", variant: "destructive" });
+      return;
+    }
+    setNamedRatingSystems(prev => prev.filter(rs => rs.id !== id));
+    if (expandedRatingId === id) setExpandedRatingId(null);
   };
 
   return (
@@ -97,31 +128,70 @@ const ScoutingTemplatesTab = () => {
       {/* Rating Systems Configuration */}
       <Card>
         <CardHeader>
-          <CardTitle>Rating Systems</CardTitle>
-          <p className="text-sm text-muted-foreground">Define your rating systems. These can then be applied to any rating field within your templates.</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Rating Systems</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">Define your rating systems. These can be applied to any rating field within your templates.</p>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleAddRatingSystem} className="gap-1">
+              <Plus size={14} /> Add Rating System
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {RATING_SYSTEM_TYPES.map(({ key, label }) => (
-              <div key={key} className="border rounded-md">
-                <button
-                  className="w-full flex items-center justify-between p-3 text-left hover:bg-muted/50 transition-colors"
-                  onClick={() => setEditingRatingType(editingRatingType === key ? null : key)}
-                >
-                  <span className="font-medium text-sm">{label}</span>
-                  <span className="text-xs text-muted-foreground">{editingRatingType === key ? 'Collapse' : 'Customise'}</span>
-                </button>
-                {editingRatingType === key && key !== 'percentage' && (
+          <div className="space-y-2">
+            {namedRatingSystems.map((namedSystem) => (
+              <div key={namedSystem.id} className="border rounded-md">
+                <div className="flex items-center justify-between p-3">
+                  <div className="flex items-center gap-2 flex-1">
+                    {editingNameId === namedSystem.id ? (
+                      <Input
+                        value={namedSystem.name}
+                        onChange={(e) => handleRenameRatingSystem(namedSystem.id, e.target.value)}
+                        onBlur={() => setEditingNameId(null)}
+                        onKeyDown={(e) => e.key === 'Enter' && setEditingNameId(null)}
+                        className="h-7 text-sm font-medium max-w-[250px]"
+                        autoFocus
+                      />
+                    ) : (
+                      <button
+                        className="flex items-center gap-1.5 hover:text-primary transition-colors"
+                        onClick={() => setEditingNameId(namedSystem.id)}
+                      >
+                        <span className="font-medium text-sm">{namedSystem.name}</span>
+                        <Pencil size={12} className="text-muted-foreground" />
+                      </button>
+                    )}
+                    <span className="text-xs text-muted-foreground">
+                      {namedSystem.ratingSystem.values.length} options
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                      onClick={() => handleDeleteRatingSystem(namedSystem.id)}
+                      disabled={namedRatingSystems.length <= 1}
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                      onClick={() => setExpandedRatingId(expandedRatingId === namedSystem.id ? null : namedSystem.id)}
+                    >
+                      {expandedRatingId === namedSystem.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                    </Button>
+                  </div>
+                </div>
+                {expandedRatingId === namedSystem.id && (
                   <div className="p-4 pt-0 border-t">
                     <RatingOptionsEditor 
-                      ratingSystem={globalRatingSystems[key]} 
-                      onUpdate={(rs) => handleGlobalRatingSystemUpdate(key, rs)} 
+                      ratingSystem={namedSystem.ratingSystem} 
+                      onUpdate={(rs) => handleUpdateNamedRatingSystem(namedSystem.id, rs)} 
                     />
-                  </div>
-                )}
-                {editingRatingType === key && key === 'percentage' && (
-                  <div className="p-4 pt-0 border-t">
-                    <p className="text-sm text-muted-foreground">Percentage ratings use a 0-100 scale with no additional configuration needed.</p>
                   </div>
                 )}
               </div>
@@ -178,7 +248,12 @@ const ScoutingTemplatesTab = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <TemplateSectionEditor sections={currentTemplate.sections} onUpdate={handleUpdateSections} defaultRatingSystem={currentTemplate.defaultRatingSystem} />
+            <TemplateSectionEditor 
+              sections={currentTemplate.sections} 
+              onUpdate={handleUpdateSections} 
+              defaultRatingSystem={currentTemplate.defaultRatingSystem}
+              availableRatingSystems={namedRatingSystems}
+            />
           </CardContent>
         </Card>
       )}
