@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ClubBadge } from "@/components/ui/club-badge";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { usePlayersData } from "@/hooks/usePlayersData";
@@ -17,6 +18,9 @@ import {
 } from "@/utils/matchScoutingDrafts";
 import { getMatchGradient } from "@/components/fixtures/FixtureCard";
 import PlayerReportTemplateDialog from "./PlayerReportTemplateDialog";
+import { createDefaultMatchReportConfig, MatchReportConfig, MatchReportRating } from "@/components/club-settings/MatchReportConfigTab";
+import { createDefaultNamedSystems } from "@/components/club-settings/RatingSystemsTab";
+import { NamedRatingSystem } from "@/types/report";
 import {
   AlertTriangle,
   Check,
