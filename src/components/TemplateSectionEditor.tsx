@@ -27,7 +27,6 @@ const createNewSection = (defaultRatingSystem?: RatingSystem): ReportSection => 
     label: "Rating",
     type: "rating",
     required: true,
-    ratingSystem: defaultRatingSystem ? { ...defaultRatingSystem } : undefined
   };
 
   const recommendationField: ReportField = {
