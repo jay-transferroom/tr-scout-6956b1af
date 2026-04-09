@@ -1,6 +1,5 @@
 
 import { ReportSection, ReportField, NamedRatingSystem } from "@/types/report";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import SectionHeader from "@/components/SectionHeader";
@@ -48,14 +47,14 @@ const SectionCard = ({
   onSetEditingField
 }: SectionCardProps) => {
   return (
-    <Card 
+    <div 
       className={cn(
-        "border",
-        isExpanded ? "border-primary/50" : "",
+        "border rounded-lg transition-colors",
+        isExpanded ? "border-primary/30 bg-card" : "border-border bg-card",
         isDragged ? "opacity-50" : ""
       )}
     >
-      <CardHeader>
+      <div className="px-4 py-3">
         <SectionHeader
           section={section}
           sectionIndex={sectionIndex}
@@ -69,12 +68,12 @@ const SectionCard = ({
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
         />
-      </CardHeader>
+      </div>
       
       {isExpanded && (
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
+        <div className="px-4 pb-4 space-y-3">
+          <div className="border-t border-border/50 pt-3">
+            <div className="flex items-center space-x-2 mb-3">
               <Checkbox
                 id={`section-optional-${section.id}`}
                 checked={section.optional}
@@ -87,7 +86,7 @@ const SectionCard = ({
               />
               <label 
                 htmlFor={`section-optional-${section.id}`}
-                className="text-sm"
+                className="text-xs text-muted-foreground"
               >
                 Optional section
               </label>
@@ -103,9 +102,9 @@ const SectionCard = ({
               onSetEditingField={onSetEditingField}
             />
           </div>
-        </CardContent>
+        </div>
       )}
-    </Card>
+    </div>
   );
 };
 
