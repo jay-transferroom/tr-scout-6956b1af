@@ -89,61 +89,8 @@ const ScoutingTemplatesTab = () => {
     handleUpdateTemplate({ ...currentTemplate, sections });
   };
 
-  const handleGlobalRatingSystemTypeChange = (ratingType: RatingSystemType) => {
-    const newRatingSystem = DEFAULT_RATING_SYSTEMS[ratingType];
-    setGlobalRatingSystem(newRatingSystem);
-    if (confirm("Do you want to apply this rating system to all templates?")) {
-      applyGlobalRatingSystemToAllTemplates(newRatingSystem);
-    }
-  };
-
-  const handleGlobalRatingSystemUpdate = (ratingSystem: RatingSystem) => {
-    setGlobalRatingSystem(ratingSystem);
-    if (confirm("Do you want to apply this rating system to all templates?")) {
-      applyGlobalRatingSystemToAllTemplates(ratingSystem);
-    }
-  };
-
-  const applyGlobalRatingSystemToAllTemplates = (ratingSystem: RatingSystem) => {
-    const updatedTemplates = templates.map(template => {
-      const updatedTemplate = { ...template, defaultRatingSystem: { ...ratingSystem } };
-      if (updatedTemplate.sections.length > 0) {
-        updatedTemplate.sections = updatedTemplate.sections.map(section => ({
-          ...section,
-          fields: section.fields.map(field => field.type === 'rating' ? { ...field, ratingSystem: { ...ratingSystem } } : field)
-        }));
-      }
-      return updatedTemplate;
-    });
-    setTemplates(updatedTemplates);
-    toast({ title: "Rating System Updated", description: "Global rating system applied to all templates and their rating fields." });
-  };
-
-  const handleDefaultRatingSystemTypeChange = (ratingType: RatingSystemType) => {
-    if (!currentTemplate) return;
-    const newRatingSystem = DEFAULT_RATING_SYSTEMS[ratingType];
-    const updatedTemplate = { ...currentTemplate, defaultRatingSystem: newRatingSystem };
-    if (updatedTemplate.sections.length > 0) {
-      updatedTemplate.sections = updatedTemplate.sections.map(section => ({
-        ...section,
-        fields: section.fields.map(field => field.type === 'rating' ? { ...field, ratingSystem: { ...newRatingSystem } } : field)
-      }));
-    }
-    handleUpdateTemplate(updatedTemplate);
-    toast({ title: "Rating System Updated", description: "Rating system updated and applied to all rating fields in this template." });
-  };
-
-  const handleDefaultRatingSystemUpdate = (ratingSystem: RatingSystem) => {
-    if (!currentTemplate) return;
-    const updatedTemplate = { ...currentTemplate, defaultRatingSystem: ratingSystem };
-    if (updatedTemplate.sections.length > 0) {
-      updatedTemplate.sections = updatedTemplate.sections.map(section => ({
-        ...section,
-        fields: section.fields.map(field => field.type === 'rating' ? { ...field, ratingSystem: { ...ratingSystem } } : field)
-      }));
-    }
-    handleUpdateTemplate(updatedTemplate);
-    toast({ title: "Rating System Updated", description: "Rating system updated and applied to all rating fields in this template." });
+  const handleGlobalRatingSystemUpdate = (type: RatingSystemType, ratingSystem: RatingSystem) => {
+    setGlobalRatingSystems(prev => ({ ...prev, [type]: ratingSystem }));
   };
 
   return (
