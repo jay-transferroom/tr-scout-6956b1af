@@ -21,6 +21,7 @@ import PlayerReportTemplateDialog from "./PlayerReportTemplateDialog";
 import { createDefaultMatchReportConfig, MatchReportConfig, MatchReportRating } from "@/components/club-settings/MatchReportConfigTab";
 import { createDefaultNamedSystems } from "@/components/club-settings/RatingSystemsTab";
 import { NamedRatingSystem } from "@/types/report";
+import { useMatchReportConfig } from "@/hooks/useMatchReportConfig";
 import {
   AlertTriangle,
   Check,
@@ -396,8 +397,8 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   const { reports, isLoading, upsertReport, getReportForPlayer } = useMatchScoutingReports(matchIdentifier);
   const gradient = getMatchGradient(homeTeam, awayTeam);
   
-  // Match report configuration
-  const matchReportConfig = createDefaultMatchReportConfig();
+  // Match report configuration from DB
+  const { data: matchReportConfig = createDefaultMatchReportConfig() } = useMatchReportConfig();
   const availableRatingSystems = createDefaultNamedSystems();
 
   const homePlayers = allPlayers.filter((player) => clubsMatch(player.club, homeTeam));
