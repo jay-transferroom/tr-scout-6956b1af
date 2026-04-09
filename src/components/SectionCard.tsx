@@ -1,8 +1,6 @@
 
 import { ReportSection, ReportField, NamedRatingSystem } from "@/types/report";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import SectionHeader from "@/components/SectionHeader";
 import FieldsList from "@/components/FieldsList";
