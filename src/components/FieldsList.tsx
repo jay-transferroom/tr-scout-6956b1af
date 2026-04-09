@@ -46,9 +46,35 @@ const FieldsList = ({
           return (
             <div 
               key={field.id}
+              draggable={!!onMoveField}
+              onDragStart={(e) => {
+                e.stopPropagation();
+                setDraggedIndex(index);
+                e.dataTransfer.effectAllowed = 'move';
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setDragOverIndex(index);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (draggedIndex !== null && draggedIndex !== index && onMoveField) {
+                  onMoveField(draggedIndex, index);
+                }
+                setDraggedIndex(null);
+                setDragOverIndex(null);
+              }}
+              onDragEnd={() => {
+                setDraggedIndex(null);
+                setDragOverIndex(null);
+              }}
               className={cn(
                 "rounded-md transition-colors",
-                isEditing ? "bg-muted/50 p-3" : "hover:bg-muted/30"
+                isEditing ? "bg-muted/50 p-3" : "hover:bg-muted/30",
+                draggedIndex === index && "opacity-50",
+                dragOverIndex === index && draggedIndex !== index && "border-t-2 border-primary"
               )}
             >
               <div className={cn(
@@ -57,25 +83,8 @@ const FieldsList = ({
               )}>
                 <div className="flex items-center gap-2">
                   {onMoveField && (
-                    <div className="flex items-center gap-0.5">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-5 w-5 p-0 text-muted-foreground"
-                        onClick={() => onMoveField(index, index - 1)}
-                        disabled={index === 0}
-                      >
-                        <ChevronUp size={13} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-5 w-5 p-0 text-muted-foreground"
-                        onClick={() => onMoveField(index, index + 1)}
-                        disabled={index === fields.length - 1}
-                      >
-                        <ChevronDown size={13} />
-                      </Button>
+                    <div className="cursor-grab active:cursor-grabbing p-0.5 hover:bg-muted rounded">
+                      <GripVertical size={14} className="text-muted-foreground" />
                     </div>
                   )}
                   <span className="text-sm font-medium">{field.label}</span>
