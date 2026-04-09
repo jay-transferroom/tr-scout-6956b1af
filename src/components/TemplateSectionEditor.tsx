@@ -161,6 +161,21 @@ const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availa
     onUpdate(updatedSections);
   };
 
+  const handleMoveField = (sectionId: string, fromIndex: number, toIndex: number) => {
+    if (toIndex < 0) return;
+    const updatedSections = sections.map(section => {
+      if (section.id === sectionId) {
+        const fields = [...section.fields];
+        if (toIndex >= fields.length) return section;
+        const [moved] = fields.splice(fromIndex, 1);
+        fields.splice(toIndex, 0, moved);
+        return { ...section, fields };
+      }
+      return section;
+    });
+    onUpdate(updatedSections);
+  };
+
   return (
     <div className="space-y-4">
       {sections.map((section, sectionIndex) => (
@@ -188,6 +203,7 @@ const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availa
           onDeleteField={(fieldId) => handleDeleteField(section.id, fieldId)}
           onUpdateField={(field) => handleUpdateField(section.id, field)}
           onSetEditingField={setEditingFieldId}
+          onMoveField={handleMoveField}
         />
       ))}
       

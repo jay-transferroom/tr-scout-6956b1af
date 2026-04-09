@@ -27,6 +27,7 @@ interface SectionCardProps {
   onDeleteField: (fieldId: string) => void;
   onUpdateField: (field: ReportField) => void;
   onSetEditingField: (fieldId: string | null) => void;
+  onMoveField?: (sectionId: string, fromIndex: number, toIndex: number) => void;
 }
 
 const SectionCard = ({
@@ -47,7 +48,8 @@ const SectionCard = ({
   onAddField,
   onDeleteField,
   onUpdateField,
-  onSetEditingField
+  onSetEditingField,
+  onMoveField
 }: SectionCardProps) => {
   // Derive section field type from explicit value or first field
   const sectionFieldType: ReportFieldType = section.fieldType || section.fields[0]?.type || 'rating';
@@ -188,6 +190,7 @@ const SectionCard = ({
               onDeleteField={onDeleteField}
               onUpdateField={onUpdateField}
               onSetEditingField={onSetEditingField}
+              onMoveField={onMoveField ? (fromIndex, toIndex) => onMoveField(section.id, fromIndex, toIndex) : undefined}
             />
           </div>
         </div>
