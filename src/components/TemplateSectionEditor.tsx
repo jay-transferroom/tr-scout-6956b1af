@@ -182,7 +182,7 @@ const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availa
           }}
           onDragStart={() => setDraggedSectionId(section.id)}
           onDragEnd={() => setDraggedSectionId(null)}
-          onAddField={() => handleAddField(section.id)}
+          onAddField={(types) => handleAddField(section.id, types)}
           onDeleteField={(fieldId) => handleDeleteField(section.id, fieldId)}
           onUpdateField={(field) => handleUpdateField(section.id, field)}
           onSetEditingField={setEditingFieldId}
