@@ -111,18 +111,6 @@ const ScoutingTemplatesTab = ({ availableRatingSystems }: ScoutingTemplatesTabPr
             <div className="space-y-2">
               <Input value={currentTemplate.name} onChange={(e) => handleNameChange(e.target.value)} className="text-xl font-bold" />
               <Textarea value={currentTemplate.description} onChange={(e) => handleDescriptionChange(e.target.value)} className="resize-none text-sm text-muted-foreground" />
-              <div className="flex items-center space-x-2 pt-2">
-                <input type="checkbox" id="defaultTemplate" checked={!!currentTemplate.defaultTemplate} onChange={(e) => {
-                  if (e.target.checked) {
-                    const updatedTemplates = templates.map(t => ({ ...t, defaultTemplate: false }));
-                    const updatedCurrentTemplate = { ...currentTemplate, defaultTemplate: true };
-                    setTemplates(updatedTemplates.map(t => t.id === currentTemplateId ? updatedCurrentTemplate : t));
-                  } else {
-                    handleUpdateTemplate({ ...currentTemplate, defaultTemplate: false });
-                  }
-                }} />
-                <label htmlFor="defaultTemplate" className="text-sm">Set as default template</label>
-              </div>
             </div>
           </CardHeader>
           <CardContent>

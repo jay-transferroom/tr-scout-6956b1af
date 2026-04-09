@@ -103,47 +103,28 @@ const SectionCard = ({
         <div className="px-4 pb-4 space-y-3">
           <div className="border-t border-border/50 pt-3">
             {/* Section-level settings row */}
-            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <div className="flex items-center mb-3">
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id={`section-optional-${section.id}`}
-                  checked={section.optional}
+                  id={`section-required-${section.id}`}
+                  checked={!section.optional}
                   onCheckedChange={(checked) => {
-                    onUpdateSection({ ...section, optional: !!checked });
+                    onUpdateSection({ ...section, optional: !checked });
                   }}
                 />
                 <label 
-                  htmlFor={`section-optional-${section.id}`}
+                  htmlFor={`section-required-${section.id}`}
                   className="text-xs text-muted-foreground"
                 >
-                  Optional section
+                  Required section
                 </label>
               </div>
-
-              {/* Rating system - only shown when section has rating fields */}
-              {hasRatingFields && availableRatingSystems.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <Label className="text-xs text-muted-foreground whitespace-nowrap">Rating System</Label>
-                  <Select 
-                    value={currentRatingSystemId || availableRatingSystems[0]?.id} 
-                    onValueChange={handleRatingSystemChange}
-                  >
-                    <SelectTrigger className="h-7 text-xs w-[160px]">
-                      <SelectValue placeholder="Select system" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableRatingSystems.map((rs) => (
-                        <SelectItem key={rs.id} value={rs.id} className="text-xs">{rs.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
             </div>
             
             <FieldsList
               fields={section.fields}
               editingFieldId={editingFieldId}
+              availableRatingSystems={availableRatingSystems}
               onAddField={onAddField}
               onDeleteField={onDeleteField}
               onUpdateField={onUpdateField}

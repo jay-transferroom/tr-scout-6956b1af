@@ -1,16 +1,18 @@
 
 import { useState } from "react";
-import { ReportField } from "@/types/report";
+import { ReportField, NamedRatingSystem } from "@/types/report";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import FieldEditor from "@/components/FieldEditor";
 import { Badge } from "@/components/ui/badge";
 import AddFieldDialog from "@/components/AddFieldDialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface FieldsListProps {
   fields: ReportField[];
   editingFieldId: string | null;
+  availableRatingSystems?: NamedRatingSystem[];
   onAddField: (types: Array<"rating" | "text">) => void;
   onDeleteField: (fieldId: string) => void;
   onUpdateField: (field: ReportField) => void;
@@ -21,6 +23,7 @@ interface FieldsListProps {
 const FieldsList = ({
   fields,
   editingFieldId,
+  availableRatingSystems = [],
   onAddField,
   onDeleteField,
   onUpdateField,
@@ -30,10 +33,27 @@ const FieldsList = ({
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
+
+  const getRatingSystemLabel = (field: ReportField): string | null => {
+    if (field.type !== 'rating') return null;
+    if (field.ratingSystem) {
+      const match = availableRatingSystems.find(rs => rs.ratingSystem.type === field.ratingSystem?.type);
+      return match?.name || field.ratingSystem.type;
+    }
+    return 'Not set';
+  };
+
+  const handleRatingSystemChange = (field: ReportField, ratingSystemId: string) => {
+    const selected = availableRatingSystems.find(rs => rs.id === ratingSystemId);
+    if (selected) {
+      onUpdateField({ ...field, ratingSystem: { ...selected.ratingSystem } });
+    }
+  };
+
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between mb-2">
-        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Fields</div>
+        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Subsections</div>
         <Button
           variant="ghost"
           size="sm"
@@ -41,7 +61,7 @@ const FieldsList = ({
           className="gap-1 h-7 text-xs"
         >
           <Plus size={14} />
-          Add Field
+          Add Subsection
         </Button>
         <AddFieldDialog
           open={showAddDialog}
@@ -53,6 +73,11 @@ const FieldsList = ({
       <div className="space-y-1">
         {fields.map((field, index) => {
           const isEditing = editingFieldId === field.id;
+          const ratingLabel = getRatingSystemLabel(field);
+          const currentRatingSystemId = field.ratingSystem 
+            ? availableRatingSystems.find(rs => rs.ratingSystem.type === field.ratingSystem?.type)?.id 
+            : undefined;
+
           return (
             <div 
               key={field.id}
@@ -101,6 +126,11 @@ const FieldsList = ({
                   <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal">
                     {field.type}
                   </Badge>
+                  {field.type === 'rating' && ratingLabel && (
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal">
+                      {ratingLabel}
+                    </Badge>
+                  )}
                   {field.required && (
                     <span className="text-[10px] text-muted-foreground">Required</span>
                   )}
@@ -127,7 +157,25 @@ const FieldsList = ({
               </div>
               
               {isEditing && (
-                <div className="mt-2 pt-2 border-t border-border/50">
+                <div className="mt-2 pt-2 border-t border-border/50 space-y-3">
+                  {field.type === 'rating' && availableRatingSystems.length > 0 && (
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs text-muted-foreground whitespace-nowrap">Rating System</label>
+                      <Select 
+                        value={currentRatingSystemId || ''} 
+                        onValueChange={(val) => handleRatingSystemChange(field, val)}
+                      >
+                        <SelectTrigger className="h-7 text-xs w-[180px]">
+                          <SelectValue placeholder="Select rating system" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableRatingSystems.map((rs) => (
+                            <SelectItem key={rs.id} value={rs.id} className="text-xs">{rs.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                   <FieldEditor
                     field={field}
                     onUpdate={onUpdateField}
