@@ -96,23 +96,7 @@ const SectionCard = ({
           <div className="border-t border-border/50 pt-3">
             {/* Section-level settings row */}
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id={`section-required-${section.id}`}
-                  checked={!section.optional}
-                  onCheckedChange={(checked) => {
-                    onUpdateSection({ ...section, optional: !checked });
-                  }}
-                />
-                <label 
-                  htmlFor={`section-required-${section.id}`}
-                  className="text-xs text-muted-foreground"
-                >
-                  Required section
-                </label>
-              </div>
-
-              {hasRatingFields && availableRatingSystems.length > 0 && (
+              {hasRatingFields && availableRatingSystems.length > 0 ? (
                 <div className="flex items-center gap-2">
                   <label className="text-xs text-muted-foreground whitespace-nowrap">Rating System</label>
                   <Select 
@@ -129,7 +113,23 @@ const SectionCard = ({
                     </SelectContent>
                   </Select>
                 </div>
-              )}
+              ) : <div />}
+
+              <div className="flex items-center space-x-2">
+                <label 
+                  htmlFor={`section-required-${section.id}`}
+                  className="text-xs text-muted-foreground"
+                >
+                  Required section
+                </label>
+                <Checkbox
+                  id={`section-required-${section.id}`}
+                  checked={!section.optional}
+                  onCheckedChange={(checked) => {
+                    onUpdateSection({ ...section, optional: !checked });
+                  }}
+                />
+              </div>
             </div>
             
             <FieldsList
