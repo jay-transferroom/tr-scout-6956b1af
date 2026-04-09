@@ -30,13 +30,13 @@ interface MatchReportConfigTabProps {
 }
 
 const MatchReportConfigTab = ({ config, onUpdate, availableRatingSystems }: MatchReportConfigTabProps) => {
-  const savedSnapshotRef = useRef<string>(JSON.stringify(config));
+  const [savedSnapshot, setSavedSnapshot] = useState<string>(JSON.stringify(config));
   const [dragSourceId, setDragSourceId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const hasChanges = useMemo(() => {
-    return JSON.stringify(config) !== savedSnapshotRef.current;
-  }, [config]);
+    return JSON.stringify(config) !== savedSnapshot;
+  }, [config, savedSnapshot]);
 
   const handleAddRating = () => {
     if (config.ratings.length >= 8) {
