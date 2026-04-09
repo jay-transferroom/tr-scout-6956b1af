@@ -250,6 +250,30 @@ export type Database = {
         }
         Relationships: []
       }
+      match_report_config: {
+        Row: {
+          club_name: string
+          created_at: string
+          id: string
+          ratings: Json
+          updated_at: string
+        }
+        Insert: {
+          club_name: string
+          created_at?: string
+          id?: string
+          ratings?: Json
+          updated_at?: string
+        }
+        Update: {
+          club_name?: string
+          created_at?: string
+          id?: string
+          ratings?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       match_scouting_reports: {
         Row: {
           created_at: string
