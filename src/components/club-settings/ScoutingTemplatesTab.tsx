@@ -4,9 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Save, Copy, Trash2, Settings } from "lucide-react";
+import { Plus, Save, Copy, Trash2 } from "lucide-react";
 import { mockTemplates } from "@/data/mockTemplates";
 import { ReportTemplate, DEFAULT_RATING_SYSTEMS, RatingSystem, RatingSystemType } from "@/types/report";
 import TemplateSectionEditor from "@/components/TemplateSectionEditor";
@@ -18,7 +17,6 @@ const ScoutingTemplatesTab = () => {
   const [templates, setTemplates] = useState<ReportTemplate[]>(mockTemplates);
   const [currentTemplateId, setCurrentTemplateId] = useState<string>(templates[0]?.id || "");
   const [globalRatingSystem, setGlobalRatingSystem] = useState<RatingSystem>(DEFAULT_RATING_SYSTEMS["numeric-1-10"]);
-  const [showGlobalSettings, setShowGlobalSettings] = useState(false);
 
   const currentTemplate = templates.find(t => t.id === currentTemplateId);
 
@@ -141,6 +139,41 @@ const ScoutingTemplatesTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* Global Rating System - always visible */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Global Rating System</CardTitle>
+          <p className="text-sm text-muted-foreground">Configure the default rating system used across all templates. When adding rating fields to templates, scouts will select from these options.</p>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="global-rating-system">Rating System Type</Label>
+              <Select value={globalRatingSystem?.type || "numeric-1-10"} onValueChange={(value) => handleGlobalRatingSystemTypeChange(value as RatingSystemType)}>
+                <SelectTrigger id="global-rating-system"><SelectValue placeholder="Select rating system" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="numeric-1-5">Numeric (1-5)</SelectItem>
+                  <SelectItem value="numeric-1-10">Numeric (1-10)</SelectItem>
+                  <SelectItem value="letter">Letter Grades</SelectItem>
+                  <SelectItem value="custom-tags">Custom Tags</SelectItem>
+                  <SelectItem value="percentage">Percentage</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {globalRatingSystem && globalRatingSystem.type !== "percentage" && (
+              <div className="border p-4 rounded-md">
+                <RatingOptionsEditor ratingSystem={globalRatingSystem} onUpdate={handleGlobalRatingSystemUpdate} />
+              </div>
+            )}
+            <div className="flex justify-end">
+              <Button onClick={() => applyGlobalRatingSystemToAllTemplates(globalRatingSystem)} className="gap-2">Apply To All Templates</Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Separator />
+
       {/* Actions row */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -160,48 +193,10 @@ const ScoutingTemplatesTab = () => {
           <Button variant="outline" size="sm" onClick={handleCloneTemplate} className="gap-1" disabled={!currentTemplate}><Copy size={14} /> Clone</Button>
           <Button variant="outline" size="sm" onClick={handleDeleteTemplate} className="gap-1 text-destructive hover:text-destructive" disabled={!currentTemplate || templates.length <= 1}><Trash2 size={14} /> Delete</Button>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowGlobalSettings(!showGlobalSettings)} className="gap-2">
-            <Settings size={16} />
-            {showGlobalSettings ? "Hide Global Settings" : "Global Settings"}
-          </Button>
-          <Button onClick={handleSaveChanges} className="gap-2">
-            <Save size={16} /> Save All Changes
-          </Button>
-        </div>
+        <Button onClick={handleSaveChanges} className="gap-2">
+          <Save size={16} /> Save All Changes
+        </Button>
       </div>
-
-      {/* Global Rating System */}
-      {showGlobalSettings && (
-        <Card>
-          <CardHeader><CardTitle>Global Rating System</CardTitle><p className="text-sm text-muted-foreground">Configure the default rating system used across all templates</p></CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="global-rating-system">Rating System Type</Label>
-                <Select value={globalRatingSystem?.type || "numeric-1-10"} onValueChange={(value) => handleGlobalRatingSystemTypeChange(value as RatingSystemType)}>
-                  <SelectTrigger id="global-rating-system"><SelectValue placeholder="Select rating system" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="numeric-1-5">Numeric (1-5)</SelectItem>
-                    <SelectItem value="numeric-1-10">Numeric (1-10)</SelectItem>
-                    <SelectItem value="letter">Letter Grades</SelectItem>
-                    <SelectItem value="custom-tags">Custom Tags</SelectItem>
-                    <SelectItem value="percentage">Percentage</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {globalRatingSystem && globalRatingSystem.type !== "percentage" && (
-                <div className="border p-4 rounded-md">
-                  <RatingOptionsEditor ratingSystem={globalRatingSystem} onUpdate={handleGlobalRatingSystemUpdate} />
-                </div>
-              )}
-              <div className="flex justify-end">
-                <Button onClick={() => applyGlobalRatingSystemToAllTemplates(globalRatingSystem)} className="gap-2">Apply To All Templates</Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Template editor */}
       {currentTemplate && (
@@ -210,64 +205,22 @@ const ScoutingTemplatesTab = () => {
             <div className="space-y-2">
               <Input value={currentTemplate.name} onChange={(e) => handleNameChange(e.target.value)} className="text-xl font-bold" />
               <Textarea value={currentTemplate.description} onChange={(e) => handleDescriptionChange(e.target.value)} className="resize-none text-sm text-muted-foreground" />
+              <div className="flex items-center space-x-2 pt-2">
+                <input type="checkbox" id="defaultTemplate" checked={!!currentTemplate.defaultTemplate} onChange={(e) => {
+                  if (e.target.checked) {
+                    const updatedTemplates = templates.map(t => ({ ...t, defaultTemplate: false }));
+                    const updatedCurrentTemplate = { ...currentTemplate, defaultTemplate: true };
+                    setTemplates(updatedTemplates.map(t => t.id === currentTemplateId ? updatedCurrentTemplate : t));
+                  } else {
+                    handleUpdateTemplate({ ...currentTemplate, defaultTemplate: false });
+                  }
+                }} />
+                <label htmlFor="defaultTemplate" className="text-sm">Set as default template</label>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="sections" className="w-full">
-              <TabsList>
-                <TabsTrigger value="sections">Sections</TabsTrigger>
-                <TabsTrigger value="settings">Rating System</TabsTrigger>
-              </TabsList>
-              <TabsContent value="sections" className="space-y-4 pt-4">
-                <TemplateSectionEditor sections={currentTemplate.sections} onUpdate={handleUpdateSections} defaultRatingSystem={currentTemplate.defaultRatingSystem} />
-              </TabsContent>
-              <TabsContent value="settings" className="space-y-4 pt-4">
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <input type="checkbox" id="defaultTemplate" checked={!!currentTemplate.defaultTemplate} onChange={(e) => {
-                      if (e.target.checked) {
-                        const updatedTemplates = templates.map(t => ({ ...t, defaultTemplate: false }));
-                        const updatedCurrentTemplate = { ...currentTemplate, defaultTemplate: true };
-                        setTemplates(updatedTemplates.map(t => t.id === currentTemplateId ? updatedCurrentTemplate : t));
-                      } else {
-                        handleUpdateTemplate({ ...currentTemplate, defaultTemplate: false });
-                      }
-                    }} />
-                    <label htmlFor="defaultTemplate">Set as default template</label>
-                  </div>
-                  <Separator className="my-4" />
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Template Rating System</h3>
-                    <p className="text-sm text-muted-foreground">Set the rating system used for all ratings in this template</p>
-                    <div className="space-y-2">
-                      <Label htmlFor="rating-system">Rating System Type</Label>
-                      <Select value={currentTemplate.defaultRatingSystem?.type || "numeric-1-10"} onValueChange={(value) => handleDefaultRatingSystemTypeChange(value as RatingSystemType)}>
-                        <SelectTrigger id="default-rating-system"><SelectValue placeholder="Select rating system" /></SelectTrigger>
-                        <SelectContent className="bg-background border shadow-lg z-50">
-                          <SelectItem value="numeric-1-5">Numeric (1-5)</SelectItem>
-                          <SelectItem value="numeric-1-10">Numeric (1-10)</SelectItem>
-                          <SelectItem value="letter">Letter Grades</SelectItem>
-                          <SelectItem value="custom-tags">Custom Tags</SelectItem>
-                          <SelectItem value="percentage">Percentage</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex items-center space-x-2 mb-4">
-                      <Button variant="outline" onClick={() => {
-                        if (globalRatingSystem && confirm("Use global rating system for this template?")) {
-                          handleDefaultRatingSystemUpdate(globalRatingSystem);
-                        }
-                      }}>Use Global Rating System</Button>
-                    </div>
-                    {currentTemplate.defaultRatingSystem && currentTemplate.defaultRatingSystem.type !== "percentage" && (
-                      <div className="border p-4 rounded-md">
-                        <RatingOptionsEditor ratingSystem={currentTemplate.defaultRatingSystem} onUpdate={handleDefaultRatingSystemUpdate} />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
+            <TemplateSectionEditor sections={currentTemplate.sections} onUpdate={handleUpdateSections} defaultRatingSystem={currentTemplate.defaultRatingSystem} />
           </CardContent>
         </Card>
       )}
