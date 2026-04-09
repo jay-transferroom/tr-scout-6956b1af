@@ -12,14 +12,6 @@ interface TemplateSectionEditorProps {
   availableRatingSystems?: NamedRatingSystem[];
 }
 
-// Standard scout recommendations
-const SCOUT_RECOMMENDATIONS = [
-  "Sign / Proceed to next stage",
-  "Monitor / Track Further", 
-  "Further Scouting Required",
-  "Concerns / With Reservations",
-  "Do Not Pursue"
-];
 
 const createNewSection = (defaultRatingSystem?: RatingSystem): ReportSection => {
   const ratingField: ReportField = {
@@ -27,14 +19,6 @@ const createNewSection = (defaultRatingSystem?: RatingSystem): ReportSection => 
     label: "Rating",
     type: "rating",
     required: true,
-  };
-
-  const recommendationField: ReportField = {
-    id: `field-recommendation-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    label: "Recommendation",
-    type: "dropdown",
-    required: true,
-    options: [...SCOUT_RECOMMENDATIONS]
   };
 
   const descriptionField: ReportField = {
@@ -47,7 +31,7 @@ const createNewSection = (defaultRatingSystem?: RatingSystem): ReportSection => 
   return {
     id: `section-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     title: "New Section",
-    fields: [ratingField, recommendationField, descriptionField],
+    fields: [ratingField, descriptionField],
     optional: false,
     ratingSystem: defaultRatingSystem ? { ...defaultRatingSystem } : undefined
   };
