@@ -1,11 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2, Save, Undo2, GripVertical } from "lucide-react";
+import { Plus, Trash2, Save, Undo2, GripVertical, Loader2 } from "lucide-react";
 import { NamedRatingSystem } from "@/types/report";
+import { useMatchReportConfig, useSaveMatchReportConfig } from "@/hooks/useMatchReportConfig";
 
 export interface MatchReportRating {
   id: string;
@@ -24,18 +25,28 @@ export const createDefaultMatchReportConfig = (): MatchReportConfig => ({
 });
 
 interface MatchReportConfigTabProps {
-  config: MatchReportConfig;
-  onUpdate: (config: MatchReportConfig) => void;
   availableRatingSystems: NamedRatingSystem[];
 }
 
-const MatchReportConfigTab = ({ config, onUpdate, availableRatingSystems }: MatchReportConfigTabProps) => {
-  const [savedSnapshot, setSavedSnapshot] = useState<string>(JSON.stringify(config));
+const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabProps) => {
+  const { data: savedConfig, isLoading } = useMatchReportConfig();
+  const saveConfigMutation = useSaveMatchReportConfig();
+  
+  const [config, setConfig] = useState<MatchReportConfig>(createDefaultMatchReportConfig());
+  const [savedSnapshot, setSavedSnapshot] = useState<string>("");
   const [dragSourceId, setDragSourceId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
+  // Hydrate from DB
+  useEffect(() => {
+    if (savedConfig) {
+      setConfig(savedConfig);
+      setSavedSnapshot(JSON.stringify(savedConfig));
+    }
+  }, [savedConfig]);
+
   const hasChanges = useMemo(() => {
-    return JSON.stringify(config) !== savedSnapshot;
+    return savedSnapshot !== "" && JSON.stringify(config) !== savedSnapshot;
   }, [config, savedSnapshot]);
 
   const handleAddRating = () => {
@@ -48,31 +59,37 @@ const MatchReportConfigTab = ({ config, onUpdate, availableRatingSystems }: Matc
       name: '',
       ratingSystemId: availableRatingSystems[0]?.id || '',
     };
-    onUpdate({ ...config, ratings: [...config.ratings, newRating] });
+    setConfig(prev => ({ ...prev, ratings: [...prev.ratings, newRating] }));
   };
 
   const handleUpdateRating = (id: string, updates: Partial<MatchReportRating>) => {
-    onUpdate({
-      ...config,
-      ratings: config.ratings.map(r => r.id === id ? { ...r, ...updates } : r),
-    });
+    setConfig(prev => ({
+      ...prev,
+      ratings: prev.ratings.map(r => r.id === id ? { ...r, ...updates } : r),
+    }));
   };
 
   const handleDeleteRating = (id: string) => {
-    onUpdate({
-      ...config,
-      ratings: config.ratings.filter(r => r.id !== id),
-    });
+    setConfig(prev => ({
+      ...prev,
+      ratings: prev.ratings.filter(r => r.id !== id),
+    }));
   };
 
-  const handleSave = () => {
-    setSavedSnapshot(JSON.stringify(config));
-    toast({ title: "Changes Saved", description: "Your match report configuration has been saved." });
+  const handleSave = async () => {
+    try {
+      await saveConfigMutation.mutateAsync(config);
+      setSavedSnapshot(JSON.stringify(config));
+      toast({ title: "Changes Saved", description: "Your match report configuration has been saved." });
+    } catch {
+      toast({ title: "Error", description: "Failed to save configuration.", variant: "destructive" });
+    }
   };
 
   const handleClearChanges = () => {
-    const restored = JSON.parse(savedSnapshot);
-    onUpdate(restored);
+    if (savedSnapshot) {
+      setConfig(JSON.parse(savedSnapshot));
+    }
   };
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
@@ -99,14 +116,18 @@ const MatchReportConfigTab = ({ config, onUpdate, availableRatingSystems }: Matc
     if (sourceIdx === -1 || targetIdx === -1) return;
     const [moved] = ratings.splice(sourceIdx, 1);
     ratings.splice(targetIdx, 0, moved);
-    onUpdate({ ...config, ratings });
+    setConfig(prev => ({ ...prev, ratings }));
     setDragSourceId(null);
     setDragOverId(null);
   };
 
-  const getRatingSystemName = (ratingSystemId: string) => {
-    return availableRatingSystems.find(rs => rs.id === ratingSystemId)?.name || 'Unknown';
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -208,8 +229,14 @@ const MatchReportConfigTab = ({ config, onUpdate, availableRatingSystems }: Matc
             <Undo2 size={14} /> Clear changes
           </Button>
         )}
-        <Button size="sm" onClick={handleSave} disabled={!hasChanges} className="gap-1 text-xs h-8">
-          <Save size={14} /> Save All Changes
+        <Button
+          size="sm"
+          onClick={handleSave}
+          disabled={!hasChanges || saveConfigMutation.isPending}
+          className="gap-1 text-xs h-8"
+        >
+          {saveConfigMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+          Save All Changes
         </Button>
       </div>
     </div>

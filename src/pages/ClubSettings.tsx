@@ -5,7 +5,7 @@ import { SlidersHorizontal, FileText, Shield, Upload, Star, ClipboardList } from
 import ClubRatingsTab from "@/components/club-settings/ClubRatingsTab";
 import RatingSystemsTab, { createDefaultNamedSystems } from "@/components/club-settings/RatingSystemsTab";
 import ScoutingTemplatesTab from "@/components/club-settings/ScoutingTemplatesTab";
-import MatchReportConfigTab, { MatchReportConfig, createDefaultMatchReportConfig } from "@/components/club-settings/MatchReportConfigTab";
+import MatchReportConfigTab from "@/components/club-settings/MatchReportConfigTab";
 import UserManagementTab from "@/components/club-settings/UserManagementTab";
 import DataImportTab from "@/components/club-settings/DataImportTab";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,7 +17,6 @@ const ClubSettings = () => {
   const { profile } = useAuth();
   const isAdmin = profile?.role === 'recruitment' || profile?.role === 'director';
   const [namedRatingSystems, setNamedRatingSystems] = useState<NamedRatingSystem[]>(createDefaultNamedSystems());
-  const [matchReportConfig, setMatchReportConfig] = useState<MatchReportConfig>(createDefaultMatchReportConfig());
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value }, { replace: true });
@@ -76,7 +75,7 @@ const ClubSettings = () => {
               <ScoutingTemplatesTab availableRatingSystems={namedRatingSystems} />
             </TabsContent>
             <TabsContent value="match-reports">
-              <MatchReportConfigTab config={matchReportConfig} onUpdate={setMatchReportConfig} availableRatingSystems={namedRatingSystems} />
+              <MatchReportConfigTab availableRatingSystems={namedRatingSystems} />
             </TabsContent>
             <TabsContent value="users">
               <UserManagementTab />
