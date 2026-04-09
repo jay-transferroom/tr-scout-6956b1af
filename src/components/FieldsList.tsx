@@ -1,7 +1,8 @@
 
+import { useState } from "react";
 import { ReportField } from "@/types/report";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
+import { Plus, Trash2, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import FieldEditor from "@/components/FieldEditor";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +26,8 @@ const FieldsList = ({
   onSetEditingField,
   onMoveField
 }: FieldsListProps) => {
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between mb-2">
