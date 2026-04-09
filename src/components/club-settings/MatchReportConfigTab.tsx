@@ -66,12 +66,12 @@ const MatchReportConfigTab = ({ config, onUpdate, availableRatingSystems }: Matc
   };
 
   const handleSave = () => {
-    savedSnapshotRef.current = JSON.stringify(config);
+    setSavedSnapshot(JSON.stringify(config));
     toast({ title: "Changes Saved", description: "Your match report configuration has been saved." });
   };
 
   const handleClearChanges = () => {
-    const restored = JSON.parse(savedSnapshotRef.current);
+    const restored = JSON.parse(savedSnapshot);
     onUpdate(restored);
   };
 
