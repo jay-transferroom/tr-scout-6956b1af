@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Save, Copy, Trash2, Pencil, ChevronDown, ChevronUp } from "lucide-react";
 import { mockTemplates } from "@/data/mockTemplates";
-import { ReportTemplate, DEFAULT_RATING_SYSTEMS, RatingSystem, RatingSystemType, NamedRatingSystem } from "@/types/report";
+import { ReportTemplate, DEFAULT_RATING_SYSTEMS, RatingSystem, NamedRatingSystem } from "@/types/report";
 import TemplateSectionEditor from "@/components/TemplateSectionEditor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RatingOptionsEditor from "@/components/RatingOptionsEditor";
