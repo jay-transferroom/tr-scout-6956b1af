@@ -387,7 +387,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   const [awayOrder, setAwayOrder] = useState<string[]>([]);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [selectedPlayerForFullReport, setSelectedPlayerForFullReport] = useState<Player | null>(null);
-  const [playerDrafts, setPlayerDrafts] = useState<Record<string, { notes: string; rating: number | null }>>({});
+  const [playerDrafts, setPlayerDrafts] = useState<Record<string, { notes: string; rating: number | null; ratings?: Record<string, string> }>>({});
   const [draftHydrated, setDraftHydrated] = useState(false);
   const dragSourceRef = useRef<string | null>(null);
   const dragTeamRef = useRef<"home" | "away" | null>(null);
@@ -395,6 +395,10 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   const matchIdentifier = getMatchIdentifier(homeTeam, awayTeam, matchDate);
   const { reports, isLoading, upsertReport, getReportForPlayer } = useMatchScoutingReports(matchIdentifier);
   const gradient = getMatchGradient(homeTeam, awayTeam);
+  
+  // Match report configuration
+  const matchReportConfig = createDefaultMatchReportConfig();
+  const availableRatingSystems = createDefaultNamedSystems();
 
   const homePlayers = allPlayers.filter((player) => clubsMatch(player.club, homeTeam));
   const awayPlayers = allPlayers.filter((player) => clubsMatch(player.club, awayTeam));
