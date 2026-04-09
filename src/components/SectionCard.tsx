@@ -1,12 +1,11 @@
 
-import { ReportSection, ReportField, ReportFieldType, NamedRatingSystem } from "@/types/report";
+import { ReportSection, ReportField, NamedRatingSystem } from "@/types/report";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import SectionHeader from "@/components/SectionHeader";
 import FieldsList from "@/components/FieldsList";
-import { STANDARD_SCOUT_VERDICTS } from "@/utils/recommendationHelpers";
 
 interface SectionCardProps {
   section: ReportSection;
@@ -23,7 +22,7 @@ interface SectionCardProps {
   onToggleExpand: () => void;
   onDragStart: () => void;
   onDragEnd: () => void;
-  onAddField: () => void;
+  onAddField: (types: Array<"rating" | "text">) => void;
   onDeleteField: (fieldId: string) => void;
   onUpdateField: (field: ReportField) => void;
   onSetEditingField: (fieldId: string | null) => void;
@@ -51,8 +50,8 @@ const SectionCard = ({
   onSetEditingField,
   onMoveField
 }: SectionCardProps) => {
-  // Derive section field type from explicit value or first field
-  const sectionFieldType: ReportFieldType = section.fieldType || section.fields[0]?.type || 'rating';
+  // Check if section has any rating fields
+  const hasRatingFields = section.fields.some(f => f.type === 'rating');
 
   // Match current section rating system to a named one
   const currentRatingSystemId = availableRatingSystems.find(
@@ -60,27 +59,6 @@ const SectionCard = ({
   )?.id || availableRatingSystems.find(
     rs => rs.ratingSystem.type.startsWith('numeric')
   )?.id || availableRatingSystems[0]?.id;
-
-  const handleFieldTypeChange = (type: ReportFieldType) => {
-    const updatedFields = section.fields.map(field => {
-      const updated: ReportField = { ...field, type };
-      if (type === 'dropdown') {
-        if (field.label.toLowerCase().includes('recommendation') || 
-            field.label.toLowerCase().includes('verdict')) {
-          updated.options = [...STANDARD_SCOUT_VERDICTS];
-        } else if (!field.options?.length) {
-          updated.options = ['Option 1', 'Option 2', 'Option 3'];
-        }
-      }
-      return updated;
-    });
-
-    onUpdateSection({
-      ...section,
-      fieldType: type,
-      fields: updatedFields,
-    });
-  };
 
   const handleRatingSystemChange = (ratingSystemId: string) => {
     const selected = availableRatingSystems.find(rs => rs.id === ratingSystemId);
@@ -142,45 +120,25 @@ const SectionCard = ({
                 </label>
               </div>
 
-              <div className="flex items-center gap-3">
-                {/* Field Type at section level */}
+              {/* Rating system - only shown when section has rating fields */}
+              {hasRatingFields && availableRatingSystems.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <Label className="text-xs text-muted-foreground whitespace-nowrap">Field Type</Label>
-                  <Select value={sectionFieldType} onValueChange={(v) => handleFieldTypeChange(v as ReportFieldType)}>
-                    <SelectTrigger className="h-7 text-xs w-[130px]">
-                      <SelectValue />
+                  <Label className="text-xs text-muted-foreground whitespace-nowrap">Rating System</Label>
+                  <Select 
+                    value={currentRatingSystemId || availableRatingSystems[0]?.id} 
+                    onValueChange={handleRatingSystemChange}
+                  >
+                    <SelectTrigger className="h-7 text-xs w-[160px]">
+                      <SelectValue placeholder="Select system" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="rating" className="text-xs">Rating</SelectItem>
-                      <SelectItem value="text" className="text-xs">Text</SelectItem>
-                      <SelectItem value="dropdown" className="text-xs">Dropdown</SelectItem>
-                      <SelectItem value="checkbox" className="text-xs">Checkbox</SelectItem>
-                      <SelectItem value="number" className="text-xs">Number</SelectItem>
-                      <SelectItem value="percentage" className="text-xs">Percentage</SelectItem>
+                      {availableRatingSystems.map((rs) => (
+                        <SelectItem key={rs.id} value={rs.id} className="text-xs">{rs.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
-
-                {/* Rating system - only shown when field type is rating */}
-                {sectionFieldType === 'rating' && availableRatingSystems.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <Label className="text-xs text-muted-foreground whitespace-nowrap">Rating System</Label>
-                    <Select 
-                      value={currentRatingSystemId || availableRatingSystems[0]?.id} 
-                      onValueChange={handleRatingSystemChange}
-                    >
-                      <SelectTrigger className="h-7 text-xs w-[160px]">
-                        <SelectValue placeholder="Select system" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableRatingSystems.map((rs) => (
-                          <SelectItem key={rs.id} value={rs.id} className="text-xs">{rs.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
             
             <FieldsList
