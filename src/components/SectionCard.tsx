@@ -120,21 +120,23 @@ const SectionCard = ({
                 </div>
               ) : <div />}
 
-              <div className="flex items-center space-x-2">
-                <label 
-                  htmlFor={`section-required-${section.id}`}
-                  className="text-xs text-muted-foreground"
-                >
-                  Required section
-                </label>
-                <Checkbox
-                  id={`section-required-${section.id}`}
-                  checked={!section.optional}
-                  onCheckedChange={(checked) => {
-                    onUpdateSection({ ...section, optional: !checked });
-                  }}
-                />
-              </div>
+              {!isOverall && (
+                <div className="flex items-center space-x-2">
+                  <label 
+                    htmlFor={`section-required-${section.id}`}
+                    className="text-xs text-muted-foreground"
+                  >
+                    Required section
+                  </label>
+                  <Checkbox
+                    id={`section-required-${section.id}`}
+                    checked={!section.optional}
+                    onCheckedChange={(checked) => {
+                      onUpdateSection({ ...section, optional: !checked });
+                    }}
+                  />
+                </div>
+              )}
             </div>
             
             <FieldsList
