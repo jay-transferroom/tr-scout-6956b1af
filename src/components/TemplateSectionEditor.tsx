@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { ReportSection, ReportField, RatingSystem } from "@/types/report";
+import { ReportSection, ReportField, RatingSystem, NamedRatingSystem } from "@/types/report";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import SectionCard from "@/components/SectionCard";
@@ -9,6 +9,7 @@ interface TemplateSectionEditorProps {
   sections: ReportSection[];
   onUpdate: (sections: ReportSection[]) => void;
   defaultRatingSystem?: RatingSystem;
+  availableRatingSystems?: NamedRatingSystem[];
 }
 
 // Standard scout recommendations
@@ -52,7 +53,7 @@ const createNewSection = (defaultRatingSystem?: RatingSystem): ReportSection => 
   };
 };
 
-const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem }: TemplateSectionEditorProps) => {
+const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem, availableRatingSystems = [] }: TemplateSectionEditorProps) => {
   const [expandedSectionId, setExpandedSectionId] = useState<string | null>(
     sections.length ? sections[0].id : null
   );
@@ -171,6 +172,7 @@ const TemplateSectionEditor = ({ sections, onUpdate, defaultRatingSystem }: Temp
           isExpanded={expandedSectionId === section.id}
           isDragged={draggedSectionId === section.id}
           editingFieldId={editingFieldId}
+          availableRatingSystems={availableRatingSystems}
           onUpdateSection={handleUpdateSection}
           onDeleteSection={handleDeleteSection}
           onMoveUp={handleMoveSectionUp}
