@@ -13,10 +13,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import RatingOptionsEditor from "@/components/RatingOptionsEditor";
 
+const RATING_SYSTEM_TYPES: { key: RatingSystemType; label: string }[] = [
+  { key: 'numeric-1-5', label: 'Numeric (1-5)' },
+  { key: 'numeric-1-10', label: 'Numeric (1-10)' },
+  { key: 'letter', label: 'Letter Grades' },
+  { key: 'custom-tags', label: 'Custom Tags' },
+  { key: 'percentage', label: 'Percentage' },
+];
+
 const ScoutingTemplatesTab = () => {
   const [templates, setTemplates] = useState<ReportTemplate[]>(mockTemplates);
   const [currentTemplateId, setCurrentTemplateId] = useState<string>(templates[0]?.id || "");
-  const [globalRatingSystem, setGlobalRatingSystem] = useState<RatingSystem>(DEFAULT_RATING_SYSTEMS["numeric-1-10"]);
+  const [globalRatingSystems, setGlobalRatingSystems] = useState<Record<RatingSystemType, RatingSystem>>({ ...DEFAULT_RATING_SYSTEMS });
+  const [editingRatingType, setEditingRatingType] = useState<RatingSystemType | null>(null);
 
   const currentTemplate = templates.find(t => t.id === currentTemplateId);
 
