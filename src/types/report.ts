@@ -16,6 +16,7 @@ export interface ReportSection {
   title: string;
   fields: ReportField[];
   optional?: boolean;
+  ratingSystem?: RatingSystem;
 }
 
 export type ReportFieldType = 'rating' | 'text' | 'dropdown' | 'checkbox' | 'number' | 'percentage';
