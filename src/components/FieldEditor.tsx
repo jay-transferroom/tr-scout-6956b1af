@@ -1,32 +1,25 @@
-import { ReportField, RatingSystem } from "@/types/report";
+import { ReportField, RatingSystem, RatingSystemType, DEFAULT_RATING_SYSTEMS } from "@/types/report";
 import FieldBasicInfo from "@/components/field-editor/FieldBasicInfo";
 import FieldTypeSelector from "@/components/field-editor/FieldTypeSelector";
 import DropdownOptionsEditor from "@/components/field-editor/DropdownOptionsEditor";
-import RatingSystemEditor from "@/components/field-editor/RatingSystemEditor";
 import { STANDARD_SCOUT_VERDICTS } from "@/utils/recommendationHelpers";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 interface FieldEditorProps {
   field: ReportField;
   onUpdate: (field: ReportField) => void;
 }
 
-// Standard scout recommendations based on the framework
-const SCOUT_RECOMMENDATIONS = [
-  "Sign / Proceed to next stage",
-  "Monitor / Track Further", 
-  "Further Scouting Required",
-  "Concerns / With Reservations",
-  "Do Not Pursue"
-];
+const RATING_SYSTEM_LABELS: Record<RatingSystemType, string> = {
+  'numeric-1-5': 'Numeric (1-5)',
+  'numeric-1-10': 'Numeric (1-10)',
+  'letter': 'Letter Grades',
+  'custom-tags': 'Custom Tags',
+  'percentage': 'Percentage',
+};
 
 const FieldEditor = ({ field, onUpdate }: FieldEditorProps) => {
-  const handleRatingSystemUpdate = (ratingSystem: RatingSystem) => {
-    onUpdate({
-      ...field,
-      ratingSystem: ratingSystem
-    });
-  };
-
   const handleFieldTypeChange = (type: string) => {
     let updatedField = { ...field, type: type as any };
     
@@ -40,8 +33,20 @@ const FieldEditor = ({ field, onUpdate }: FieldEditorProps) => {
         updatedField.options = ['Option 1', 'Option 2', 'Option 3'];
       }
     }
+
+    // Set default rating system when switching to rating type
+    if (type === 'rating' && !updatedField.ratingSystem) {
+      updatedField.ratingSystem = DEFAULT_RATING_SYSTEMS['numeric-1-10'];
+    }
     
     onUpdate(updatedField);
+  };
+
+  const handleRatingSystemTypeChange = (ratingType: RatingSystemType) => {
+    onUpdate({
+      ...field,
+      ratingSystem: DEFAULT_RATING_SYSTEMS[ratingType]
+    });
   };
 
   const handleAddDropdownOption = () => {
@@ -103,11 +108,26 @@ const FieldEditor = ({ field, onUpdate }: FieldEditorProps) => {
         />
       )}
       
-      {field.type === 'rating' && field.ratingSystem && (
-        <RatingSystemEditor
-          ratingSystem={field.ratingSystem}
-          onUpdate={handleRatingSystemUpdate}
-        />
+      {field.type === 'rating' && (
+        <div className="space-y-2 border p-4 rounded">
+          <Label>Rating System</Label>
+          <Select 
+            value={field.ratingSystem?.type || "numeric-1-10"} 
+            onValueChange={(value) => handleRatingSystemTypeChange(value as RatingSystemType)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select rating system" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(RATING_SYSTEM_LABELS).map(([key, label]) => (
+                <SelectItem key={key} value={key}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Rating options are configured in the Global Rating System above
+          </p>
+        </div>
       )}
     </div>
   );
