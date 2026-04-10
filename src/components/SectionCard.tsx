@@ -130,9 +130,17 @@ const SectionCard = ({
                   </label>
                   <Checkbox
                     id={`section-required-${section.id}`}
-                    checked={!section.optional}
+                    checked={(() => {
+                      const allRequired = section.fields.every(f => f.required);
+                      const noneRequired = section.fields.every(f => !f.required);
+                      if (allRequired && section.fields.length > 0) return true;
+                      if (noneRequired) return false;
+                      return "indeterminate";
+                    })()}
                     onCheckedChange={(checked) => {
-                      onUpdateSection({ ...section, optional: !checked });
+                      const makeRequired = checked === true;
+                      const updatedFields = section.fields.map(f => ({ ...f, required: makeRequired }));
+                      onUpdateSection({ ...section, optional: !makeRequired, fields: updatedFields });
                     }}
                   />
                 </div>
