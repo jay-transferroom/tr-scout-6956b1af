@@ -245,7 +245,7 @@ export const PlayerPresentationView = ({
                       <div>
                         <span className="text-xs text-muted-foreground uppercase tracking-wider">Overall Rating</span>
                         <div className="mt-1">
-                          <ScoutingGrade value={overallRating} size="lg" />
+                          <ScoutingGrade grade={overallRating} />
                         </div>
                       </div>
                     )}
