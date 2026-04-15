@@ -293,6 +293,10 @@ export const ShortlistsContent = ({
             <Badge variant="secondary" className="shrink-0">{sortedPlayers.length} players</Badge>
           </CardTitle>
           <div className="flex gap-2 w-full sm:w-auto min-w-0">
+            <Button variant="outline" size="sm" onClick={() => sortedPlayers.length > 0 && setPresentationIndex(0)} disabled={sortedPlayers.length === 0} className="flex-1 sm:flex-none">
+              <Presentation className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Present</span>
+            </Button>
             <Button variant="outline" size="sm" onClick={onExportList} className="flex-1 sm:flex-none">
               <Download className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Export</span>
