@@ -1,6 +1,7 @@
 
 import { useState, useMemo } from "react";
-import { Search, ArrowUpDown, ChevronUp, ChevronDown, Download, Plus, Wand2 } from "lucide-react";
+import { Search, ArrowUpDown, ChevronUp, ChevronDown, Download, Plus, Wand2, Presentation } from "lucide-react";
+import { PlayerPresentationView } from "./PlayerPresentationView";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -106,6 +107,7 @@ export const ShortlistsContent = ({
   const [newListPlayerIds, setNewListPlayerIds] = useState<string[]>([]);
   const [newListName, setNewListName] = useState("");
   const [newListDescription, setNewListDescription] = useState("");
+  const [presentationIndex, setPresentationIndex] = useState<number | null>(null);
   const { profile } = useAuth();
 
   // Check if user can manage shortlists (director or recruitment)
@@ -291,6 +293,10 @@ export const ShortlistsContent = ({
             <Badge variant="secondary" className="shrink-0">{sortedPlayers.length} players</Badge>
           </CardTitle>
           <div className="flex gap-2 w-full sm:w-auto min-w-0">
+            <Button variant="outline" size="sm" onClick={() => sortedPlayers.length > 0 && setPresentationIndex(0)} disabled={sortedPlayers.length === 0} className="flex-1 sm:flex-none">
+              <Presentation className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Present</span>
+            </Button>
             <Button variant="outline" size="sm" onClick={onExportList} className="flex-1 sm:flex-none">
               <Download className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Export</span>
@@ -675,6 +681,16 @@ export const ShortlistsContent = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Presentation View */}
+      {presentationIndex !== null && (
+        <PlayerPresentationView
+          players={sortedPlayers}
+          initialIndex={presentationIndex}
+          onClose={() => setPresentationIndex(null)}
+          formatXtvScore={formatXtvScore}
+        />
+      )}
     </Card>
   );
 };
