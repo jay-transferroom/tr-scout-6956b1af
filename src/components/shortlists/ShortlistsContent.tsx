@@ -107,6 +107,7 @@ export const ShortlistsContent = ({
   const [newListPlayerIds, setNewListPlayerIds] = useState<string[]>([]);
   const [newListName, setNewListName] = useState("");
   const [newListDescription, setNewListDescription] = useState("");
+  const [presentationIndex, setPresentationIndex] = useState<number | null>(null);
   const { profile } = useAuth();
 
   // Check if user can manage shortlists (director or recruitment)
