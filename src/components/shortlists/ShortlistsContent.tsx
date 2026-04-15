@@ -681,6 +681,16 @@ export const ShortlistsContent = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Presentation View */}
+      {presentationIndex !== null && (
+        <PlayerPresentationView
+          players={sortedPlayers}
+          initialIndex={presentationIndex}
+          onClose={() => setPresentationIndex(null)}
+          formatXtvScore={formatXtvScore}
+        />
+      )}
     </Card>
   );
 };
