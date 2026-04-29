@@ -139,6 +139,26 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
                     {format(latestUpdate, "dd MMM yyyy HH:mm")}
                   </span>
                 </TableCell>
+                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                  {canEdit ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => onEditMatch?.(match)}
+                            aria-label={editTooltip}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{editTooltip}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : null}
+                </TableCell>
               </TableRow>
             );
           })}
