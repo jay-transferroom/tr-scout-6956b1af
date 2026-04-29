@@ -20,6 +20,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getRecommendationRank } from "@/utils/mockRecommendations";
 import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 import { List, Users, ClipboardList } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Reports List Component
 const ReportsList = () => {
@@ -35,6 +37,8 @@ const ReportsList = () => {
   const [selectedPlayerName, setSelectedPlayerName] = useState<string>("");
   const [playerReportsModalOpen, setPlayerReportsModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<GroupedMatchReport | null>(null);
+  const [matchSubTab, setMatchSubTab] = useState<"submitted" | "drafts">("submitted");
+  const { user } = useAuth();
   const [searchFilters, setSearchFilters] = useState<ReportsFilterCriteria>({
     searchTerm: '',
     playerName: '',
@@ -102,6 +106,27 @@ const ReportsList = () => {
       return aMin - bMin;
     });
   }, [matchReports, effectiveSortBy]);
+
+  // Sub-tab filtering for Match view
+  const visibleMatchReports = useMemo(() => {
+    if (matchSubTab === "drafts") {
+      // Author-only: only the current user's drafts (rating === null)
+      return sortedMatchReports
+        .map((m) => ({
+          ...m,
+          reports: m.reports.filter((r) => r.scout_id === user?.id && r.rating === null),
+        }))
+        .filter((m) => m.reports.length > 0);
+    }
+    // "My Submitted": current user's submitted reports (rating !== null).
+    // Role-based visibility for other users' submitted reports is preserved by the underlying hook.
+    return sortedMatchReports
+      .map((m) => ({
+        ...m,
+        reports: m.reports.filter((r) => r.scout_id === user?.id && r.rating !== null),
+      }))
+      .filter((m) => m.reports.length > 0);
+  }, [sortedMatchReports, matchSubTab, user?.id]);
 
   // Extract available filter options from reports
   const { availableVerdicts, availableScouts, availableClubs, availablePositions, availablePlayerNames } = useMemo(() => {
@@ -286,7 +311,15 @@ const ReportsList = () => {
             matchReportsLoading ? (
               <div className="text-center py-8">Loading match reports...</div>
             ) : (
-              <MatchReportsTable matchReports={sortedMatchReports} onSelectMatch={(m) => setSelectedMatch(m)} />
+              <div className="space-y-4">
+                <Tabs value={matchSubTab} onValueChange={(v) => setMatchSubTab(v as "submitted" | "drafts")}>
+                  <TabsList>
+                    <TabsTrigger value="submitted">My Submitted</TabsTrigger>
+                    <TabsTrigger value="drafts">My Drafts</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+                <MatchReportsTable matchReports={visibleMatchReports} onSelectMatch={(m) => setSelectedMatch(m)} />
+              </div>
             )
           ) : viewMode === "individual" ? (
             <ReportsTable
