@@ -61,18 +61,54 @@ interface PlayerRecommendationControlProps {
 
 export const PlayerRecommendationControl = ({
   options = DEFAULT_OPTIONS,
-  currentUserName = "You",
+  currentUserName,
 }: PlayerRecommendationControlProps) => {
   const recommendationsActive = useRecommendationsActive();
+  const currentUser = useCurrentUser();
+  const chelseaUsers = useChelseaUsers();
   const [value, setValue] = useState<RecommendationValue | null>(null);
   const [attribution, setAttribution] = useState<Attribution | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
+
+  const resolvedCurrentName = currentUserName ?? currentUser.displayName;
+
+  // Seeded historical entries attributed to other Chelsea users for demo variety.
+  const otherUsers = chelseaUsers.filter((u) => u.id !== currentUser.id);
+  const pickUser = (i: number) =>
+    (otherUsers[i % otherUsers.length] ?? chelseaUsers[i % chelseaUsers.length]).displayName;
+
+  const mockHistory: HistoryEntry[] = [
+    {
+      from: { label: "Monitor", colour: "#EAB308" },
+      to: { label: "Sign", colour: "#22C55E" },
+      user: pickUser(0),
+      date: new Date(Date.now() - 1000 * 60 * 60 * 6),
+    },
+    {
+      from: { label: "Pass", colour: "#EF4444" },
+      to: { label: "Monitor", colour: "#EAB308" },
+      user: pickUser(1),
+      date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
+    },
+    {
+      from: null,
+      to: { label: "Pass", colour: "#EF4444" },
+      user: pickUser(2),
+      date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10),
+    },
+    {
+      from: { label: "Monitor", colour: "#EAB308" },
+      to: null,
+      user: pickUser(3),
+      date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 21),
+    },
+  ];
 
   if (!recommendationsActive) return null;
 
   const handleSelect = (opt: RecommendationValue) => {
     setValue(opt);
-    setAttribution({ user: currentUserName, date: new Date() });
+    setAttribution({ user: resolvedCurrentName, date: new Date() });
   };
 
   const handleClear = () => {
