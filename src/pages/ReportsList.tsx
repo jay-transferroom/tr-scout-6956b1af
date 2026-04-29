@@ -310,7 +310,15 @@ const ReportsList = () => {
             matchReportsLoading ? (
               <div className="text-center py-8">Loading match reports...</div>
             ) : (
-              <MatchReportsTable matchReports={sortedMatchReports} onSelectMatch={(m) => setSelectedMatch(m)} />
+              <div className="space-y-4">
+                <Tabs value={matchSubTab} onValueChange={(v) => setMatchSubTab(v as "submitted" | "drafts")}>
+                  <TabsList>
+                    <TabsTrigger value="submitted">My Submitted</TabsTrigger>
+                    <TabsTrigger value="drafts">My Drafts</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+                <MatchReportsTable matchReports={visibleMatchReports} onSelectMatch={(m) => setSelectedMatch(m)} />
+              </div>
             )
           ) : viewMode === "individual" ? (
             <ReportsTable
