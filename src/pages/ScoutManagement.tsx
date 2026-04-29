@@ -173,11 +173,62 @@ const ScoutManagement = () => {
     return `${statusLabels[status as keyof typeof statusLabels] || 'Updated'} ${timeAgo}`;
   };
 
-  const columns = [
-    { id: 'shortlisted', title: 'Marked for Scouting', color: 'bg-orange-500', count: kanbanData.shortlisted.length },
-    { id: 'assigned', title: 'Assigned', color: 'bg-orange-500', count: kanbanData.assigned.length },
-    { id: 'completed', title: 'Completed', color: 'bg-green-500', count: kanbanData.completed.length },
-  ];
+  const [pipelineColumns] = usePipelineColumns();
+  const [columnOverrides, setColumnOverrides] = useState<Record<string, string>>({});
+  const [draggingPlayerId, setDraggingPlayerId] = useState<string | null>(null);
+
+  // Bucket players from kanbanData into pipeline columns, applying any drag overrides.
+  // Seed columns (shortlisted/assigned/completed) keep their default mapping; user-added
+  // pipeline columns start empty and only fill via drag-drop overrides.
+  const playersByColumn = useMemo(() => {
+    const result: Record<string, any[]> = {};
+    pipelineColumns.forEach((c) => (result[c.id] = []));
+
+    const allSeededPlayers = [
+      ...kanbanData.shortlisted.map((p) => ({ player: p, defaultCol: "shortlisted" })),
+      ...kanbanData.assigned.map((p) => ({ player: p, defaultCol: "assigned" })),
+      ...kanbanData.completed.map((p) => ({ player: p, defaultCol: "completed" })),
+    ];
+
+    const validIds = new Set(pipelineColumns.map((c) => c.id));
+    const fallback = pipelineColumns[0]?.id;
+
+    allSeededPlayers.forEach(({ player, defaultCol }) => {
+      const overrideCol = columnOverrides[player.id];
+      const target =
+        overrideCol && validIds.has(overrideCol)
+          ? overrideCol
+          : validIds.has(defaultCol)
+            ? defaultCol
+            : fallback;
+      if (target && result[target]) result[target].push(player);
+    });
+
+    return result;
+  }, [pipelineColumns, kanbanData, columnOverrides]);
+
+  const getColumnColor = (id: string) => {
+    if (id === "completed") return "bg-green-500";
+    if (id === "shortlisted" || id === "assigned") return "bg-orange-500";
+    return "bg-muted-foreground";
+  };
+
+  const columns = pipelineColumns.map((c) => ({
+    id: c.id,
+    title: c.name,
+    color: getColumnColor(c.id),
+    count: playersByColumn[c.id]?.length ?? 0,
+  }));
+
+  const handleCardDragStart = (playerId: string) => {
+    setDraggingPlayerId(playerId);
+  };
+
+  const handleCardDrop = (toColumnId: string) => {
+    if (!draggingPlayerId) return;
+    setColumnOverrides((prev) => ({ ...prev, [draggingPlayerId]: toColumnId }));
+    setDraggingPlayerId(null);
+  };
 
   const handleAssignmentCreated = () => {
     refetchAssignments();
