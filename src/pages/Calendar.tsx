@@ -840,6 +840,7 @@ const Calendar = () => {
                     const isCompleted = fixture.status === 'completed' || fixture.status === 'Full Time' || (fixture.home_score !== null && fixture.away_score !== null);
                     const isLive = fixture.status === 'live' || fixture.status === 'Live';
                     const hasScore = fixture.home_score !== null && fixture.away_score !== null;
+                    const myReportStatus = getMyReportStatus(fixture);
                     
                     // Get dynamic gradient from home team to away team colors
                     const gradient = getMatchGradient(fixture.home_team, fixture.away_team);
