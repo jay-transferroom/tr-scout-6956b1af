@@ -258,15 +258,27 @@ const ScoutManagementTableView = ({
       <ArrowDown className="h-4 w-4 ml-1" />;
   };
 
-  const getStatusBadge = (kanbanColumn: string) => {
-    const statusConfig = {
-      shortlisted: { label: "Marked for Scouting", variant: "secondary" as const },
-      assigned: { label: "Assigned", variant: "default" as const },
-      completed: { label: "Completed", variant: "default" as const }
-    };
-    
-    const config = statusConfig[kanbanColumn as keyof typeof statusConfig];
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+  const renderStageDropdown = (assignment: any) => {
+    const value = validColumnIds.has(assignment.kanbanColumn)
+      ? assignment.kanbanColumn
+      : pipelineColumns[0]?.id;
+    return (
+      <Select
+        value={value}
+        onValueChange={(next) => handleStageChange(assignment.id, next)}
+      >
+        <SelectTrigger className="h-8 w-[180px] text-xs">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {pipelineColumns.map((c) => (
+            <SelectItem key={c.id} value={c.id} className="text-xs">
+              {c.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
   };
 
   const getPriorityBadge = (priority: string | null) => {
