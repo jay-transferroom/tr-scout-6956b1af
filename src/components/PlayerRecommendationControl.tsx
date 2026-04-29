@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import RecommendationBadge, { RecommendationValue } from "@/components/RecommendationBadge";
+import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 
 const DEFAULT_OPTIONS: RecommendationValue[] = [
   { label: "Sign", colour: "#22C55E" },
@@ -45,8 +46,11 @@ export const PlayerRecommendationControl = ({
   options = DEFAULT_OPTIONS,
   currentUserName = "You",
 }: PlayerRecommendationControlProps) => {
+  const recommendationsActive = useRecommendationsActive();
   const [value, setValue] = useState<RecommendationValue | null>(null);
   const [attribution, setAttribution] = useState<Attribution | null>(null);
+
+  if (!recommendationsActive) return null;
 
   const handleSelect = (opt: RecommendationValue) => {
     setValue(opt);

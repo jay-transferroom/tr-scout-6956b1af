@@ -27,6 +27,7 @@ import { useReports } from "@/hooks/useReports";
 import { groupReportsByPlayer } from "@/utils/reportGrouping";
 import { RecommendationBadge } from "@/components/RecommendationBadge";
 import { getMockRecommendation } from "@/utils/mockRecommendations";
+import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 
 interface ShortlistsContentProps {
   currentList: any;
@@ -111,6 +112,7 @@ export const ShortlistsContent = ({
   const [newListDescription, setNewListDescription] = useState("");
   const [presentationIndex, setPresentationIndex] = useState<number | null>(null);
   const { profile } = useAuth();
+  const recommendationsActive = useRecommendationsActive();
 
   // Check if user can manage shortlists (director or recruitment)
   const canManageShortlists = profile?.role === 'director' || profile?.role === 'recruitment';
@@ -593,14 +595,16 @@ export const ShortlistsContent = ({
                 <TableHead>EU/GBE</TableHead>
                 <TableHead>Availability</TableHead>
                 <TableHead>Scouting Grade</TableHead>
-                <SortableTableHead
-                  column="recommendation"
-                  currentSort={sortBy}
-                  sortOrder={sortOrder}
-                  onSort={onSortByChange}
-                >
-                  Recommendation
-                </SortableTableHead>
+                {recommendationsActive && (
+                  <SortableTableHead
+                    column="recommendation"
+                    currentSort={sortBy}
+                    sortOrder={sortOrder}
+                    onSort={onSortByChange}
+                  >
+                    Recommendation
+                  </SortableTableHead>
+                )}
                 <TableHead>Scouts</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
@@ -632,7 +636,7 @@ export const ShortlistsContent = ({
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={canManageShortlists ? 13 : 12} className="text-center py-6 text-muted-foreground">
+                  <TableCell colSpan={(canManageShortlists ? 12 : 11) + (recommendationsActive ? 1 : 0)} className="text-center py-6 text-muted-foreground">
                     No players found matching your criteria.
                   </TableCell>
                 </TableRow>
@@ -732,6 +736,7 @@ const ShortlistPlayerRow = ({
   onAddToNewList?: (playerId: string) => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
+  const recommendationsActive = useRecommendationsActive();
 
   return (
     <TableRow className={isSelected ? "bg-primary/5" : ""}>
@@ -787,16 +792,18 @@ const ShortlistPlayerRow = ({
       <TableCell>
         <PlayerScoutingGrade playerId={player.id.toString()} />
       </TableCell>
-      <TableCell>
-        {(() => {
-          const rec = getMockRecommendation(player.id.toString());
-          return rec ? (
-            <RecommendationBadge value={rec} variant="compact" />
-          ) : (
-            <span className="text-xs text-muted-foreground">—</span>
-          );
-        })()}
-      </TableCell>
+      {recommendationsActive && (
+        <TableCell>
+          {(() => {
+            const rec = getMockRecommendation(player.id.toString());
+            return rec ? (
+              <RecommendationBadge value={rec} variant="compact" />
+            ) : (
+              <span className="text-xs text-muted-foreground">—</span>
+            );
+          })()}
+        </TableCell>
+      )}
       <TableCell>
         {!player.isPrivate && scouts.length > 0 ? (
           <ScoutAvatars scouts={scouts} size="sm" maxVisible={3} />

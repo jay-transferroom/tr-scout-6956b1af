@@ -18,6 +18,7 @@ import { useAllMatchScoutingReports, GroupedMatchReport } from "@/hooks/useAllMa
 import { SlidingToggle } from "@/components/ui/sliding-toggle";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getRecommendationRank } from "@/utils/mockRecommendations";
+import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 import { List, Users, ClipboardList } from "lucide-react";
 
 // Reports List Component
@@ -27,6 +28,8 @@ const ReportsList = () => {
   const [activeTab, setActiveTab] = useState("all-reports");
   const [viewMode, setViewMode] = useState<"individual" | "grouped" | "match">("individual");
   const [sortBy, setSortBy] = useState<"default" | "recommendation">("default");
+  const recommendationsActive = useRecommendationsActive();
+  const effectiveSortBy = recommendationsActive ? sortBy : "default";
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [selectedPlayerName, setSelectedPlayerName] = useState<string>("");
@@ -76,16 +79,16 @@ const ReportsList = () => {
   const filteredReportsRaw = useReportsFilter(reports, activeTab, searchFilters);
 
   const filteredReports = useMemo(() => {
-    if (sortBy !== "recommendation") return filteredReportsRaw;
+    if (effectiveSortBy !== "recommendation") return filteredReportsRaw;
     return [...filteredReportsRaw].sort((a, b) => {
       const aRank = getRecommendationRank(a.playerId);
       const bRank = getRecommendationRank(b.playerId);
       return aRank - bRank; // unset (Infinity) → bottom
     });
-  }, [filteredReportsRaw, sortBy]);
+  }, [filteredReportsRaw, effectiveSortBy]);
 
   const sortedMatchReports = useMemo(() => {
-    if (sortBy !== "recommendation") return matchReports;
+    if (effectiveSortBy !== "recommendation") return matchReports;
     // For Match view, sort matches by best (lowest rank) recommendation among their players
     return [...matchReports].sort((a, b) => {
       const aMin = Math.min(
@@ -98,7 +101,7 @@ const ReportsList = () => {
       );
       return aMin - bMin;
     });
-  }, [matchReports, sortBy]);
+  }, [matchReports, effectiveSortBy]);
 
   // Extract available filter options from reports
   const { availableVerdicts, availableScouts, availableClubs, availablePositions, availablePlayerNames } = useMemo(() => {
@@ -220,16 +223,17 @@ const ReportsList = () => {
         <ReportsTabNavigation onTabChange={setActiveTab} activeTab={activeTab} />
         
         <div className="flex items-center gap-2">
-          <Select value={sortBy} onValueChange={(v) => setSortBy(v as "default" | "recommendation")}>
-            <SelectTrigger className="h-9 w-[180px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="default">Sort: Default</SelectItem>
-              <SelectItem value="recommendation">Sort: Recommendation</SelectItem>
-            </SelectContent>
-          </Select>
-
+          {recommendationsActive && (
+            <Select value={sortBy} onValueChange={(v) => setSortBy(v as "default" | "recommendation")}>
+              <SelectTrigger className="h-9 w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Sort: Default</SelectItem>
+                <SelectItem value="recommendation">Sort: Recommendation</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
           <SlidingToggle
             value={viewMode}
             onChange={(value) => setViewMode(value as "individual" | "grouped" | "match")}
