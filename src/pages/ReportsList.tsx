@@ -73,7 +73,32 @@ const ReportsList = () => {
   
   const { reports, loading, deleteReport } = useReports();
   const { data: matchReports = [], isLoading: matchReportsLoading } = useAllMatchScoutingReports();
-  const filteredReports = useReportsFilter(reports, activeTab, searchFilters);
+  const filteredReportsRaw = useReportsFilter(reports, activeTab, searchFilters);
+
+  const filteredReports = useMemo(() => {
+    if (sortBy !== "recommendation") return filteredReportsRaw;
+    return [...filteredReportsRaw].sort((a, b) => {
+      const aRank = getRecommendationRank(a.playerId);
+      const bRank = getRecommendationRank(b.playerId);
+      return aRank - bRank; // unset (Infinity) → bottom
+    });
+  }, [filteredReportsRaw, sortBy]);
+
+  const sortedMatchReports = useMemo(() => {
+    if (sortBy !== "recommendation") return matchReports;
+    // For Match view, sort matches by best (lowest rank) recommendation among their players
+    return [...matchReports].sort((a, b) => {
+      const aMin = Math.min(
+        ...a.reports.map(r => getRecommendationRank(r.player_id)),
+        Number.POSITIVE_INFINITY
+      );
+      const bMin = Math.min(
+        ...b.reports.map(r => getRecommendationRank(r.player_id)),
+        Number.POSITIVE_INFINITY
+      );
+      return aMin - bMin;
+    });
+  }, [matchReports, sortBy]);
 
   // Extract available filter options from reports
   const { availableVerdicts, availableScouts, availableClubs, availablePositions, availablePlayerNames } = useMemo(() => {
