@@ -25,6 +25,8 @@ import { type PlayerAvailability } from "@/hooks/useShortlists";
 import { ScoutingGrade } from "@/components/ui/scouting-grade";
 import { useReports } from "@/hooks/useReports";
 import { groupReportsByPlayer } from "@/utils/reportGrouping";
+import { RecommendationBadge } from "@/components/RecommendationBadge";
+import { getMockRecommendation } from "@/utils/mockRecommendations";
 
 interface ShortlistsContentProps {
   currentList: any;
@@ -591,6 +593,14 @@ export const ShortlistsContent = ({
                 <TableHead>EU/GBE</TableHead>
                 <TableHead>Availability</TableHead>
                 <TableHead>Scouting Grade</TableHead>
+                <SortableTableHead
+                  column="recommendation"
+                  currentSort={sortBy}
+                  sortOrder={sortOrder}
+                  onSort={onSortByChange}
+                >
+                  Recommendation
+                </SortableTableHead>
                 <TableHead>Scouts</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
@@ -622,7 +632,7 @@ export const ShortlistsContent = ({
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={canManageShortlists ? 12 : 11} className="text-center py-6 text-muted-foreground">
+                  <TableCell colSpan={canManageShortlists ? 13 : 12} className="text-center py-6 text-muted-foreground">
                     No players found matching your criteria.
                   </TableCell>
                 </TableRow>
