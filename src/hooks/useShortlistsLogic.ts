@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 import { determinePlayerStatus, getStatusBadgeProps } from "@/utils/playerStatusUtils";
 import { AVAILABILITY_OPTIONS, type PlayerAvailability } from "@/hooks/useShortlists";
+import { getRecommendationRank } from "@/utils/mockRecommendations";
 
 interface UseShortlistsLogicProps {
   allPlayers: any[];
