@@ -7,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import { Plus, Trash2, Save, Undo2, GripVertical, Loader2, Lock } from "lucide-react";
 import { NamedRatingSystem } from "@/types/report";
 import { useMatchReportConfig, useSaveMatchReportConfig } from "@/hooks/useMatchReportConfig";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export interface MatchReportRating {
   id: string;
@@ -143,19 +144,31 @@ const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabPr
                 Configure the ratings scouts can apply to each player during match scouting. Each match report includes one notes field and up to 8 rating fields.
               </p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleAddRating}
-              disabled={config.ratings.length >= 8}
-              className="gap-1 text-xs h-8"
-            >
-              <Plus size={14} /> Add Rating
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={0}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddRating}
+                    disabled={config.ratings.length >= 8}
+                    className="gap-1 text-xs h-8"
+                  >
+                    <Plus size={14} /> Add Rating
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {config.ratings.length >= 8 && (
+                <TooltipContent>Maximum 8 ratings</TooltipContent>
+              )}
+            </Tooltip>
           </div>
         </CardHeader>
         <CardContent className="pt-0">
           <div className="space-y-1.5">
+            <p className="text-xs text-muted-foreground pb-1">
+              {config.ratings.length}/8 ratings configured
+            </p>
             {/* Notes field (always present, not configurable) */}
             <div className="border rounded-md px-3 py-2.5 bg-muted/30">
               <div className="flex items-center gap-2">
@@ -238,11 +251,7 @@ const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabPr
               </p>
             )}
 
-            {config.ratings.length > 0 && (
-              <p className="text-xs text-muted-foreground pt-1">
-                {config.ratings.length}/8 ratings configured
-              </p>
-            )}
+
           </div>
         </CardContent>
       </Card>
