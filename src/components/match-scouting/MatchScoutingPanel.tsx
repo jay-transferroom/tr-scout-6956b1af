@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { getMatchIdentifier, useMatchScoutingReports } from "@/hooks/useMatchScoutingReports";
 import { cn } from "@/lib/utils";
