@@ -788,6 +788,16 @@ const ShortlistPlayerRow = ({
         <PlayerScoutingGrade playerId={player.id.toString()} />
       </TableCell>
       <TableCell>
+        {(() => {
+          const rec = getMockRecommendation(player.id.toString());
+          return rec ? (
+            <RecommendationBadge value={rec} variant="compact" />
+          ) : (
+            <span className="text-xs text-muted-foreground">—</span>
+          );
+        })()}
+      </TableCell>
+      <TableCell>
         {!player.isPrivate && scouts.length > 0 ? (
           <ScoutAvatars scouts={scouts} size="sm" maxVisible={3} />
         ) : (
