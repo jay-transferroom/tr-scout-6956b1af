@@ -62,6 +62,28 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
 
             const isSubmitted = match.reports.some((r) => r.rating !== null);
 
+            // Edit eligibility for the current user.
+            // Drafts: always editable by their author.
+            // Submitted: editable by author within 90 days from earliest submitted updated_at (proxy for SubmittedAt).
+            const myReports = user ? match.reports.filter((r) => r.scout_id === user.id) : [];
+            const myDraftReports = myReports.filter((r) => r.rating === null);
+            const mySubmittedReports = myReports.filter((r) => r.rating !== null);
+            const earliestSubmittedAt = mySubmittedReports.length
+              ? mySubmittedReports.reduce((min, r) => {
+                  const d = new Date(r.updated_at);
+                  return d < min ? d : min;
+                }, new Date(mySubmittedReports[0].updated_at))
+              : null;
+            const submittedWithinWindow = earliestSubmittedAt
+              ? differenceInDays(new Date(), earliestSubmittedAt) <= SUBMITTED_EDIT_WINDOW_DAYS
+              : false;
+            const canEdit = myDraftReports.length > 0 || submittedWithinWindow;
+            const editTooltip = myDraftReports.length > 0
+              ? "Edit draft"
+              : submittedWithinWindow
+                ? `Edit submitted report (within ${SUBMITTED_EDIT_WINDOW_DAYS}-day window)`
+                : "";
+
             return (
               <TableRow key={match.match_identifier} className="cursor-pointer hover:bg-muted/50" onClick={() => onSelectMatch?.(match)}>
                 <TableCell>
