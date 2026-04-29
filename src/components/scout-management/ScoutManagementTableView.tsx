@@ -437,7 +437,7 @@ const ScoutManagementTableView = ({
               
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  {getStatusBadge(assignment.kanbanColumn)}
+                  {renderStageDropdown(assignment)}
                   {getPriorityBadge(assignment.priority)}
                 </div>
                 
