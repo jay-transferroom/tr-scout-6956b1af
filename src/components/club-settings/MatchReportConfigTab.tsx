@@ -169,14 +169,7 @@ const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabPr
             <p className="text-xs text-muted-foreground pb-1">
               {config.ratings.length}/8 ratings configured
             </p>
-            {/* Notes field (always present, not configurable) */}
-            <div className="border rounded-md px-3 py-2.5 bg-muted/30">
-              <div className="flex items-center gap-2">
-                <div className="w-4" />
-                <span className="text-sm font-medium text-muted-foreground">Notes</span>
-                <span className="text-xs text-muted-foreground ml-auto">Always included</span>
-              </div>
-            </div>
+
 
             {/* Configurable ratings */}
             {config.ratings.map((rating) => {
@@ -250,6 +243,15 @@ const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabPr
                 No ratings configured. Add a rating to get started.
               </p>
             )}
+
+            {/* Notes field (always present, not configurable) */}
+            <div className="border rounded-md px-3 py-2.5 bg-muted/30 opacity-70 select-none pointer-events-none mt-2">
+              <div className="flex items-center gap-2">
+                <div className="w-4" />
+                <span className="text-sm font-medium text-muted-foreground">Notes</span>
+                <span className="text-xs text-muted-foreground ml-auto">Always available — not configurable</span>
+              </div>
+            </div>
 
 
           </div>
