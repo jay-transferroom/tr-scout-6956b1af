@@ -60,6 +60,18 @@ const Calendar = () => {
   const { data: clubRatingData } = useClubRatingWeights();
   const clubWeights = clubRatingData?.weights;
 
+  // Determine the current user's report status for a fixture: 'submitted' | 'draft' | 'none'
+  const getMyReportStatus = (fixture: Fixture): 'submitted' | 'draft' | 'none' => {
+    if (!user) return 'none';
+    const identifier = getMatchIdentifier(fixture.home_team, fixture.away_team, fixture.match_date_utc);
+    const myReports = matchScoutingReports
+      .find((m) => m.match_identifier === identifier)
+      ?.reports.filter((r) => r.scout_id === user.id) ?? [];
+    if (myReports.some((r) => r.rating !== null)) return 'submitted';
+    if (myReports.length > 0) return 'draft';
+    return loadMatchScoutingDraft(identifier) ? 'draft' : 'none';
+  };
+
   // Check if user can assign scouts (recruitment or director roles)
   const canAssignScouts = profile?.role === 'recruitment' || profile?.role === 'director';
 
