@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Trash2, Save, Undo2, GripVertical, Loader2 } from "lucide-react";
+import { Plus, Trash2, Save, Undo2, GripVertical, Loader2, Lock } from "lucide-react";
 import { NamedRatingSystem } from "@/types/report";
 import { useMatchReportConfig, useSaveMatchReportConfig } from "@/hooks/useMatchReportConfig";
 
@@ -186,12 +186,12 @@ const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabPr
                 >
                   <div className="flex items-center gap-2">
                     {isOverall ? (
-                      <div className="w-4" />
+                      <Lock className="h-3.5 w-3.5 shrink-0 text-green-700/70 dark:text-green-400/70" aria-label="Fixed rating" />
                     ) : (
                       <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-muted-foreground/50 active:cursor-grabbing" />
                     )}
                     {isOverall ? (
-                      <span className="text-sm font-medium text-green-700 dark:text-green-400 max-w-[220px] flex-1">Rating</span>
+                      <span className="text-sm font-medium text-green-700 dark:text-green-400 max-w-[220px] flex-1">Overall Rating</span>
                     ) : (
                       <Input
                         value={rating.name}
