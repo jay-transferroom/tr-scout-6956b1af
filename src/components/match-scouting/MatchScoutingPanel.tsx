@@ -627,7 +627,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                 </div>
               </div>
               <p className="mt-2 text-center text-xs text-white/70">
-                Match Scouting — drag to reorder players, click to add notes &amp; rating
+                Match Scouting — drag to reorder players, click to add notes &amp; ratings
               </p>
             </div>
 
