@@ -636,7 +636,7 @@ export const ShortlistsContent = ({
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={canManageShortlists ? 13 : 12} className="text-center py-6 text-muted-foreground">
+                  <TableCell colSpan={(canManageShortlists ? 12 : 11) + (recommendationsActive ? 1 : 0)} className="text-center py-6 text-muted-foreground">
                     No players found matching your criteria.
                   </TableCell>
                 </TableRow>
