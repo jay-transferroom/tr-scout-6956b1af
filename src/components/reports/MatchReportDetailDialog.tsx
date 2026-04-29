@@ -6,6 +6,9 @@ import { Star, User, MessageSquare, Calendar, MapPin } from "lucide-react";
 import { GroupedMatchReport, MatchScoutingReportWithDetails } from "@/hooks/useAllMatchScoutingReports";
 import { supabase } from "@/integrations/supabase/client";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useMatchReportConfig } from "@/hooks/useMatchReportConfig";
 
 interface PlayerInfo {
   id: number;
@@ -31,6 +34,8 @@ const getRatingColor = (rating: number): string => {
 const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetailDialogProps) => {
   const [playerInfoMap, setPlayerInfoMap] = useState<Map<string, PlayerInfo>>(new Map());
   const [loading, setLoading] = useState(false);
+  const [legacyMode, setLegacyMode] = useState(false);
+  const { data: matchReportConfig } = useMatchReportConfig();
 
   useEffect(() => {
     if (!match || !open) return;
