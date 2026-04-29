@@ -17,6 +17,7 @@ import {
   loadMatchScoutingDraft,
   saveMatchScoutingDraft,
 } from "@/utils/matchScoutingDrafts";
+import { emitMockReportSubmitted } from "@/lib/mockReportEvents";
 import { getMatchGradient } from "@/components/fixtures/FixtureCard";
 import PlayerReportTemplateDialog from "./PlayerReportTemplateDialog";
 import { createDefaultMatchReportConfig, MatchReportConfig, MatchReportRating } from "@/components/club-settings/MatchReportConfigTab";
