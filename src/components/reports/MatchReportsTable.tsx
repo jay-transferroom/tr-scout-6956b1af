@@ -1,13 +1,19 @@
-import { format } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { GroupedMatchReport } from "@/hooks/useAllMatchScoutingReports";
-import { Users, Calendar, Star } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Users, Calendar, Star, Pencil } from "lucide-react";
 
 interface MatchReportsTableProps {
   matchReports: GroupedMatchReport[];
   onSelectMatch?: (match: GroupedMatchReport) => void;
+  onEditMatch?: (match: GroupedMatchReport) => void;
 }
+
+const SUBMITTED_EDIT_WINDOW_DAYS = 90;
 
 const MatchReportsTable = ({ matchReports, onSelectMatch }: MatchReportsTableProps) => {
   if (matchReports.length === 0) {
