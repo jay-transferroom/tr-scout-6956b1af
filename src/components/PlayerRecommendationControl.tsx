@@ -92,6 +92,7 @@ export const PlayerRecommendationControl = ({
   const recommendationsActive = useRecommendationsActive();
   const [value, setValue] = useState<RecommendationValue | null>(null);
   const [attribution, setAttribution] = useState<Attribution | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   if (!recommendationsActive) return null;
 
