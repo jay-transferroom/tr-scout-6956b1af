@@ -51,11 +51,9 @@ const MatchReportsTable = ({ matchReports, onSelectMatch }: MatchReportsTablePro
               new Date(0)
             );
 
+            const isSubmitted = match.reports.some((r) => r.rating !== null);
+
             return (
-              {(() => {
-                // Derive status: submitted if any report has a rating, otherwise draft
-                const isSubmitted = match.reports.some((r) => r.rating !== null);
-                return (
               <TableRow key={match.match_identifier} className="cursor-pointer hover:bg-muted/50" onClick={() => onSelectMatch?.(match)}>
                 <TableCell>
                   <div className="flex items-center gap-2">
