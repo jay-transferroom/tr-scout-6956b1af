@@ -219,39 +219,51 @@ const ReportsList = () => {
       <div className="flex flex-col sm:flex-row items-start justify-between mb-4 gap-4">
         <ReportsTabNavigation onTabChange={setActiveTab} activeTab={activeTab} />
         
-        <SlidingToggle
-          value={viewMode}
-          onChange={(value) => setViewMode(value as "individual" | "grouped" | "match")}
-          options={[
-            { 
-              value: "individual", 
-              label: (
-                <div className="flex items-center gap-2">
-                  <List className="h-4 w-4" />
-                  Report
-                </div>
-              )
-            },
-            { 
-              value: "grouped", 
-              label: (
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  Player
-                </div>
-              )
-            },
-            { 
-              value: "match", 
-              label: (
-                <div className="flex items-center gap-2">
-                  <ClipboardList className="h-4 w-4" />
-                  Match
-                </div>
-              )
-            }
-          ]}
-        />
+        <div className="flex items-center gap-2">
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as "default" | "recommendation")}>
+            <SelectTrigger className="h-9 w-[180px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Sort: Default</SelectItem>
+              <SelectItem value="recommendation">Sort: Recommendation</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <SlidingToggle
+            value={viewMode}
+            onChange={(value) => setViewMode(value as "individual" | "grouped" | "match")}
+            options={[
+              { 
+                value: "individual", 
+                label: (
+                  <div className="flex items-center gap-2">
+                    <List className="h-4 w-4" />
+                    Report
+                  </div>
+                )
+              },
+              { 
+                value: "grouped", 
+                label: (
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Player
+                  </div>
+                )
+              },
+              { 
+                value: "match", 
+                label: (
+                  <div className="flex items-center gap-2">
+                    <ClipboardList className="h-4 w-4" />
+                    Match
+                  </div>
+                )
+              }
+            ]}
+          />
+        </div>
       </div>
 
       <ReportsFilters 
