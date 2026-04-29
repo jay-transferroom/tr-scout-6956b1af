@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SlidersHorizontal, FileText, Shield, Upload, Star, ClipboardList, ThumbsUp } from "lucide-react";
+import { SlidersHorizontal, FileText, Shield, Upload, Star, ClipboardList, ThumbsUp, Workflow } from "lucide-react";
 import ClubRatingsTab from "@/components/club-settings/ClubRatingsTab";
 import RatingSystemsTab, { createDefaultNamedSystems } from "@/components/club-settings/RatingSystemsTab";
 import ScoutingTemplatesTab from "@/components/club-settings/ScoutingTemplatesTab";
 import MatchReportConfigTab from "@/components/club-settings/MatchReportConfigTab";
 import RecommendationsTab from "@/components/club-settings/RecommendationsTab";
+import PipelineTab from "@/components/club-settings/PipelineTab";
 import UserManagementTab from "@/components/club-settings/UserManagementTab";
 import DataImportTab from "@/components/club-settings/DataImportTab";
 import { useAuth } from "@/contexts/AuthContext";
