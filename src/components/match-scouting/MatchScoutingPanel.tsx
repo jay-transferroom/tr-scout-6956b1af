@@ -17,6 +17,7 @@ import {
   loadMatchScoutingDraft,
   saveMatchScoutingDraft,
 } from "@/utils/matchScoutingDrafts";
+import { emitMockReportSubmitted } from "@/lib/mockReportEvents";
 import { getMatchGradient } from "@/components/fixtures/FixtureCard";
 import PlayerReportTemplateDialog from "./PlayerReportTemplateDialog";
 import { createDefaultMatchReportConfig, MatchReportConfig, MatchReportRating } from "@/components/club-settings/MatchReportConfigTab";
@@ -687,6 +688,18 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                 className="flex-1"
                 onClick={() => {
                   setSubmissionStatus("submitted");
+                  // Prototype-only: emit mock event so pipeline auto-transition
+                  // rules can react. Includes every player with a draft entry
+                  // (notes or rating).
+                  const submittedPlayerIds = Object.entries(playerDrafts)
+                    .filter(([, d]) => (d?.notes?.trim() || d?.rating !== null))
+                    .map(([id]) => id);
+                  if (submittedPlayerIds.length > 0) {
+                    emitMockReportSubmitted({
+                      playerIds: submittedPlayerIds,
+                      trigger: "data_report_submitted",
+                    });
+                  }
                   sonnerToast.success("Match report submitted");
                   onClose();
                 }}
