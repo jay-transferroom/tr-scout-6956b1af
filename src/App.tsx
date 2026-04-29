@@ -90,6 +90,7 @@ function App() {
                 <Route path="player-pitches" element={<PlayerPitches />} />
                 <Route path="data-import" element={<DataImport />} />
               </Route>
+              <Route path="/dev/recommendation-badge" element={<ProtectedRoute><RecommendationBadgeShowcase /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
