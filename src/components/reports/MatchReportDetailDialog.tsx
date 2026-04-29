@@ -9,6 +9,8 @@ import { PlayerAvatar } from "@/components/ui/player-avatar";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useMatchReportConfig } from "@/hooks/useMatchReportConfig";
+import { RecommendationBadge } from "@/components/RecommendationBadge";
+import { getMockRecommendation } from "@/utils/mockRecommendations";
 
 interface PlayerInfo {
   id: number;
@@ -127,7 +129,13 @@ const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetai
                       size="sm"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold truncate">{playerName}</div>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="font-semibold truncate">{playerName}</div>
+                        {(() => {
+                          const rec = getMockRecommendation(playerId);
+                          return rec ? <RecommendationBadge value={rec} variant="compact" /> : null;
+                        })()}
+                      </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         {player?.firstposition && (
                           <Badge variant="outline" className="text-xs px-1.5 py-0">
