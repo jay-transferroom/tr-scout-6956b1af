@@ -20,6 +20,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getRecommendationRank } from "@/utils/mockRecommendations";
 import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 import { List, Users, ClipboardList } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Reports List Component
 const ReportsList = () => {
