@@ -26,6 +26,9 @@ import { MatchPlayersSheet } from "@/components/MatchPlayersSheet";
 import { RecommendationBadge } from "@/components/RecommendationBadge";
 import { getMockRecommendation } from "@/utils/mockRecommendations";
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
+import { useAllMatchScoutingReports } from "@/hooks/useAllMatchScoutingReports";
+import { getMatchIdentifier } from "@/hooks/useMatchScoutingReports";
+import { loadMatchScoutingDraft } from "@/utils/matchScoutingDrafts";
 import { getMatchGradient } from "@/components/fixtures/FixtureCard";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
 import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
@@ -46,7 +49,8 @@ const Calendar = () => {
   const [matchScoutingOpen, setMatchScoutingOpen] = useState(false);
   const [scoutingFixture, setScoutingFixture] = useState<Fixture | null>(null);
 
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
+  const { data: matchScoutingReports = [] } = useAllMatchScoutingReports();
   const { toast } = useToast();
   const { data: fixtures = [] } = useFixturesData();
   const { data: scouts = [] } = useScoutUsers();
@@ -55,6 +59,18 @@ const Calendar = () => {
   const { shortlists, addPlayerToShortlist } = useShortlists();
   const { data: clubRatingData } = useClubRatingWeights();
   const clubWeights = clubRatingData?.weights;
+
+  // Determine the current user's report status for a fixture: 'submitted' | 'draft' | 'none'
+  const getMyReportStatus = (fixture: Fixture): 'submitted' | 'draft' | 'none' => {
+    if (!user) return 'none';
+    const identifier = getMatchIdentifier(fixture.home_team, fixture.away_team, fixture.match_date_utc);
+    const myReports = matchScoutingReports
+      .find((m) => m.match_identifier === identifier)
+      ?.reports.filter((r) => r.scout_id === user.id) ?? [];
+    if (myReports.some((r) => r.rating !== null)) return 'submitted';
+    if (myReports.length > 0) return 'draft';
+    return loadMatchScoutingDraft(identifier) ? 'draft' : 'none';
+  };
 
   // Check if user can assign scouts (recruitment or director roles)
   const canAssignScouts = profile?.role === 'recruitment' || profile?.role === 'director';
@@ -824,6 +840,7 @@ const Calendar = () => {
                     const isCompleted = fixture.status === 'completed' || fixture.status === 'Full Time' || (fixture.home_score !== null && fixture.away_score !== null);
                     const isLive = fixture.status === 'live' || fixture.status === 'Live';
                     const hasScore = fixture.home_score !== null && fixture.away_score !== null;
+                    const myReportStatus = getMyReportStatus(fixture);
                     
                     // Get dynamic gradient from home team to away team colors
                     const gradient = getMatchGradient(fixture.home_team, fixture.away_team);
@@ -868,11 +885,18 @@ const Calendar = () => {
                               <ClubBadge clubName={fixture.away_team} size="sm" className="bg-white/20 rounded-full p-0.5" />
                             </div>
 
-                            {/* Match Report Button */}
-                            <span className="shrink-0 ml-2 inline-flex items-center gap-1 rounded-md bg-white/20 hover:bg-white/30 transition-colors px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                              <ClipboardList className="h-3.5 w-3.5" />
-                              <span className="hidden sm:inline">Match report</span>
-                            </span>
+                            {/* Match Report Button — hidden if user already submitted */}
+                            {myReportStatus === 'submitted' ? null : myReportStatus === 'draft' ? (
+                              <span className="shrink-0 ml-2 inline-flex items-center gap-1 rounded-md bg-amber-500 hover:bg-amber-600 transition-colors px-2.5 py-1 text-xs font-medium text-white">
+                                <ClipboardList className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Continue draft</span>
+                              </span>
+                            ) : (
+                              <span className="shrink-0 ml-2 inline-flex items-center gap-1 rounded-md bg-white/20 hover:bg-white/30 transition-colors px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                                <ClipboardList className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Match report</span>
+                              </span>
+                            )}
                           </div>
                         </button>
                         

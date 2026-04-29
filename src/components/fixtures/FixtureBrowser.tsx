@@ -22,6 +22,9 @@ import { PlayerAvatar } from "@/components/ui/player-avatar";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { getMatchGradient } from "@/components/fixtures/FixtureCard";
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
+import { useAllMatchScoutingReports } from "@/hooks/useAllMatchScoutingReports";
+import { getMatchIdentifier } from "@/hooks/useMatchScoutingReports";
+import { loadMatchScoutingDraft } from "@/utils/matchScoutingDrafts";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
 
 // Map competition names to countries for matching
@@ -64,9 +67,21 @@ const FixtureBrowser: React.FC = () => {
   const { data: allPlayers = [] } = usePlayersData();
   const { data: assignments = [], refetch: refetchAssignments } = useScoutingAssignments();
   const { data: scouts = [] } = useScoutUsers();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const { data: clubRatingData } = useClubRatingWeights();
   const clubWeights = clubRatingData?.weights;
+  const { data: matchScoutingReports = [] } = useAllMatchScoutingReports();
+
+  const getMyReportStatus = (fixture: Fixture): 'submitted' | 'draft' | 'none' => {
+    if (!user) return 'none';
+    const identifier = getMatchIdentifier(fixture.home_team, fixture.away_team, fixture.match_date_utc);
+    const myReports = matchScoutingReports
+      .find((m) => m.match_identifier === identifier)
+      ?.reports.filter((r) => r.scout_id === user.id) ?? [];
+    if (myReports.some((r) => r.rating !== null)) return 'submitted';
+    if (myReports.length > 0) return 'draft';
+    return loadMatchScoutingDraft(identifier) ? 'draft' : 'none';
+  };
 
   const canAssignScouts = profile?.role === 'recruitment' || profile?.role === 'director';
 
@@ -423,20 +438,30 @@ const FixtureBrowser: React.FC = () => {
                             </span>
                           )}
 
-                          {/* Match Report button */}
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 text-xs gap-1 shrink-0"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setScoutingFixture(fixture);
-                              setMatchScoutingOpen(true);
-                            }}
-                          >
-                            <ClipboardList className="h-3.5 w-3.5" />
-                            <span className="hidden sm:inline">Report</span>
-                          </Button>
+                          {/* Match Report button — hide if submitted, switch to amber Continue Draft if draft exists */}
+                          {(() => {
+                            const myReportStatus = getMyReportStatus(fixture);
+                            if (myReportStatus === 'submitted') return null;
+                            const isDraft = myReportStatus === 'draft';
+                            return (
+                              <Button
+                                size="sm"
+                                variant={isDraft ? "secondary" : "ghost"}
+                                className={cn(
+                                  "h-7 text-xs gap-1 shrink-0",
+                                  isDraft && "bg-amber-500 text-white hover:bg-amber-600"
+                                )}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setScoutingFixture(fixture);
+                                  setMatchScoutingOpen(true);
+                                }}
+                              >
+                                <ClipboardList className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">{isDraft ? "Continue draft" : "Report"}</span>
+                              </Button>
+                            );
+                          })()}
                         </div>
 
                         {/* Expanded detail panel */}
