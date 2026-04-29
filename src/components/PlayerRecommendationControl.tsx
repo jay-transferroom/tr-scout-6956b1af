@@ -157,10 +157,49 @@ export const PlayerRecommendationControl = ({
       </DropdownMenu>
 
       {value && attribution && (
-        <p className="text-xs text-muted-foreground">
-          Set by {attribution.user} · {formatRelative(attribution.date)}
-        </p>
+        <div className="flex flex-col items-start gap-0.5">
+          <p className="text-xs text-muted-foreground">
+            Set by {attribution.user} · {formatRelative(attribution.date)}
+          </p>
+          <button
+            type="button"
+            onClick={() => setHistoryOpen(true)}
+            className="text-xs text-muted-foreground underline-offset-2 hover:underline hover:text-foreground focus:outline-none focus-visible:underline"
+          >
+            View history
+          </button>
+        </div>
       )}
+
+      <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Recommendation history</DialogTitle>
+          </DialogHeader>
+          <ul className="flex flex-col divide-y divide-border">
+            {MOCK_HISTORY.map((entry, idx) => (
+              <li key={idx} className="py-3 flex flex-col gap-1">
+                <div className="flex items-center gap-2 text-sm">
+                  {entry.from ? (
+                    <RecommendationBadge value={entry.from} variant="compact" />
+                  ) : (
+                    <span className="text-muted-foreground">Unset</span>
+                  )}
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  {entry.to ? (
+                    <RecommendationBadge value={entry.to} variant="compact" />
+                  ) : (
+                    <span className="text-muted-foreground">Cleared</span>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  changed by {entry.user} · {formatHistoryDate(entry.date)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
