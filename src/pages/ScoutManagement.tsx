@@ -7,6 +7,8 @@ import { useUnifiedPlayersData } from "@/hooks/useUnifiedPlayersData";
 import { useReports } from "@/hooks/useReports";
 import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
 import { usePipelineColumns } from "@/hooks/usePipelineColumns";
+import { MOCK_REPORT_SUBMITTED_EVENT, type MockReportSubmittedDetail } from "@/lib/mockReportEvents";
+import { toast as sonnerToast } from "sonner";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
 import { Button } from "@/components/ui/button";
 import ScoutManagementHeader from "@/components/scout-management/ScoutManagementHeader";
