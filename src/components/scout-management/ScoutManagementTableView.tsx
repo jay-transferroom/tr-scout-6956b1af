@@ -298,20 +298,44 @@ const ScoutManagementTableView = ({
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
+      {/* Filter chips — reflect the configured pipeline columns */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setStatusFilter("all")}
+          className={cn(
+            "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+            statusFilter === "all"
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-border bg-muted/40 text-muted-foreground hover:bg-muted"
+          )}
+        >
+          All
+        </button>
+        {pipelineColumns.map((c) => {
+          const active = statusFilter === c.id;
+          const count = allAssignments.filter((a) => a.kanbanColumn === c.id).length;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => setStatusFilter(c.id)}
+              className={cn(
+                "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                active
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-muted/40 text-muted-foreground hover:bg-muted"
+              )}
+            >
+              {c.name}
+              <span className={cn("ml-1.5", active ? "opacity-90" : "opacity-70")}>{count}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Search */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="shortlisted">Marked for Scouting</SelectItem>
-            <SelectItem value="assigned">Assigned</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-          </SelectContent>
-        </Select>
-        
         <Input
           placeholder="Search players, clubs, or scouts..."
           value={searchTerm}
