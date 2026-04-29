@@ -2,24 +2,60 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { GripVertical, Trash2, Plus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { GripVertical, Trash2, Plus, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+
+type RuleTrigger =
+  | "data_report_submitted"
+  | "video_report_submitted"
+  | "manually_assigned";
+
+const TRIGGER_OPTIONS: { value: RuleTrigger; label: string }[] = [
+  { value: "data_report_submitted", label: "When data report submitted" },
+  { value: "video_report_submitted", label: "When video report submitted" },
+  { value: "manually_assigned", label: "When manually assigned" },
+];
+
+interface PipelineRule {
+  id: string;
+  trigger: RuleTrigger;
+  destinationColumnId: string | null;
+}
 
 interface PipelineColumn {
   id: string;
   name: string;
+  rules: PipelineRule[];
 }
 
 const SEED_COLUMNS: PipelineColumn[] = [
-  { id: "shortlisted", name: "Shortlisted" },
-  { id: "assigned", name: "Assigned" },
-  { id: "completed", name: "Completed" },
+  { id: "shortlisted", name: "Shortlisted", rules: [] },
+  { id: "assigned", name: "Assigned", rules: [] },
+  { id: "completed", name: "Completed", rules: [] },
 ];
 
 const PipelineTab = () => {
   const [columns, setColumns] = useState<PipelineColumn[]>(SEED_COLUMNS);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
+  const [rulesColumnId, setRulesColumnId] = useState<string | null>(null);
+  const [draftRules, setDraftRules] = useState<PipelineRule[]>([]);
 
   const handleNameChange = (id: string, name: string) => {
     setColumns((prev) => prev.map((c) => (c.id === id ? { ...c, name } : c)));
@@ -32,7 +68,7 @@ const PipelineTab = () => {
   const handleAdd = () => {
     setColumns((prev) => [
       ...prev,
-      { id: `col-${Date.now()}`, name: "New column" },
+      { id: `col-${Date.now()}`, name: "New column", rules: [] },
     ]);
   };
 
@@ -68,6 +104,53 @@ const PipelineTab = () => {
     setDragIndex(null);
     setOverIndex(null);
   };
+
+  const openRules = (col: PipelineColumn) => {
+    setRulesColumnId(col.id);
+    setDraftRules(col.rules.map((r) => ({ ...r })));
+  };
+
+  const closeRules = () => {
+    setRulesColumnId(null);
+    setDraftRules([]);
+  };
+
+  const addDraftRule = () => {
+    setDraftRules((prev) => [
+      ...prev,
+      {
+        id: `rule-${Date.now()}`,
+        trigger: "data_report_submitted",
+        destinationColumnId: null,
+      },
+    ]);
+  };
+
+  const updateDraftRule = (id: string, patch: Partial<PipelineRule>) => {
+    setDraftRules((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  };
+
+  const removeDraftRule = (id: string) => {
+    setDraftRules((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const saveRules = () => {
+    if (!rulesColumnId) return;
+    const incomplete = draftRules.some((r) => !r.destinationColumnId);
+    if (incomplete) {
+      toast.error("Select a destination column for every rule");
+      return;
+    }
+    setColumns((prev) =>
+      prev.map((c) =>
+        c.id === rulesColumnId ? { ...c, rules: draftRules } : c
+      )
+    );
+    toast.success("Rules saved");
+    closeRules();
+  };
+
+  const activeColumn = columns.find((c) => c.id === rulesColumnId) || null;
 
   return (
     <Card className="p-6">
@@ -112,10 +195,15 @@ const PipelineTab = () => {
             <Button
               variant="link"
               size="sm"
-              className="h-auto p-0 text-sm"
-              onClick={() => toast.info("Rules editor coming soon")}
+              className="h-auto p-0 text-sm gap-2"
+              onClick={() => openRules(col)}
             >
               Rules
+              {col.rules.length > 0 && (
+                <Badge variant="secondary" className="h-5 px-1.5 text-xs">
+                  {col.rules.length}
+                </Badge>
+              )}
             </Button>
             <Button
               variant="ghost"
@@ -136,6 +224,100 @@ const PipelineTab = () => {
           Add column
         </Button>
       </div>
+
+      <Sheet open={!!rulesColumnId} onOpenChange={(open) => !open && closeRules()}>
+        <SheetContent side="right" className="w-full sm:max-w-lg flex flex-col">
+          <SheetHeader>
+            <SheetTitle>
+              Rules — {activeColumn?.name || ""}
+            </SheetTitle>
+            <SheetDescription>
+              Auto-transition players out of this column when a trigger fires.
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="flex-1 overflow-y-auto py-4 space-y-3">
+            {draftRules.length === 0 ? (
+              <div className="rounded-md border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
+                No rules configured yet.
+              </div>
+            ) : (
+              draftRules.map((rule) => {
+                const destinationOptions = columns.filter((c) => c.id !== rulesColumnId);
+                return (
+                  <div
+                    key={rule.id}
+                    className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2"
+                  >
+                    <Select
+                      value={rule.trigger}
+                      onValueChange={(value) =>
+                        updateDraftRule(rule.id, { trigger: value as RuleTrigger })
+                      }
+                    >
+                      <SelectTrigger className="h-9 flex-1 min-w-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TRIGGER_OPTIONS.map((t) => (
+                          <SelectItem key={t.value} value={t.value}>
+                            {t.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <Select
+                      value={rule.destinationColumnId ?? undefined}
+                      onValueChange={(value) =>
+                        updateDraftRule(rule.id, { destinationColumnId: value })
+                      }
+                    >
+                      <SelectTrigger className="h-9 flex-1 min-w-0">
+                        <SelectValue placeholder="Move to…" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {destinationOptions.length === 0 ? (
+                          <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                            No other columns
+                          </div>
+                        ) : (
+                          destinationOptions.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.name}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                      onClick={() => removeDraftRule(rule.id)}
+                      aria-label="Remove rule"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                );
+              })
+            )}
+
+            <Button variant="outline" size="sm" onClick={addDraftRule} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Add rule
+            </Button>
+          </div>
+
+          <SheetFooter className="border-t pt-4">
+            <Button variant="outline" onClick={closeRules}>
+              Cancel
+            </Button>
+            <Button onClick={saveRules}>Save rules</Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </Card>
   );
 };
