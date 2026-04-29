@@ -270,7 +270,7 @@ const ReportsList = () => {
             matchReportsLoading ? (
               <div className="text-center py-8">Loading match reports...</div>
             ) : (
-              <MatchReportsTable matchReports={matchReports} onSelectMatch={(m) => setSelectedMatch(m)} />
+              <MatchReportsTable matchReports={sortedMatchReports} onSelectMatch={(m) => setSelectedMatch(m)} />
             )
           ) : viewMode === "individual" ? (
             <ReportsTable
