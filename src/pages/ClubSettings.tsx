@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SlidersHorizontal, FileText, Shield, Upload, Star, ClipboardList } from "lucide-react";
+import { SlidersHorizontal, FileText, Shield, Upload, Star, ClipboardList, ThumbsUp } from "lucide-react";
 import ClubRatingsTab from "@/components/club-settings/ClubRatingsTab";
 import RatingSystemsTab, { createDefaultNamedSystems } from "@/components/club-settings/RatingSystemsTab";
 import ScoutingTemplatesTab from "@/components/club-settings/ScoutingTemplatesTab";
 import MatchReportConfigTab from "@/components/club-settings/MatchReportConfigTab";
+import RecommendationsTab from "@/components/club-settings/RecommendationsTab";
 import UserManagementTab from "@/components/club-settings/UserManagementTab";
 import DataImportTab from "@/components/club-settings/DataImportTab";
 import { useAuth } from "@/contexts/AuthContext";
@@ -51,6 +52,10 @@ const ClubSettings = () => {
                 <ClipboardList className="h-4 w-4" />
                 Match Reports
               </TabsTrigger>
+              <TabsTrigger value="recommendations" className="gap-2">
+                <ThumbsUp className="h-4 w-4" />
+                Recommendations
+              </TabsTrigger>
               <TabsTrigger value="users" className="gap-2">
                 <Shield className="h-4 w-4" />
                 User Management
@@ -76,6 +81,9 @@ const ClubSettings = () => {
             </TabsContent>
             <TabsContent value="match-reports">
               <MatchReportConfigTab availableRatingSystems={namedRatingSystems} />
+            </TabsContent>
+            <TabsContent value="recommendations">
+              <RecommendationsTab />
             </TabsContent>
             <TabsContent value="users">
               <UserManagementTab />
