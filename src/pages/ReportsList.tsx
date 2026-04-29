@@ -26,6 +26,7 @@ const ReportsList = () => {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("all-reports");
   const [viewMode, setViewMode] = useState<"individual" | "grouped" | "match">("individual");
+  const [sortBy, setSortBy] = useState<"default" | "recommendation">("default");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [selectedPlayerName, setSelectedPlayerName] = useState<string>("");
