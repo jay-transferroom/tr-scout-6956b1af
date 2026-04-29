@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, Plus, Trash2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,8 +8,51 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import RecommendationBadge, { RecommendationValue } from "@/components/RecommendationBadge";
 import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
+
+interface HistoryEntry {
+  from: RecommendationValue | null;
+  to: RecommendationValue | null;
+  user: string;
+  date: Date;
+}
+
+const MOCK_HISTORY: HistoryEntry[] = [
+  {
+    from: { label: "Monitor", colour: "#EAB308" },
+    to: { label: "Sign", colour: "#22C55E" },
+    user: "Alex Morgan",
+    date: new Date(Date.now() - 1000 * 60 * 60 * 6),
+  },
+  {
+    from: { label: "Pass", colour: "#EF4444" },
+    to: { label: "Monitor", colour: "#EAB308" },
+    user: "Sam Carter",
+    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
+  },
+  {
+    from: null,
+    to: { label: "Pass", colour: "#EF4444" },
+    user: "Jordan Lee",
+    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10),
+  },
+  {
+    from: { label: "Monitor", colour: "#EAB308" },
+    to: null,
+    user: "Riley Chen",
+    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 21),
+  },
+];
+
+const formatHistoryDate = (date: Date): string =>
+  date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 
 const DEFAULT_OPTIONS: RecommendationValue[] = [
   { label: "Sign", colour: "#22C55E" },
