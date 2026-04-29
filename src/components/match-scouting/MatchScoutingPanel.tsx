@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { getMatchIdentifier, useMatchScoutingReports } from "@/hooks/useMatchScoutingReports";
 import { cn } from "@/lib/utils";
@@ -390,6 +391,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   const [selectedPlayerForFullReport, setSelectedPlayerForFullReport] = useState<Player | null>(null);
   const [playerDrafts, setPlayerDrafts] = useState<Record<string, { notes: string; rating: number | null; ratings?: Record<string, string> }>>({});
   const [draftHydrated, setDraftHydrated] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState<"draft" | "submitted">("draft");
   const dragSourceRef = useRef<string | null>(null);
   const dragTeamRef = useRef<"home" | "away" | null>(null);
   const prevMatchRef = useRef<string | null>(null);
@@ -656,11 +658,43 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
         </ScrollArea>
 
         {onClose && (
-          <div className="shrink-0 border-t border-border bg-background px-4 py-3">
-            <Button className="w-full" onClick={onClose}>
-              <Check className="mr-1 h-4 w-4" />
-              Save
-            </Button>
+          <div className="shrink-0 border-t border-border bg-background px-4 py-3 space-y-2">
+            <div className="flex justify-end">
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+                  submissionStatus === "submitted"
+                    ? "bg-primary/10 text-primary"
+                    : "bg-muted text-muted-foreground"
+                )}
+              >
+                {submissionStatus === "submitted" ? "Submitted" : "Draft"}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => {
+                  setSubmissionStatus("draft");
+                  sonnerToast.success("Draft saved");
+                  onClose();
+                }}
+              >
+                Save Draft
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={() => {
+                  setSubmissionStatus("submitted");
+                  sonnerToast.success("Match report submitted");
+                  onClose();
+                }}
+              >
+                <Check className="mr-1 h-4 w-4" />
+                Submit
+              </Button>
+            </div>
           </div>
         )}
       </div>
