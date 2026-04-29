@@ -6,6 +6,9 @@ import { Star, User, MessageSquare, Calendar, MapPin } from "lucide-react";
 import { GroupedMatchReport, MatchScoutingReportWithDetails } from "@/hooks/useAllMatchScoutingReports";
 import { supabase } from "@/integrations/supabase/client";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useMatchReportConfig } from "@/hooks/useMatchReportConfig";
 
 interface PlayerInfo {
   id: number;
@@ -31,6 +34,8 @@ const getRatingColor = (rating: number): string => {
 const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetailDialogProps) => {
   const [playerInfoMap, setPlayerInfoMap] = useState<Map<string, PlayerInfo>>(new Map());
   const [loading, setLoading] = useState(false);
+  const [legacyMode, setLegacyMode] = useState(false);
+  const { data: matchReportConfig } = useMatchReportConfig();
 
   useEffect(() => {
     if (!match || !open) return;
@@ -92,6 +97,16 @@ const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetai
           </DialogDescription>
         </DialogHeader>
 
+        <div className="flex items-center justify-between gap-2 px-1 py-2 rounded-md bg-muted/40 border border-dashed">
+          <div className="flex flex-col">
+            <Label htmlFor="legacy-toggle" className="text-xs font-medium">Legacy report mode</Label>
+            <span className="text-[11px] text-muted-foreground">
+              Demo back-compat: only Overall Rating is shown, other configured ratings render as "—".
+            </span>
+          </div>
+          <Switch id="legacy-toggle" checked={legacyMode} onCheckedChange={setLegacyMode} />
+        </div>
+
         <div className="space-y-3 mt-2">
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">Loading player details...</div>
@@ -140,13 +155,36 @@ const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetai
                               {format(new Date(report.updated_at), "dd MMM yyyy")}
                             </span>
                           </div>
-                          {report.rating !== null && (
-                            <div
-                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-sm font-semibold ${getRatingColor(report.rating)}`}
-                            >
-                              <Star className="h-3.5 w-3.5" />
-                              {report.rating}
+                          {legacyMode && matchReportConfig ? (
+                            <div className="flex flex-wrap gap-1.5">
+                              {matchReportConfig.ratings.map((cfg) => {
+                                const isOverall = cfg.id === 'default-overall';
+                                const filled = isOverall && report.rating !== null;
+                                return (
+                                  <div
+                                    key={cfg.id}
+                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-xs ${
+                                      filled
+                                        ? getRatingColor(report.rating!)
+                                        : 'text-muted-foreground bg-muted/30 border-dashed'
+                                    }`}
+                                    title={cfg.name || (isOverall ? 'Overall Rating' : 'Rating')}
+                                  >
+                                    <span className="font-medium">{isOverall ? 'Overall' : (cfg.name || 'Rating')}:</span>
+                                    <span className="font-semibold">{filled ? report.rating : '—'}</span>
+                                  </div>
+                                );
+                              })}
                             </div>
+                          ) : (
+                            report.rating !== null && (
+                              <div
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-sm font-semibold ${getRatingColor(report.rating)}`}
+                              >
+                                <Star className="h-3.5 w-3.5" />
+                                {report.rating}
+                              </div>
+                            )
                           )}
                         </div>
                         {report.notes && (
