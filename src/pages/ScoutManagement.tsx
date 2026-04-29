@@ -209,6 +209,68 @@ const ScoutManagement = () => {
     return result;
   }, [pipelineColumns, kanbanData, columnOverrides]);
 
+  // Prototype-only: react to mock "report submitted" events. For each
+  // submitted player, find their current column and apply the first matching
+  // auto-transition rule.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<MockReportSubmittedDetail>).detail;
+      if (!detail?.playerIds?.length) return;
+
+      // Build playerId -> currentColumnId map from current bucketing.
+      const currentColumnByPlayerId = new Map<string, string>();
+      Object.entries(playersByColumn).forEach(([colId, players]) => {
+        players.forEach((p: any) => {
+          if (p?.playerId) currentColumnByPlayerId.set(String(p.playerId), colId);
+          if (p?.id) currentColumnByPlayerId.set(String(p.id), colId);
+        });
+      });
+
+      const triggerLabels: Record<string, string> = {
+        data_report_submitted: "data report submitted",
+        video_report_submitted: "video report submitted",
+        manually_assigned: "manually assigned",
+      };
+
+      const newOverrides: Record<string, string> = {};
+      const moves: { destinationName: string }[] = [];
+
+      detail.playerIds.forEach((pid) => {
+        const currentColId = currentColumnByPlayerId.get(String(pid));
+        if (!currentColId) return;
+        const currentCol = pipelineColumns.find((c) => c.id === currentColId);
+        const rule = currentCol?.rules.find(
+          (r) => r.trigger === detail.trigger && r.destinationColumnId,
+        );
+        if (!rule || !rule.destinationColumnId) return;
+        if (rule.destinationColumnId === currentColId) return;
+
+        // Override by both card.id and playerId so the bucketer picks it up.
+        const cards = (playersByColumn[currentColId] || []).filter(
+          (p: any) => String(p.playerId) === String(pid),
+        );
+        cards.forEach((c: any) => {
+          if (c?.id) newOverrides[c.id] = rule.destinationColumnId!;
+        });
+
+        const destName =
+          pipelineColumns.find((c) => c.id === rule.destinationColumnId)?.name ?? "column";
+        moves.push({ destinationName: destName });
+      });
+
+      if (Object.keys(newOverrides).length === 0) return;
+      setColumnOverrides((prev) => ({ ...prev, ...newOverrides }));
+
+      const triggerLabel = triggerLabels[detail.trigger] ?? detail.trigger;
+      moves.forEach(({ destinationName }) => {
+        sonnerToast.success(`Auto-moved to ${destinationName} (rule: ${triggerLabel})`);
+      });
+    };
+
+    window.addEventListener(MOCK_REPORT_SUBMITTED_EVENT, handler);
+    return () => window.removeEventListener(MOCK_REPORT_SUBMITTED_EVENT, handler);
+  }, [playersByColumn, pipelineColumns]);
+
   const getColumnColor = (id: string) => {
     if (id === "completed") return "bg-green-500";
     if (id === "shortlisted" || id === "assigned") return "bg-orange-500";
