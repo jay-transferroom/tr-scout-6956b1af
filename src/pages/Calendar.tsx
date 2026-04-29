@@ -885,11 +885,18 @@ const Calendar = () => {
                               <ClubBadge clubName={fixture.away_team} size="sm" className="bg-white/20 rounded-full p-0.5" />
                             </div>
 
-                            {/* Match Report Button */}
-                            <span className="shrink-0 ml-2 inline-flex items-center gap-1 rounded-md bg-white/20 hover:bg-white/30 transition-colors px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                              <ClipboardList className="h-3.5 w-3.5" />
-                              <span className="hidden sm:inline">Match report</span>
-                            </span>
+                            {/* Match Report Button — hidden if user already submitted */}
+                            {myReportStatus === 'submitted' ? null : myReportStatus === 'draft' ? (
+                              <span className="shrink-0 ml-2 inline-flex items-center gap-1 rounded-md bg-amber-500 hover:bg-amber-600 transition-colors px-2.5 py-1 text-xs font-medium text-white">
+                                <ClipboardList className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Continue draft</span>
+                              </span>
+                            ) : (
+                              <span className="shrink-0 ml-2 inline-flex items-center gap-1 rounded-md bg-white/20 hover:bg-white/30 transition-colors px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                                <ClipboardList className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Match report</span>
+                              </span>
+                            )}
                           </div>
                         </button>
                         
