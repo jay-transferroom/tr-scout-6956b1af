@@ -37,6 +37,7 @@ import SavedConversations from "@/pages/SavedChats";
 import MatchScouting from "@/pages/MatchScouting";
 import MatchScoutingReport from "@/pages/MatchScoutingReport";
 import ClubSettings from "@/pages/ClubSettings";
+import RecommendationBadgeShowcase from "@/pages/dev/RecommendationBadgeShowcase";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,6 +91,7 @@ function App() {
                 <Route path="player-pitches" element={<PlayerPitches />} />
                 <Route path="data-import" element={<DataImport />} />
               </Route>
+              <Route path="/dev/recommendation-badge" element={<ProtectedRoute><RecommendationBadgeShowcase /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
