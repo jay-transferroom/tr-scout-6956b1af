@@ -1,11 +1,25 @@
+import { useState } from "react";
 import { format, differenceInDays } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { GroupedMatchReport } from "@/hooks/useAllMatchScoutingReports";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, Calendar, Star, Pencil } from "lucide-react";
+import { Users, Calendar, Star, Pencil, Trash2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface MatchReportsTableProps {
   matchReports: GroupedMatchReport[];
