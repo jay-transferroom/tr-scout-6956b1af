@@ -1,5 +1,6 @@
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 
 export interface RecommendationValue {
   label: string;
@@ -37,6 +38,8 @@ export const RecommendationBadge = ({
   variant = "default",
   className,
 }: RecommendationBadgeProps) => {
+  const recommendationsActive = useRecommendationsActive();
+  if (!recommendationsActive) return null;
   const { label, colour } = value;
 
   if (variant === "dot") {
