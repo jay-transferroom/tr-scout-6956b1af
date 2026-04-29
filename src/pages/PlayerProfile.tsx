@@ -25,6 +25,7 @@ import { PlayerAlternativesTab } from "@/components/player-profile/PlayerAlterna
 import { PlayerRecentResults } from "@/components/player-profile/PlayerRecentResults";
 import { PlayerUpcomingFixtures } from "@/components/player-profile/PlayerUpcomingFixtures";
 import PlayerStatusActions from "@/components/PlayerStatusActions";
+import { PlayerRecommendationControl } from "@/components/PlayerRecommendationControl";
 
 const POSITION_MAP: Record<string, PositionKey> = {
   'Goalkeeper': 'GK', 'Keeper': 'GK',
@@ -129,6 +130,9 @@ const PlayerProfile = () => {
                         </Badge>
                       ))}
                     </div>
+                  </div>
+                  <div className="mt-1">
+                    <PlayerRecommendationControl playerId={player.id} />
                   </div>
                 </div>
 
