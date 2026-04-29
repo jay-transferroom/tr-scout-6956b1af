@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import RecommendationBadge, { RecommendationValue } from "@/components/RecommendationBadge";
 import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
+import { useChelseaUsers, useCurrentUser } from "@/hooks/useChelseaUsers";
 
 interface HistoryEntry {
   from: RecommendationValue | null;
@@ -23,33 +24,6 @@ interface HistoryEntry {
   user: string;
   date: Date;
 }
-
-const MOCK_HISTORY: HistoryEntry[] = [
-  {
-    from: { label: "Monitor", colour: "#EAB308" },
-    to: { label: "Sign", colour: "#22C55E" },
-    user: "Alex Morgan",
-    date: new Date(Date.now() - 1000 * 60 * 60 * 6),
-  },
-  {
-    from: { label: "Pass", colour: "#EF4444" },
-    to: { label: "Monitor", colour: "#EAB308" },
-    user: "Sam Carter",
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
-  },
-  {
-    from: null,
-    to: { label: "Pass", colour: "#EF4444" },
-    user: "Jordan Lee",
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10),
-  },
-  {
-    from: { label: "Monitor", colour: "#EAB308" },
-    to: null,
-    user: "Riley Chen",
-    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 21),
-  },
-];
 
 const formatHistoryDate = (date: Date): string =>
   date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
@@ -87,18 +61,54 @@ interface PlayerRecommendationControlProps {
 
 export const PlayerRecommendationControl = ({
   options = DEFAULT_OPTIONS,
-  currentUserName = "You",
+  currentUserName,
 }: PlayerRecommendationControlProps) => {
   const recommendationsActive = useRecommendationsActive();
+  const currentUser = useCurrentUser();
+  const chelseaUsers = useChelseaUsers();
   const [value, setValue] = useState<RecommendationValue | null>(null);
   const [attribution, setAttribution] = useState<Attribution | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
+
+  const resolvedCurrentName = currentUserName ?? currentUser.displayName;
+
+  // Seeded historical entries attributed to other Chelsea users for demo variety.
+  const otherUsers = chelseaUsers.filter((u) => u.id !== currentUser.id);
+  const pickUser = (i: number) =>
+    (otherUsers[i % otherUsers.length] ?? chelseaUsers[i % chelseaUsers.length]).displayName;
+
+  const mockHistory: HistoryEntry[] = [
+    {
+      from: { label: "Monitor", colour: "#EAB308" },
+      to: { label: "Sign", colour: "#22C55E" },
+      user: pickUser(0),
+      date: new Date(Date.now() - 1000 * 60 * 60 * 6),
+    },
+    {
+      from: { label: "Pass", colour: "#EF4444" },
+      to: { label: "Monitor", colour: "#EAB308" },
+      user: pickUser(1),
+      date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
+    },
+    {
+      from: null,
+      to: { label: "Pass", colour: "#EF4444" },
+      user: pickUser(2),
+      date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10),
+    },
+    {
+      from: { label: "Monitor", colour: "#EAB308" },
+      to: null,
+      user: pickUser(3),
+      date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 21),
+    },
+  ];
 
   if (!recommendationsActive) return null;
 
   const handleSelect = (opt: RecommendationValue) => {
     setValue(opt);
-    setAttribution({ user: currentUserName, date: new Date() });
+    setAttribution({ user: resolvedCurrentName, date: new Date() });
   };
 
   const handleClear = () => {
@@ -177,7 +187,7 @@ export const PlayerRecommendationControl = ({
             <DialogTitle>Recommendation history</DialogTitle>
           </DialogHeader>
           <ul className="flex flex-col divide-y divide-border">
-            {MOCK_HISTORY.map((entry, idx) => (
+            {mockHistory.map((entry, idx) => (
               <li key={idx} className="py-3 flex flex-col gap-1">
                 <div className="flex items-center gap-2 text-sm">
                   {entry.from ? (
