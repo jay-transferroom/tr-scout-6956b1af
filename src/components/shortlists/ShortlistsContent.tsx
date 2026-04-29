@@ -27,6 +27,7 @@ import { useReports } from "@/hooks/useReports";
 import { groupReportsByPlayer } from "@/utils/reportGrouping";
 import { RecommendationBadge } from "@/components/RecommendationBadge";
 import { getMockRecommendation } from "@/utils/mockRecommendations";
+import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 
 interface ShortlistsContentProps {
   currentList: any;
