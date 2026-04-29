@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 import { determinePlayerStatus, getStatusBadgeProps } from "@/utils/playerStatusUtils";
 import { AVAILABILITY_OPTIONS, type PlayerAvailability } from "@/hooks/useShortlists";
+import { getRecommendationRank } from "@/utils/mockRecommendations";
 
 interface UseShortlistsLogicProps {
   allPlayers: any[];
@@ -209,6 +210,18 @@ export const useShortlistsLogic = ({
   // Apply sorting
   const sortedPlayers = useMemo(() => {
     return [...availabilityFilteredPlayers].sort((a, b) => {
+      // Recommendation sort: unset always at the bottom regardless of order
+      if (sortBy === "recommendation") {
+        const aRank = getRecommendationRank(a.id.toString());
+        const bRank = getRecommendationRank(b.id.toString());
+        const aUnset = !isFinite(aRank);
+        const bUnset = !isFinite(bRank);
+        if (aUnset && bUnset) return 0;
+        if (aUnset) return 1;
+        if (bUnset) return -1;
+        return sortOrder === "asc" ? aRank - bRank : bRank - aRank;
+      }
+
       let aValue: any, bValue: any;
       
       switch (sortBy) {
