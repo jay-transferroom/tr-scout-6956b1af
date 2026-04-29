@@ -23,6 +23,8 @@ import AssignScoutDialog from "@/components/AssignScoutDialog";
 import ViewToggle from "@/components/ViewToggle";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { MatchPlayersSheet } from "@/components/MatchPlayersSheet";
+import { RecommendationBadge } from "@/components/RecommendationBadge";
+import { getMockRecommendation } from "@/utils/mockRecommendations";
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
 import { getMatchGradient } from "@/components/fixtures/FixtureCard";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
@@ -942,7 +944,13 @@ const Calendar = () => {
                                         />
                                         <ClubBadge clubName={player.club} size="sm" />
                                         <div className="flex-1">
-                                          <div className="text-sm font-medium">{player.name}</div>
+                                          <div className="text-sm font-medium flex items-center gap-1.5">
+                                            {player.name}
+                                            {(() => {
+                                              const rec = getMockRecommendation(player.id.toString());
+                                              return rec ? <RecommendationBadge value={rec} variant="dot" /> : null;
+                                            })()}
+                                          </div>
                                           <div className="text-xs text-muted-foreground">
                                             {player.club} • {player.positions?.[0] || 'Unknown'}
                                             {player.age && ` • ${player.age}y`}
@@ -1014,7 +1022,13 @@ const Calendar = () => {
                         />
                         <ClubBadge clubName={player.club} size="sm" />
                         <div className="flex-1">
-                          <div className="text-sm font-medium">{player.name}</div>
+                          <div className="text-sm font-medium flex items-center gap-1.5">
+                            {player.name}
+                            {(() => {
+                              const rec = getMockRecommendation(player.id.toString());
+                              return rec ? <RecommendationBadge value={rec} variant="dot" /> : null;
+                            })()}
+                          </div>
                           <div className="text-xs text-muted-foreground">
                             {player.club} • {player.positions?.[0] || 'Unknown'}
                             {player.age && ` • ${player.age}y`}

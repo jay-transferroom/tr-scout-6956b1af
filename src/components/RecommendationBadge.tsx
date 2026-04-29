@@ -1,4 +1,4 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export interface RecommendationValue {
@@ -41,20 +41,22 @@ export const RecommendationBadge = ({
 
   if (variant === "dot") {
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span
-            role="img"
-            aria-label={label}
-            className={cn(
-              "inline-block h-2.5 w-2.5 rounded-full ring-1 ring-border/40 align-middle",
-              className
-            )}
-            style={{ backgroundColor: colour }}
-          />
-        </TooltipTrigger>
-        <TooltipContent>{label}</TooltipContent>
-      </Tooltip>
+      <TooltipProvider delayDuration={150}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span
+              role="img"
+              aria-label={label}
+              className={cn(
+                "inline-block h-2.5 w-2.5 rounded-full ring-1 ring-border/40 align-middle",
+                className
+              )}
+              style={{ backgroundColor: colour }}
+            />
+          </TooltipTrigger>
+          <TooltipContent>{label}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     );
   }
 
