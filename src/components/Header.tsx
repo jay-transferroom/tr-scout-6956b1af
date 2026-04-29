@@ -14,6 +14,7 @@ import NotificationsDropdown from "./NotificationsDropdown";
 import UnifiedPlayerSearch from "./UnifiedPlayerSearch";
 import { ScoutLogo } from './ScoutLogo';
 import { ClubBadge } from "@/components/ui/club-badge";
+import DemoUserSwitcher from "./DemoUserSwitcher";
 
 const Header = () => {
   const { profile, signOut } = useAuth();
@@ -53,6 +54,8 @@ const Header = () => {
             </div>
             
             <div className="flex items-center gap-2">
+              <DemoUserSwitcher />
+
               <NotificationsDropdown />
               
               <ClubBadge clubName="Chelsea F.C." size="sm" />

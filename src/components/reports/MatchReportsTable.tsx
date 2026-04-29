@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { GroupedMatchReport } from "@/hooks/useAllMatchScoutingReports";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCurrentUser } from "@/hooks/useChelseaUsers";
 import { Users, Calendar, Star, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -31,10 +32,11 @@ const SUBMITTED_EDIT_WINDOW_DAYS = 90;
 
 const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchReportsTableProps) => {
   const { user, profile } = useAuth();
+  const currentDemoUser = useCurrentUser();
   const queryClient = useQueryClient();
   const [pendingDelete, setPendingDelete] = useState<GroupedMatchReport | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const isManager = profile?.role === "recruitment" || profile?.role === "director";
+  const isManager = currentDemoUser.role === "recruitment" || currentDemoUser.role === "director";
 
   const handleConfirmDelete = async () => {
     if (!pendingDelete) return;
