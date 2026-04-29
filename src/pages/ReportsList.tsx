@@ -37,6 +37,8 @@ const ReportsList = () => {
   const [selectedPlayerName, setSelectedPlayerName] = useState<string>("");
   const [playerReportsModalOpen, setPlayerReportsModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<GroupedMatchReport | null>(null);
+  const [matchSubTab, setMatchSubTab] = useState<"submitted" | "drafts">("submitted");
+  const { user } = useAuth();
   const [searchFilters, setSearchFilters] = useState<ReportsFilterCriteria>({
     searchTerm: '',
     playerName: '',
