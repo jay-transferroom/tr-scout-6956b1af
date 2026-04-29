@@ -18,6 +18,7 @@ import { useAllMatchScoutingReports, GroupedMatchReport } from "@/hooks/useAllMa
 import { SlidingToggle } from "@/components/ui/sliding-toggle";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getRecommendationRank } from "@/utils/mockRecommendations";
+import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 import { List, Users, ClipboardList } from "lucide-react";
 
 // Reports List Component
@@ -27,6 +28,8 @@ const ReportsList = () => {
   const [activeTab, setActiveTab] = useState("all-reports");
   const [viewMode, setViewMode] = useState<"individual" | "grouped" | "match">("individual");
   const [sortBy, setSortBy] = useState<"default" | "recommendation">("default");
+  const recommendationsActive = useRecommendationsActive();
+  const effectiveSortBy = recommendationsActive ? sortBy : "default";
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [selectedPlayerName, setSelectedPlayerName] = useState<string>("");
