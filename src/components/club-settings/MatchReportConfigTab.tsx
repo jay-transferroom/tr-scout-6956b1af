@@ -82,7 +82,7 @@ const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabPr
     try {
       await saveConfigMutation.mutateAsync(config);
       setSavedSnapshot(JSON.stringify(config));
-      toast({ title: "Changes Saved", description: "Your match report configuration has been saved." });
+      toast({ title: "Match report configuration saved" });
     } catch {
       toast({ title: "Error", description: "Failed to save configuration.", variant: "destructive" });
     }
@@ -259,11 +259,15 @@ const MatchReportConfigTab = ({ availableRatingSystems }: MatchReportConfigTabPr
       </Card>
 
       <div className="flex items-center gap-2 justify-end">
-        {hasChanges && (
-          <Button variant="ghost" size="sm" onClick={handleClearChanges} className="gap-1 text-xs h-8">
-            <Undo2 size={14} /> Clear changes
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleClearChanges}
+          disabled={!hasChanges || saveConfigMutation.isPending}
+          className="gap-1 text-xs h-8"
+        >
+          <Undo2 size={14} /> Clear changes
+        </Button>
         <Button
           size="sm"
           onClick={handleSave}
