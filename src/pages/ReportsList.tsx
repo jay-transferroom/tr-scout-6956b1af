@@ -16,6 +16,8 @@ import { getRecommendation } from "@/utils/reportDataExtraction";
 import { groupReportsByPlayer } from "@/utils/reportGrouping";
 import { useAllMatchScoutingReports, GroupedMatchReport } from "@/hooks/useAllMatchScoutingReports";
 import { SlidingToggle } from "@/components/ui/sliding-toggle";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getRecommendationRank } from "@/utils/mockRecommendations";
 import { List, Users, ClipboardList } from "lucide-react";
 
 // Reports List Component
