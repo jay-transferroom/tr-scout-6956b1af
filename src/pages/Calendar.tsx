@@ -49,7 +49,8 @@ const Calendar = () => {
   const [matchScoutingOpen, setMatchScoutingOpen] = useState(false);
   const [scoutingFixture, setScoutingFixture] = useState<Fixture | null>(null);
 
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
+  const { data: matchScoutingReports = [] } = useAllMatchScoutingReports();
   const { toast } = useToast();
   const { data: fixtures = [] } = useFixturesData();
   const { data: scouts = [] } = useScoutUsers();
