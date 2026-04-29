@@ -118,11 +118,12 @@ const ReportsList = () => {
         }))
         .filter((m) => m.reports.length > 0);
     }
-    // Submitted: any submitted report (rating !== null), respects existing role-based visibility from hook
+    // "My Submitted": current user's submitted reports (rating !== null).
+    // Role-based visibility for other users' submitted reports is preserved by the underlying hook.
     return sortedMatchReports
       .map((m) => ({
         ...m,
-        reports: m.reports.filter((r) => r.rating !== null),
+        reports: m.reports.filter((r) => r.scout_id === user?.id && r.rating !== null),
       }))
       .filter((m) => m.reports.length > 0);
   }, [sortedMatchReports, matchSubTab, user?.id]);
