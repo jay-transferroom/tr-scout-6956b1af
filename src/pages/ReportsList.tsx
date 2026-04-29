@@ -320,7 +320,11 @@ const ReportsList = () => {
                     <TabsTrigger value="drafts">My Drafts</TabsTrigger>
                   </TabsList>
                 </Tabs>
-                <MatchReportsTable matchReports={visibleMatchReports} onSelectMatch={(m) => setSelectedMatch(m)} />
+                <MatchReportsTable
+                  matchReports={visibleMatchReports}
+                  onSelectMatch={(m) => setSelectedMatch(m)}
+                  onEditMatch={(m) => setEditingMatch(m)}
+                />
               </div>
             )
           ) : viewMode === "individual" ? (
