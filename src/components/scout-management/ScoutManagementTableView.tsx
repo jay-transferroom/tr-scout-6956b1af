@@ -36,9 +36,11 @@ const ScoutManagementTableView = ({
   const validColumnIds = useMemo(() => new Set(pipelineColumns.map((c) => c.id)), [pipelineColumns]);
 
   // If the active filter chip references a column that no longer exists, fall back to "all".
-  if (statusFilter !== "all" && !validColumnIds.has(statusFilter)) {
-    setStatusFilter("all");
-  }
+  useEffect(() => {
+    if (statusFilter !== "all" && !validColumnIds.has(statusFilter)) {
+      setStatusFilter("all");
+    }
+  }, [statusFilter, validColumnIds]);
 
   const resolveStage = (player: any, defaultCol: string) => {
     const override = stageOverrides[player.id];
