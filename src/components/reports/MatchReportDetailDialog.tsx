@@ -196,15 +196,6 @@ const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetai
                         {!report.notes && report.rating !== null && (
                           <p className="text-xs text-muted-foreground italic pl-5">No notes provided</p>
                         )}
-                        {report.notes && (
-                          <div className="flex items-start gap-2 text-sm">
-                            <MessageSquare className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
-                            <p className="text-foreground">{report.notes}</p>
-                          </div>
-                        )}
-                        {!report.notes && report.rating !== null && (
-                          <p className="text-xs text-muted-foreground italic pl-5">No notes provided</p>
-                        )}
                       </div>
                     );
                   })}
