@@ -736,6 +736,7 @@ const ShortlistPlayerRow = ({
   onAddToNewList?: (playerId: string) => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
+  const recommendationsActive = useRecommendationsActive();
 
   return (
     <TableRow className={isSelected ? "bg-primary/5" : ""}>
