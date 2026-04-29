@@ -90,6 +90,9 @@ const ClubSettings = () => {
             <TabsContent value="recommendations">
               <RecommendationsTab />
             </TabsContent>
+            <TabsContent value="pipeline">
+              <PipelineTab />
+            </TabsContent>
             <TabsContent value="users">
               <UserManagementTab />
             </TabsContent>
