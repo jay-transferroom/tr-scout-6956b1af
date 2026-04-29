@@ -57,6 +57,10 @@ const ClubSettings = () => {
                 <ThumbsUp className="h-4 w-4" />
                 Recommendations
               </TabsTrigger>
+              <TabsTrigger value="pipeline" className="gap-2">
+                <Workflow className="h-4 w-4" />
+                Pipeline
+              </TabsTrigger>
               <TabsTrigger value="users" className="gap-2">
                 <Shield className="h-4 w-4" />
                 User Management
