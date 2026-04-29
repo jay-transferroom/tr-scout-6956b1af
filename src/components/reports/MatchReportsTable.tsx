@@ -1,15 +1,23 @@
-import { format } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { GroupedMatchReport } from "@/hooks/useAllMatchScoutingReports";
-import { Users, Calendar, Star } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Users, Calendar, Star, Pencil } from "lucide-react";
 
 interface MatchReportsTableProps {
   matchReports: GroupedMatchReport[];
   onSelectMatch?: (match: GroupedMatchReport) => void;
+  onEditMatch?: (match: GroupedMatchReport) => void;
 }
 
-const MatchReportsTable = ({ matchReports, onSelectMatch }: MatchReportsTableProps) => {
+const SUBMITTED_EDIT_WINDOW_DAYS = 90;
+
+const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchReportsTableProps) => {
+  const { user } = useAuth();
+
   if (matchReports.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -31,6 +39,7 @@ const MatchReportsTable = ({ matchReports, onSelectMatch }: MatchReportsTablePro
             <TableHead className="text-center">Avg Rating</TableHead>
             <TableHead>Scouts</TableHead>
             <TableHead>Last Updated</TableHead>
+            <TableHead className="w-[60px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -52,6 +61,28 @@ const MatchReportsTable = ({ matchReports, onSelectMatch }: MatchReportsTablePro
             );
 
             const isSubmitted = match.reports.some((r) => r.rating !== null);
+
+            // Edit eligibility for the current user.
+            // Drafts: always editable by their author.
+            // Submitted: editable by author within 90 days from earliest submitted updated_at (proxy for SubmittedAt).
+            const myReports = user ? match.reports.filter((r) => r.scout_id === user.id) : [];
+            const myDraftReports = myReports.filter((r) => r.rating === null);
+            const mySubmittedReports = myReports.filter((r) => r.rating !== null);
+            const earliestSubmittedAt = mySubmittedReports.length
+              ? mySubmittedReports.reduce((min, r) => {
+                  const d = new Date(r.updated_at);
+                  return d < min ? d : min;
+                }, new Date(mySubmittedReports[0].updated_at))
+              : null;
+            const submittedWithinWindow = earliestSubmittedAt
+              ? differenceInDays(new Date(), earliestSubmittedAt) <= SUBMITTED_EDIT_WINDOW_DAYS
+              : false;
+            const canEdit = myDraftReports.length > 0 || submittedWithinWindow;
+            const editTooltip = myDraftReports.length > 0
+              ? "Edit draft"
+              : submittedWithinWindow
+                ? `Edit submitted report (within ${SUBMITTED_EDIT_WINDOW_DAYS}-day window)`
+                : "";
 
             return (
               <TableRow key={match.match_identifier} className="cursor-pointer hover:bg-muted/50" onClick={() => onSelectMatch?.(match)}>
@@ -107,6 +138,26 @@ const MatchReportsTable = ({ matchReports, onSelectMatch }: MatchReportsTablePro
                   <span className="text-sm text-muted-foreground">
                     {format(latestUpdate, "dd MMM yyyy HH:mm")}
                   </span>
+                </TableCell>
+                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                  {canEdit ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => onEditMatch?.(match)}
+                            aria-label={editTooltip}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{editTooltip}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : null}
                 </TableCell>
               </TableRow>
             );

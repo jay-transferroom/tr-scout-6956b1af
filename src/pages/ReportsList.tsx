@@ -9,6 +9,7 @@ import ReportsTabNavigation from "@/components/reports/ReportsTabNavigation";
 import ReportsTable from "@/components/reports/ReportsTable";
 import GroupedReportsTable from "@/components/reports/GroupedReportsTable";
 import MatchReportsTable from "@/components/reports/MatchReportsTable";
+import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
 import PlayerReportsModal from "@/components/reports/PlayerReportsModal";
 import MatchReportDetailDialog from "@/components/reports/MatchReportDetailDialog";
 import ReportsFilters, { ReportsFilterCriteria } from "@/components/reports/ReportsFilters";
@@ -37,6 +38,7 @@ const ReportsList = () => {
   const [selectedPlayerName, setSelectedPlayerName] = useState<string>("");
   const [playerReportsModalOpen, setPlayerReportsModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<GroupedMatchReport | null>(null);
+  const [editingMatch, setEditingMatch] = useState<GroupedMatchReport | null>(null);
   const [matchSubTab, setMatchSubTab] = useState<"submitted" | "drafts">("submitted");
   const { user } = useAuth();
   const [searchFilters, setSearchFilters] = useState<ReportsFilterCriteria>({
@@ -318,7 +320,11 @@ const ReportsList = () => {
                     <TabsTrigger value="drafts">My Drafts</TabsTrigger>
                   </TabsList>
                 </Tabs>
-                <MatchReportsTable matchReports={visibleMatchReports} onSelectMatch={(m) => setSelectedMatch(m)} />
+                <MatchReportsTable
+                  matchReports={visibleMatchReports}
+                  onSelectMatch={(m) => setSelectedMatch(m)}
+                  onEditMatch={(m) => setEditingMatch(m)}
+                />
               </div>
             )
           ) : viewMode === "individual" ? (
@@ -411,6 +417,16 @@ const ReportsList = () => {
         open={!!selectedMatch}
         onOpenChange={(open) => { if (!open) setSelectedMatch(null); }}
       />
+
+      {editingMatch && (
+        <MatchScoutingDrawer
+          open={!!editingMatch}
+          onOpenChange={(open) => { if (!open) setEditingMatch(null); }}
+          homeTeam={editingMatch.homeTeam}
+          awayTeam={editingMatch.awayTeam}
+          matchDate={editingMatch.matchDate}
+        />
+      )}
     </div>
   );
 };
