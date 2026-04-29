@@ -1,11 +1,25 @@
+import { useState } from "react";
 import { format, differenceInDays } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { GroupedMatchReport } from "@/hooks/useAllMatchScoutingReports";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, Calendar, Star, Pencil } from "lucide-react";
+import { Users, Calendar, Star, Pencil, Trash2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface MatchReportsTableProps {
   matchReports: GroupedMatchReport[];
@@ -16,7 +30,28 @@ interface MatchReportsTableProps {
 const SUBMITTED_EDIT_WINDOW_DAYS = 90;
 
 const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchReportsTableProps) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const queryClient = useQueryClient();
+  const [pendingDelete, setPendingDelete] = useState<GroupedMatchReport | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const isManager = profile?.role === "recruitment" || profile?.role === "director";
+
+  const handleConfirmDelete = async () => {
+    if (!pendingDelete) return;
+    setIsDeleting(true);
+    const { error } = await supabase
+      .from("match_scouting_reports")
+      .delete()
+      .eq("match_identifier", pendingDelete.match_identifier);
+    setIsDeleting(false);
+    if (error) {
+      toast.error("Failed to delete match report");
+      return;
+    }
+    await queryClient.invalidateQueries({ queryKey: ["all-match-scouting-reports"] });
+    toast.success("Match report deleted");
+    setPendingDelete(null);
+  };
 
   if (matchReports.length === 0) {
     return (
@@ -140,30 +175,74 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
                   </span>
                 </TableCell>
                 <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                  {canEdit ? (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => onEditMatch?.(match)}
-                            aria-label={editTooltip}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>{editTooltip}</TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ) : null}
+                  <div className="flex items-center justify-end gap-1">
+                    {canEdit ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => onEditMatch?.(match)}
+                              aria-label={editTooltip}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>{editTooltip}</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : null}
+                    {isManager ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                              onClick={() => setPendingDelete(match)}
+                              aria-label="Delete match report"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Delete match report</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : null}
+                  </div>
                 </TableCell>
               </TableRow>
             );
           })}
         </TableBody>
       </Table>
+
+      <AlertDialog open={!!pendingDelete} onOpenChange={(open) => !open && !isDeleting && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this match report?</AlertDialogTitle>
+            <AlertDialogDescription>
+              All player ratings will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleConfirmDelete();
+              }}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
