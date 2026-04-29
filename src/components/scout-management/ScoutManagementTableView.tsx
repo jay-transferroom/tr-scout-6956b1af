@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Eye, UserPlus, CheckCircle, FileText, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { ClubBadge } from "@/components/ui/club-badge";
+import { cn } from "@/lib/utils";
+import { usePipelineColumns } from "@/hooks/usePipelineColumns";
 
 interface TableViewProps {
   kanbanData: {
@@ -28,13 +30,34 @@ const ScoutManagementTableView = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [sortColumn, setSortColumn] = useState<string>("updatedAt");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  
+  const [pipelineColumns] = usePipelineColumns();
+  const [stageOverrides, setStageOverrides] = useState<Record<string, string>>({});
+
+  const validColumnIds = useMemo(() => new Set(pipelineColumns.map((c) => c.id)), [pipelineColumns]);
+
+  // If the active filter chip references a column that no longer exists, fall back to "all".
+  useEffect(() => {
+    if (statusFilter !== "all" && !validColumnIds.has(statusFilter)) {
+      setStatusFilter("all");
+    }
+  }, [statusFilter, validColumnIds]);
+
+  const resolveStage = (player: any, defaultCol: string) => {
+    const override = stageOverrides[player.id];
+    if (override && validColumnIds.has(override)) return override;
+    return validColumnIds.has(defaultCol) ? defaultCol : (pipelineColumns[0]?.id ?? defaultCol);
+  };
+
+  const handleStageChange = (playerId: string, nextColumnId: string) => {
+    setStageOverrides((prev) => ({ ...prev, [playerId]: nextColumnId }));
+  };
+
   // Combine all assignments from different columns
   // Keep the original status and add a kanbanColumn property for filtering
   const allAssignments = [
-    ...kanbanData.shortlisted.map(p => ({ ...p, kanbanColumn: 'shortlisted' })),
-    ...kanbanData.assigned.map(p => ({ ...p, kanbanColumn: 'assigned' })),
-    ...kanbanData.completed.map(p => ({ ...p, kanbanColumn: 'completed' }))
+    ...kanbanData.shortlisted.map(p => ({ ...p, kanbanColumn: resolveStage(p, 'shortlisted') })),
+    ...kanbanData.assigned.map(p => ({ ...p, kanbanColumn: resolveStage(p, 'assigned') })),
+    ...kanbanData.completed.map(p => ({ ...p, kanbanColumn: resolveStage(p, 'completed') })),
   ];
 
   const PlayerRow = ({ assignment }: { assignment: any }) => {
@@ -73,7 +96,7 @@ const ScoutManagementTableView = ({
         <td className="p-4">{assignment.position}</td>
         <td className="p-4">
           <div className="flex items-center">
-            {getStatusBadge(assignment.kanbanColumn)}
+            {renderStageDropdown(assignment)}
             {getPriorityBadge(assignment.priority)}
           </div>
         </td>
@@ -235,15 +258,27 @@ const ScoutManagementTableView = ({
       <ArrowDown className="h-4 w-4 ml-1" />;
   };
 
-  const getStatusBadge = (kanbanColumn: string) => {
-    const statusConfig = {
-      shortlisted: { label: "Marked for Scouting", variant: "secondary" as const },
-      assigned: { label: "Assigned", variant: "default" as const },
-      completed: { label: "Completed", variant: "default" as const }
-    };
-    
-    const config = statusConfig[kanbanColumn as keyof typeof statusConfig];
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+  const renderStageDropdown = (assignment: any) => {
+    const value = validColumnIds.has(assignment.kanbanColumn)
+      ? assignment.kanbanColumn
+      : pipelineColumns[0]?.id;
+    return (
+      <Select
+        value={value}
+        onValueChange={(next) => handleStageChange(assignment.id, next)}
+      >
+        <SelectTrigger className="h-8 w-[180px] text-xs">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {pipelineColumns.map((c) => (
+            <SelectItem key={c.id} value={c.id} className="text-xs">
+              {c.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
   };
 
   const getPriorityBadge = (priority: string | null) => {
@@ -263,20 +298,44 @@ const ScoutManagementTableView = ({
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
+      {/* Filter chips — reflect the configured pipeline columns */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setStatusFilter("all")}
+          className={cn(
+            "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+            statusFilter === "all"
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-border bg-muted/40 text-muted-foreground hover:bg-muted"
+          )}
+        >
+          All
+        </button>
+        {pipelineColumns.map((c) => {
+          const active = statusFilter === c.id;
+          const count = allAssignments.filter((a) => a.kanbanColumn === c.id).length;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => setStatusFilter(c.id)}
+              className={cn(
+                "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                active
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-muted/40 text-muted-foreground hover:bg-muted"
+              )}
+            >
+              {c.name}
+              <span className={cn("ml-1.5", active ? "opacity-90" : "opacity-70")}>{count}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Search */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="shortlisted">Marked for Scouting</SelectItem>
-            <SelectItem value="assigned">Assigned</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-          </SelectContent>
-        </Select>
-        
         <Input
           placeholder="Search players, clubs, or scouts..."
           value={searchTerm}
@@ -402,7 +461,7 @@ const ScoutManagementTableView = ({
               
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  {getStatusBadge(assignment.kanbanColumn)}
+                  {renderStageDropdown(assignment)}
                   {getPriorityBadge(assignment.priority)}
                 </div>
                 
