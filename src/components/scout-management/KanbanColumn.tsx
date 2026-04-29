@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal } from "lucide-react";
@@ -17,6 +16,10 @@ interface KanbanColumnProps {
   onAssignScout?: (player: any) => void;
   onViewReport?: (player: any) => void;
   onMarkAsReviewed?: (player: any) => void;
+  onCardDragStart?: (playerId: string, fromColumnId: string) => void;
+  onCardDrop?: (toColumnId: string) => void;
+  isDropTarget?: boolean;
+  emptyMessage?: string;
 }
 
 const KanbanColumn = ({
@@ -26,8 +29,24 @@ const KanbanColumn = ({
   selectedScout,
   onAssignScout,
   onViewReport,
-  onMarkAsReviewed
+  onMarkAsReviewed,
+  onCardDragStart,
+  onCardDrop,
+  isDropTarget,
+  emptyMessage,
 }: KanbanColumnProps) => {
+  const handleDragOver = (e: React.DragEvent) => {
+    if (!onCardDrop) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    if (!onCardDrop) return;
+    e.preventDefault();
+    onCardDrop(column.id);
+  };
+
   return (
     <div className="flex flex-col">
       {/* Column Header */}
@@ -45,22 +64,38 @@ const KanbanColumn = ({
       </div>
 
       {/* Column Content */}
-      <div className="flex-1 min-h-[300px] md:min-h-[400px] rounded-lg p-2 md:p-3 bg-muted/50 border-2 border-transparent">
+      <div
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        className={[
+          "flex-1 min-h-[300px] md:min-h-[400px] rounded-lg p-2 md:p-3 bg-muted/50 border-2 transition-colors",
+          isDropTarget ? "border-primary" : "border-transparent",
+        ].join(" ")}
+      >
         {players.length > 0 ? (
           players.map((player) => (
-            <PlayerCard 
-              key={player.id} 
-              player={player} 
-              onAssignScout={onAssignScout}
-              onViewReport={onViewReport}
-              onMarkAsReviewed={onMarkAsReviewed}
-            />
+            <div
+              key={player.id}
+              draggable={!!onCardDragStart}
+              onDragStart={(e) => {
+                if (!onCardDragStart) return;
+                e.dataTransfer.effectAllowed = "move";
+                onCardDragStart(player.id, column.id);
+              }}
+            >
+              <PlayerCard
+                player={player}
+                onAssignScout={onAssignScout}
+                onViewReport={onViewReport}
+                onMarkAsReviewed={onMarkAsReviewed}
+              />
+            </div>
           ))
         ) : (
           <div className="flex items-center justify-center h-32 text-muted-foreground text-xs md:text-sm border-2 border-dashed border-muted-foreground/20 rounded-lg p-4">
-            {searchTerm || selectedScout !== "all" ? "No matching assignments" : 
-             column.id === 'shortlisted' ? "No shortlisted players" :
-             column.id === 'assigned' ? "No assigned players" : "No completed assignments"}
+            {searchTerm || selectedScout !== "all"
+              ? "No matching assignments"
+              : emptyMessage || "No items"}
           </div>
         )}
       </div>
