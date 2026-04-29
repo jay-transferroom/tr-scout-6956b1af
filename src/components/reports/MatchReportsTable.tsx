@@ -15,7 +15,9 @@ interface MatchReportsTableProps {
 
 const SUBMITTED_EDIT_WINDOW_DAYS = 90;
 
-const MatchReportsTable = ({ matchReports, onSelectMatch }: MatchReportsTableProps) => {
+const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchReportsTableProps) => {
+  const { user } = useAuth();
+
   if (matchReports.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
