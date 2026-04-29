@@ -223,16 +223,17 @@ const ReportsList = () => {
         <ReportsTabNavigation onTabChange={setActiveTab} activeTab={activeTab} />
         
         <div className="flex items-center gap-2">
-          <Select value={sortBy} onValueChange={(v) => setSortBy(v as "default" | "recommendation")}>
-            <SelectTrigger className="h-9 w-[180px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="default">Sort: Default</SelectItem>
-              <SelectItem value="recommendation">Sort: Recommendation</SelectItem>
-            </SelectContent>
-          </Select>
-
+          {recommendationsActive && (
+            <Select value={sortBy} onValueChange={(v) => setSortBy(v as "default" | "recommendation")}>
+              <SelectTrigger className="h-9 w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Sort: Default</SelectItem>
+                <SelectItem value="recommendation">Sort: Recommendation</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
           <SlidingToggle
             value={viewMode}
             onChange={(value) => setViewMode(value as "individual" | "grouped" | "match")}
