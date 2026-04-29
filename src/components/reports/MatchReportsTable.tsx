@@ -30,7 +30,28 @@ interface MatchReportsTableProps {
 const SUBMITTED_EDIT_WINDOW_DAYS = 90;
 
 const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchReportsTableProps) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const queryClient = useQueryClient();
+  const [pendingDelete, setPendingDelete] = useState<GroupedMatchReport | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const isManager = profile?.role === "recruitment" || profile?.role === "director";
+
+  const handleConfirmDelete = async () => {
+    if (!pendingDelete) return;
+    setIsDeleting(true);
+    const { error } = await supabase
+      .from("match_scouting_reports")
+      .delete()
+      .eq("match_identifier", pendingDelete.match_identifier);
+    setIsDeleting(false);
+    if (error) {
+      toast.error("Failed to delete match report");
+      return;
+    }
+    await queryClient.invalidateQueries({ queryKey: ["all-match-scouting-reports"] });
+    toast.success("Match report deleted");
+    setPendingDelete(null);
+  };
 
   if (matchReports.length === 0) {
     return (
