@@ -30,13 +30,32 @@ const ScoutManagementTableView = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [sortColumn, setSortColumn] = useState<string>("updatedAt");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  
+  const [pipelineColumns] = usePipelineColumns();
+  const [stageOverrides, setStageOverrides] = useState<Record<string, string>>({});
+
+  const validColumnIds = useMemo(() => new Set(pipelineColumns.map((c) => c.id)), [pipelineColumns]);
+
+  // If the active filter chip references a column that no longer exists, fall back to "all".
+  if (statusFilter !== "all" && !validColumnIds.has(statusFilter)) {
+    setStatusFilter("all");
+  }
+
+  const resolveStage = (player: any, defaultCol: string) => {
+    const override = stageOverrides[player.id];
+    if (override && validColumnIds.has(override)) return override;
+    return validColumnIds.has(defaultCol) ? defaultCol : (pipelineColumns[0]?.id ?? defaultCol);
+  };
+
+  const handleStageChange = (playerId: string, nextColumnId: string) => {
+    setStageOverrides((prev) => ({ ...prev, [playerId]: nextColumnId }));
+  };
+
   // Combine all assignments from different columns
   // Keep the original status and add a kanbanColumn property for filtering
   const allAssignments = [
-    ...kanbanData.shortlisted.map(p => ({ ...p, kanbanColumn: 'shortlisted' })),
-    ...kanbanData.assigned.map(p => ({ ...p, kanbanColumn: 'assigned' })),
-    ...kanbanData.completed.map(p => ({ ...p, kanbanColumn: 'completed' }))
+    ...kanbanData.shortlisted.map(p => ({ ...p, kanbanColumn: resolveStage(p, 'shortlisted') })),
+    ...kanbanData.assigned.map(p => ({ ...p, kanbanColumn: resolveStage(p, 'assigned') })),
+    ...kanbanData.completed.map(p => ({ ...p, kanbanColumn: resolveStage(p, 'completed') })),
   ];
 
   const PlayerRow = ({ assignment }: { assignment: any }) => {
