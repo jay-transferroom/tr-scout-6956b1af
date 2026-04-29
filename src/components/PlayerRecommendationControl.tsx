@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import RecommendationBadge, { RecommendationValue } from "@/components/RecommendationBadge";
+import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 
 const DEFAULT_OPTIONS: RecommendationValue[] = [
   { label: "Sign", colour: "#22C55E" },
