@@ -51,11 +51,18 @@ const MatchReportsTable = ({ matchReports, onSelectMatch }: MatchReportsTablePro
               new Date(0)
             );
 
+            const isSubmitted = match.reports.some((r) => r.rating !== null);
+
             return (
               <TableRow key={match.match_identifier} className="cursor-pointer hover:bg-muted/50" onClick={() => onSelectMatch?.(match)}>
                 <TableCell>
-                  <div className="font-medium">
-                    {match.homeTeam} vs {match.awayTeam}
+                  <div className="flex items-center gap-2">
+                    <Badge variant={isSubmitted ? "default" : "secondary"} className="text-xs shrink-0">
+                      {isSubmitted ? "Submitted" : "Draft"}
+                    </Badge>
+                    <span className="font-medium">
+                      {match.homeTeam} vs {match.awayTeam}
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell>
