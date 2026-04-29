@@ -595,14 +595,16 @@ export const ShortlistsContent = ({
                 <TableHead>EU/GBE</TableHead>
                 <TableHead>Availability</TableHead>
                 <TableHead>Scouting Grade</TableHead>
-                <SortableTableHead
-                  column="recommendation"
-                  currentSort={sortBy}
-                  sortOrder={sortOrder}
-                  onSort={onSortByChange}
-                >
-                  Recommendation
-                </SortableTableHead>
+                {recommendationsActive && (
+                  <SortableTableHead
+                    column="recommendation"
+                    currentSort={sortBy}
+                    sortOrder={sortOrder}
+                    onSort={onSortByChange}
+                  >
+                    Recommendation
+                  </SortableTableHead>
+                )}
                 <TableHead>Scouts</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
