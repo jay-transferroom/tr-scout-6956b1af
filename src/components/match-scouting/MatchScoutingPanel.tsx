@@ -391,6 +391,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   const [selectedPlayerForFullReport, setSelectedPlayerForFullReport] = useState<Player | null>(null);
   const [playerDrafts, setPlayerDrafts] = useState<Record<string, { notes: string; rating: number | null; ratings?: Record<string, string> }>>({});
   const [draftHydrated, setDraftHydrated] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState<"draft" | "submitted">("draft");
   const dragSourceRef = useRef<string | null>(null);
   const dragTeamRef = useRef<"home" | "away" | null>(null);
   const prevMatchRef = useRef<string | null>(null);
