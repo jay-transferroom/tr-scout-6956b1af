@@ -112,6 +112,7 @@ export const ShortlistsContent = ({
   const [newListDescription, setNewListDescription] = useState("");
   const [presentationIndex, setPresentationIndex] = useState<number | null>(null);
   const { profile } = useAuth();
+  const recommendationsActive = useRecommendationsActive();
 
   // Check if user can manage shortlists (director or recruitment)
   const canManageShortlists = profile?.role === 'director' || profile?.role === 'recruitment';
