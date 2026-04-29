@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SlidersHorizontal, FileText, Shield, Upload, Star, ClipboardList, ThumbsUp } from "lucide-react";
+import { SlidersHorizontal, FileText, Shield, Upload, Star, ClipboardList, ThumbsUp, Workflow } from "lucide-react";
 import ClubRatingsTab from "@/components/club-settings/ClubRatingsTab";
 import RatingSystemsTab, { createDefaultNamedSystems } from "@/components/club-settings/RatingSystemsTab";
 import ScoutingTemplatesTab from "@/components/club-settings/ScoutingTemplatesTab";
 import MatchReportConfigTab from "@/components/club-settings/MatchReportConfigTab";
 import RecommendationsTab from "@/components/club-settings/RecommendationsTab";
+import PipelineTab from "@/components/club-settings/PipelineTab";
 import UserManagementTab from "@/components/club-settings/UserManagementTab";
 import DataImportTab from "@/components/club-settings/DataImportTab";
 import { useAuth } from "@/contexts/AuthContext";
@@ -56,6 +57,10 @@ const ClubSettings = () => {
                 <ThumbsUp className="h-4 w-4" />
                 Recommendations
               </TabsTrigger>
+              <TabsTrigger value="pipeline" className="gap-2">
+                <Workflow className="h-4 w-4" />
+                Pipeline
+              </TabsTrigger>
               <TabsTrigger value="users" className="gap-2">
                 <Shield className="h-4 w-4" />
                 User Management
@@ -84,6 +89,9 @@ const ClubSettings = () => {
             </TabsContent>
             <TabsContent value="recommendations">
               <RecommendationsTab />
+            </TabsContent>
+            <TabsContent value="pipeline">
+              <PipelineTab />
             </TabsContent>
             <TabsContent value="users">
               <UserManagementTab />
