@@ -107,6 +107,26 @@ const ReportsList = () => {
     });
   }, [matchReports, effectiveSortBy]);
 
+  // Sub-tab filtering for Match view
+  const visibleMatchReports = useMemo(() => {
+    if (matchSubTab === "drafts") {
+      // Author-only: only the current user's drafts (rating === null)
+      return sortedMatchReports
+        .map((m) => ({
+          ...m,
+          reports: m.reports.filter((r) => r.scout_id === user?.id && r.rating === null),
+        }))
+        .filter((m) => m.reports.length > 0);
+    }
+    // Submitted: any submitted report (rating !== null), respects existing role-based visibility from hook
+    return sortedMatchReports
+      .map((m) => ({
+        ...m,
+        reports: m.reports.filter((r) => r.rating !== null),
+      }))
+      .filter((m) => m.reports.length > 0);
+  }, [sortedMatchReports, matchSubTab, user?.id]);
+
   // Extract available filter options from reports
   const { availableVerdicts, availableScouts, availableClubs, availablePositions, availablePlayerNames } = useMemo(() => {
     const verdicts = new Set<string>();
