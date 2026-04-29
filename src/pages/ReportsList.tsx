@@ -79,16 +79,16 @@ const ReportsList = () => {
   const filteredReportsRaw = useReportsFilter(reports, activeTab, searchFilters);
 
   const filteredReports = useMemo(() => {
-    if (sortBy !== "recommendation") return filteredReportsRaw;
+    if (effectiveSortBy !== "recommendation") return filteredReportsRaw;
     return [...filteredReportsRaw].sort((a, b) => {
       const aRank = getRecommendationRank(a.playerId);
       const bRank = getRecommendationRank(b.playerId);
       return aRank - bRank; // unset (Infinity) → bottom
     });
-  }, [filteredReportsRaw, sortBy]);
+  }, [filteredReportsRaw, effectiveSortBy]);
 
   const sortedMatchReports = useMemo(() => {
-    if (sortBy !== "recommendation") return matchReports;
+    if (effectiveSortBy !== "recommendation") return matchReports;
     // For Match view, sort matches by best (lowest rank) recommendation among their players
     return [...matchReports].sort((a, b) => {
       const aMin = Math.min(
@@ -101,7 +101,7 @@ const ReportsList = () => {
       );
       return aMin - bMin;
     });
-  }, [matchReports, sortBy]);
+  }, [matchReports, effectiveSortBy]);
 
   // Extract available filter options from reports
   const { availableVerdicts, availableScouts, availableClubs, availablePositions, availablePlayerNames } = useMemo(() => {
