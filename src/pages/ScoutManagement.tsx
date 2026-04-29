@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useScoutingAssignments } from "@/hooks/useScoutingAssignments";
 import { useScoutUsers } from "@/hooks/useScoutUsers";
@@ -6,6 +6,7 @@ import { useShortlists } from "@/hooks/useShortlists";
 import { useUnifiedPlayersData } from "@/hooks/useUnifiedPlayersData";
 import { useReports } from "@/hooks/useReports";
 import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
+import { usePipelineColumns } from "@/hooks/usePipelineColumns";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
 import { Button } from "@/components/ui/button";
 import ScoutManagementHeader from "@/components/scout-management/ScoutManagementHeader";
