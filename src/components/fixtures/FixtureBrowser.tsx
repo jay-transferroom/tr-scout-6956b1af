@@ -22,6 +22,9 @@ import { PlayerAvatar } from "@/components/ui/player-avatar";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { getMatchGradient } from "@/components/fixtures/FixtureCard";
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
+import { useAllMatchScoutingReports } from "@/hooks/useAllMatchScoutingReports";
+import { getMatchIdentifier } from "@/hooks/useMatchScoutingReports";
+import { loadMatchScoutingDraft } from "@/utils/matchScoutingDrafts";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
 
 // Map competition names to countries for matching
