@@ -33,12 +33,47 @@ const TRIGGER_OPTIONS: { value: RuleTrigger; label: string }[] = [
   { value: "manually_assigned", label: "When manually assigned" },
 ];
 
+interface ReferenceWorkflow {
+  id: string;
+  clubName: string;
+  stages: string[];
+}
+
+const REFERENCE_WORKFLOWS: ReferenceWorkflow[] = [
+  {
+    id: "kuopion",
+    clubName: "Kuopion",
+    stages: [
+      "WhatsApp Intake",
+      "Data Vetting",
+      "Video Scout",
+      "Live Scout",
+      "Manager Review",
+      "Decision",
+    ],
+  },
+];
+
 const PipelineTab = () => {
   const [columns, setColumns] = usePipelineColumns();
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const [rulesColumnId, setRulesColumnId] = useState<string | null>(null);
   const [draftRules, setDraftRules] = useState<PipelineRule[]>([]);
+
+  const handleLoadReference = (id: string) => {
+    const workflow = REFERENCE_WORKFLOWS.find((w) => w.id === id);
+    if (!workflow) return;
+    const now = Date.now();
+    setColumns(
+      workflow.stages.map((name, i) => ({
+        id: `col-${now}-${i}`,
+        name,
+        rules: [],
+      }))
+    );
+    toast.success(`Loaded ${workflow.clubName}'s reference workflow into your pipeline`);
+  };
 
   const handleNameChange = (id: string, name: string) => {
     setColumns((prev) => prev.map((c) => (c.id === id ? { ...c, name } : c)));
@@ -142,6 +177,25 @@ const PipelineTab = () => {
         <p className="text-sm text-muted-foreground">
           Configure the columns players move through. Drag to reorder.
         </p>
+      </div>
+
+      <div className="mb-6 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 rounded-md border bg-muted/30 px-3 py-3">
+        <div>
+          <div className="text-sm font-medium">Load reference workflow</div>
+          <div className="text-xs text-muted-foreground">Reference customer workflow</div>
+        </div>
+        <Select value="" onValueChange={handleLoadReference}>
+          <SelectTrigger className="h-9 w-full sm:w-64">
+            <SelectValue placeholder="Choose a club…" />
+          </SelectTrigger>
+          <SelectContent>
+            {REFERENCE_WORKFLOWS.map((w) => (
+              <SelectItem key={w.id} value={w.id}>
+                {w.clubName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex flex-col gap-2">
