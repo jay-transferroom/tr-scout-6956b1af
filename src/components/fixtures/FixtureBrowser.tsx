@@ -438,20 +438,30 @@ const FixtureBrowser: React.FC = () => {
                             </span>
                           )}
 
-                          {/* Match Report button */}
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 text-xs gap-1 shrink-0"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setScoutingFixture(fixture);
-                              setMatchScoutingOpen(true);
-                            }}
-                          >
-                            <ClipboardList className="h-3.5 w-3.5" />
-                            <span className="hidden sm:inline">Report</span>
-                          </Button>
+                          {/* Match Report button — hide if submitted, switch to amber Continue Draft if draft exists */}
+                          {(() => {
+                            const myReportStatus = getMyReportStatus(fixture);
+                            if (myReportStatus === 'submitted') return null;
+                            const isDraft = myReportStatus === 'draft';
+                            return (
+                              <Button
+                                size="sm"
+                                variant={isDraft ? "secondary" : "ghost"}
+                                className={cn(
+                                  "h-7 text-xs gap-1 shrink-0",
+                                  isDraft && "bg-amber-500 text-white hover:bg-amber-600"
+                                )}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setScoutingFixture(fixture);
+                                  setMatchScoutingOpen(true);
+                                }}
+                              >
+                                <ClipboardList className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">{isDraft ? "Continue draft" : "Report"}</span>
+                              </Button>
+                            );
+                          })()}
                         </div>
 
                         {/* Expanded detail panel */}
