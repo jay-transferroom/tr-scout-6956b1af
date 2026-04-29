@@ -151,7 +151,7 @@ export const PlayerRecommendationControl = ({
             <DialogTitle>Recommendation history</DialogTitle>
           </DialogHeader>
           <ul className="flex flex-col divide-y divide-border">
-            {MOCK_HISTORY.map((entry, idx) => (
+            {mockHistory.map((entry, idx) => (
               <li key={idx} className="py-3 flex flex-col gap-1">
                 <div className="flex items-center gap-2 text-sm">
                   {entry.from ? (
