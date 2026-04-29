@@ -379,17 +379,24 @@ const ScoutManagement = () => {
 
       {/* Status Board or Table View */}
       {currentView === 'kanban' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div
+          className="grid gap-6"
+          style={{ gridTemplateColumns: `repeat(${Math.max(1, columns.length)}, minmax(0, 1fr))` }}
+        >
           {columns.map((column) => (
             <KanbanColumn
               key={column.id}
               column={column}
-        players={kanbanData[column.id as keyof typeof kanbanData]}
-        searchTerm={searchTerm}
-        selectedScout={selectedScout}
-        onAssignScout={column.id === 'shortlisted' ? handleAssignScout : undefined}
-        onViewReport={column.id === 'completed' ? handleViewReport : undefined}
-        onMarkAsReviewed={column.id === 'completed' ? handleMarkAsReviewed : undefined}
+              players={playersByColumn[column.id] || []}
+              searchTerm={searchTerm}
+              selectedScout={selectedScout}
+              onAssignScout={column.id === 'shortlisted' ? handleAssignScout : undefined}
+              onViewReport={column.id === 'completed' ? handleViewReport : undefined}
+              onMarkAsReviewed={column.id === 'completed' ? handleMarkAsReviewed : undefined}
+              onCardDragStart={handleCardDragStart}
+              onCardDrop={handleCardDrop}
+              isDropTarget={!!draggingPlayerId}
+              emptyMessage={`No items in ${column.title}`}
             />
           ))}
         </div>
