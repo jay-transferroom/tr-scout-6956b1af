@@ -39,6 +39,7 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
             <TableHead className="text-center">Avg Rating</TableHead>
             <TableHead>Scouts</TableHead>
             <TableHead>Last Updated</TableHead>
+            <TableHead className="w-[60px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
