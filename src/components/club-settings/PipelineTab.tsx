@@ -20,11 +20,12 @@ import {
 } from "@/components/ui/select";
 import { GripVertical, Trash2, Plus, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-
-type RuleTrigger =
-  | "data_report_submitted"
-  | "video_report_submitted"
-  | "manually_assigned";
+import {
+  usePipelineColumns,
+  type PipelineColumn,
+  type PipelineRule,
+  type RuleTrigger,
+} from "@/hooks/usePipelineColumns";
 
 const TRIGGER_OPTIONS: { value: RuleTrigger; label: string }[] = [
   { value: "data_report_submitted", label: "When data report submitted" },
@@ -32,26 +33,8 @@ const TRIGGER_OPTIONS: { value: RuleTrigger; label: string }[] = [
   { value: "manually_assigned", label: "When manually assigned" },
 ];
 
-interface PipelineRule {
-  id: string;
-  trigger: RuleTrigger;
-  destinationColumnId: string | null;
-}
-
-interface PipelineColumn {
-  id: string;
-  name: string;
-  rules: PipelineRule[];
-}
-
-const SEED_COLUMNS: PipelineColumn[] = [
-  { id: "shortlisted", name: "Shortlisted", rules: [] },
-  { id: "assigned", name: "Assigned", rules: [] },
-  { id: "completed", name: "Completed", rules: [] },
-];
-
 const PipelineTab = () => {
-  const [columns, setColumns] = useState<PipelineColumn[]>(SEED_COLUMNS);
+  const [columns, setColumns] = usePipelineColumns();
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const [rulesColumnId, setRulesColumnId] = useState<string | null>(null);
