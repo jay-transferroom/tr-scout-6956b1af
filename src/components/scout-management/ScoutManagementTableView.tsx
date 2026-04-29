@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Eye, UserPlus, CheckCircle, FileText, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { ClubBadge } from "@/components/ui/club-badge";
+import { cn } from "@/lib/utils";
+import { usePipelineColumns } from "@/hooks/usePipelineColumns";
 
 interface TableViewProps {
   kanbanData: {
