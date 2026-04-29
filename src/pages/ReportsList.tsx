@@ -417,6 +417,16 @@ const ReportsList = () => {
         open={!!selectedMatch}
         onOpenChange={(open) => { if (!open) setSelectedMatch(null); }}
       />
+
+      {editingMatch && (
+        <MatchScoutingDrawer
+          open={!!editingMatch}
+          onOpenChange={(open) => { if (!open) setEditingMatch(null); }}
+          homeTeam={editingMatch.homeTeam}
+          awayTeam={editingMatch.awayTeam}
+          matchDate={editingMatch.matchDate}
+        />
+      )}
     </div>
   );
 };
