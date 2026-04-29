@@ -38,6 +38,7 @@ import MatchScouting from "@/pages/MatchScouting";
 import MatchScoutingReport from "@/pages/MatchScoutingReport";
 import ClubSettings from "@/pages/ClubSettings";
 import RecommendationBadgeShowcase from "@/pages/dev/RecommendationBadgeShowcase";
+import RecommendationsOffDemo from "@/pages/dev/RecommendationsOffDemo";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -92,6 +93,7 @@ function App() {
                 <Route path="data-import" element={<DataImport />} />
               </Route>
               <Route path="/dev/recommendation-badge" element={<ProtectedRoute><RecommendationBadgeShowcase /></ProtectedRoute>} />
+              <Route path="/demo/recommendations-off" element={<ProtectedRoute><RecommendationsOffDemo /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
