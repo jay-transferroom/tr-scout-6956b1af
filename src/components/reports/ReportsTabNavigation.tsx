@@ -16,20 +16,11 @@ const ReportsTabNavigation = ({ onTabChange, activeTab }: ReportsTabNavigationPr
   const { user, profile } = useAuth();
   const isManager = profile?.role !== 'scout';
 
-  // Count reports for current user
-  const myReports = reports.filter(report => report.scoutId === user?.id);
-  const reportDraftCount = myReports.filter(report => report.status === 'draft').length;
-
-  // Match drafts: rows in match_scouting_reports where rating is null and the
-  // current user authored them. These are surfaced under Match → My Drafts.
-  const matchDraftCount = matchReports.reduce((sum, m) => {
-    return (
-      sum +
-      m.reports.filter((r) => r.scout_id === user?.id && r.rating === null).length
-    );
-  }, 0);
-
-  const draftCount = reportDraftCount + matchDraftCount;
+  // `useReports` already merges match_scouting_reports into its result and
+  // assigns them status 'draft' or 'submitted' based on whether the primary
+  // rating has been filled. So we can derive all counts from the unified list
+  // without double-counting against `useAllMatchScoutingReports`.
+  const draftCount = myReports.filter(report => report.status === 'draft').length;
 
   const submittedCount = isManager
     ? reports.filter(r => r.status === 'submitted').length
