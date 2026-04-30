@@ -677,13 +677,25 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                 variant="outline"
                 className="flex-1"
                 onClick={async () => {
-                  // Persist every player draft entry (any with notes or rating)
-                  // to match_scouting_reports so it appears in /reports → My Drafts.
+                  // Persist every player draft entry (any with notes, rating,
+                  // or per-rating dropdown values) to match_scouting_reports
+                  // so it appears in /reports → Match → My Drafts and bumps
+                  // the global Drafts(N) counter.
                   const entries = Object.entries(playerDrafts).filter(
-                    ([, d]) => (d?.notes && d.notes.trim().length > 0) || d?.rating !== null
+                    ([, d]) =>
+                      (d?.notes && d.notes.trim().length > 0) ||
+                      d?.rating !== null ||
+                      (d?.ratings && Object.values(d.ratings).some((v) => v))
+                  );
+                  console.log(
+                    "[MatchScoutingPanel] Save Draft clicked — persisting",
+                    entries.length,
+                    "draft entries via upsertReport for match",
+                    matchIdentifier,
+                    entries.map(([id, d]) => ({ playerId: id, hasNotes: !!d?.notes?.trim(), rating: d?.rating ?? null }))
                   );
                   try {
-                    await Promise.all(
+                    const results = await Promise.all(
                       entries.map(([playerId, d]) =>
                         upsertReport.mutateAsync({
                           playerId,
@@ -692,13 +704,18 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                         })
                       )
                     );
+                    console.log(
+                      "[MatchScoutingPanel] upsertReport completed for",
+                      results.length,
+                      "rows"
+                    );
                     setSubmissionStatus("draft");
                     sonnerToast.success(
                       entries.length > 0 ? "Draft saved" : "No draft entries to save"
                     );
                     onClose();
                   } catch (err) {
-                    console.error("Failed to save match draft:", err);
+                    console.error("[MatchScoutingPanel] Failed to save match draft:", err);
                     sonnerToast.error("Failed to save draft");
                   }
                 }}
