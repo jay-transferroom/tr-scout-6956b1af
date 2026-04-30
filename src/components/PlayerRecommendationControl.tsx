@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import RecommendationBadge, { RecommendationValue } from "@/components/RecommendationBadge";
 import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
-import { useChelseaUsers, useCurrentUser } from "@/hooks/useChelseaUsers";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HistoryEntry {
   from: RecommendationValue | null;
@@ -64,18 +64,22 @@ export const PlayerRecommendationControl = ({
   currentUserName,
 }: PlayerRecommendationControlProps) => {
   const recommendationsActive = useRecommendationsActive();
-  const currentUser = useCurrentUser();
-  const chelseaUsers = useChelseaUsers();
+  const { profile } = useAuth();
   const [value, setValue] = useState<RecommendationValue | null>(null);
   const [attribution, setAttribution] = useState<Attribution | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
 
-  const resolvedCurrentName = currentUserName ?? currentUser.displayName;
+  const signedInName = [profile?.first_name, profile?.last_name]
+    .filter(Boolean)
+    .join(" ")
+    .trim() || profile?.email || "You";
+  const resolvedCurrentName = currentUserName ?? signedInName;
 
-  // Seeded historical entries attributed to other Chelsea users for demo variety.
-  const otherUsers = chelseaUsers.filter((u) => u.id !== currentUser.id);
-  const pickUser = (i: number) =>
-    (otherUsers[i % otherUsers.length] ?? chelseaUsers[i % chelseaUsers.length]).displayName;
+  // Seeded historical entries attributed to the other demo accounts so the
+  // demo shows a realistic mix of scouts and a manager having taken actions.
+  const DEMO_OTHERS = ["Oliver Smith", "Emma Johnson", "Dave Chester"]
+    .filter((n) => n !== signedInName);
+  const pickUser = (i: number) => DEMO_OTHERS[i % DEMO_OTHERS.length] ?? "Oliver Smith";
 
   const mockHistory: HistoryEntry[] = [
     {
