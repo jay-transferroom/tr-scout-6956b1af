@@ -676,10 +676,31 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
               <Button
                 variant="outline"
                 className="flex-1"
-                onClick={() => {
-                  setSubmissionStatus("draft");
-                  sonnerToast.success("Draft saved");
-                  onClose();
+                onClick={async () => {
+                  // Persist every player draft entry (any with notes or rating)
+                  // to match_scouting_reports so it appears in /reports → My Drafts.
+                  const entries = Object.entries(playerDrafts).filter(
+                    ([, d]) => (d?.notes && d.notes.trim().length > 0) || d?.rating !== null
+                  );
+                  try {
+                    await Promise.all(
+                      entries.map(([playerId, d]) =>
+                        upsertReport.mutateAsync({
+                          playerId,
+                          notes: d.notes?.trim() ? d.notes : null,
+                          rating: d.rating,
+                        })
+                      )
+                    );
+                    setSubmissionStatus("draft");
+                    sonnerToast.success(
+                      entries.length > 0 ? "Draft saved" : "No draft entries to save"
+                    );
+                    onClose();
+                  } catch (err) {
+                    console.error("Failed to save match draft:", err);
+                    sonnerToast.error("Failed to save draft");
+                  }
                 }}
               >
                 Save Draft
