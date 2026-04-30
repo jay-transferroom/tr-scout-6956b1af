@@ -430,6 +430,20 @@ const ScoutManagement = () => {
             currentView={currentView} 
             onViewChange={handleViewChange} 
           />
+          <div className="flex items-center gap-2 text-xs">
+            <button
+              type="button"
+              onClick={() => navigate("/club-settings?tab=pipeline")}
+              className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline focus:outline-none focus-visible:underline"
+            >
+              Manage pipeline
+            </button>
+            {pipelineColumns.length > 5 && (
+              <span className="text-muted-foreground">
+                · {pipelineColumns.length} columns
+              </span>
+            )}
+          </div>
         </div>
         <Button 
           variant="outline" 
