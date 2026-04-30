@@ -66,6 +66,14 @@ interface PlayerScoutingRowProps {
   ratingSystems: NamedRatingSystem[];
 }
 
+const hasFilledConfiguredRating = (ratings?: Record<string, string> | null) => {
+  return !!ratings && Object.values(ratings).some((value) => value != null && String(value).trim() !== "");
+};
+
+const hasAnyScoutingData = (draft: { notes?: string | null; rating?: number | null; ratings?: Record<string, string> | null }) => {
+  return !!draft.notes?.trim() || draft.rating !== null || hasFilledConfiguredRating(draft.ratings);
+};
+
 const TEAM_ALIASES: Record<string, string[]> = {
   "nottingham forest": ["nottm forest", "nott'm forest", "notts forest"],
   "manchester united": ["man utd", "man united"],
@@ -159,7 +167,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   matchReportConfig,
   ratingSystems,
 }) => {
-  const hasAnyData = (draftNotes ?? savedNotes).length > 0 || (draftRating ?? savedRating) !== null || (draftRatings && Object.values(draftRatings).some(v => v));
+  const hasAnyData = hasAnyScoutingData({ notes: draftNotes ?? savedNotes, rating: draftRating ?? savedRating, ratings: draftRatings });
   const [expanded, setExpanded] = useState(hasAnyData);
   const [notes, setNotes] = useState(draftNotes ?? savedNotes);
   const [rating, setRating] = useState<number | null>(draftRating ?? savedRating);
@@ -177,10 +185,10 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   }, [draftRating, savedRating]);
 
   useEffect(() => {
-    if ((draftNotes ?? savedNotes).length > 0 || (draftRating ?? savedRating) !== null) {
+    if (hasAnyScoutingData({ notes: draftNotes ?? savedNotes, rating: draftRating ?? savedRating, ratings: draftRatings })) {
       setExpanded(true);
     }
-  }, [draftNotes, savedNotes, draftRating, savedRating]);
+  }, [draftNotes, savedNotes, draftRating, savedRating, draftRatings]);
 
   useEffect(() => {
     setIsDirty(notes !== savedNotes || rating !== savedRating || JSON.stringify(ratings) !== JSON.stringify(draftRatings ?? {}));
@@ -198,7 +206,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
     }
 
     saveTimeoutRef.current = setTimeout(() => {
-      if (notes.trim() || rating !== null || Object.values(ratings).some(v => v)) {
+      if (hasAnyScoutingData({ notes, rating, ratings })) {
         onSave(player.id, notes, rating);
       }
     }, 2000);
@@ -362,7 +370,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
               size="sm"
               variant={isDirty ? "default" : "outline"}
               onClick={handleManualSave}
-              disabled={isSaving || (!notes.trim() && rating === null && !Object.values(ratings).some(v => v))}
+              disabled={isSaving || !hasAnyScoutingData({ notes, rating, ratings })}
               className="h-7 text-xs"
             >
               {isSaving ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Check className="mr-1 h-3 w-3" />}
@@ -472,8 +480,9 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   const handleSave = useCallback(
     (playerId: string, notes: string, rating: number | null) => {
       const draft = playerDrafts[playerId];
+      const ratings = draft?.ratings ?? null;
       upsertReport.mutate(
-        { playerId, notes: notes || null, rating, ratings: draft?.ratings ?? null },
+        { playerId, notes: notes.trim() ? notes : null, rating, ratings },
         {
           onSuccess: () => {
             clearPlayerDraft(playerId);
@@ -682,12 +691,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                   // or per-rating dropdown values) to match_scouting_reports
                   // so it appears in /reports → Match → My Drafts and bumps
                   // the global Drafts(N) counter.
-                  const entries = Object.entries(playerDrafts).filter(
-                    ([, d]) =>
-                      (d?.notes && d.notes.trim().length > 0) ||
-                      d?.rating !== null ||
-                      (d?.ratings && Object.values(d.ratings).some((v) => v))
-                  );
+                  const entries = Object.entries(playerDrafts).filter(([, d]) => hasAnyScoutingData(d));
                   console.log(
                     "[MatchScoutingPanel] Save Draft clicked — persisting",
                     entries.length,
@@ -695,37 +699,13 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                     matchIdentifier,
                     entries.map(([id, d]) => ({ playerId: id, hasNotes: !!d?.notes?.trim(), rating: d?.rating ?? null }))
                   );
-                  // Resolve the canonical "Overall Rating" config entry so we
-                  // can persist its numeric value to the top-level `rating`
-                  // column. This is what /reports → Match → My Drafts and the
-                  // "Players Scouted" counter read.
-                  const overallRatingConfig =
-                    matchReportConfig.ratings.find((r) => r.id === "default-overall") ||
-                    matchReportConfig.ratings.find(
-                      (r) => r.name.toLowerCase() === "overall rating"
-                    ) ||
-                    matchReportConfig.ratings[0];
-                  const overallRatingId = overallRatingConfig?.id;
-
-                  const resolveRating = (d: { rating: number | null; ratings?: Record<string, string> }): number | null => {
-                    if (d.rating !== null && d.rating !== undefined) return d.rating;
-                    if (overallRatingId && d.ratings) {
-                      const raw = d.ratings[overallRatingId];
-                      if (raw) {
-                        const parsed = parseFloat(raw);
-                        if (!Number.isNaN(parsed)) return parsed;
-                      }
-                    }
-                    return null;
-                  };
-
                   try {
                     const results = await Promise.all(
                       entries.map(([playerId, d]) =>
                         upsertReport.mutateAsync({
                           playerId,
                           notes: d.notes?.trim() ? d.notes : null,
-                          rating: resolveRating(d),
+                          rating: d.rating,
                           ratings: d.ratings ?? null,
                         })
                       )
