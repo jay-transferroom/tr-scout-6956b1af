@@ -2,6 +2,7 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { File, FileText, BookmarkCheck } from "lucide-react";
 import { useReports } from "@/hooks/useReports";
+import { useAllMatchScoutingReports } from "@/hooks/useAllMatchScoutingReports";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface ReportsTabNavigationProps {
@@ -11,27 +12,29 @@ interface ReportsTabNavigationProps {
 
 const ReportsTabNavigation = ({ onTabChange, activeTab }: ReportsTabNavigationProps) => {
   const { reports } = useReports();
+  const { data: matchReports = [] } = useAllMatchScoutingReports();
   const { user, profile } = useAuth();
   const isManager = profile?.role !== 'scout';
-  
+
   // Count reports for current user
   const myReports = reports.filter(report => report.scoutId === user?.id);
-  const draftCount = myReports.filter(report => report.status === 'draft').length;
+  const reportDraftCount = myReports.filter(report => report.status === 'draft').length;
+
+  // Match drafts: rows in match_scouting_reports where rating is null and the
+  // current user authored them. These are surfaced under Match → My Drafts.
+  const matchDraftCount = matchReports.reduce((sum, m) => {
+    return (
+      sum +
+      m.reports.filter((r) => r.scout_id === user?.id && r.rating === null).length
+    );
+  }, 0);
+
+  const draftCount = reportDraftCount + matchDraftCount;
+
   const submittedCount = isManager
     ? reports.filter(r => r.status === 'submitted').length
     : myReports.filter(report => report.status === 'submitted').length;
   const allCount = isManager ? reports.length : myReports.length;
-  
-  console.log('Tab Navigation Debug:', {
-    totalReports: reports.length,
-    myReports: myReports.length,
-    draftCount,
-    submittedCount,
-    allCount,
-    userRole: profile?.role,
-    userId: user?.id,
-    reportsData: reports.map(r => ({ id: r.id, status: r.status, scoutId: r.scoutId }))
-  });
 
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="mb-6">
