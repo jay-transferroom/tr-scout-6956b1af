@@ -12,8 +12,7 @@ import { useReportPlayerData } from "@/hooks/useReportPlayerData";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
 import { ClubBadge } from "@/components/ui/club-badge";
 import { ScoutingGrade } from "@/components/ui/scouting-grade";
-import { RecommendationBadge } from "@/components/RecommendationBadge";
-import { getMockRecommendation } from "@/utils/mockRecommendations";
+import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
 import VerdictBadge from "@/components/VerdictBadge";
 import { useNavigate } from "react-router-dom";
 import {
@@ -79,10 +78,7 @@ const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteR
             size="sm"
           />
           <span className="font-medium text-grey-900 text-sm">{playerName}</span>
-          {(() => {
-            const rec = getMockRecommendation(groupedReport.playerId);
-            return rec ? <RecommendationBadge value={rec} variant="compact" /> : null;
-          })()}
+          <PlayerRecommendationView playerId={groupedReport.playerId} fallback={null} />
         </div>
       </TableCell>
       <TableCell>
