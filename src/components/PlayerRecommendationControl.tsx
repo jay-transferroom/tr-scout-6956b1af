@@ -111,8 +111,18 @@ export const PlayerRecommendationControl = ({
 
   if (!recommendationsActive) return null;
 
-  const handleSelect = (opt: RecommendationValue) => setValue(opt, resolvedCurrentName);
-  const handleClear = () => setValue(null, resolvedCurrentName);
+  const handleSelect = (opt: RecommendationValue) => {
+    // Skip no-op: if the chosen value matches the currently displayed one
+    // (live or mock fallback), close gracefully without writing a history entry.
+    if (value && value.label === opt.label && value.colour === opt.colour) {
+      return;
+    }
+    setValue(opt, resolvedCurrentName);
+  };
+  const handleClear = () => {
+    if (!value) return;
+    setValue(null, resolvedCurrentName);
+  };
 
   return (
     <div className="flex flex-col items-start gap-1">
