@@ -282,6 +282,7 @@ export type Database = {
           notes: string | null
           player_id: string
           rating: number | null
+          ratings: Json
           scout_id: string
           updated_at: string
         }
@@ -292,6 +293,7 @@ export type Database = {
           notes?: string | null
           player_id: string
           rating?: number | null
+          ratings?: Json
           scout_id: string
           updated_at?: string
         }
@@ -302,6 +304,7 @@ export type Database = {
           notes?: string | null
           player_id?: string
           rating?: number | null
+          ratings?: Json
           scout_id?: string
           updated_at?: string
         }

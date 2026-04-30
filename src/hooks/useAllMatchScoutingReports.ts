@@ -9,6 +9,7 @@ export interface MatchScoutingReportWithDetails {
   scout_id: string;
   notes: string | null;
   rating: number | null;
+  ratings: Record<string, string> | null;
   created_at: string;
   updated_at: string;
   scout_profile?: {
@@ -71,6 +72,7 @@ export const useAllMatchScoutingReports = () => {
       for (const report of data || []) {
         const enriched: MatchScoutingReportWithDetails = {
           ...report,
+          ratings: (report.ratings as Record<string, string> | null) ?? null,
           scout_profile: scoutProfiles.get(report.scout_id) || null,
         };
         const existing = grouped.get(report.match_identifier) || [];
@@ -106,13 +108,20 @@ export const useAllMatchScoutingReports = () => {
         const [teams, date] = identifier.split("|");
         const [homeTeam, awayTeam] = teams.split(" vs ");
         const ratingsWithValues = reports.filter((r) => r.rating !== null);
-        // Count distinct players covered by any report row (notes or rating).
-        // This matches the "Players Rated" column semantics — any player with
-        // at least one piece of scouting data, not only those fully rated.
+        // Count distinct players with at least one filled rating field —
+        // either the legacy top-level `rating`, any per-config rating in the
+        // `ratings` jsonb (Overall Rating, Potential, Position, Leadership),
+        // or notes content. Matches the "Players Scouted" column semantics.
+        const hasAnyRating = (r: MatchScoutingReportWithDetails) => {
+          if (r.rating !== null) return true;
+          if (r.ratings && typeof r.ratings === "object") {
+            if (Object.values(r.ratings).some((v) => v != null && String(v).trim() !== "")) return true;
+          }
+          if (r.notes && r.notes.trim().length > 0) return true;
+          return false;
+        };
         const distinctPlayers = new Set(
-          reports
-            .filter((r) => r.rating !== null || (r.notes && r.notes.trim().length > 0))
-            .map((r) => r.player_id)
+          reports.filter(hasAnyRating).map((r) => r.player_id)
         );
 
         result.push({

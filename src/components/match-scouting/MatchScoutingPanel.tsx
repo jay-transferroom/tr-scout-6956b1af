@@ -471,8 +471,9 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
 
   const handleSave = useCallback(
     (playerId: string, notes: string, rating: number | null) => {
+      const draft = playerDrafts[playerId];
       upsertReport.mutate(
-        { playerId, notes: notes || null, rating },
+        { playerId, notes: notes || null, rating, ratings: draft?.ratings ?? null },
         {
           onSuccess: () => {
             clearPlayerDraft(playerId);
@@ -487,7 +488,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
         }
       );
     },
-    [clearPlayerDraft, toast, upsertReport]
+    [clearPlayerDraft, playerDrafts, toast, upsertReport]
   );
 
   const orderedHome = (homeOrder.length > 0 ? homeOrder : homePlayers.map((player) => player.id))
@@ -571,7 +572,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                   savedRating={existingReport?.rating ?? null}
                   draftNotes={draft?.notes}
                   draftRating={draft?.rating ?? null}
-                  draftRatings={draft?.ratings}
+                  draftRatings={draft?.ratings ?? (existingReport?.ratings as Record<string, string> | undefined) ?? undefined}
                   onDraftChange={handleDraftChange}
                   onSave={handleSave}
                   onCreateFullReport={setSelectedPlayerForFullReport}
@@ -725,6 +726,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                           playerId,
                           notes: d.notes?.trim() ? d.notes : null,
                           rating: resolveRating(d),
+                          ratings: d.ratings ?? null,
                         })
                       )
                     );
