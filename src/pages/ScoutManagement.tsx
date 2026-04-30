@@ -440,7 +440,7 @@ const ScoutManagement = () => {
             </button>
             {pipelineColumns.length > 5 && (
               <span className="text-muted-foreground">
-                · {pipelineColumns.length} columns
+                · {pipelineColumns.length} columns · scroll horizontally →
               </span>
             )}
           </div>
