@@ -2,7 +2,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { File, FileText, BookmarkCheck } from "lucide-react";
 import { useReports } from "@/hooks/useReports";
-import { useAllMatchScoutingReports } from "@/hooks/useAllMatchScoutingReports";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface ReportsTabNavigationProps {
@@ -12,19 +11,20 @@ interface ReportsTabNavigationProps {
 
 const ReportsTabNavigation = ({ onTabChange, activeTab }: ReportsTabNavigationProps) => {
   const { reports } = useReports();
-  const { data: matchReports = [] } = useAllMatchScoutingReports();
   const { user, profile } = useAuth();
   const isManager = profile?.role !== 'scout';
 
   // `useReports` already merges match_scouting_reports into its result and
   // assigns them status 'draft' or 'submitted' based on whether the primary
-  // rating has been filled. So we can derive all counts from the unified list
-  // without double-counting against `useAllMatchScoutingReports`.
+  // rating has been filled. Derive all counts from the unified list so a
+  // single saved match draft doesn't double-count against another source.
+  const myReports = reports.filter(report => report.scoutId === user?.id);
   const draftCount = myReports.filter(report => report.status === 'draft').length;
 
   const submittedCount = isManager
     ? reports.filter(r => r.status === 'submitted').length
     : myReports.filter(report => report.status === 'submitted').length;
+  const allCount = isManager ? reports.length : myReports.length;
   const allCount = isManager ? reports.length : myReports.length;
 
   return (
