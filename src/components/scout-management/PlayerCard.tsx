@@ -6,7 +6,7 @@ import { Clock, UserPlus, User, FileText, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ClubBadge } from "@/components/ui/club-badge";
 import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
-import { usePlayerRecommendations } from "@/hooks/usePlayerRecommendations";
+
 
 interface PlayerCardProps {
   player: any;
