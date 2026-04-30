@@ -1,6 +1,7 @@
 export interface MatchScoutingPlayerDraft {
   notes: string;
   rating: number | null;
+  ratings?: Record<string, string>;
 }
 
 export interface MatchScoutingDraft {
