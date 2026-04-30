@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 interface PlayerRecommendationViewProps {
   playerId: string;
-  variant?: "default" | "compact";
+  variant?: "default" | "compact" | "dot";
   className?: string;
   /** Render this when there is no recommendation. Defaults to a muted dash. */
   fallback?: React.ReactNode;
