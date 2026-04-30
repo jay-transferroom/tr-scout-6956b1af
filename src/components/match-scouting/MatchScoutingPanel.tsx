@@ -718,15 +718,13 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                     matchIdentifier,
                     entries.map(([id, d]) => ({ playerId: id, hasNotes: !!d?.notes?.trim(), rating: d?.rating ?? null }))
                   );
-                  const overallRatingId = getOverallRatingId(matchReportConfig);
-
                   try {
                     const results = await Promise.all(
                       entries.map(([playerId, d]) =>
                         upsertReport.mutateAsync({
                           playerId,
                           notes: d.notes?.trim() ? d.notes : null,
-                          rating: resolveTopLevelRating(d, overallRatingId),
+                          rating: resolveTopLevelRating(d),
                           ratings: d.ratings ?? null,
                         })
                       )
