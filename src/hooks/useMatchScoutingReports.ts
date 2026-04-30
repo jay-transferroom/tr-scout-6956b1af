@@ -83,6 +83,9 @@ export const useMatchScoutingReports = (matchIdentifier: string | null) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
+      // Also refresh the global match reports list so /reports → My Drafts and
+      // the Drafts (N) counter pick up new draft rows immediately.
+      queryClient.invalidateQueries({ queryKey: ["all-match-scouting-reports"] });
     },
   });
 
