@@ -9,6 +9,7 @@ export interface MatchScoutingReport {
   scout_id: string;
   notes: string | null;
   rating: number | null;
+  ratings: Record<string, string> | null;
   created_at: string;
   updated_at: string;
 }
@@ -52,10 +53,12 @@ export const useMatchScoutingReports = (matchIdentifier: string | null) => {
       playerId,
       notes,
       rating,
+      ratings,
     }: {
       playerId: string;
       notes: string | null;
       rating: number | null;
+      ratings?: Record<string, string> | null;
     }) => {
       if (!user || !matchIdentifier) throw new Error("Not authenticated or no match selected");
 
@@ -68,6 +71,7 @@ export const useMatchScoutingReports = (matchIdentifier: string | null) => {
             scout_id: user.id,
             notes,
             rating,
+            ratings: ratings ?? {},
           },
           { onConflict: "match_identifier,player_id,scout_id" }
         )
