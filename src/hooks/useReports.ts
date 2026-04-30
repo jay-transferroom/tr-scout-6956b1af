@@ -253,6 +253,10 @@ export const useReports = () => {
 
             const scoutProfile = matchScoutProfiles.get(report.scout_id) || null;
 
+            // Match scouting rows with no numeric rating are drafts; only
+            // count as submitted once the scout has filled the primary rating.
+            const matchStatus: 'draft' | 'submitted' = report.rating != null ? 'submitted' : 'draft';
+
             return {
               id: report.id,
               playerId: report.player_id,
@@ -261,7 +265,7 @@ export const useReports = () => {
               scoutId: report.scout_id,
               createdAt: new Date(report.created_at),
               updatedAt: new Date(report.updated_at),
-              status: 'submitted' as const,
+              status: matchStatus,
               sections: report.rating != null ? [{
                 sectionId: 'match-rating',
                 fields: [
