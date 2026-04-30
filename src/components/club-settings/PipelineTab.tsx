@@ -72,7 +72,9 @@ const PipelineTab = () => {
         rules: [],
       }))
     );
-    toast.success(`Loaded ${workflow.clubName}'s reference workflow into your pipeline`);
+    // Active club name mirrors the value rendered by <ClubBadge> in the header ("Chelsea F.C.").
+    const activeClubName = "Chelsea";
+    toast.success(`Reference workflow loaded into ${activeClubName}'s pipeline`);
   };
 
   const handleNameChange = (id: string, name: string) => {
@@ -284,49 +286,53 @@ const PipelineTab = () => {
                 return (
                   <div
                     key={rule.id}
-                    className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2"
+                    className="flex items-start gap-2 rounded-md border bg-muted/30 px-3 py-2"
                   >
-                    <Select
-                      value={rule.trigger}
-                      onValueChange={(value) =>
-                        updateDraftRule(rule.id, { trigger: value as RuleTrigger })
-                      }
-                    >
-                      <SelectTrigger className="h-9 flex-1 min-w-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {TRIGGER_OPTIONS.map((t) => (
-                          <SelectItem key={t.value} value={t.value}>
-                            {t.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <Select
-                      value={rule.destinationColumnId ?? undefined}
-                      onValueChange={(value) =>
-                        updateDraftRule(rule.id, { destinationColumnId: value })
-                      }
-                    >
-                      <SelectTrigger className="h-9 flex-1 min-w-0">
-                        <SelectValue placeholder="Move to…" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {destinationOptions.length === 0 ? (
-                          <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                            No other columns
-                          </div>
-                        ) : (
-                          destinationOptions.map((c) => (
-                            <SelectItem key={c.id} value={c.id}>
-                              {c.name}
+                    <div className="flex flex-1 min-w-0 flex-col gap-2">
+                      <Select
+                        value={rule.trigger}
+                        onValueChange={(value) =>
+                          updateDraftRule(rule.id, { trigger: value as RuleTrigger })
+                        }
+                      >
+                        <SelectTrigger className="h-9 w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {TRIGGER_OPTIONS.map((t) => (
+                            <SelectItem key={t.value} value={t.value}>
+                              {t.label}
                             </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <div className="flex items-center gap-2">
+                        <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        <Select
+                          value={rule.destinationColumnId ?? undefined}
+                          onValueChange={(value) =>
+                            updateDraftRule(rule.id, { destinationColumnId: value })
+                          }
+                        >
+                          <SelectTrigger className="h-9 w-full">
+                            <SelectValue placeholder="Move to…" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {destinationOptions.length === 0 ? (
+                              <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                                No other columns
+                              </div>
+                            ) : (
+                              destinationOptions.map((c) => (
+                                <SelectItem key={c.id} value={c.id}>
+                                  {c.name}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                     <Button
                       variant="ghost"
                       size="icon"
