@@ -503,8 +503,13 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   const handleSave = useCallback(
     (playerId: string, notes: string, rating: number | null) => {
       const draft = playerDrafts[playerId];
+      const ratings = draft?.ratings ?? null;
+      const topLevelRating = resolveTopLevelRating(
+        { rating, ratings },
+        getOverallRatingId(matchReportConfig)
+      );
       upsertReport.mutate(
-        { playerId, notes: notes || null, rating, ratings: draft?.ratings ?? null },
+        { playerId, notes: notes.trim() ? notes : null, rating: topLevelRating, ratings },
         {
           onSuccess: () => {
             clearPlayerDraft(playerId);
@@ -519,7 +524,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
         }
       );
     },
-    [clearPlayerDraft, playerDrafts, toast, upsertReport]
+    [clearPlayerDraft, matchReportConfig, playerDrafts, toast, upsertReport]
   );
 
   const orderedHome = (homeOrder.length > 0 ? homeOrder : homePlayers.map((player) => player.id))
