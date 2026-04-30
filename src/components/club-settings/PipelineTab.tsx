@@ -72,7 +72,9 @@ const PipelineTab = () => {
         rules: [],
       }))
     );
-    toast.success(`Loaded ${workflow.clubName}'s reference workflow into your pipeline`);
+    // Active club name mirrors the value rendered by <ClubBadge> in the header ("Chelsea F.C.").
+    const activeClubName = "Chelsea";
+    toast.success(`Reference workflow loaded into ${activeClubName}'s pipeline`);
   };
 
   const handleNameChange = (id: string, name: string) => {
