@@ -25,7 +25,6 @@ const ReportsTabNavigation = ({ onTabChange, activeTab }: ReportsTabNavigationPr
     ? reports.filter(r => r.status === 'submitted').length
     : myReports.filter(report => report.status === 'submitted').length;
   const allCount = isManager ? reports.length : myReports.length;
-  const allCount = isManager ? reports.length : myReports.length;
 
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="mb-6">
