@@ -28,16 +28,19 @@ export const getMockRecommendation = (playerId: string): RecommendationValue | n
 };
 
 /**
- * Returns sort rank using the effective recommendation (live → mock).
- * Imported lazily to avoid a circular dep with the store.
+ * Returns sort rank using the effective recommendation (live → mock fallback).
+ *
+ * Uses a late-bound resolver to read the live store without creating a static
+ * circular dep with `usePlayerRecommendations`.
  */
+type RecResolver = (id: string) => RecommendationValue | null;
+let liveResolver: RecResolver | null = null;
+export const __setLiveRecommendationResolver = (resolver: RecResolver) => {
+  liveResolver = resolver;
+};
+
 export const getRecommendationRank = (playerId: string): number => {
-  // Lazy require to break circular import (store imports getMockRecommendation).
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { readPlayerRecommendation } = require("@/hooks/usePlayerRecommendations") as {
-    readPlayerRecommendation: (id: string) => RecommendationValue | null;
-  };
-  const rec = readPlayerRecommendation(playerId);
+  const rec = (liveResolver ?? getMockRecommendation)(playerId);
   if (!rec) return Number.POSITIVE_INFINITY;
   return RECOMMENDATION_ORDER[rec.label] ?? Number.POSITIVE_INFINITY;
 };
