@@ -49,7 +49,7 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
   return (
     <Card className={`mb-2 hover:shadow-md transition-all duration-200 relative ${getStatusColor(player.status)}`}>
       {player.playerId && (
-        <div className="absolute top-2 right-2 z-10">
+        <div className="absolute -top-1 -right-1 z-20 rounded-full bg-background p-0.5 shadow-sm">
           <PlayerRecommendationView
             playerId={String(player.playerId)}
             variant="dot"
