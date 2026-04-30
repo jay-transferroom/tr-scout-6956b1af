@@ -47,7 +47,16 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
     });
   }
   return (
-    <Card className={`mb-2 hover:shadow-md transition-all duration-200 ${getStatusColor(player.status)}`}>
+    <Card className={`mb-2 hover:shadow-md transition-all duration-200 relative ${getStatusColor(player.status)}`}>
+      {player.playerId && (
+        <div className="absolute top-2 right-2 z-10">
+          <PlayerRecommendationView
+            playerId={String(player.playerId)}
+            variant="dot"
+            fallback={null}
+          />
+        </div>
+      )}
       <CardContent className="p-3">
         {/* Compact horizontal player info */}
         <div className="flex items-center gap-2 mb-3">
