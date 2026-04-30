@@ -27,9 +27,17 @@ export const getMockRecommendation = (playerId: string): RecommendationValue | n
   return RECOMMENDATION_OPTIONS[bucket % RECOMMENDATION_OPTIONS.length];
 };
 
-/** Returns sort rank; players without a recommendation always sort to the bottom. */
+/**
+ * Returns sort rank using the effective recommendation (live → mock).
+ * Imported lazily to avoid a circular dep with the store.
+ */
 export const getRecommendationRank = (playerId: string): number => {
-  const rec = getMockRecommendation(playerId);
+  // Lazy require to break circular import (store imports getMockRecommendation).
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { readPlayerRecommendation } = require("@/hooks/usePlayerRecommendations") as {
+    readPlayerRecommendation: (id: string) => RecommendationValue | null;
+  };
+  const rec = readPlayerRecommendation(playerId);
   if (!rec) return Number.POSITIVE_INFINITY;
   return RECOMMENDATION_ORDER[rec.label] ?? Number.POSITIVE_INFINITY;
 };
