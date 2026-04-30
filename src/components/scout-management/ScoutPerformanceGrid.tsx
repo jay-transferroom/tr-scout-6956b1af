@@ -16,10 +16,21 @@ const ScoutPerformanceGrid = ({
   selectedScout,
   onScoutClick
 }: ScoutPerformanceGridProps) => {
-  if (scouts.length === 0) return null;
+  // Prototype scope: only the three demo accounts (Oliver Smith, Emma Johnson,
+  // Dave Chester) represent Chelsea users. Filter out any other seeded profiles
+  // (e.g. Jay Hughes, Bobby Chucas) so the performance overview matches the
+  // sign-in screen.
+  const DEMO_EMAILS = new Set([
+    "scout@demo.com",
+    "scout2@demo.com",
+    "manager@demo.com",
+  ]);
+  const demoScouts = scouts.filter((s) => DEMO_EMAILS.has(s.email));
+
+  if (demoScouts.length === 0) return null;
 
   // Calculate performance metrics for each scout and sort by best performers
-  const scoutsWithMetrics = scouts.map((scout) => {
+  const scoutsWithMetrics = demoScouts.map((scout) => {
     const scoutAssignments = assignments.filter(a => a.assigned_to_scout_id === scout.id);
     const completedCount = scoutAssignments.filter(a => a.status === 'completed').length;
     const completionRate = scoutAssignments.length > 0 ? (completedCount / scoutAssignments.length) * 100 : 0;
