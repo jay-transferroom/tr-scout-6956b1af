@@ -694,13 +694,37 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                     matchIdentifier,
                     entries.map(([id, d]) => ({ playerId: id, hasNotes: !!d?.notes?.trim(), rating: d?.rating ?? null }))
                   );
+                  // Resolve the canonical "Overall Rating" config entry so we
+                  // can persist its numeric value to the top-level `rating`
+                  // column. This is what /reports → Match → My Drafts and the
+                  // "Players Scouted" counter read.
+                  const overallRatingConfig =
+                    matchReportConfig.ratings.find((r) => r.id === "default-overall") ||
+                    matchReportConfig.ratings.find(
+                      (r) => r.name.toLowerCase() === "overall rating"
+                    ) ||
+                    matchReportConfig.ratings[0];
+                  const overallRatingId = overallRatingConfig?.id;
+
+                  const resolveRating = (d: { rating: number | null; ratings?: Record<string, string> }): number | null => {
+                    if (d.rating !== null && d.rating !== undefined) return d.rating;
+                    if (overallRatingId && d.ratings) {
+                      const raw = d.ratings[overallRatingId];
+                      if (raw) {
+                        const parsed = parseFloat(raw);
+                        if (!Number.isNaN(parsed)) return parsed;
+                      }
+                    }
+                    return null;
+                  };
+
                   try {
                     const results = await Promise.all(
                       entries.map(([playerId, d]) =>
                         upsertReport.mutateAsync({
                           playerId,
                           notes: d.notes?.trim() ? d.notes : null,
-                          rating: d.rating,
+                          rating: resolveRating(d),
                         })
                       )
                     );
