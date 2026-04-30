@@ -27,9 +27,20 @@ export const getMockRecommendation = (playerId: string): RecommendationValue | n
   return RECOMMENDATION_OPTIONS[bucket % RECOMMENDATION_OPTIONS.length];
 };
 
-/** Returns sort rank; players without a recommendation always sort to the bottom. */
+/**
+ * Returns sort rank using the effective recommendation (live → mock fallback).
+ *
+ * Uses a late-bound resolver to read the live store without creating a static
+ * circular dep with `usePlayerRecommendations`.
+ */
+type RecResolver = (id: string) => RecommendationValue | null;
+let liveResolver: RecResolver | null = null;
+export const __setLiveRecommendationResolver = (resolver: RecResolver) => {
+  liveResolver = resolver;
+};
+
 export const getRecommendationRank = (playerId: string): number => {
-  const rec = getMockRecommendation(playerId);
+  const rec = (liveResolver ?? getMockRecommendation)(playerId);
   if (!rec) return Number.POSITIVE_INFINITY;
   return RECOMMENDATION_ORDER[rec.label] ?? Number.POSITIVE_INFINITY;
 };

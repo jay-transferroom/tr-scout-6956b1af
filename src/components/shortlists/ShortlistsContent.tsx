@@ -25,8 +25,7 @@ import { type PlayerAvailability } from "@/hooks/useShortlists";
 import { ScoutingGrade } from "@/components/ui/scouting-grade";
 import { useReports } from "@/hooks/useReports";
 import { groupReportsByPlayer } from "@/utils/reportGrouping";
-import { RecommendationBadge } from "@/components/RecommendationBadge";
-import { getMockRecommendation } from "@/utils/mockRecommendations";
+import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
 import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 
 interface ShortlistsContentProps {
@@ -794,14 +793,7 @@ const ShortlistPlayerRow = ({
       </TableCell>
       {recommendationsActive && (
         <TableCell>
-          {(() => {
-            const rec = getMockRecommendation(player.id.toString());
-            return rec ? (
-              <RecommendationBadge value={rec} variant="compact" />
-            ) : (
-              <span className="text-xs text-muted-foreground">—</span>
-            );
-          })()}
+          <PlayerRecommendationView playerId={player.id.toString()} hideWhenInactive={false} />
         </TableCell>
       )}
       <TableCell>

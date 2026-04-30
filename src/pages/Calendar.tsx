@@ -23,8 +23,7 @@ import AssignScoutDialog from "@/components/AssignScoutDialog";
 import ViewToggle from "@/components/ViewToggle";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { MatchPlayersSheet } from "@/components/MatchPlayersSheet";
-import { RecommendationBadge } from "@/components/RecommendationBadge";
-import { getMockRecommendation } from "@/utils/mockRecommendations";
+import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
 import { useAllMatchScoutingReports } from "@/hooks/useAllMatchScoutingReports";
 import { getMatchIdentifier } from "@/hooks/useMatchScoutingReports";
@@ -970,10 +969,7 @@ const Calendar = () => {
                                         <div className="flex-1">
                                           <div className="text-sm font-medium flex items-center gap-1.5">
                                             {player.name}
-                                            {(() => {
-                                              const rec = getMockRecommendation(player.id.toString());
-                                              return rec ? <RecommendationBadge value={rec} variant="dot" /> : null;
-                                            })()}
+                                            <PlayerRecommendationView playerId={player.id.toString()} variant="dot" fallback={null} />
                                           </div>
                                           <div className="text-xs text-muted-foreground">
                                             {player.club} • {player.positions?.[0] || 'Unknown'}
@@ -1048,10 +1044,7 @@ const Calendar = () => {
                         <div className="flex-1">
                           <div className="text-sm font-medium flex items-center gap-1.5">
                             {player.name}
-                            {(() => {
-                              const rec = getMockRecommendation(player.id.toString());
-                              return rec ? <RecommendationBadge value={rec} variant="dot" /> : null;
-                            })()}
+                            <PlayerRecommendationView playerId={player.id.toString()} variant="dot" fallback={null} />
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {player.club} • {player.positions?.[0] || 'Unknown'}

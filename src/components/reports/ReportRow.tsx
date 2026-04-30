@@ -14,8 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
 import { ClubBadge } from "@/components/ui/club-badge";
 import { ScoutingGrade } from "@/components/ui/scouting-grade";
-import { RecommendationBadge } from "@/components/RecommendationBadge";
-import { getMockRecommendation } from "@/utils/mockRecommendations";
+import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -76,10 +75,7 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
             size="sm"
           />
           <span className="font-medium text-grey-900 text-sm">{playerName}</span>
-          {(() => {
-            const rec = getMockRecommendation(report.playerId);
-            return rec ? <RecommendationBadge value={rec} variant="compact" /> : null;
-          })()}
+          <PlayerRecommendationView playerId={report.playerId} fallback={null} />
         </div>
       </TableCell>
       <TableCell>
