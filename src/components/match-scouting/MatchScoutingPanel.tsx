@@ -411,6 +411,24 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   // Match report configuration from DB
   const { data: matchReportConfig = createDefaultMatchReportConfig() } = useMatchReportConfig();
   const availableRatingSystems = createDefaultNamedSystems();
+  const overallRatingId =
+    matchReportConfig.ratings.find((rating) => rating.id === "default-overall")?.id ||
+    matchReportConfig.ratings.find((rating) => rating.name.toLowerCase() === "overall rating")?.id ||
+    matchReportConfig.ratings[0]?.id;
+
+  const resolveTopLevelRating = useCallback(
+    (draft: { rating: number | null; ratings?: Record<string, string> | null }): number | null => {
+      if (draft.rating !== null && draft.rating !== undefined) return draft.rating;
+      if (!overallRatingId || !draft.ratings) return null;
+
+      const raw = draft.ratings[overallRatingId];
+      if (!raw) return null;
+
+      const parsed = parseFloat(raw);
+      return Number.isNaN(parsed) ? null : parsed;
+    },
+    [overallRatingId]
+  );
 
   const homePlayers = allPlayers.filter((player) => clubsMatch(player.club, homeTeam));
   const awayPlayers = allPlayers.filter((player) => clubsMatch(player.club, awayTeam));
