@@ -499,10 +499,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
     (playerId: string, notes: string, rating: number | null) => {
       const draft = playerDrafts[playerId];
       const ratings = draft?.ratings ?? null;
-      const topLevelRating = resolveTopLevelRating(
-        { rating, ratings },
-        getOverallRatingId(matchReportConfig)
-      );
+      const topLevelRating = resolveTopLevelRating({ rating, ratings });
       upsertReport.mutate(
         { playerId, notes: notes.trim() ? notes : null, rating: topLevelRating, ratings },
         {
@@ -519,7 +516,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
         }
       );
     },
-    [clearPlayerDraft, matchReportConfig, playerDrafts, toast, upsertReport]
+    [clearPlayerDraft, playerDrafts, resolveTopLevelRating, toast, upsertReport]
   );
 
   const orderedHome = (homeOrder.length > 0 ? homeOrder : homePlayers.map((player) => player.id))
