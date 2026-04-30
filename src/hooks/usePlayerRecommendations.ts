@@ -1,6 +1,6 @@
 import { useSyncExternalStore, useCallback } from "react";
 import { RecommendationValue } from "@/components/RecommendationBadge";
-import { getMockRecommendation } from "@/utils/mockRecommendations";
+import { getMockRecommendation, __setLiveRecommendationResolver } from "@/utils/mockRecommendations";
 
 export interface RecommendationHistoryEntry {
   from: RecommendationValue | null;
@@ -80,6 +80,9 @@ export const readPlayerRecommendation = (playerId: string): RecommendationValue 
   if (entry && entry.value !== undefined) return entry.value;
   return getMockRecommendation(playerId);
 };
+
+// Wire sort helpers (in mockRecommendations.ts) to read the live store.
+__setLiveRecommendationResolver(readPlayerRecommendation);
 
 interface UsePlayerRecommendationsResult {
   /** Effective value (live if set, otherwise mock fallback). */
