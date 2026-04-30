@@ -111,23 +111,31 @@ const ReportsList = () => {
 
   // Sub-tab filtering for Match view
   const visibleMatchReports = useMemo(() => {
+    const hasAnyScoutingData = (report: GroupedMatchReport["reports"][number]) => {
+      if (report.rating !== null) return true;
+      if (report.ratings && typeof report.ratings === "object") {
+        if (Object.values(report.ratings).some((value) => value != null && String(value).trim() !== "")) return true;
+      }
+      return !!report.notes?.trim();
+    };
+
+    const withFilteredTotals = (reports: GroupedMatchReport[]) =>
+      reports
+        .map((match) => {
+          const filteredReports = match.reports.filter((report) => report.scout_id === user?.id && (matchSubTab === "drafts" ? report.rating === null : report.rating !== null));
+          const totalRatings = new Set(filteredReports.filter(hasAnyScoutingData).map((report) => report.player_id)).size;
+
+          return { ...match, reports: filteredReports, totalRatings };
+        })
+        .filter((match) => match.reports.length > 0);
+
     if (matchSubTab === "drafts") {
       // Author-only: only the current user's drafts (rating === null)
-      return sortedMatchReports
-        .map((m) => ({
-          ...m,
-          reports: m.reports.filter((r) => r.scout_id === user?.id && r.rating === null),
-        }))
-        .filter((m) => m.reports.length > 0);
+      return withFilteredTotals(sortedMatchReports);
     }
     // "My Submitted": current user's submitted reports (rating !== null).
     // Role-based visibility for other users' submitted reports is preserved by the underlying hook.
-    return sortedMatchReports
-      .map((m) => ({
-        ...m,
-        reports: m.reports.filter((r) => r.scout_id === user?.id && r.rating !== null),
-      }))
-      .filter((m) => m.reports.length > 0);
+    return withFilteredTotals(sortedMatchReports);
   }, [sortedMatchReports, matchSubTab, user?.id]);
 
   // Extract available filter options from reports
