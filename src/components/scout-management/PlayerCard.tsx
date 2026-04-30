@@ -5,6 +5,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Clock, UserPlus, User, FileText, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ClubBadge } from "@/components/ui/club-badge";
+import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
+
 
 interface PlayerCardProps {
   player: any;
@@ -45,7 +47,16 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
     });
   }
   return (
-    <Card className={`mb-2 hover:shadow-md transition-all duration-200 ${getStatusColor(player.status)}`}>
+    <Card className={`mb-2 hover:shadow-md transition-all duration-200 relative ${getStatusColor(player.status)}`}>
+      {player.playerId && (
+        <div className="absolute top-2 right-2 z-10">
+          <PlayerRecommendationView
+            playerId={String(player.playerId)}
+            variant="dot"
+            fallback={null}
+          />
+        </div>
+      )}
       <CardContent className="p-3">
         {/* Compact horizontal player info */}
         <div className="flex items-center gap-2 mb-3">

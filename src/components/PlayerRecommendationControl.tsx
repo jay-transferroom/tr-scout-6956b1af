@@ -204,13 +204,13 @@ export const PlayerRecommendationControl = ({
                 <li key={idx} className="py-3 flex flex-col gap-1">
                   <div className="flex items-center gap-2 text-sm">
                     {entry.from ? (
-                      <RecommendationBadge value={entry.from} variant="compact" />
+                      <RecommendationBadge value={entry.from} variant="default" />
                     ) : (
                       <span className="text-muted-foreground">Unset</span>
                     )}
                     <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     {entry.to ? (
-                      <RecommendationBadge value={entry.to} variant="compact" />
+                      <RecommendationBadge value={entry.to} variant="default" />
                     ) : (
                       <span className="text-muted-foreground">Cleared</span>
                     )}
