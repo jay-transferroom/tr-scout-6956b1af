@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronDown, Plus, Trash2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,13 +17,10 @@ import {
 import RecommendationBadge, { RecommendationValue } from "@/components/RecommendationBadge";
 import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 import { useAuth } from "@/contexts/AuthContext";
-
-interface HistoryEntry {
-  from: RecommendationValue | null;
-  to: RecommendationValue | null;
-  user: string;
-  date: Date;
-}
+import {
+  usePlayerRecommendations,
+  RecommendationHistoryEntry,
+} from "@/hooks/usePlayerRecommendations";
 
 const formatHistoryDate = (date: Date): string =>
   date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
@@ -33,11 +30,6 @@ const DEFAULT_OPTIONS: RecommendationValue[] = [
   { label: "Monitor", colour: "#EAB308" },
   { label: "Pass", colour: "#EF4444" },
 ];
-
-interface Attribution {
-  user: string;
-  date: Date;
-}
 
 const formatRelative = (date: Date): string => {
   const diffMs = Date.now() - date.getTime();
@@ -60,65 +52,67 @@ interface PlayerRecommendationControlProps {
 }
 
 export const PlayerRecommendationControl = ({
+  playerId,
   options = DEFAULT_OPTIONS,
   currentUserName,
 }: PlayerRecommendationControlProps) => {
   const recommendationsActive = useRecommendationsActive();
   const { profile } = useAuth();
-  const [value, setValue] = useState<RecommendationValue | null>(null);
-  const [attribution, setAttribution] = useState<Attribution | null>(null);
+  const { value, isLive, attribution, liveHistory, setValue } =
+    usePlayerRecommendations(playerId);
   const [historyOpen, setHistoryOpen] = useState(false);
 
-  const signedInName = [profile?.first_name, profile?.last_name]
-    .filter(Boolean)
-    .join(" ")
-    .trim() || profile?.email || "You";
+  const signedInName =
+    [profile?.first_name, profile?.last_name].filter(Boolean).join(" ").trim() ||
+    profile?.email ||
+    "You";
   const resolvedCurrentName = currentUserName ?? signedInName;
 
   // Seeded historical entries attributed to the other demo accounts so the
   // demo shows a realistic mix of scouts and a manager having taken actions.
-  const DEMO_OTHERS = ["Oliver Smith", "Emma Johnson", "Dave Chester"]
-    .filter((n) => n !== signedInName);
-  const pickUser = (i: number) => DEMO_OTHERS[i % DEMO_OTHERS.length] ?? "Oliver Smith";
+  const seededHistory: RecommendationHistoryEntry[] = useMemo(() => {
+    const others = ["Oliver Smith", "Emma Johnson", "Dave Chester"].filter(
+      (n) => n !== signedInName
+    );
+    const pickUser = (i: number) => others[i % others.length] ?? "Oliver Smith";
+    return [
+      {
+        from: { label: "Monitor", colour: "#EAB308" },
+        to: { label: "Sign", colour: "#22C55E" },
+        user: pickUser(0),
+        date: new Date(Date.now() - 1000 * 60 * 60 * 6),
+      },
+      {
+        from: { label: "Pass", colour: "#EF4444" },
+        to: { label: "Monitor", colour: "#EAB308" },
+        user: pickUser(1),
+        date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
+      },
+      {
+        from: null,
+        to: { label: "Pass", colour: "#EF4444" },
+        user: pickUser(2),
+        date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10),
+      },
+      {
+        from: { label: "Monitor", colour: "#EAB308" },
+        to: null,
+        user: pickUser(3),
+        date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 21),
+      },
+    ];
+  }, [signedInName]);
 
-  const mockHistory: HistoryEntry[] = [
-    {
-      from: { label: "Monitor", colour: "#EAB308" },
-      to: { label: "Sign", colour: "#22C55E" },
-      user: pickUser(0),
-      date: new Date(Date.now() - 1000 * 60 * 60 * 6),
-    },
-    {
-      from: { label: "Pass", colour: "#EF4444" },
-      to: { label: "Monitor", colour: "#EAB308" },
-      user: pickUser(1),
-      date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
-    },
-    {
-      from: null,
-      to: { label: "Pass", colour: "#EF4444" },
-      user: pickUser(2),
-      date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10),
-    },
-    {
-      from: { label: "Monitor", colour: "#EAB308" },
-      to: null,
-      user: pickUser(3),
-      date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 21),
-    },
-  ];
+  // Live entries (newest first) on top, seeded mock history below.
+  const fullHistory = useMemo(
+    () => [...liveHistory, ...seededHistory],
+    [liveHistory, seededHistory]
+  );
 
   if (!recommendationsActive) return null;
 
-  const handleSelect = (opt: RecommendationValue) => {
-    setValue(opt);
-    setAttribution({ user: resolvedCurrentName, date: new Date() });
-  };
-
-  const handleClear = () => {
-    setValue(null);
-    setAttribution(null);
-  };
+  const handleSelect = (opt: RecommendationValue) => setValue(opt, resolvedCurrentName);
+  const handleClear = () => setValue(null, resolvedCurrentName);
 
   return (
     <div className="flex flex-col items-start gap-1">
@@ -170,7 +164,7 @@ export const PlayerRecommendationControl = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {value && attribution && (
+      {value && isLive && attribution && (
         <div className="flex flex-col items-start gap-0.5">
           <p className="text-xs text-muted-foreground">
             Set by {attribution.user} · {formatRelative(attribution.date)}
@@ -185,32 +179,48 @@ export const PlayerRecommendationControl = ({
         </div>
       )}
 
+      {value && !isLive && (
+        <button
+          type="button"
+          onClick={() => setHistoryOpen(true)}
+          className="text-xs text-muted-foreground underline-offset-2 hover:underline hover:text-foreground focus:outline-none focus-visible:underline"
+        >
+          View history
+        </button>
+      )}
+
       <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Recommendation history</DialogTitle>
           </DialogHeader>
           <ul className="flex flex-col divide-y divide-border">
-            {mockHistory.map((entry, idx) => (
-              <li key={idx} className="py-3 flex flex-col gap-1">
-                <div className="flex items-center gap-2 text-sm">
-                  {entry.from ? (
-                    <RecommendationBadge value={entry.from} variant="compact" />
-                  ) : (
-                    <span className="text-muted-foreground">Unset</span>
-                  )}
-                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  {entry.to ? (
-                    <RecommendationBadge value={entry.to} variant="compact" />
-                  ) : (
-                    <span className="text-muted-foreground">Cleared</span>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  changed by {entry.user} · {formatHistoryDate(entry.date)}
-                </p>
-              </li>
-            ))}
+            {fullHistory.map((entry, idx) => {
+              const isLiveEntry = idx < liveHistory.length;
+              const dateLabel = isLiveEntry
+                ? formatRelative(entry.date)
+                : formatHistoryDate(entry.date);
+              return (
+                <li key={idx} className="py-3 flex flex-col gap-1">
+                  <div className="flex items-center gap-2 text-sm">
+                    {entry.from ? (
+                      <RecommendationBadge value={entry.from} variant="compact" />
+                    ) : (
+                      <span className="text-muted-foreground">Unset</span>
+                    )}
+                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    {entry.to ? (
+                      <RecommendationBadge value={entry.to} variant="compact" />
+                    ) : (
+                      <span className="text-muted-foreground">Cleared</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    changed by {entry.user} · {dateLabel}
+                  </p>
+                </li>
+              );
+            })}
           </ul>
         </DialogContent>
       </Dialog>
