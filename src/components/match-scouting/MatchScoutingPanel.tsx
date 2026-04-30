@@ -208,10 +208,10 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   }, [draftRating, savedRating]);
 
   useEffect(() => {
-    if ((draftNotes ?? savedNotes).length > 0 || (draftRating ?? savedRating) !== null) {
+    if (hasAnyScoutingData({ notes: draftNotes ?? savedNotes, rating: draftRating ?? savedRating, ratings: draftRatings })) {
       setExpanded(true);
     }
-  }, [draftNotes, savedNotes, draftRating, savedRating]);
+  }, [draftNotes, savedNotes, draftRating, savedRating, draftRatings]);
 
   useEffect(() => {
     setIsDirty(notes !== savedNotes || rating !== savedRating || JSON.stringify(ratings) !== JSON.stringify(draftRatings ?? {}));
@@ -229,7 +229,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
     }
 
     saveTimeoutRef.current = setTimeout(() => {
-      if (notes.trim() || rating !== null || Object.values(ratings).some(v => v)) {
+      if (hasAnyScoutingData({ notes, rating, ratings })) {
         onSave(player.id, notes, rating);
       }
     }, 2000);
@@ -393,7 +393,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
               size="sm"
               variant={isDirty ? "default" : "outline"}
               onClick={handleManualSave}
-              disabled={isSaving || (!notes.trim() && rating === null && !Object.values(ratings).some(v => v))}
+              disabled={isSaving || !hasAnyScoutingData({ notes, rating, ratings })}
               className="h-7 text-xs"
             >
               {isSaving ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Check className="mr-1 h-3 w-3" />}
