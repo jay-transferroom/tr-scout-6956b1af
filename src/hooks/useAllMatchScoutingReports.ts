@@ -106,6 +106,14 @@ export const useAllMatchScoutingReports = () => {
         const [teams, date] = identifier.split("|");
         const [homeTeam, awayTeam] = teams.split(" vs ");
         const ratingsWithValues = reports.filter((r) => r.rating !== null);
+        // Count distinct players covered by any report row (notes or rating).
+        // This matches the "Players Rated" column semantics — any player with
+        // at least one piece of scouting data, not only those fully rated.
+        const distinctPlayers = new Set(
+          reports
+            .filter((r) => r.rating !== null || (r.notes && r.notes.trim().length > 0))
+            .map((r) => r.player_id)
+        );
 
         result.push({
           match_identifier: identifier,
@@ -114,7 +122,7 @@ export const useAllMatchScoutingReports = () => {
           matchDate: date || "",
           competition: competitionMap.get(identifier) || null,
           reports,
-          totalRatings: ratingsWithValues.length,
+          totalRatings: distinctPlayers.size,
           averageRating:
             ratingsWithValues.length > 0
               ? ratingsWithValues.reduce((sum, r) => sum + (r.rating || 0), 0) /
