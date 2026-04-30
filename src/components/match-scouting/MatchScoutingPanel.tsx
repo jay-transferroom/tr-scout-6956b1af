@@ -705,7 +705,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                         upsertReport.mutateAsync({
                           playerId,
                           notes: d.notes?.trim() ? d.notes : null,
-                          rating: resolveTopLevelRating(d),
+                          rating: d.rating,
                           ratings: d.ratings ?? null,
                         })
                       )
