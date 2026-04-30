@@ -74,29 +74,6 @@ const hasAnyScoutingData = (draft: { notes?: string | null; rating?: number | nu
   return !!draft.notes?.trim() || draft.rating !== null || hasFilledConfiguredRating(draft.ratings);
 };
 
-const getOverallRatingId = (config: MatchReportConfig) => {
-  const overallRatingConfig =
-    config.ratings.find((rating) => rating.id === "default-overall") ||
-    config.ratings.find((rating) => rating.name.toLowerCase() === "overall rating") ||
-    config.ratings[0];
-
-  return overallRatingConfig?.id;
-};
-
-const resolveTopLevelRating = (
-  draft: { rating: number | null; ratings?: Record<string, string> | null },
-  overallRatingId?: string
-): number | null => {
-  if (draft.rating !== null && draft.rating !== undefined) return draft.rating;
-  if (!overallRatingId || !draft.ratings) return null;
-
-  const raw = draft.ratings[overallRatingId];
-  if (!raw) return null;
-
-  const parsed = parseFloat(raw);
-  return Number.isNaN(parsed) ? null : parsed;
-};
-
 const TEAM_ALIASES: Record<string, string[]> = {
   "nottingham forest": ["nottm forest", "nott'm forest", "notts forest"],
   "manchester united": ["man utd", "man united"],
