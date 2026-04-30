@@ -72,6 +72,7 @@ export const useAllMatchScoutingReports = () => {
       for (const report of data || []) {
         const enriched: MatchScoutingReportWithDetails = {
           ...report,
+          ratings: (report.ratings as Record<string, string> | null) ?? null,
           scout_profile: scoutProfiles.get(report.scout_id) || null,
         };
         const existing = grouped.get(report.match_identifier) || [];
