@@ -61,6 +61,8 @@ const Calendar = () => {
   const { shortlists, addPlayerToShortlist } = useShortlists();
   const { data: clubRatingData } = useClubRatingWeights();
   const clubWeights = clubRatingData?.weights;
+  const { assignments: fixtureAssignments, resolveScout: resolveFixtureScout } = useFixtureAssignments();
+  const FixtureAssignmentIcon = ASSIGNMENT_VISUALS.fixture.icon;
 
   // Determine the current user's report status for a fixture: 'submitted' | 'draft' | 'none'
   const getMyReportStatus = (fixture: Fixture): 'submitted' | 'draft' | 'none' => {
