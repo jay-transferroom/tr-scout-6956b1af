@@ -667,6 +667,16 @@ const Calendar = () => {
                                     <span>{uniqueScouts}</span>
                                   </div>
                                 )}
+                                {(() => {
+                                  const fa = getFixtureAssignmentsForDate(date).length;
+                                  if (!fa) return null;
+                                  return (
+                                    <div className={cn("flex items-center gap-1 text-sm", ASSIGNMENT_VISUALS.fixture.iconClass)}>
+                                      <FixtureAssignmentIcon className="h-4 w-4" />
+                                      <span>{fa}</span>
+                                    </div>
+                                  );
+                                })()}
                                 <div className="text-sm text-muted-foreground">
                                   {dayFixtures.length} {dayFixtures.length === 1 ? 'match' : 'matches'}
                                 </div>
