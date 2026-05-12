@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   fixtureAssignmentStore,
   newId,
+  DEMO_SCOUT_EMAILS,
 } from "@/utils/mockFixtureAssignments";
 import type {
   FixtureAssignment,
   FixtureAssignmentPriority,
   MatchReport,
 } from "@/types/fixtureAssignment";
+import { useScouts, type Scout } from "@/hooks/useScouts";
 
 const EVENT = "tr-scout:fixture-assignments-changed";
 
@@ -18,6 +20,7 @@ const emit = () => {
 };
 
 export const useFixtureAssignments = () => {
+  const { data: scouts = [] } = useScouts();
   const [assignments, setAssignments] = useState<FixtureAssignment[]>(() =>
     fixtureAssignmentStore.list()
   );
@@ -37,6 +40,27 @@ export const useFixtureAssignments = () => {
       window.removeEventListener("storage", refresh);
     };
   }, []);
+
+  /** Map seeded demo-email scoutIds to live profile ids when available. */
+  const scoutByKey = useMemo(() => {
+    const byEmail = new Map<string, Scout>();
+    const byId = new Map<string, Scout>();
+    scouts.forEach((s) => {
+      byId.set(s.id, s);
+      if (s.email) byEmail.set(s.email.toLowerCase(), s);
+    });
+    return { byEmail, byId };
+  }, [scouts]);
+
+  const resolveScout = useCallback(
+    (scoutId: string): Scout | undefined => {
+      return (
+        scoutByKey.byId.get(scoutId) ??
+        scoutByKey.byEmail.get(scoutId.toLowerCase())
+      );
+    },
+    [scoutByKey]
+  );
 
   const createForFixture = useCallback(
     (input: {
@@ -65,16 +89,36 @@ export const useFixtureAssignments = () => {
     []
   );
 
+  const removeAssignment = useCallback((id: string) => {
+    fixtureAssignmentStore.remove(id);
+    emit();
+  }, []);
+
+  const assignmentsForFixture = useCallback(
+    (fixtureId: string) =>
+      assignments.filter((a) => a.fixtureId === fixtureId),
+    [assignments]
+  );
+
   const assignedScoutIdsFor = useCallback(
     (fixtureId: string) =>
-      assignments.filter((a) => a.fixtureId === fixtureId).map((a) => a.scoutId),
-    [assignments]
+      assignments
+        .filter((a) => a.fixtureId === fixtureId)
+        .map((a) => {
+          const resolved = resolveScout(a.scoutId);
+          return resolved?.id ?? a.scoutId;
+        }),
+    [assignments, resolveScout]
   );
 
   return {
     assignments,
     reports,
     createForFixture,
+    removeAssignment,
     assignedScoutIdsFor,
+    assignmentsForFixture,
+    resolveScout,
+    DEMO_SCOUT_EMAILS,
   };
 };
