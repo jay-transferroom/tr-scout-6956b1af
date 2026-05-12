@@ -122,6 +122,10 @@ const MatchAssignmentDetailsSheet = ({ data, open, onOpenChange }: Props) => {
           </div>
 
           <div className="flex flex-col gap-2 border-t pt-4">
+            <Button onClick={() => navigate(`/match-report/${a.id}`)}>
+              <FileText className="h-4 w-4 mr-2" />
+              {a.status === "completed" ? "View report" : "Open report"}
+            </Button>
             <Button
               variant="outline"
               onClick={() => setReassignOpen(true)}
