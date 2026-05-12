@@ -46,6 +46,16 @@ const ScoutManagement = () => {
     return (saved === 'table' || saved === 'kanban') ? saved : 'kanban';
   });
 
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    const saved = localStorage.getItem('scoutManagementTab');
+    return saved && ['performance', 'matches', 'status'].includes(saved) ? saved : 'status';
+  });
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    localStorage.setItem('scoutManagementTab', tab);
+  };
+
   const handleViewChange = (view: 'kanban' | 'table') => {
     setCurrentView(view);
     localStorage.setItem('scoutManagementView', view);
