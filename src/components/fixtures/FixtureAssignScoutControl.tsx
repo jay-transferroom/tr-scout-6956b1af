@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useFixtureAssignments } from "@/hooks/useFixtureAssignments";
 import { getFixtureId } from "@/types/fixtureAssignment";
 import { ASSIGNMENT_VISUALS } from "@/utils/assignmentVisuals";
+import { useAuth } from "@/contexts/AuthContext";
 import AssignScoutToMatchDialog, {
   type FixtureForAssignment,
 } from "@/components/AssignScoutToMatchDialog";
