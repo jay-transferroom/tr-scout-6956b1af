@@ -7,16 +7,17 @@ import type {
   MatchReport,
 } from "@/types/fixtureAssignment";
 
-const ASSIGNMENTS_KEY = "tr-scout.fixture-assignments.v1";
-const REPORTS_KEY = "tr-scout.match-reports.v1";
+const ASSIGNMENTS_KEY = "tr-scout.fixture-assignments.v2";
+const REPORTS_KEY = "tr-scout.match-reports.v2";
 
 /** Demo scout identifiers — resolved to live profile ids on the read path. */
 export const DEMO_SCOUT_EMAILS = {
-  oliver: "oliver.smith@demo.com",
-  emma: "emma.johnson@demo.com",
+  oliver: "scout@demo.com",
+  emma: "scout2@demo.com",
+  dave: "manager@demo.com",
 } as const;
 
-const DEMO_MANAGER = "demo-manager";
+const DEMO_MANAGER = "manager@demo.com";
 
 /** Curated fixtures matching seeded data in fixtures_results_2526. */
 const seedFixtures = [
@@ -80,7 +81,7 @@ const buildSeed = (): { assignments: FixtureAssignment[]; reports: MatchReport[]
     },
     {
       id: "fa-seed-5",
-      scoutId: DEMO_SCOUT_EMAILS.oliver,
+      scoutId: DEMO_SCOUT_EMAILS.dave,
       fixtureId: fixtureId(seedFixtures[4]),
       status: "pending",
       priority: "medium",

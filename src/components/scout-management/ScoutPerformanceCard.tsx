@@ -5,6 +5,8 @@ import { TrendingUp, Clock, Target } from "lucide-react";
 import { ScoutUser } from "@/hooks/useScoutUsers";
 import { ScoutingAssignmentWithDetails } from "@/hooks/useScoutingAssignments";
 import { useReports } from "@/hooks/useReports";
+import { useFixtureAssignments } from "@/hooks/useFixtureAssignments";
+import { MapPin } from "lucide-react";
 
 interface ScoutPerformanceCardProps {
   scout: ScoutUser;
@@ -20,6 +22,10 @@ const ScoutPerformanceCard = ({
   onScoutClick
 }: ScoutPerformanceCardProps) => {
   const { reports = [] } = useReports();
+  const { assignments: fixtureAssignments, resolvedScoutId } = useFixtureAssignments();
+  const matchAssignmentCount = fixtureAssignments.filter(
+    (a) => resolvedScoutId(a) === scout.id || a.scoutId === scout.email
+  ).length;
   
   // Create a map of player reports for quick lookup
   const playerReportsMap = new Map();
@@ -92,6 +98,13 @@ const ScoutPerformanceCard = ({
               Total tasks:
             </span>
             <span className="font-semibold text-xs sm:text-sm">{scoutAssignments.length}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+              <MapPin className="h-3 w-3 flex-shrink-0 text-amber-600 dark:text-amber-400" />
+              Match assignments:
+            </span>
+            <span className="font-semibold text-xs sm:text-sm">{matchAssignmentCount}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-xs sm:text-sm text-muted-foreground">Completed:</span>
