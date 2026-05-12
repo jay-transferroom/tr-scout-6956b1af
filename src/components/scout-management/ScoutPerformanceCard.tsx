@@ -100,6 +100,13 @@ const ScoutPerformanceCard = ({
             <span className="font-semibold text-xs sm:text-sm">{scoutAssignments.length}</span>
           </div>
           <div className="flex justify-between items-center">
+            <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+              <MapPin className="h-3 w-3 flex-shrink-0 text-amber-600 dark:text-amber-400" />
+              Match assignments:
+            </span>
+            <span className="font-semibold text-xs sm:text-sm">{matchAssignmentCount}</span>
+          </div>
+          <div className="flex justify-between items-center">
             <span className="text-xs sm:text-sm text-muted-foreground">Completed:</span>
             <span className="font-semibold text-xs sm:text-sm text-green-600">{completedCount}</span>
           </div>
