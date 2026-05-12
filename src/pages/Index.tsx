@@ -21,6 +21,7 @@ import QuickActionsBar from "@/components/QuickActionsBar";
 import UpcomingMatches from "@/components/UpcomingMatches";
 import AIScoutAssistant from "@/components/AIScoutAssistant";
 import EventSummitBanner from "@/components/EventSummitBanner";
+import MyMatchAssignments from "@/components/scout/MyMatchAssignments";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -289,6 +290,9 @@ const Index = () => {
           dates="June 3-4"
           onRegister={() => console.log('Register clicked')}
         />
+
+        {/* Scout-only: upcoming fixture-level assignments */}
+        {profile?.role === 'scout' && <MyMatchAssignments />}
 
         {/* Fixture Tracking - Full width */}
         <UpcomingMatches />

@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Calendar as CalendarIcon, Clock, MapPin, UserCheck, Plus, Search, Star, Target, ClipboardList } from "lucide-react";
+import { useFixtureAssignments } from "@/hooks/useFixtureAssignments";
+import { getFixtureId } from "@/types/fixtureAssignment";
+import { ASSIGNMENT_VISUALS } from "@/utils/assignmentVisuals";
 import FixtureBrowser from "@/components/fixtures/FixtureBrowser";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday, addWeeks, subWeeks, isSameWeek, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -58,6 +61,8 @@ const Calendar = () => {
   const { shortlists, addPlayerToShortlist } = useShortlists();
   const { data: clubRatingData } = useClubRatingWeights();
   const clubWeights = clubRatingData?.weights;
+  const { assignments: fixtureAssignments, resolveScout: resolveFixtureScout } = useFixtureAssignments();
+  const FixtureAssignmentIcon = ASSIGNMENT_VISUALS.fixture.icon;
 
   // Determine the current user's report status for a fixture: 'submitted' | 'draft' | 'none'
   const getMyReportStatus = (fixture: Fixture): 'submitted' | 'draft' | 'none' => {
@@ -315,6 +320,24 @@ const Calendar = () => {
     ).length;
   };
 
+  // Fixture-level assignments for a given date, optionally scoped to a single scout.
+  const getFixtureAssignmentsForDate = (date: Date) => {
+    const fixtureIdsOnDate = new Set(
+      enhancedFixtures
+        .filter((f) => isSameDay(new Date(f.match_date_utc), date))
+        .map((f) => getFixtureId(f))
+    );
+    return fixtureAssignments.filter((a) => {
+      if (!fixtureIdsOnDate.has(a.fixtureId)) return false;
+      if (selectedScout !== "all") {
+        const resolved = resolveFixtureScout(a.scoutId);
+        const id = resolved?.id ?? a.scoutId;
+        if (id !== selectedScout) return false;
+      }
+      return true;
+    });
+  };
+
   const handleAssignPlayer = (player: any) => {
     setSelectedPlayer({
       id: player.id.toString(),
@@ -456,6 +479,17 @@ const Calendar = () => {
             />
           </div>
         </div>
+      </div>
+
+      {/* Calendar legend */}
+      <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <span className="font-medium text-foreground">Legend:</span>
+        <span className="inline-flex items-center gap-1"><CalendarIcon className="h-3 w-3" /> Fixtures</span>
+        <span className="inline-flex items-center gap-1 text-yellow-600"><Star className="h-3 w-3 fill-current" /> Shortlisted</span>
+        <span className="inline-flex items-center gap-1 text-blue-600"><UserCheck className="h-3 w-3" /> Player scouts</span>
+        <span className={cn("inline-flex items-center gap-1", ASSIGNMENT_VISUALS.fixture.iconClass)}>
+          <FixtureAssignmentIcon className="h-3 w-3" /> Match assignments
+        </span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
@@ -633,6 +667,16 @@ const Calendar = () => {
                                     <span>{uniqueScouts}</span>
                                   </div>
                                 )}
+                                {(() => {
+                                  const fa = getFixtureAssignmentsForDate(date).length;
+                                  if (!fa) return null;
+                                  return (
+                                    <div className={cn("flex items-center gap-1 text-sm", ASSIGNMENT_VISUALS.fixture.iconClass)}>
+                                      <FixtureAssignmentIcon className="h-4 w-4" />
+                                      <span>{fa}</span>
+                                    </div>
+                                  );
+                                })()}
                                 <div className="text-sm text-muted-foreground">
                                   {dayFixtures.length} {dayFixtures.length === 1 ? 'match' : 'matches'}
                                 </div>
@@ -753,6 +797,9 @@ const Calendar = () => {
                           .filter(a => fixturePlayerIds.includes(a.player_id))
                           .map(a => a.assigned_to_scout_id)
                       ).size;
+                      const dayFixtureAssignments = getFixtureAssignmentsForDate(day);
+                      const fixtureAssignmentCount = dayFixtureAssignments.length;
+                      const dayHasContent = hasFixtures || fixtureAssignmentCount > 0;
                       
                       return (
                         <TooltipProvider key={day.toISOString()}>
@@ -793,11 +840,17 @@ const Calendar = () => {
                                          <span>{uniqueScouts}</span>
                                        </div>
                                      )}
+                                     {fixtureAssignmentCount > 0 && (
+                                       <div className={cn("flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs", ASSIGNMENT_VISUALS.fixture.iconClass)}>
+                                         <FixtureAssignmentIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                                         <span>{fixtureAssignmentCount}</span>
+                                       </div>
+                                     )}
                                    </div>
                                  )}
                               </button>
                             </TooltipTrigger>
-                            {hasFixtures && (
+                            {dayHasContent && (
                               <TooltipContent side="top" className="max-w-xs">
                                 <div className="space-y-1 text-xs">
                                   <p className="font-semibold">{format(day, 'EEEE, MMMM d')}</p>
@@ -806,7 +859,24 @@ const Calendar = () => {
                                     <p>{totalShortlisted} shortlisted {totalShortlisted === 1 ? 'player' : 'players'}</p>
                                   )}
                                   {uniqueScouts > 0 && (
-                                    <p>{uniqueScouts} {uniqueScouts === 1 ? 'scout' : 'scouts'} assigned</p>
+                                    <p className="text-blue-600">{uniqueScouts} player {uniqueScouts === 1 ? 'scout' : 'scouts'} assigned</p>
+                                  )}
+                                  {fixtureAssignmentCount > 0 && (
+                                    <div className="border-t pt-1 mt-1 space-y-0.5">
+                                      <p className={cn("font-medium", ASSIGNMENT_VISUALS.fixture.iconClass)}>
+                                        {fixtureAssignmentCount} match {fixtureAssignmentCount === 1 ? 'assignment' : 'assignments'}
+                                      </p>
+                                      {dayFixtureAssignments.slice(0, 3).map((a) => {
+                                        const sc = resolveFixtureScout(a.scoutId);
+                                        const f = enhancedFixtures.find(ef => getFixtureId(ef) === a.fixtureId);
+                                        const name = sc ? `${sc.first_name ?? ''} ${sc.last_name ?? ''}`.trim() || sc.email : a.scoutId;
+                                        return (
+                                          <p key={a.id} className="text-muted-foreground">
+                                            {name} → {f ? `${f.home_team} vs ${f.away_team}` : 'fixture'}
+                                          </p>
+                                        );
+                                      })}
+                                    </div>
                                   )}
                                 </div>
                               </TooltipContent>
@@ -833,6 +903,35 @@ const Calendar = () => {
                 </CardTitle>
               </CardHeader>
             <CardContent>
+              {(() => {
+                const dayFixtureAssignments = getFixtureAssignmentsForDate(selectedDate);
+                if (dayFixtureAssignments.length === 0) return null;
+                return (
+                  <div className="mb-4 rounded-md border p-3" style={{ borderLeftColor: "hsl(38 92% 50%)", borderLeftWidth: 4 }}>
+                    <div className={cn("flex items-center gap-2 mb-2 text-sm font-medium", ASSIGNMENT_VISUALS.fixture.iconClass)}>
+                      <FixtureAssignmentIcon className="h-4 w-4" />
+                      Match assignments ({dayFixtureAssignments.length})
+                    </div>
+                    <div className="space-y-1.5">
+                      {dayFixtureAssignments.map((a) => {
+                        const sc = resolveFixtureScout(a.scoutId);
+                        const f = enhancedFixtures.find(ef => getFixtureId(ef) === a.fixtureId);
+                        const name = sc ? `${sc.first_name ?? ''} ${sc.last_name ?? ''}`.trim() || sc.email : a.scoutId;
+                        return (
+                          <div key={a.id} className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{name}</span>
+                              <span className="text-muted-foreground">→</span>
+                              <span>{f ? `${f.home_team} vs ${f.away_team}` : 'fixture'}</span>
+                            </div>
+                            <Badge variant="outline" className="text-[10px]">{a.status.replace('_', ' ')}</Badge>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
               {selectedDateFixtures.length > 0 ? (
                 <div className="space-y-4">
                   {selectedDateFixtures.map((fixture, index) => {
