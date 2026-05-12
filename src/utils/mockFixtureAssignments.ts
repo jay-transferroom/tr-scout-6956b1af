@@ -7,8 +7,8 @@ import type {
   MatchReport,
 } from "@/types/fixtureAssignment";
 
-const ASSIGNMENTS_KEY = "tr-scout.fixture-assignments.v2";
-const REPORTS_KEY = "tr-scout.match-reports.v2";
+const ASSIGNMENTS_KEY = "tr-scout.fixture-assignments.v3";
+const REPORTS_KEY = "tr-scout.match-reports.v3";
 
 /** Demo scout identifiers — resolved to live profile ids on the read path. */
 export const DEMO_SCOUT_EMAILS = {
@@ -19,18 +19,22 @@ export const DEMO_SCOUT_EMAILS = {
 
 const DEMO_MANAGER = "manager@demo.com";
 
-/** Curated fixtures matching seeded data in fixtures_results_2526. */
+/**
+ * Curated fixtures matching real rows in fixtures_results_2526.
+ * Date format MUST match what Supabase returns (ISO with +00:00 offset)
+ * because getFixtureId is computed verbatim from match_date_utc.
+ */
 const seedFixtures = [
   // Upcoming — pending / in_progress
-  { home: "Aston Villa", away: "Liverpool", date: "2026-05-16T14:00:00Z" },
-  { home: "Arsenal", away: "Fulham", date: "2026-05-17T15:30:00Z" },
-  { home: "Chelsea", away: "Manchester United", date: "2026-05-18T16:00:00Z" },
-  { home: "Brighton", away: "Tottenham Hotspur", date: "2026-05-19T19:00:00Z" },
-  { home: "Newcastle United", away: "Brentford", date: "2026-05-20T19:45:00Z" },
-  { home: "Manchester City", away: "West Ham United", date: "2026-05-21T17:00:00Z" },
+  { home: "Aston Villa", away: "Liverpool", date: "2026-05-17T14:00:00+00:00" },
+  { home: "Arsenal", away: "Burnley", date: "2026-05-17T14:00:00+00:00" },
+  { home: "Chelsea", away: "Spurs", date: "2026-05-17T14:00:00+00:00" },
+  { home: "Man Utd", away: "Nott'm Forest", date: "2026-05-17T14:00:00+00:00" },
+  { home: "Newcastle", away: "West Ham", date: "2026-05-17T14:00:00+00:00" },
+  { home: "Wolves", away: "Fulham", date: "2026-05-17T14:00:00+00:00" },
   // Completed (with reports)
-  { home: "Crystal Palace", away: "Wolverhampton Wanderers", date: "2026-05-02T14:00:00Z" },
-  { home: "Everton", away: "Burnley", date: "2026-05-03T16:30:00Z" },
+  { home: "Crystal Palace", away: "Everton", date: "2026-05-09T14:00:00+00:00" },
+  { home: "Liverpool", away: "Chelsea", date: "2026-05-09T14:00:00+00:00" },
 ];
 
 const fixtureId = (f: { home: string; away: string; date: string }) =>
