@@ -81,7 +81,7 @@ const buildSeed = (): { assignments: FixtureAssignment[]; reports: MatchReport[]
     },
     {
       id: "fa-seed-5",
-      scoutId: DEMO_SCOUT_EMAILS.oliver,
+      scoutId: DEMO_SCOUT_EMAILS.dave,
       fixtureId: fixtureId(seedFixtures[4]),
       status: "pending",
       priority: "medium",
