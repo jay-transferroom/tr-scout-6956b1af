@@ -36,6 +36,7 @@ import DataImport from "@/pages/transfers/DataImport";
 import SavedConversations from "@/pages/SavedChats";
 import MatchScouting from "@/pages/MatchScouting";
 import MatchScoutingReport from "@/pages/MatchScoutingReport";
+import MatchReport from "@/pages/MatchReport";
 import ClubSettings from "@/pages/ClubSettings";
 import RecommendationBadgeShowcase from "@/pages/dev/RecommendationBadgeShowcase";
 import RecommendationsOffDemo from "@/pages/dev/RecommendationsOffDemo";
@@ -76,6 +77,7 @@ function App() {
               <Route path="/saved-conversations" element={<ProtectedRoute><SavedConversations /></ProtectedRoute>} />
               <Route path="/match-scouting" element={<ProtectedRoute><MatchScouting /></ProtectedRoute>} />
               <Route path="/match-scouting/report" element={<ProtectedRoute><MatchScoutingReport /></ProtectedRoute>} />
+              <Route path="/match-report/:fixtureAssignmentId" element={<ProtectedRoute><MatchReport /></ProtectedRoute>} />
               <Route path="/squad-view" element={<ProtectedRoute><SquadView /></ProtectedRoute>} />
               <Route path="/club-settings" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
               <Route path="/club-ratings" element={<ProtectedRoute><ClubSettings /></ProtectedRoute>} />
