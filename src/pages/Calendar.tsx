@@ -903,6 +903,35 @@ const Calendar = () => {
                 </CardTitle>
               </CardHeader>
             <CardContent>
+              {(() => {
+                const dayFixtureAssignments = getFixtureAssignmentsForDate(selectedDate);
+                if (dayFixtureAssignments.length === 0) return null;
+                return (
+                  <div className="mb-4 rounded-md border p-3" style={{ borderLeftColor: "hsl(38 92% 50%)", borderLeftWidth: 4 }}>
+                    <div className={cn("flex items-center gap-2 mb-2 text-sm font-medium", ASSIGNMENT_VISUALS.fixture.iconClass)}>
+                      <FixtureAssignmentIcon className="h-4 w-4" />
+                      Match assignments ({dayFixtureAssignments.length})
+                    </div>
+                    <div className="space-y-1.5">
+                      {dayFixtureAssignments.map((a) => {
+                        const sc = resolveFixtureScout(a.scoutId);
+                        const f = enhancedFixtures.find(ef => getFixtureId(ef) === a.fixtureId);
+                        const name = sc ? `${sc.first_name ?? ''} ${sc.last_name ?? ''}`.trim() || sc.email : a.scoutId;
+                        return (
+                          <div key={a.id} className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{name}</span>
+                              <span className="text-muted-foreground">→</span>
+                              <span>{f ? `${f.home_team} vs ${f.away_team}` : 'fixture'}</span>
+                            </div>
+                            <Badge variant="outline" className="text-[10px]">{a.status.replace('_', ' ')}</Badge>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
               {selectedDateFixtures.length > 0 ? (
                 <div className="space-y-4">
                   {selectedDateFixtures.map((fixture, index) => {
