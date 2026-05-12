@@ -37,6 +37,7 @@ interface Props {
 
 const MatchAssignmentDetailsSheet = ({ data, open, onOpenChange }: Props) => {
   const { removeAssignment } = useFixtureAssignments();
+  const navigate = useNavigate();
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [reassignOpen, setReassignOpen] = useState(false);
 
