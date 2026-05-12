@@ -320,6 +320,24 @@ const Calendar = () => {
     ).length;
   };
 
+  // Fixture-level assignments for a given date, optionally scoped to a single scout.
+  const getFixtureAssignmentsForDate = (date: Date) => {
+    const fixtureIdsOnDate = new Set(
+      enhancedFixtures
+        .filter((f) => isSameDay(new Date(f.match_date_utc), date))
+        .map((f) => getFixtureId(f))
+    );
+    return fixtureAssignments.filter((a) => {
+      if (!fixtureIdsOnDate.has(a.fixtureId)) return false;
+      if (selectedScout !== "all") {
+        const resolved = resolveFixtureScout(a.scoutId);
+        const id = resolved?.id ?? a.scoutId;
+        if (id !== selectedScout) return false;
+      }
+      return true;
+    });
+  };
+
   const handleAssignPlayer = (player: any) => {
     setSelectedPlayer({
       id: player.id.toString(),
