@@ -26,6 +26,11 @@ import { useAllMatchScoutingReports } from "@/hooks/useAllMatchScoutingReports";
 import { getMatchIdentifier } from "@/hooks/useMatchScoutingReports";
 import { loadMatchScoutingDraft } from "@/utils/matchScoutingDrafts";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
+import FixtureAssignScoutControl from "@/components/fixtures/FixtureAssignScoutControl";
+import { useFixtureAssignments } from "@/hooks/useFixtureAssignments";
+import { getFixtureId } from "@/types/fixtureAssignment";
+import { ASSIGNMENT_VISUALS } from "@/utils/assignmentVisuals";
+import { Trash2 } from "lucide-react";
 
 // Map competition names to countries for matching
 const COMPETITION_COUNTRY_MAP: Record<string, string> = {
