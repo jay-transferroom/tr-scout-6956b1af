@@ -94,6 +94,15 @@ export const useFixtureAssignments = () => {
     emit();
   }, []);
 
+  const updateAssignment = useCallback(
+    (id: string, patch: Partial<FixtureAssignment>) => {
+      const result = fixtureAssignmentStore.update(id, patch);
+      emit();
+      return result;
+    },
+    []
+  );
+
   const assignmentsForFixture = useCallback(
     (fixtureId: string) =>
       assignments.filter((a) => a.fixtureId === fixtureId),
@@ -111,14 +120,35 @@ export const useFixtureAssignments = () => {
     [assignments, resolveScout]
   );
 
+  /** True if a fixture assignment belongs to the user (by id or email). */
+  const isAssignmentForUser = useCallback(
+    (a: FixtureAssignment, userId?: string, userEmail?: string) => {
+      if (!userId && !userEmail) return false;
+      if (a.scoutId === userId) return true;
+      if (userEmail && a.scoutId.toLowerCase() === userEmail.toLowerCase()) return true;
+      const resolved = resolveScout(a.scoutId);
+      return !!resolved && resolved.id === userId;
+    },
+    [resolveScout]
+  );
+
+  /** Return the resolved scout id for an assignment (live profile id when possible). */
+  const resolvedScoutId = useCallback(
+    (a: FixtureAssignment) => resolveScout(a.scoutId)?.id ?? a.scoutId,
+    [resolveScout]
+  );
+
   return {
     assignments,
     reports,
     createForFixture,
     removeAssignment,
+    updateAssignment,
     assignedScoutIdsFor,
     assignmentsForFixture,
     resolveScout,
+    resolvedScoutId,
+    isAssignmentForUser,
     DEMO_SCOUT_EMAILS,
   };
 };
