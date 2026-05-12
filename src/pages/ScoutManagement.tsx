@@ -418,7 +418,7 @@ const ScoutManagement = () => {
   }
 
   return (
-    <div className="container mx-auto pb-4 md:pb-8 px-4 md:px-6 max-w-[1600px]">
+    <div className="container mx-auto pt-6 md:pt-10 pb-4 md:pb-8 px-4 md:px-6 max-w-[1600px]">
       <ScoutManagementHeader />
 
       <ScoutManagementFilters
