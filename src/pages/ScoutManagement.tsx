@@ -424,6 +424,8 @@ const ScoutManagement = () => {
         scouts={scouts}
       />
 
+      <MatchAssignmentsBoard selectedScout={selectedScout} searchTerm={searchTerm} />
+
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <h2 className="text-lg sm:text-xl font-semibold">Assignment Status</h2>
