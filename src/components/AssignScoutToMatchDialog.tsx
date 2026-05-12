@@ -363,6 +363,36 @@ const AssignScoutToMatchDialog = ({ open, onOpenChange, fixture }: Props) => {
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <AlertDialog
+        open={pendingRemoveId !== null}
+        onOpenChange={(o) => !o && setPendingRemoveId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this scout?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The scout will no longer be assigned to this fixture. This cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingRemoveId) {
+                  removeAssignment(pendingRemoveId);
+                  toast.success("Assignment removed");
+                  setPendingRemoveId(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };
