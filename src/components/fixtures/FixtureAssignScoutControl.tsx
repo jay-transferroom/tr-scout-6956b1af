@@ -33,12 +33,17 @@ const FixtureAssignScoutControl: React.FC<Props> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const { assignmentsForFixture, resolveScout } = useFixtureAssignments();
+  const { profile } = useAuth();
   const visual = ASSIGNMENT_VISUALS.fixture;
   const Icon = visual.icon;
 
   const fixtureId = getFixtureId(fixture);
   const assignments = assignmentsForFixture(fixtureId);
   const count = assignments.length;
+
+  // Manager-only affordance. Scouts (or unauthenticated) never see the trigger.
+  const canAssign = profile?.role === "recruitment" || profile?.role === "director";
+  if (!canAssign) return null;
 
   const handleClick = (e: React.MouseEvent) => {
     if (stopPropagation) e.stopPropagation();
