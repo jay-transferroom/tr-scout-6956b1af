@@ -18,6 +18,7 @@ import KanbanColumn from "@/components/scout-management/KanbanColumn";
 import ReviewedAssignmentsModal from "@/components/scout-management/ReviewedAssignmentsModal";
 import ScoutManagementViewToggle from "@/components/scout-management/ScoutManagementViewToggle";
 import ScoutManagementTableView from "@/components/scout-management/ScoutManagementTableView";
+import MatchAssignmentsBoard from "@/components/scout-management/MatchAssignmentsBoard";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { transformToAssignmentBased } from "@/utils/assignmentStatusUtils";
