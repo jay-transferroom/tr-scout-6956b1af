@@ -411,22 +411,15 @@ const ScoutManagement = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-8 max-w-7xl">
+      <div className="container mx-auto py-8 max-w-[1600px]">
         <div className="text-center">Loading assignments...</div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto pb-4 md:pb-8 px-4 max-w-7xl">
+    <div className="container mx-auto pb-4 md:pb-8 px-4 md:px-6 max-w-[1600px]">
       <ScoutManagementHeader />
-
-      <ScoutPerformanceGrid
-        scouts={scouts}
-        assignments={assignments}
-        selectedScout={selectedScout}
-        onScoutClick={handleScoutClick}
-      />
 
       <ScoutManagementFilters
         searchTerm={searchTerm}
@@ -436,85 +429,111 @@ const ScoutManagement = () => {
         scouts={scouts}
       />
 
-      <MatchAssignmentsBoard selectedScout={selectedScout} searchTerm={searchTerm} />
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <TabsList className="mb-6">
+          <TabsTrigger value="status" className="gap-2">
+            <ListChecks className="h-4 w-4" />
+            Assignment Status
+          </TabsTrigger>
+          <TabsTrigger value="matches" className="gap-2">
+            <CalendarCheck className="h-4 w-4" />
+            Match Assignments
+          </TabsTrigger>
+          <TabsTrigger value="performance" className="gap-2">
+            <Users className="h-4 w-4" />
+            Scout Performance
+          </TabsTrigger>
+        </TabsList>
 
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <h2 className="text-lg sm:text-xl font-semibold">Assignment Status</h2>
-          <ScoutManagementViewToggle 
-            currentView={currentView} 
-            onViewChange={handleViewChange} 
+        <TabsContent value="performance">
+          <ScoutPerformanceGrid
+            scouts={scouts}
+            assignments={assignments}
+            selectedScout={selectedScout}
+            onScoutClick={handleScoutClick}
           />
-          <div className="flex items-center gap-2 text-xs">
-            <button
-              type="button"
-              onClick={() => navigate("/club-settings?tab=pipeline")}
-              className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline focus:outline-none focus-visible:underline"
-            >
-              Manage pipeline
-            </button>
-            {pipelineColumns.length > 5 && (
-              <span className="text-muted-foreground">
-                · {pipelineColumns.length} columns · scroll horizontally →
-              </span>
-            )}
-          </div>
-        </div>
-        <Button 
-          variant="outline" 
-          onClick={handleViewReviewedAssignments}
-          className="gap-2 w-full sm:w-auto"
-          size="sm"
-        >
-          View Reviewed ({reviewedAssignments.length})
-        </Button>
-      </div>
+        </TabsContent>
 
-      {/* Status Board or Table View */}
-      {currentView === 'kanban' ? (
-        <div className="overflow-x-auto -mx-4 px-4 pb-2">
-          <div
-            className="grid gap-6"
-            style={{
-              gridTemplateColumns: `repeat(${Math.max(1, columns.length)}, minmax(260px, 1fr))`,
-              minWidth: columns.length > 5 ? `${columns.length * 280}px` : undefined,
-            }}
-          >
-            {columns.map((column) => (
-              <KanbanColumn
-                key={column.id}
-                column={column}
-                players={playersByColumn[column.id] || []}
-                searchTerm={searchTerm}
-                selectedScout={selectedScout}
-                onAssignScout={column.id === 'shortlisted' ? handleAssignScout : undefined}
-                onViewReport={column.id === 'completed' ? handleViewReport : undefined}
-                onMarkAsReviewed={column.id === 'completed' ? handleMarkAsReviewed : undefined}
-                onCardDragStart={handleCardDragStart}
-                onCardDrop={handleCardDrop}
-                isDropTarget={!!draggingPlayerId}
-                emptyMessage={`No items in ${column.title}`}
+        <TabsContent value="matches">
+          <MatchAssignmentsBoard selectedScout={selectedScout} searchTerm={searchTerm} />
+        </TabsContent>
+
+        <TabsContent value="status">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <ScoutManagementViewToggle 
+                currentView={currentView} 
+                onViewChange={handleViewChange} 
               />
-            ))}
+              <div className="flex items-center gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => navigate("/club-settings?tab=pipeline")}
+                  className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline focus:outline-none focus-visible:underline"
+                >
+                  Manage pipeline
+                </button>
+                {pipelineColumns.length > 5 && (
+                  <span className="text-muted-foreground">
+                    · {pipelineColumns.length} columns · scroll horizontally →
+                  </span>
+                )}
+              </div>
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={handleViewReviewedAssignments}
+              className="gap-2 w-full sm:w-auto"
+              size="sm"
+            >
+              View Reviewed ({reviewedAssignments.length})
+            </Button>
           </div>
-        </div>
-      ) : (
-        <ScoutManagementTableView
-          kanbanData={kanbanData}
-          onAssignScout={handleAssignScout}
-          onViewReport={handleViewReport}
-          onMarkAsReviewed={handleMarkAsReviewed}
-        />
-      )}
 
-      {/* Assign Scout Dialog */}
+          {currentView === 'kanban' ? (
+            <div className="overflow-x-auto -mx-4 px-4 pb-2">
+              <div
+                className="grid gap-6"
+                style={{
+                  gridTemplateColumns: `repeat(${Math.max(1, columns.length)}, minmax(260px, 1fr))`,
+                  minWidth: columns.length > 5 ? `${columns.length * 280}px` : undefined,
+                }}
+              >
+                {columns.map((column) => (
+                  <KanbanColumn
+                    key={column.id}
+                    column={column}
+                    players={playersByColumn[column.id] || []}
+                    searchTerm={searchTerm}
+                    selectedScout={selectedScout}
+                    onAssignScout={column.id === 'shortlisted' ? handleAssignScout : undefined}
+                    onViewReport={column.id === 'completed' ? handleViewReport : undefined}
+                    onMarkAsReviewed={column.id === 'completed' ? handleMarkAsReviewed : undefined}
+                    onCardDragStart={handleCardDragStart}
+                    onCardDrop={handleCardDrop}
+                    isDropTarget={!!draggingPlayerId}
+                    emptyMessage={`No items in ${column.title}`}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <ScoutManagementTableView
+              kanbanData={kanbanData}
+              onAssignScout={handleAssignScout}
+              onViewReport={handleViewReport}
+              onMarkAsReviewed={handleMarkAsReviewed}
+            />
+          )}
+        </TabsContent>
+      </Tabs>
+
       <AssignScoutDialog
         isOpen={isAssignDialogOpen}
         onClose={handleAssignDialogClose}
         player={selectedPlayer}
       />
 
-      {/* Reviewed Assignments Modal */}
       <ReviewedAssignmentsModal
         isOpen={isReviewedModalOpen}
         onClose={() => setIsReviewedModalOpen(false)}
