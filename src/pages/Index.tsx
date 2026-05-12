@@ -21,6 +21,7 @@ import QuickActionsBar from "@/components/QuickActionsBar";
 import UpcomingMatches from "@/components/UpcomingMatches";
 import AIScoutAssistant from "@/components/AIScoutAssistant";
 import EventSummitBanner from "@/components/EventSummitBanner";
+import MyMatchAssignments from "@/components/scout/MyMatchAssignments";
 
 const Index = () => {
   const navigate = useNavigate();
