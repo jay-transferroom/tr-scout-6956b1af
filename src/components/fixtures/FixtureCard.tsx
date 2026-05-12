@@ -163,6 +163,8 @@ interface FixtureCardProps {
   onClick?: () => void;
   className?: string;
   variant?: "compact" | "default";
+  /** Optional footer rendered inside the card body (e.g. Assign Scout CTA). */
+  footer?: React.ReactNode;
 }
 
 export const FixtureCard: React.FC<FixtureCardProps> = ({
@@ -178,6 +180,7 @@ export const FixtureCard: React.FC<FixtureCardProps> = ({
   onClick,
   className,
   variant = "default",
+  footer,
 }) => {
   const hasScore = homeScore !== null && awayScore !== null;
   const gradient = getMatchGradient(homeTeam, awayTeam);
