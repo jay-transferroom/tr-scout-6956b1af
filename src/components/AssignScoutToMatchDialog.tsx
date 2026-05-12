@@ -64,7 +64,13 @@ const initials = (s: { first_name?: string; last_name?: string; email: string })
 const AssignScoutToMatchDialog = ({ open, onOpenChange, fixture }: Props) => {
   const { user } = useAuth();
   const { data: scouts = [] } = useScouts();
-  const { createForFixture, assignedScoutIdsFor } = useFixtureAssignments();
+  const {
+    createForFixture,
+    assignedScoutIdsFor,
+    assignmentsForFixture,
+    removeAssignment,
+    resolveScout,
+  } = useFixtureAssignments();
   const fixtureVisual = ASSIGNMENT_VISUALS.fixture;
   const StadiumIcon = fixtureVisual.icon;
 
@@ -74,8 +80,13 @@ const AssignScoutToMatchDialog = ({ open, onOpenChange, fixture }: Props) => {
   const [notes, setNotes] = useState("");
   const [search, setSearch] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
 
   const fixtureId = fixture ? getFixtureId(fixture) : "";
+  const existingAssignments = useMemo(
+    () => (fixtureId ? assignmentsForFixture(fixtureId) : []),
+    [fixtureId, assignmentsForFixture]
+  );
   const alreadyAssignedIds = useMemo(
     () => (fixtureId ? assignedScoutIdsFor(fixtureId) : []),
     [fixtureId, assignedScoutIdsFor]
