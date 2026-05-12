@@ -8,6 +8,9 @@ import FixtureAssignmentCard from "@/components/assigned-players/FixtureAssignme
 import AssignmentsTableView from "@/components/assigned-players/AssignmentsTableView";
 import ViewToggle from "@/components/ViewToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+type Timeframe = "all" | "upcoming" | "past";
 
 const AssignedPlayers = () => {
   const { items, stats, isLoading } = useUnifiedAssignments();
@@ -15,11 +18,20 @@ const AssignedPlayers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [timeframe, setTimeframe] = useState<Timeframe>("all");
   const [currentView, setCurrentView] = useState<"grid" | "list">("list");
+
+  const now = Date.now();
+  const inTimeframe = (sortKey: number) => {
+    if (timeframe === "all") return true;
+    if (timeframe === "upcoming") return sortKey >= now;
+    return sortKey < now;
+  };
 
   const filtered = useMemo(() => {
     const q = searchTerm.toLowerCase().trim();
     return items.filter((i) => {
+      if (!inTimeframe(i.sortKey)) return false;
       if (typeFilter !== "all" && i.kind !== typeFilter) return false;
       if (statusFilter !== "all" && i.status !== statusFilter) return false;
       if (!q) return true;
@@ -34,7 +46,14 @@ const AssignedPlayers = () => {
       const away = f?.away_team?.toLowerCase() ?? "";
       return home.includes(q) || away.includes(q);
     });
-  }, [items, searchTerm, statusFilter, typeFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, searchTerm, statusFilter, typeFilter, timeframe]);
+
+  const counts = useMemo(() => ({
+    all: items.length,
+    upcoming: items.filter((i) => i.sortKey >= now).length,
+    past: items.filter((i) => i.sortKey < now).length,
+  }), [items, now]);
 
   if (isLoading) {
     return (
@@ -54,6 +73,15 @@ const AssignedPlayers = () => {
     <div className="container mx-auto py-4 sm:py-8 max-w-7xl px-2 sm:px-4">
       <AssignedPlayersHeader />
       <AssignmentStatsCards stats={stats} />
+
+      <Tabs value={timeframe} onValueChange={(v) => setTimeframe(v as Timeframe)} className="mb-4">
+        <TabsList>
+          <TabsTrigger value="all">All ({counts.all})</TabsTrigger>
+          <TabsTrigger value="upcoming">Upcoming ({counts.upcoming})</TabsTrigger>
+          <TabsTrigger value="past">Past ({counts.past})</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       <AssignmentFilters
         searchTerm={searchTerm}
         statusFilter={statusFilter}
@@ -88,3 +116,4 @@ const AssignedPlayers = () => {
 };
 
 export default AssignedPlayers;
+
