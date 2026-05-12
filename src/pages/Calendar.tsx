@@ -830,11 +830,17 @@ const Calendar = () => {
                                          <span>{uniqueScouts}</span>
                                        </div>
                                      )}
+                                     {fixtureAssignmentCount > 0 && (
+                                       <div className={cn("flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs", ASSIGNMENT_VISUALS.fixture.iconClass)}>
+                                         <FixtureAssignmentIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                                         <span>{fixtureAssignmentCount}</span>
+                                       </div>
+                                     )}
                                    </div>
                                  )}
                               </button>
                             </TooltipTrigger>
-                            {hasFixtures && (
+                            {dayHasContent && (
                               <TooltipContent side="top" className="max-w-xs">
                                 <div className="space-y-1 text-xs">
                                   <p className="font-semibold">{format(day, 'EEEE, MMMM d')}</p>
