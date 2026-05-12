@@ -308,6 +308,15 @@ export const FixtureCard: React.FC<FixtureCardProps> = ({
             </div>
           )}
         </div>
+
+        {footer && (
+          <div
+            className="mt-2 pt-2 border-t border-border/50 flex items-center justify-end"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {footer}
+          </div>
+        )}
       </div>
     </Card>
   );
