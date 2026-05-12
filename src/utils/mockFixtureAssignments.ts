@@ -7,8 +7,8 @@ import type {
   MatchReport,
 } from "@/types/fixtureAssignment";
 
-const ASSIGNMENTS_KEY = "tr-scout.fixture-assignments.v1";
-const REPORTS_KEY = "tr-scout.match-reports.v1";
+const ASSIGNMENTS_KEY = "tr-scout.fixture-assignments.v2";
+const REPORTS_KEY = "tr-scout.match-reports.v2";
 
 /** Demo scout identifiers — resolved to live profile ids on the read path. */
 export const DEMO_SCOUT_EMAILS = {
