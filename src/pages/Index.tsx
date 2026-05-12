@@ -291,6 +291,9 @@ const Index = () => {
           onRegister={() => console.log('Register clicked')}
         />
 
+        {/* Scout-only: upcoming fixture-level assignments */}
+        {profile?.role === 'scout' && <MyMatchAssignments />}
+
         {/* Fixture Tracking - Full width */}
         <UpcomingMatches />
 
