@@ -22,6 +22,10 @@ const ScoutPerformanceCard = ({
   onScoutClick
 }: ScoutPerformanceCardProps) => {
   const { reports = [] } = useReports();
+  const { assignments: fixtureAssignments, resolvedScoutId } = useFixtureAssignments();
+  const matchAssignmentCount = fixtureAssignments.filter(
+    (a) => resolvedScoutId(a) === scout.id || a.scoutId === scout.email
+  ).length;
   
   // Create a map of player reports for quick lookup
   const playerReportsMap = new Map();
