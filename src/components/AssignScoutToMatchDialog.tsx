@@ -1,10 +1,20 @@
 import { useMemo, useState } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Check, MapPin, Search, X } from "lucide-react";
+import { CalendarIcon, Check, MapPin, Search, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -54,7 +64,13 @@ const initials = (s: { first_name?: string; last_name?: string; email: string })
 const AssignScoutToMatchDialog = ({ open, onOpenChange, fixture }: Props) => {
   const { user } = useAuth();
   const { data: scouts = [] } = useScouts();
-  const { createForFixture, assignedScoutIdsFor } = useFixtureAssignments();
+  const {
+    createForFixture,
+    assignedScoutIdsFor,
+    assignmentsForFixture,
+    removeAssignment,
+    resolveScout,
+  } = useFixtureAssignments();
   const fixtureVisual = ASSIGNMENT_VISUALS.fixture;
   const StadiumIcon = fixtureVisual.icon;
 
@@ -64,8 +80,13 @@ const AssignScoutToMatchDialog = ({ open, onOpenChange, fixture }: Props) => {
   const [notes, setNotes] = useState("");
   const [search, setSearch] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
 
   const fixtureId = fixture ? getFixtureId(fixture) : "";
+  const existingAssignments = useMemo(
+    () => (fixtureId ? assignmentsForFixture(fixtureId) : []),
+    [fixtureId, assignmentsForFixture]
+  );
   const alreadyAssignedIds = useMemo(
     () => (fixtureId ? assignedScoutIdsFor(fixtureId) : []),
     [fixtureId, assignedScoutIdsFor]
@@ -147,6 +168,46 @@ const AssignScoutToMatchDialog = ({ open, onOpenChange, fixture }: Props) => {
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Existing assignments */}
+          {existingAssignments.length > 0 && (
+            <div className="space-y-2">
+              <Label>Currently assigned ({existingAssignments.length})</Label>
+              <div className="rounded-md border divide-y">
+                {existingAssignments.map((a) => {
+                  const s = resolveScout(a.scoutId);
+                  const label = s ? scoutLabel(s) : a.scoutId;
+                  return (
+                    <div
+                      key={a.id}
+                      className="flex items-center gap-2 px-2 py-1.5 text-sm"
+                    >
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold">
+                        {s ? initials(s) : "?"}
+                      </span>
+                      <span className="flex-1 truncate">{label}</span>
+                      <Badge variant="outline" className="text-[10px] capitalize">
+                        {a.priority}
+                      </Badge>
+                      <Badge variant="secondary" className="text-[10px] capitalize">
+                        {a.status.replace("_", " ")}
+                      </Badge>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                        onClick={() => setPendingRemoveId(a.id)}
+                        aria-label="Remove assignment"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Scout multi-select */}
           <div className="space-y-2">
             <Label>Scouts</Label>
@@ -302,6 +363,36 @@ const AssignScoutToMatchDialog = ({ open, onOpenChange, fixture }: Props) => {
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <AlertDialog
+        open={pendingRemoveId !== null}
+        onOpenChange={(o) => !o && setPendingRemoveId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this scout?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The scout will no longer be assigned to this fixture. This cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingRemoveId) {
+                  removeAssignment(pendingRemoveId);
+                  toast.success("Assignment removed");
+                  setPendingRemoveId(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };

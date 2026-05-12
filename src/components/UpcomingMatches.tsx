@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useFixturesData, Fixture } from "@/hooks/useFixturesData";
 import { isAfter, addDays } from "date-fns";
 import { FixtureCard } from "@/components/fixtures/FixtureCard";
+import FixtureAssignScoutControl from "@/components/fixtures/FixtureAssignScoutControl";
 
 const UpcomingMatches = () => {
   const navigate = useNavigate();
@@ -67,6 +68,18 @@ const UpcomingMatches = () => {
                 colorIndex={index}
                 variant="compact"
                 onClick={() => navigate("/calendar")}
+                footer={
+                  <FixtureAssignScoutControl
+                    size="compact"
+                    fixture={{
+                      home_team: match.home_team,
+                      away_team: match.away_team,
+                      match_date_utc: match.match_date_utc,
+                      venue: match.venue,
+                      competition: match.competition,
+                    }}
+                  />
+                }
               />
             ))}
           </div>
