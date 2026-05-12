@@ -20,8 +20,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
-import { MapPin, Trash2, RefreshCw } from "lucide-react";
+import { MapPin, Trash2, RefreshCw, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { useFixtureAssignments } from "@/hooks/useFixtureAssignments";
 import AssignScoutToMatchDialog, {
   type FixtureForAssignment,
