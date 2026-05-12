@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useFixturesData, Fixture } from "@/hooks/useFixturesData";
 import { isAfter, addDays } from "date-fns";
 import { FixtureCard } from "@/components/fixtures/FixtureCard";
+import FixtureAssignScoutControl from "@/components/fixtures/FixtureAssignScoutControl";
 
 const UpcomingMatches = () => {
   const navigate = useNavigate();
