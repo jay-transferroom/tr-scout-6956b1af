@@ -68,6 +68,18 @@ const UpcomingMatches = () => {
                 colorIndex={index}
                 variant="compact"
                 onClick={() => navigate("/calendar")}
+                footer={
+                  <FixtureAssignScoutControl
+                    size="compact"
+                    fixture={{
+                      home_team: match.home_team,
+                      away_team: match.away_team,
+                      match_date_utc: match.match_date_utc,
+                      venue: match.venue,
+                      competition: match.competition,
+                    }}
+                  />
+                }
               />
             ))}
           </div>
