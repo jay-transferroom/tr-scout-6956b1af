@@ -329,6 +329,7 @@ const ReportsList = () => {
                     <TabsTrigger value="drafts">My Drafts</TabsTrigger>
                   </TabsList>
                 </Tabs>
+                <FixtureMatchReportsTable scoutId={matchSubTab === "drafts" ? user?.id : undefined} />
                 <MatchReportsTable
                   matchReports={visibleMatchReports}
                   onSelectMatch={(m) => setSelectedMatch(m)}
