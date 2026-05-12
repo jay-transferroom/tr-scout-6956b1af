@@ -196,7 +196,7 @@ const AssignmentsTableView = ({ assignments }: AssignmentsTableViewProps) => {
                     )}
                     <Button
                       size="sm"
-                      onClick={() => navigate("/match-scouting")}
+                      onClick={() => navigate(`/match-report/${fa.id}`)}
                       title="Open match report"
                     >
                       <MapPin className="h-4 w-4" />

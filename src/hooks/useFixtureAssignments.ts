@@ -138,12 +138,31 @@ export const useFixtureAssignments = () => {
     [resolveScout]
   );
 
+  const upsertReport = useCallback((report: MatchReport) => {
+    const result = fixtureAssignmentStore.upsertReport(report);
+    emit();
+    return result;
+  }, []);
+
+  const getReportByAssignmentId = useCallback(
+    (id: string) => reports.find((r) => r.fixtureAssignmentId === id),
+    [reports]
+  );
+
+  const getAssignment = useCallback(
+    (id: string) => assignments.find((a) => a.id === id),
+    [assignments]
+  );
+
   return {
     assignments,
     reports,
     createForFixture,
     removeAssignment,
     updateAssignment,
+    upsertReport,
+    getReportByAssignmentId,
+    getAssignment,
     assignedScoutIdsFor,
     assignmentsForFixture,
     resolveScout,

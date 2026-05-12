@@ -77,7 +77,7 @@ const FixtureAssignmentCard = ({ item }: Props) => {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2">
-        <Button size="sm" className="flex-1" onClick={() => navigate("/match-scouting")}>
+        <Button size="sm" className="flex-1" onClick={() => navigate(`/match-report/${fa.id}`)}>
           <MapPin className="h-4 w-4 mr-1" />
           Match Report
         </Button>
