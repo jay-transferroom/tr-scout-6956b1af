@@ -79,10 +79,9 @@ const MatchAssignmentsBoard = ({ selectedScout, searchTerm }: Props) => {
   };
 
   return (
-    <div className="mb-8">
+    <div>
       <div className="mb-3 flex items-center gap-2">
-        <h2 className="text-lg sm:text-xl font-semibold">Match Assignments</h2>
-        <Badge variant="secondary" className="text-xs">{cards.length}</Badge>
+        <Badge variant="secondary" className="text-xs">{cards.length} total</Badge>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {COLUMNS.map((col) => (
