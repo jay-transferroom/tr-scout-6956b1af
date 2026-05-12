@@ -530,27 +530,106 @@ const FixtureDetailPanel: React.FC<{
   renderPlayerRow: (player: any) => React.ReactNode;
 }> = ({ fixture, getFixturePlayers, renderPlayerRow }) => {
   const { shortlistedPlayers, recommendedPlayers } = getFixturePlayers(fixture);
-  const hasContent = shortlistedPlayers.length > 0 || recommendedPlayers.length > 0;
+  const { assignmentsForFixture, removeAssignment, resolveScout } = useFixtureAssignments();
+  const fixtureId = getFixtureId({
+    home_team: fixture.home_team,
+    away_team: fixture.away_team,
+    match_date_utc: fixture.match_date_utc,
+  });
+  const matchAssignments = assignmentsForFixture(fixtureId);
+  const fixtureVisual = ASSIGNMENT_VISUALS.fixture;
+  const FixtureIcon = fixtureVisual.icon;
+  const hasContent =
+    shortlistedPlayers.length > 0 ||
+    recommendedPlayers.length > 0 ||
+    matchAssignments.length > 0;
 
   return (
     <div className="px-4 pb-4 pt-1 bg-muted/20 border-t border-border/50">
-      {!hasContent ? (
-        <div className="text-center py-4 text-sm text-muted-foreground">
-          No shortlisted or recommended players in this fixture
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {shortlistedPlayers.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-2 pt-2">
-                <Star className="h-4 w-4 text-yellow-500" />
-                <span className="text-sm font-medium">Shortlisted Players ({shortlistedPlayers.length})</span>
-              </div>
-              <div className="space-y-2">
-                {shortlistedPlayers.map(renderPlayerRow)}
-              </div>
+      <div className="space-y-3">
+        {/* Match-level assignments */}
+        <div>
+          <div className="flex items-center gap-2 mb-2 pt-2">
+            <FixtureIcon className={cn("h-4 w-4", fixtureVisual.iconClass)} />
+            <span className="text-sm font-medium">
+              Match-level assignments{matchAssignments.length > 0 ? ` (${matchAssignments.length})` : ""}
+            </span>
+          </div>
+          {matchAssignments.length === 0 ? (
+            <p className="text-xs text-muted-foreground bg-muted/30 rounded-md px-3 py-2">
+              No scouts assigned to this match yet. Click "Assign Scout" above.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {matchAssignments.map((a) => {
+                const s = resolveScout(a.scoutId);
+                const name = s
+                  ? `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim() || s.email
+                  : a.scoutId;
+                const init = s
+                  ? `${(s.first_name ?? s.email)[0] ?? "?"}${(s.last_name ?? "")[0] ?? ""}`.toUpperCase()
+                  : "??";
+                return (
+                  <div
+                    key={a.id}
+                    className="flex items-start gap-3 bg-muted/30 hover:bg-muted/50 rounded-md px-3 py-2 transition-colors"
+                  >
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-background text-xs font-semibold border">
+                      {init}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-sm font-medium truncate">{name}</span>
+                        <Badge variant="outline" className="text-[10px] capitalize">
+                          {a.priority}
+                        </Badge>
+                        <Badge variant="secondary" className="text-[10px] capitalize">
+                          {a.status.replace("_", " ")}
+                        </Badge>
+                      </div>
+                      {a.notes && (
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                          {a.notes}
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 px-2 text-xs text-destructive hover:text-destructive"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm(`Remove ${name} from this match?`)) {
+                          removeAssignment(a.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           )}
+        </div>
+
+        {!hasContent && shortlistedPlayers.length === 0 && recommendedPlayers.length === 0 && matchAssignments.length === 0 && (
+          <div className="text-center py-2 text-sm text-muted-foreground">
+            No shortlisted or recommended players in this fixture
+          </div>
+        )}
+
+        {shortlistedPlayers.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-2 pt-2">
+              <Star className="h-4 w-4 text-yellow-500" />
+              <span className="text-sm font-medium">Shortlisted Players ({shortlistedPlayers.length})</span>
+            </div>
+            <div className="space-y-2">
+              {shortlistedPlayers.map(renderPlayerRow)}
+            </div>
+          </div>
+        )}
 
           {recommendedPlayers.length > 0 && (
             <div>
