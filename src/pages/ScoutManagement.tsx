@@ -19,6 +19,8 @@ import ReviewedAssignmentsModal from "@/components/scout-management/ReviewedAssi
 import ScoutManagementViewToggle from "@/components/scout-management/ScoutManagementViewToggle";
 import ScoutManagementTableView from "@/components/scout-management/ScoutManagementTableView";
 import MatchAssignmentsBoard from "@/components/scout-management/MatchAssignmentsBoard";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Users, CalendarCheck, ListChecks } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { transformToAssignmentBased } from "@/utils/assignmentStatusUtils";
