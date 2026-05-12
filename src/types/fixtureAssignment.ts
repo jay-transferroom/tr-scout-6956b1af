@@ -23,6 +23,11 @@ export interface FixtureAssignment {
 
 export interface PlayerObservation {
   playerId: string;
+  /** Snapshot of player metadata at time of report — used for read-only render. */
+  playerName?: string;
+  playerClub?: string;
+  playerPositions?: string[];
+  playerImage?: string;
   rating: number; // 1-10
   notes: string;
 }
@@ -33,8 +38,13 @@ export interface MatchReport {
   fixtureId: string;
   scoutId: string;
   overallNotes: string;
+  homeScore?: number | null;
+  awayScore?: number | null;
+  weather?: string;
+  attendance?: number | null;
   playerObservations: PlayerObservation[];
   status: "draft" | "submitted";
+  updatedAt?: string;
   submittedAt?: string;
 }
 
