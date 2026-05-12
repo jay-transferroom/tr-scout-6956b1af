@@ -481,6 +481,17 @@ const Calendar = () => {
         </div>
       </div>
 
+      {/* Calendar legend */}
+      <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <span className="font-medium text-foreground">Legend:</span>
+        <span className="inline-flex items-center gap-1"><CalendarIcon className="h-3 w-3" /> Fixtures</span>
+        <span className="inline-flex items-center gap-1 text-yellow-600"><Star className="h-3 w-3 fill-current" /> Shortlisted</span>
+        <span className="inline-flex items-center gap-1 text-blue-600"><UserCheck className="h-3 w-3" /> Player scouts</span>
+        <span className={cn("inline-flex items-center gap-1", ASSIGNMENT_VISUALS.fixture.iconClass)}>
+          <FixtureAssignmentIcon className="h-3 w-3" /> Match assignments
+        </span>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Dates List or Calendar Grid */}
         <div>
