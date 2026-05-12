@@ -787,6 +787,9 @@ const Calendar = () => {
                           .filter(a => fixturePlayerIds.includes(a.player_id))
                           .map(a => a.assigned_to_scout_id)
                       ).size;
+                      const dayFixtureAssignments = getFixtureAssignmentsForDate(day);
+                      const fixtureAssignmentCount = dayFixtureAssignments.length;
+                      const dayHasContent = hasFixtures || fixtureAssignmentCount > 0;
                       
                       return (
                         <TooltipProvider key={day.toISOString()}>
