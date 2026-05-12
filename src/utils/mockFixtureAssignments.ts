@@ -12,11 +12,12 @@ const REPORTS_KEY = "tr-scout.match-reports.v1";
 
 /** Demo scout identifiers — resolved to live profile ids on the read path. */
 export const DEMO_SCOUT_EMAILS = {
-  oliver: "oliver.smith@demo.com",
-  emma: "emma.johnson@demo.com",
+  oliver: "scout@demo.com",
+  emma: "scout2@demo.com",
+  dave: "manager@demo.com",
 } as const;
 
-const DEMO_MANAGER = "demo-manager";
+const DEMO_MANAGER = "manager@demo.com";
 
 /** Curated fixtures matching seeded data in fixtures_results_2526. */
 const seedFixtures = [
