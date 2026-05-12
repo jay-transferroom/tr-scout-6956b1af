@@ -849,7 +849,24 @@ const Calendar = () => {
                                     <p>{totalShortlisted} shortlisted {totalShortlisted === 1 ? 'player' : 'players'}</p>
                                   )}
                                   {uniqueScouts > 0 && (
-                                    <p>{uniqueScouts} {uniqueScouts === 1 ? 'scout' : 'scouts'} assigned</p>
+                                    <p className="text-blue-600">{uniqueScouts} player {uniqueScouts === 1 ? 'scout' : 'scouts'} assigned</p>
+                                  )}
+                                  {fixtureAssignmentCount > 0 && (
+                                    <div className="border-t pt-1 mt-1 space-y-0.5">
+                                      <p className={cn("font-medium", ASSIGNMENT_VISUALS.fixture.iconClass)}>
+                                        {fixtureAssignmentCount} match {fixtureAssignmentCount === 1 ? 'assignment' : 'assignments'}
+                                      </p>
+                                      {dayFixtureAssignments.slice(0, 3).map((a) => {
+                                        const sc = resolveFixtureScout(a.scoutId);
+                                        const f = enhancedFixtures.find(ef => getFixtureId(ef) === a.fixtureId);
+                                        const name = sc ? `${sc.first_name ?? ''} ${sc.last_name ?? ''}`.trim() || sc.email : a.scoutId;
+                                        return (
+                                          <p key={a.id} className="text-muted-foreground">
+                                            {name} → {f ? `${f.home_team} vs ${f.away_team}` : 'fixture'}
+                                          </p>
+                                        );
+                                      })}
+                                    </div>
                                   )}
                                 </div>
                               </TooltipContent>
