@@ -5,6 +5,8 @@ import { TrendingUp, Clock, Target } from "lucide-react";
 import { ScoutUser } from "@/hooks/useScoutUsers";
 import { ScoutingAssignmentWithDetails } from "@/hooks/useScoutingAssignments";
 import { useReports } from "@/hooks/useReports";
+import { useFixtureAssignments } from "@/hooks/useFixtureAssignments";
+import { MapPin } from "lucide-react";
 
 interface ScoutPerformanceCardProps {
   scout: ScoutUser;
