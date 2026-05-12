@@ -643,7 +643,6 @@ const FixtureDetailPanel: React.FC<{
             </div>
           )}
         </div>
-      )}
     </div>
   );
 };
