@@ -214,6 +214,12 @@ export const fixtureAssignmentStore = {
     write(REPORTS_KEY, all);
     return report;
   },
+  getReportByAssignmentId(fixtureAssignmentId: string): MatchReport | undefined {
+    return this.listReports().find((r) => r.fixtureAssignmentId === fixtureAssignmentId);
+  },
+  getReportById(id: string): MatchReport | undefined {
+    return this.listReports().find((r) => r.id === id);
+  },
 };
 
 export const newId = (prefix: string) =>
