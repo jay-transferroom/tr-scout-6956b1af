@@ -443,6 +443,17 @@ const FixtureBrowser: React.FC = () => {
                             </span>
                           )}
 
+                          {/* Fixture-level Assign Scout / chip */}
+                          <FixtureAssignScoutControl
+                            fixture={{
+                              home_team: fixture.home_team,
+                              away_team: fixture.away_team,
+                              match_date_utc: fixture.match_date_utc,
+                              venue: fixture.venue,
+                              competition: fixture.competition,
+                            }}
+                          />
+
                           {/* Match Report button — hide if submitted, switch to amber Continue Draft if draft exists */}
                           {(() => {
                             const myReportStatus = getMyReportStatus(fixture);
