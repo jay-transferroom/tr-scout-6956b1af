@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Star, User, MessageSquare, Calendar, MapPin } from "lucide-react";
+import { Star, User, MessageSquare, Calendar } from "lucide-react";
 import { GroupedMatchReport, MatchScoutingReportWithDetails } from "@/hooks/useAllMatchScoutingReports";
 import { supabase } from "@/integrations/supabase/client";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { useMatchReportConfig } from "@/hooks/useMatchReportConfig";
 import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
+import { createDefaultNamedSystems } from "@/components/club-settings/RatingSystemsTab";
+import { NamedRatingSystem } from "@/types/report";
 
 interface PlayerInfo {
   id: number;
@@ -32,10 +32,32 @@ const getRatingColor = (rating: number): string => {
   return "text-red-600 bg-red-50 border-red-200";
 };
 
+const defaultRatingSystems = createDefaultNamedSystems();
+
+const getRatingDisplayInfo = (
+  ratingSystemId: string,
+  value: string | null | undefined,
+  systems: NamedRatingSystem[] = defaultRatingSystems
+): { label: string; color?: string } => {
+  if (!value || value.trim() === "") return { label: "—" };
+
+  const system = systems.find((rs) => rs.id === ratingSystemId);
+  if (!system) return { label: value };
+
+  const option = system.ratingSystem.values.find(
+    (v) => String(v.value) === value || v.label === value
+  );
+
+  return {
+    label: option?.label || String(value),
+    color: option?.color,
+  };
+};
+
+
 const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetailDialogProps) => {
   const [playerInfoMap, setPlayerInfoMap] = useState<Map<string, PlayerInfo>>(new Map());
   const [loading, setLoading] = useState(false);
-  const [legacyMode, setLegacyMode] = useState(false);
   const { data: matchReportConfig } = useMatchReportConfig();
 
   useEffect(() => {
@@ -75,6 +97,8 @@ const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetai
     return bRating - aRating;
   });
 
+  const hasConfiguredRatings = matchReportConfig && matchReportConfig.ratings.length > 0;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
@@ -97,16 +121,6 @@ const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetai
             </span>
           </DialogDescription>
         </DialogHeader>
-
-        <div className="flex items-center justify-between gap-2 px-1 py-2 rounded-md bg-muted/40 border border-dashed">
-          <div className="flex flex-col">
-            <Label htmlFor="legacy-toggle" className="text-xs font-medium">Legacy report mode</Label>
-            <span className="text-[11px] text-muted-foreground">
-              Demo back-compat: only Overall Rating is shown, other configured ratings render as "—".
-            </span>
-          </div>
-          <Switch id="legacy-toggle" checked={legacyMode} onCheckedChange={setLegacyMode} />
-        </div>
 
         <div className="space-y-3 mt-2">
           {loading ? (
@@ -159,23 +173,45 @@ const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetai
                               {format(new Date(report.updated_at), "dd MMM yyyy")}
                             </span>
                           </div>
-                          {legacyMode && matchReportConfig ? (
-                            <div className="flex flex-wrap gap-1.5">
-                              {matchReportConfig.ratings.map((cfg) => {
-                                const isOverall = cfg.id === 'default-overall';
-                                const filled = isOverall && report.rating !== null;
+
+                          {/* Configured ratings */}
+                          {hasConfiguredRatings ? (
+                            <div className="flex flex-wrap gap-1.5 justify-end">
+                              {matchReportConfig!.ratings.map((cfg) => {
+                                // For default-overall, fall back to legacy top-level rating if not in ratings object
+                                const isOverall = cfg.id === "default-overall";
+                                let rawValue = report.ratings?.[cfg.id];
+                                if (isOverall && (!rawValue || rawValue.trim() === "")) {
+                                  rawValue = report.rating !== null ? String(report.rating) : undefined;
+                                }
+
+                                const { label, color } = getRatingDisplayInfo(cfg.ratingSystemId, rawValue);
+                                const filled = rawValue != null && rawValue.trim() !== "";
+
+                                // Numeric fallback styling for legacy overall
+                                let numericStyle = "";
+                                if (filled && isOverall && report.rating !== null) {
+                                  numericStyle = getRatingColor(report.rating);
+                                }
+
                                 return (
                                   <div
                                     key={cfg.id}
                                     className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-xs ${
                                       filled
-                                        ? getRatingColor(report.rating!)
-                                        : 'text-muted-foreground bg-muted/30 border-dashed'
+                                        ? numericStyle || "bg-background border-border"
+                                        : "text-muted-foreground bg-muted/30 border-dashed"
                                     }`}
-                                    title={cfg.name || (isOverall ? 'Overall Rating' : 'Rating')}
+                                    title={cfg.name}
                                   >
-                                    <span className="font-medium">{isOverall ? 'Overall' : (cfg.name || 'Rating')}:</span>
-                                    <span className="font-semibold">{filled ? report.rating : '—'}</span>
+                                    <span className="font-medium text-muted-foreground">{cfg.name || "Rating"}:</span>
+                                    {filled && color && (
+                                      <span
+                                        className="inline-block h-2 w-2 rounded-full shrink-0"
+                                        style={{ backgroundColor: color }}
+                                      />
+                                    )}
+                                    <span className="font-semibold">{label}</span>
                                   </div>
                                 );
                               })}
