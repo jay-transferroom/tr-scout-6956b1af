@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Star, User, MessageSquare, Calendar, MapPin } from "lucide-react";
+import { Star, User, MessageSquare, Calendar } from "lucide-react";
 import { GroupedMatchReport, MatchScoutingReportWithDetails } from "@/hooks/useAllMatchScoutingReports";
 import { supabase } from "@/integrations/supabase/client";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { useMatchReportConfig } from "@/hooks/useMatchReportConfig";
 import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
+import { createDefaultNamedSystems } from "@/components/club-settings/RatingSystemsTab";
+import { NamedRatingSystem } from "@/types/report";
 
 interface PlayerInfo {
   id: number;
