@@ -54,14 +54,6 @@ const getRatingDisplayInfo = (
   };
 };
 
-const getNumericRatingValue = (report: MatchScoutingReportWithDetails, ratingId: string): number | null => {
-  const raw = report.ratings?.[ratingId];
-  if (raw != null && raw.trim() !== "") {
-    const num = parseFloat(raw);
-    return isNaN(num) ? null : num;
-  }
-  return null;
-};
 
 const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetailDialogProps) => {
   const [playerInfoMap, setPlayerInfoMap] = useState<Map<string, PlayerInfo>>(new Map());
