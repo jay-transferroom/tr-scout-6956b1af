@@ -30,8 +30,8 @@ export const ASSIGNMENT_VISUALS: Record<AssignmentKind, AssignmentVisualToken> =
   fixture: {
     label: "Fixture assignment",
     icon: MapPin,
-    chipClass: "bg-amber-500/10 text-amber-700 border-amber-500/20 dark:text-amber-400",
-    iconClass: "text-amber-600 dark:text-amber-400",
-    accentVar: "38 92% 50%",
+    chipClass: "bg-info/10 text-info border-info/20",
+    iconClass: "text-info",
+    accentVar: "var(--info)",
   },
 };
