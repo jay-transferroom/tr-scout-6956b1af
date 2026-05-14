@@ -107,7 +107,7 @@ const FixtureAssignScoutControl: React.FC<Props> = ({
         className={cn(
           "h-7 gap-1 text-xs shrink-0",
           visual.iconClass,
-          "border-amber-500/30 hover:bg-amber-500/10",
+          "border-info/30 hover:bg-info/10",
           className
         )}
       >
