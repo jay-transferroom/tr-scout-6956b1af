@@ -48,7 +48,7 @@ const MatchAssignmentCard = ({ data, onClick, draggable, onDragStart }: Props) =
     >
       <CardContent className="p-3 space-y-2">
         <div className="flex items-center gap-2">
-          <MapPin className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+          <MapPin className="h-3.5 w-3.5 text-info shrink-0" />
           <ClubBadge clubName={home} size="sm" />
           <span className="text-sm font-medium truncate">
             {home} vs {away}
