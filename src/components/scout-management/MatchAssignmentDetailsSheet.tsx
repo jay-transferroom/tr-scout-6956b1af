@@ -70,7 +70,7 @@ const MatchAssignmentDetailsSheet = ({ data, open, onOpenChange }: Props) => {
         <SheetContent className="sm:max-w-md flex flex-col">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <MapPin className="h-4 w-4 text-info" />
               {home} vs {away}
             </SheetTitle>
             <SheetDescription className="flex flex-wrap items-center gap-2 text-xs">
