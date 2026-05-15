@@ -66,6 +66,7 @@ const FixtureBrowser: React.FC = () => {
   const [expandedFixtureKey, setExpandedFixtureKey] = useState<string | null>(null);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
+  const [customMatchDialogOpen, setCustomMatchDialogOpen] = useState(false);
 
   const { data: fixtures = [] } = useFixturesData();
   const { data: teams = [] } = useTeamsData();
