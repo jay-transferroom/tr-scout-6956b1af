@@ -518,6 +518,25 @@ const FixtureBrowser: React.FC = () => {
         awayScore={scoutingFixture?.away_score}
       />
 
+      <CustomMatchDialog
+        open={customMatchDialogOpen}
+        onOpenChange={setCustomMatchDialogOpen}
+        onConfirm={(home, away, dateIso) => {
+          setScoutingFixture({
+            home_team: home,
+            away_team: away,
+            match_date_utc: dateIso,
+            home_score: null,
+            away_score: null,
+            competition: 'Custom Match',
+            venue: null,
+            status: 'scheduled',
+          } as unknown as Fixture);
+          setCustomMatchDialogOpen(false);
+          setMatchScoutingOpen(true);
+        }}
+      />
+
       {canAssignScouts && (
         <AssignScoutDialog
           isOpen={isAssignDialogOpen}
