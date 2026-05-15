@@ -404,6 +404,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   const [playerDrafts, setPlayerDrafts] = useState<Record<string, { notes: string; rating: number | null; ratings?: Record<string, string> }>>({});
   const [draftHydrated, setDraftHydrated] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<"draft" | "submitted">("draft");
+  const [customPlayers, setCustomPlayers] = useState<MatchScoutingCustomPlayer[]>([]);
   const dragSourceRef = useRef<string | null>(null);
   const dragTeamRef = useRef<"home" | "away" | null>(null);
   const prevMatchRef = useRef<string | null>(null);
@@ -415,8 +416,27 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   const { data: matchReportConfig = createDefaultMatchReportConfig() } = useMatchReportConfig();
   const availableRatingSystems = createDefaultNamedSystems();
 
-  const homePlayers = allPlayers.filter((player) => clubsMatch(player.club, homeTeam));
-  const awayPlayers = allPlayers.filter((player) => clubsMatch(player.club, awayTeam));
+  const buildCustomPlayer = useCallback((cp: MatchScoutingCustomPlayer, teamName: string): Player => ({
+    id: cp.id,
+    name: cp.name,
+    club: teamName,
+    age: 0,
+    dateOfBirth: "",
+    positions: [],
+    dominantFoot: "Right",
+    nationality: "",
+    contractStatus: "Under Contract",
+    region: "",
+  }), []);
+
+  const homePlayers = [
+    ...allPlayers.filter((player) => clubsMatch(player.club, homeTeam)),
+    ...customPlayers.filter((cp) => cp.team === "home").map((cp) => buildCustomPlayer(cp, homeTeam)),
+  ];
+  const awayPlayers = [
+    ...allPlayers.filter((player) => clubsMatch(player.club, awayTeam)),
+    ...customPlayers.filter((cp) => cp.team === "away").map((cp) => buildCustomPlayer(cp, awayTeam)),
+  ];
   const hasScore = homeScore !== null && homeScore !== undefined && awayScore !== null && awayScore !== undefined;
 
   useEffect(() => {
@@ -425,6 +445,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
     setHomeOrder(savedDraft?.homeOrder ?? []);
     setAwayOrder(savedDraft?.awayOrder ?? []);
     setPlayerDrafts(savedDraft?.playerDrafts ?? {});
+    setCustomPlayers(savedDraft?.customPlayers ?? []);
     setDraftHydrated(true);
   }, [matchIdentifier]);
 
@@ -435,8 +456,32 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
       homeOrder,
       awayOrder,
       playerDrafts,
+      customPlayers,
     });
-  }, [awayOrder, draftHydrated, homeOrder, matchIdentifier, playerDrafts]);
+  }, [awayOrder, draftHydrated, homeOrder, matchIdentifier, playerDrafts, customPlayers]);
+
+  const handleAddCustomPlayer = useCallback((team: "home" | "away", name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const id = `custom-${team}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    setCustomPlayers((prev) => [...prev, { id, name: trimmed, team }]);
+    if (team === "home") {
+      setHomeOrder((prev) => [...prev, id]);
+    } else {
+      setAwayOrder((prev) => [...prev, id]);
+    }
+  }, []);
+
+  const handleRemoveCustomPlayer = useCallback((id: string) => {
+    setCustomPlayers((prev) => prev.filter((cp) => cp.id !== id));
+    setHomeOrder((prev) => prev.filter((p) => p !== id));
+    setAwayOrder((prev) => prev.filter((p) => p !== id));
+    setPlayerDrafts((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     const matchKey = `${homeTeam}-${awayTeam}-${matchDate}`;
