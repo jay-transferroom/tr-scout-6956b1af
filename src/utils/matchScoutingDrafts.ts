@@ -4,10 +4,17 @@ export interface MatchScoutingPlayerDraft {
   ratings?: Record<string, string>;
 }
 
+export interface MatchScoutingCustomPlayer {
+  id: string;
+  name: string;
+  team: "home" | "away";
+}
+
 export interface MatchScoutingDraft {
   homeOrder: string[];
   awayOrder: string[];
   playerDrafts: Record<string, MatchScoutingPlayerDraft>;
+  customPlayers?: MatchScoutingCustomPlayer[];
 }
 
 const MATCH_SCOUTING_DRAFT_PREFIX = "match-scouting-draft:";
