@@ -620,32 +620,49 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
             players.map((player) => {
               const existingReport = getReportForPlayer(player.id);
               const draft = playerDrafts[player.id];
+              const isCustom = player.id.startsWith("custom-");
 
               return (
-                <PlayerScoutingRow
-                  key={player.id}
-                  player={player}
-                  savedNotes={existingReport?.notes || ""}
-                  savedRating={existingReport?.rating ?? null}
-                  draftNotes={draft?.notes}
-                  draftRating={draft?.rating ?? null}
-                  draftRatings={draft?.ratings ?? (existingReport?.ratings as Record<string, string> | undefined) ?? undefined}
-                  onDraftChange={handleDraftChange}
-                  onSave={handleSave}
-                  onCreateFullReport={setSelectedPlayerForFullReport}
-                  isSaving={upsertReport.isPending}
-                  onDragStart={handleDragStart(team)}
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop(team)}
-                  isDragTarget={dragOverId === player.id}
-                  matchReportConfig={matchReportConfig}
-                  ratingSystems={availableRatingSystems}
-                />
+                <div key={player.id} className="relative group/row">
+                  <PlayerScoutingRow
+                    player={player}
+                    savedNotes={existingReport?.notes || ""}
+                    savedRating={existingReport?.rating ?? null}
+                    draftNotes={draft?.notes}
+                    draftRating={draft?.rating ?? null}
+                    draftRatings={draft?.ratings ?? (existingReport?.ratings as Record<string, string> | undefined) ?? undefined}
+                    onDraftChange={handleDraftChange}
+                    onSave={handleSave}
+                    onCreateFullReport={setSelectedPlayerForFullReport}
+                    isSaving={upsertReport.isPending}
+                    onDragStart={handleDragStart(team)}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop(team)}
+                    isDragTarget={dragOverId === player.id}
+                    matchReportConfig={matchReportConfig}
+                    ratingSystems={availableRatingSystems}
+                  />
+                  {isCustom && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveCustomPlayer(player.id);
+                      }}
+                      className="absolute top-2 right-2 z-20 rounded-full bg-background/80 p-1 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover/row:opacity-100"
+                      title="Remove custom player"
+                    >
+                      <XIcon className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
               );
             })
           ) : (
             <p className="py-4 text-center text-sm text-muted-foreground">No players found for {teamName}</p>
           )}
+
+          <AddCustomPlayerInline onAdd={(name) => handleAddCustomPlayer(team, name)} />
         </div>
       </div>
     );
