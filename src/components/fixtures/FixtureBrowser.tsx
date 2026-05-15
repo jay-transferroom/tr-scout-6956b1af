@@ -31,6 +31,7 @@ import { useFixtureAssignments } from "@/hooks/useFixtureAssignments";
 import { getFixtureId } from "@/types/fixtureAssignment";
 import { ASSIGNMENT_VISUALS } from "@/utils/assignmentVisuals";
 import { Trash2 } from "lucide-react";
+import CustomMatchDialog from "@/components/fixtures/CustomMatchDialog";
 
 // Map competition names to countries for matching
 const COMPETITION_COUNTRY_MAP: Record<string, string> = {
@@ -65,6 +66,7 @@ const FixtureBrowser: React.FC = () => {
   const [expandedFixtureKey, setExpandedFixtureKey] = useState<string | null>(null);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
+  const [customMatchDialogOpen, setCustomMatchDialogOpen] = useState(false);
 
   const { data: fixtures = [] } = useFixturesData();
   const { data: teams = [] } = useTeamsData();
@@ -277,6 +279,14 @@ const FixtureBrowser: React.FC = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Header CTA */}
+      <div className="flex justify-end">
+        <Button size="sm" variant="outline" onClick={() => setCustomMatchDialogOpen(true)} className="gap-1.5">
+          <Plus className="h-3.5 w-3.5" />
+          Add custom match
+        </Button>
+      </div>
+
       {/* Filter Bar */}
       <Card>
         <CardContent className="py-4">
@@ -506,6 +516,25 @@ const FixtureBrowser: React.FC = () => {
         matchDate={scoutingFixture?.match_date_utc || ''}
         homeScore={scoutingFixture?.home_score}
         awayScore={scoutingFixture?.away_score}
+      />
+
+      <CustomMatchDialog
+        open={customMatchDialogOpen}
+        onOpenChange={setCustomMatchDialogOpen}
+        onConfirm={(home, away, dateIso) => {
+          setScoutingFixture({
+            home_team: home,
+            away_team: away,
+            match_date_utc: dateIso,
+            home_score: null,
+            away_score: null,
+            competition: 'Custom Match',
+            venue: null,
+            status: 'scheduled',
+          } as unknown as Fixture);
+          setCustomMatchDialogOpen(false);
+          setMatchScoutingOpen(true);
+        }}
       />
 
       {canAssignScouts && (

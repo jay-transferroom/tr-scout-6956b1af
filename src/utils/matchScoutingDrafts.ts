@@ -4,10 +4,17 @@ export interface MatchScoutingPlayerDraft {
   ratings?: Record<string, string>;
 }
 
+export interface MatchScoutingCustomPlayer {
+  id: string;
+  name: string;
+  team: "home" | "away";
+}
+
 export interface MatchScoutingDraft {
   homeOrder: string[];
   awayOrder: string[];
   playerDrafts: Record<string, MatchScoutingPlayerDraft>;
+  customPlayers?: MatchScoutingCustomPlayer[];
 }
 
 const MATCH_SCOUTING_DRAFT_PREFIX = "match-scouting-draft:";
@@ -31,6 +38,7 @@ export const loadMatchScoutingDraft = (matchIdentifier: string): MatchScoutingDr
       playerDrafts: parsedDraft.playerDrafts && typeof parsedDraft.playerDrafts === "object"
         ? parsedDraft.playerDrafts
         : {},
+      customPlayers: Array.isArray(parsedDraft.customPlayers) ? parsedDraft.customPlayers : [],
     };
   } catch (error) {
     console.error("Failed to load match scouting draft:", error);

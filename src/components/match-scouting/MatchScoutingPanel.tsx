@@ -16,7 +16,10 @@ import {
   buildMatchScoutingPageUrl,
   loadMatchScoutingDraft,
   saveMatchScoutingDraft,
+  MatchScoutingCustomPlayer,
 } from "@/utils/matchScoutingDrafts";
+import { Input } from "@/components/ui/input";
+import { Plus, X as XIcon } from "lucide-react";
 import { emitMockReportSubmitted } from "@/lib/mockReportEvents";
 import { getMatchGradient } from "@/components/fixtures/FixtureCard";
 import PlayerReportTemplateDialog from "./PlayerReportTemplateDialog";
@@ -383,6 +386,69 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   );
 };
 
+const AddCustomPlayerInline: React.FC<{ onAdd: (name: string) => void }> = ({ onAdd }) => {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
+  }, [open]);
+
+  const submit = () => {
+    if (!name.trim()) return;
+    onAdd(name);
+    setName("");
+    setOpen(false);
+  };
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:bg-muted/40 hover:text-foreground"
+      >
+        <Plus className="h-3.5 w-3.5" />
+        Add player
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 p-2">
+      <Input
+        ref={inputRef}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") submit();
+          if (e.key === "Escape") {
+            setOpen(false);
+            setName("");
+          }
+        }}
+        placeholder="Player name"
+        className="h-8 text-sm"
+      />
+      <Button size="sm" className="h-8" onClick={submit} disabled={!name.trim()}>
+        Add
+      </Button>
+      <Button
+        size="sm"
+        variant="ghost"
+        className="h-8"
+        onClick={() => {
+          setOpen(false);
+          setName("");
+        }}
+      >
+        Cancel
+      </Button>
+    </div>
+  );
+};
+
 const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   homeTeam,
   awayTeam,
@@ -401,6 +467,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   const [playerDrafts, setPlayerDrafts] = useState<Record<string, { notes: string; rating: number | null; ratings?: Record<string, string> }>>({});
   const [draftHydrated, setDraftHydrated] = useState(false);
   const [submissionStatus, setSubmissionStatus] = useState<"draft" | "submitted">("draft");
+  const [customPlayers, setCustomPlayers] = useState<MatchScoutingCustomPlayer[]>([]);
   const dragSourceRef = useRef<string | null>(null);
   const dragTeamRef = useRef<"home" | "away" | null>(null);
   const prevMatchRef = useRef<string | null>(null);
@@ -412,8 +479,27 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   const { data: matchReportConfig = createDefaultMatchReportConfig() } = useMatchReportConfig();
   const availableRatingSystems = createDefaultNamedSystems();
 
-  const homePlayers = allPlayers.filter((player) => clubsMatch(player.club, homeTeam));
-  const awayPlayers = allPlayers.filter((player) => clubsMatch(player.club, awayTeam));
+  const buildCustomPlayer = useCallback((cp: MatchScoutingCustomPlayer, teamName: string): Player => ({
+    id: cp.id,
+    name: cp.name,
+    club: teamName,
+    age: 0,
+    dateOfBirth: "",
+    positions: [],
+    dominantFoot: "Right",
+    nationality: "",
+    contractStatus: "Under Contract",
+    region: "",
+  }), []);
+
+  const homePlayers = [
+    ...allPlayers.filter((player) => clubsMatch(player.club, homeTeam)),
+    ...customPlayers.filter((cp) => cp.team === "home").map((cp) => buildCustomPlayer(cp, homeTeam)),
+  ];
+  const awayPlayers = [
+    ...allPlayers.filter((player) => clubsMatch(player.club, awayTeam)),
+    ...customPlayers.filter((cp) => cp.team === "away").map((cp) => buildCustomPlayer(cp, awayTeam)),
+  ];
   const hasScore = homeScore !== null && homeScore !== undefined && awayScore !== null && awayScore !== undefined;
 
   useEffect(() => {
@@ -422,6 +508,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
     setHomeOrder(savedDraft?.homeOrder ?? []);
     setAwayOrder(savedDraft?.awayOrder ?? []);
     setPlayerDrafts(savedDraft?.playerDrafts ?? {});
+    setCustomPlayers(savedDraft?.customPlayers ?? []);
     setDraftHydrated(true);
   }, [matchIdentifier]);
 
@@ -432,8 +519,32 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
       homeOrder,
       awayOrder,
       playerDrafts,
+      customPlayers,
     });
-  }, [awayOrder, draftHydrated, homeOrder, matchIdentifier, playerDrafts]);
+  }, [awayOrder, draftHydrated, homeOrder, matchIdentifier, playerDrafts, customPlayers]);
+
+  const handleAddCustomPlayer = useCallback((team: "home" | "away", name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const id = `custom-${team}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    setCustomPlayers((prev) => [...prev, { id, name: trimmed, team }]);
+    if (team === "home") {
+      setHomeOrder((prev) => [...prev, id]);
+    } else {
+      setAwayOrder((prev) => [...prev, id]);
+    }
+  }, []);
+
+  const handleRemoveCustomPlayer = useCallback((id: string) => {
+    setCustomPlayers((prev) => prev.filter((cp) => cp.id !== id));
+    setHomeOrder((prev) => prev.filter((p) => p !== id));
+    setAwayOrder((prev) => prev.filter((p) => p !== id));
+    setPlayerDrafts((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     const matchKey = `${homeTeam}-${awayTeam}-${matchDate}`;
@@ -572,32 +683,49 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
             players.map((player) => {
               const existingReport = getReportForPlayer(player.id);
               const draft = playerDrafts[player.id];
+              const isCustom = player.id.startsWith("custom-");
 
               return (
-                <PlayerScoutingRow
-                  key={player.id}
-                  player={player}
-                  savedNotes={existingReport?.notes || ""}
-                  savedRating={existingReport?.rating ?? null}
-                  draftNotes={draft?.notes}
-                  draftRating={draft?.rating ?? null}
-                  draftRatings={draft?.ratings ?? (existingReport?.ratings as Record<string, string> | undefined) ?? undefined}
-                  onDraftChange={handleDraftChange}
-                  onSave={handleSave}
-                  onCreateFullReport={setSelectedPlayerForFullReport}
-                  isSaving={upsertReport.isPending}
-                  onDragStart={handleDragStart(team)}
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop(team)}
-                  isDragTarget={dragOverId === player.id}
-                  matchReportConfig={matchReportConfig}
-                  ratingSystems={availableRatingSystems}
-                />
+                <div key={player.id} className="relative group/row">
+                  <PlayerScoutingRow
+                    player={player}
+                    savedNotes={existingReport?.notes || ""}
+                    savedRating={existingReport?.rating ?? null}
+                    draftNotes={draft?.notes}
+                    draftRating={draft?.rating ?? null}
+                    draftRatings={draft?.ratings ?? (existingReport?.ratings as Record<string, string> | undefined) ?? undefined}
+                    onDraftChange={handleDraftChange}
+                    onSave={handleSave}
+                    onCreateFullReport={setSelectedPlayerForFullReport}
+                    isSaving={upsertReport.isPending}
+                    onDragStart={handleDragStart(team)}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop(team)}
+                    isDragTarget={dragOverId === player.id}
+                    matchReportConfig={matchReportConfig}
+                    ratingSystems={availableRatingSystems}
+                  />
+                  {isCustom && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveCustomPlayer(player.id);
+                      }}
+                      className="absolute top-2 right-2 z-20 rounded-full bg-background/80 p-1 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover/row:opacity-100"
+                      title="Remove custom player"
+                    >
+                      <XIcon className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
               );
             })
           ) : (
             <p className="py-4 text-center text-sm text-muted-foreground">No players found for {teamName}</p>
           )}
+
+          <AddCustomPlayerInline onAdd={(name) => handleAddCustomPlayer(team, name)} />
         </div>
       </div>
     );
