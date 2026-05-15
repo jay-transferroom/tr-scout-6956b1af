@@ -38,6 +38,7 @@ export const loadMatchScoutingDraft = (matchIdentifier: string): MatchScoutingDr
       playerDrafts: parsedDraft.playerDrafts && typeof parsedDraft.playerDrafts === "object"
         ? parsedDraft.playerDrafts
         : {},
+      customPlayers: Array.isArray(parsedDraft.customPlayers) ? parsedDraft.customPlayers : [],
     };
   } catch (error) {
     console.error("Failed to load match scouting draft:", error);
