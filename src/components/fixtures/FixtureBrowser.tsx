@@ -279,6 +279,14 @@ const FixtureBrowser: React.FC = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Header CTA */}
+      <div className="flex justify-end">
+        <Button size="sm" variant="outline" onClick={() => setCustomMatchDialogOpen(true)} className="gap-1.5">
+          <Plus className="h-3.5 w-3.5" />
+          Add custom match
+        </Button>
+      </div>
+
       {/* Filter Bar */}
       <Card>
         <CardContent className="py-4">
