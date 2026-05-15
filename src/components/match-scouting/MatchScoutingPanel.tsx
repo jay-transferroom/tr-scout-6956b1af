@@ -386,6 +386,69 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   );
 };
 
+const AddCustomPlayerInline: React.FC<{ onAdd: (name: string) => void }> = ({ onAdd }) => {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
+  }, [open]);
+
+  const submit = () => {
+    if (!name.trim()) return;
+    onAdd(name);
+    setName("");
+    setOpen(false);
+  };
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/50 hover:bg-muted/40 hover:text-foreground"
+      >
+        <Plus className="h-3.5 w-3.5" />
+        Add player
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 p-2">
+      <Input
+        ref={inputRef}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") submit();
+          if (e.key === "Escape") {
+            setOpen(false);
+            setName("");
+          }
+        }}
+        placeholder="Player name"
+        className="h-8 text-sm"
+      />
+      <Button size="sm" className="h-8" onClick={submit} disabled={!name.trim()}>
+        Add
+      </Button>
+      <Button
+        size="sm"
+        variant="ghost"
+        className="h-8"
+        onClick={() => {
+          setOpen(false);
+          setName("");
+        }}
+      >
+        Cancel
+      </Button>
+    </div>
+  );
+};
+
 const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   homeTeam,
   awayTeam,
