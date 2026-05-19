@@ -9,7 +9,7 @@ import ReportsTabNavigation from "@/components/reports/ReportsTabNavigation";
 import ReportsTable from "@/components/reports/ReportsTable";
 import GroupedReportsTable from "@/components/reports/GroupedReportsTable";
 import MatchReportsTable from "@/components/reports/MatchReportsTable";
-import FixtureMatchReportsTable from "@/components/reports/FixtureMatchReportsTable";
+
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
 import PlayerReportsModal from "@/components/reports/PlayerReportsModal";
 import MatchReportDetailDialog from "@/components/reports/MatchReportDetailDialog";
@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getRecommendationRank } from "@/utils/mockRecommendations";
 import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 import { List, Users, ClipboardList } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { useAuth } from "@/contexts/AuthContext";
 
 // Reports List Component
@@ -40,7 +40,7 @@ const ReportsList = () => {
   const [playerReportsModalOpen, setPlayerReportsModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<GroupedMatchReport | null>(null);
   const [editingMatch, setEditingMatch] = useState<GroupedMatchReport | null>(null);
-  const [matchSubTab, setMatchSubTab] = useState<"submitted" | "drafts">("submitted");
+  
   const { user } = useAuth();
   const [searchFilters, setSearchFilters] = useState<ReportsFilterCriteria>({
     searchTerm: '',
@@ -131,24 +131,16 @@ const ReportsList = () => {
       return false;
     };
 
-    const withFilteredTotals = (reports: GroupedMatchReport[]) =>
-      reports
-        .map((match) => {
-          const filteredReports = match.reports.filter((report) =>
-            report.scout_id === user?.id &&
-            (matchSubTab === "drafts" ? !isSubmittedReport(report) : isSubmittedReport(report))
-          );
-          const totalRatings = new Set(filteredReports.filter(hasAnyScoutingData).map((report) => report.player_id)).size;
+    return sortedMatchReports
+      .map((match) => {
+        const totalRatings = new Set(
+          match.reports.filter(hasAnyScoutingData).map((report) => report.player_id)
+        ).size;
+        return { ...match, totalRatings };
+      })
+      .filter((match) => match.reports.length > 0);
+  }, [sortedMatchReports]);
 
-          return { ...match, reports: filteredReports, totalRatings };
-        })
-        .filter((match) => match.reports.length > 0);
-
-    if (matchSubTab === "drafts") {
-      return withFilteredTotals(sortedMatchReports);
-    }
-    return withFilteredTotals(sortedMatchReports);
-  }, [sortedMatchReports, matchSubTab, user?.id]);
 
   // Extract available filter options from reports
   const { availableVerdicts, availableScouts, availableClubs, availablePositions, availablePlayerNames } = useMemo(() => {
@@ -333,20 +325,12 @@ const ReportsList = () => {
             matchReportsLoading ? (
               <div className="text-center py-8">Loading match reports...</div>
             ) : (
-              <div className="space-y-4">
-                <Tabs value={matchSubTab} onValueChange={(v) => setMatchSubTab(v as "submitted" | "drafts")}>
-                  <TabsList>
-                    <TabsTrigger value="submitted">My Submitted</TabsTrigger>
-                    <TabsTrigger value="drafts">My Drafts</TabsTrigger>
-                  </TabsList>
-                </Tabs>
-                <FixtureMatchReportsTable scoutId={matchSubTab === "drafts" ? user?.id : undefined} />
-                <MatchReportsTable
-                  matchReports={visibleMatchReports}
-                  onSelectMatch={(m) => setSelectedMatch(m)}
-                  onEditMatch={(m) => setEditingMatch(m)}
-                />
-              </div>
+              <MatchReportsTable
+                matchReports={visibleMatchReports}
+                onSelectMatch={(m) => setSelectedMatch(m)}
+                onEditMatch={(m) => setEditingMatch(m)}
+              />
+
             )
           ) : viewMode === "individual" ? (
             <ReportsTable
