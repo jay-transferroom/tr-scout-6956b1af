@@ -2,6 +2,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
+export interface MatchScoutingPlayerMeta {
+  name?: string;
+  team?: "home" | "away";
+  position?: string;
+  age?: number;
+  nationality?: string;
+}
+
 export interface MatchScoutingReport {
   id: string;
   match_identifier: string;
@@ -10,6 +18,7 @@ export interface MatchScoutingReport {
   notes: string | null;
   rating: number | null;
   ratings: Record<string, string> | null;
+  player_meta: MatchScoutingPlayerMeta | null;
   created_at: string;
   updated_at: string;
 }
