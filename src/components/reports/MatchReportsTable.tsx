@@ -160,16 +160,6 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
                     {match.totalRatings}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-center">
-                  {match.averageRating !== null ? (
-                    <Badge variant="default" className="gap-1">
-                      <Star className="h-3 w-3" />
-                      {match.averageRating.toFixed(1)}
-                    </Badge>
-                  ) : (
-                    <span className="text-muted-foreground text-sm">—</span>
-                  )}
-                </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
                     {Array.from(uniqueScouts.values()).map((name) => (
