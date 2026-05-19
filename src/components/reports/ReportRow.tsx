@@ -32,7 +32,13 @@ interface ReportRowProps {
 }
 
 const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit }: ReportRowProps) => {
-  const { data: playerData, isLoading: playerLoading, error: playerError } = useReportPlayerData(report.playerId);
+  const isCustomPlayer = typeof report.playerId === 'string' && report.playerId.startsWith('custom-');
+  // Custom players don't exist in any players table — skip the network lookup
+  // and rely on the player payload that useReports reconstructs from player_meta.
+  const { data: fetchedPlayer, isLoading: fetchedLoading, error: playerError } =
+    useReportPlayerData(isCustomPlayer ? undefined : report.playerId);
+  const playerData = isCustomPlayer ? (report.player as any) : fetchedPlayer;
+  const playerLoading = isCustomPlayer ? false : fetchedLoading;
   const navigate = useNavigate();
   const { profile } = useAuth();
   const overallRating = getOverallRating(report);
