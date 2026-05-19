@@ -4,6 +4,7 @@ import { ReportWithPlayer, Report } from '@/types/report';
 import { useAuth } from '@/contexts/AuthContext';
 import { DEFAULT_TEMPLATES } from '@/data/defaultTemplates';
 import { mockTemplates } from '@/data/mockTemplates';
+import { loadMatchScoutingDraft } from '@/utils/matchScoutingDrafts';
 
 export const useReports = () => {
   const [reports, setReports] = useState<ReportWithPlayer[]>([]);
@@ -252,11 +253,13 @@ export const useReports = () => {
             const [homeTeam, awayTeam] = (teams || '').split(' vs ');
 
             // For custom players (id starts with "custom-"), reconstruct
-            // player data from the persisted player_meta so the Player tab
-            // and individual report rows show name/club/position.
+            // player data from the persisted player_meta. Older rows may not
+            // have player_meta yet, so fall back to the local match draft.
             const isCustom = typeof report.player_id === 'string' && report.player_id.startsWith('custom-');
             if (!playerData && isCustom) {
-              const meta = (report as { player_meta?: { name?: string; team?: 'home' | 'away'; position?: string; age?: number; nationality?: string } | null }).player_meta || null;
+              const storedMeta = (report as { player_meta?: { name?: string; team?: 'home' | 'away'; position?: string; age?: number; nationality?: string } | null }).player_meta || null;
+              const draftMeta = loadMatchScoutingDraft(report.match_identifier)?.customPlayers?.find((player) => player.id === report.player_id) || null;
+              const meta = storedMeta || draftMeta;
               const fallbackTeam =
                 meta?.team === 'home'
                   ? homeTeam?.trim()
