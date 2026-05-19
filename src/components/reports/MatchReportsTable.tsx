@@ -71,7 +71,7 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
             <TableHead>Date</TableHead>
             <TableHead>League</TableHead>
             <TableHead className="text-center">Players Scouted</TableHead>
-            <TableHead className="text-center">Avg Rating</TableHead>
+            
             <TableHead>Scouts</TableHead>
             <TableHead>Last Updated</TableHead>
             <TableHead className="w-[60px] text-right">Actions</TableHead>
@@ -159,16 +159,6 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
                     <Users className="h-3 w-3" />
                     {match.totalRatings}
                   </Badge>
-                </TableCell>
-                <TableCell className="text-center">
-                  {match.averageRating !== null ? (
-                    <Badge variant="default" className="gap-1">
-                      <Star className="h-3 w-3" />
-                      {match.averageRating.toFixed(1)}
-                    </Badge>
-                  ) : (
-                    <span className="text-muted-foreground text-sm">—</span>
-                  )}
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
