@@ -81,6 +81,11 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
             size="sm"
           />
           <span className="font-medium text-grey-900 text-sm">{playerName}</span>
+          {isCustomPlayer && (
+            <Badge variant="outline" className="border-info/30 bg-info/10 text-info text-[10px] px-1.5 py-0 h-4 font-medium">
+              Custom
+            </Badge>
+          )}
           <PlayerRecommendationView playerId={report.playerId} fallback={null} />
         </div>
       </TableCell>
