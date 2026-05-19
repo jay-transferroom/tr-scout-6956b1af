@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Calendar } from "@/components/ui/calendar";
 import { ClubBadge } from "@/components/ui/club-badge";
+import { Input } from "@/components/ui/input";
 import { useTeamsData } from "@/hooks/useTeamsData";
 
 interface CustomMatchDialogProps {
@@ -75,6 +76,7 @@ const CustomMatchDialog: React.FC<CustomMatchDialogProps> = ({ open, onOpenChang
   const [homeTeam, setHomeTeam] = useState("");
   const [awayTeam, setAwayTeam] = useState("");
   const [date, setDate] = useState<Date>(new Date());
+  const [time, setTime] = useState<string>("15:00");
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
 
   const sortedTeams = [...teams].sort((a, b) => a.name.localeCompare(b.name));
@@ -83,11 +85,15 @@ const CustomMatchDialog: React.FC<CustomMatchDialogProps> = ({ open, onOpenChang
     setHomeTeam("");
     setAwayTeam("");
     setDate(new Date());
+    setTime("15:00");
   };
 
   const handleSubmit = () => {
     if (!homeTeam || !awayTeam || !date) return;
-    onConfirm(homeTeam, awayTeam, date.toISOString());
+    const [h, m] = time.split(":").map(Number);
+    const combined = new Date(date);
+    combined.setHours(Number.isFinite(h) ? h : 15, Number.isFinite(m) ? m : 0, 0, 0);
+    onConfirm(homeTeam, awayTeam, combined.toISOString());
     reset();
   };
 
@@ -129,28 +135,40 @@ const CustomMatchDialog: React.FC<CustomMatchDialogProps> = ({ open, onOpenChang
             />
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-muted-foreground">Match date</label>
-            <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start font-normal">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {format(date, "EEEE, d MMMM yyyy")}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={(d) => {
-                    if (d) setDate(d);
-                    setDatePopoverOpen(false);
-                  }}
-                  initialFocus
-                  className="p-3 pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
+          <div className="grid grid-cols-[1fr_auto] gap-3">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Match date</label>
+              <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-start font-normal">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {format(date, "EEEE, d MMMM yyyy")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(d) => {
+                      if (d) setDate(d);
+                      setDatePopoverOpen(false);
+                    }}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Kick-off</label>
+              <Input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="w-[120px] font-normal"
+              />
+            </div>
           </div>
         </div>
 
