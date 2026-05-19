@@ -333,20 +333,12 @@ const ReportsList = () => {
             matchReportsLoading ? (
               <div className="text-center py-8">Loading match reports...</div>
             ) : (
-              <div className="space-y-4">
-                <Tabs value={matchSubTab} onValueChange={(v) => setMatchSubTab(v as "submitted" | "drafts")}>
-                  <TabsList>
-                    <TabsTrigger value="submitted">My Submitted</TabsTrigger>
-                    <TabsTrigger value="drafts">My Drafts</TabsTrigger>
-                  </TabsList>
-                </Tabs>
-                <FixtureMatchReportsTable scoutId={matchSubTab === "drafts" ? user?.id : undefined} />
-                <MatchReportsTable
-                  matchReports={visibleMatchReports}
-                  onSelectMatch={(m) => setSelectedMatch(m)}
-                  onEditMatch={(m) => setEditingMatch(m)}
-                />
-              </div>
+              <MatchReportsTable
+                matchReports={visibleMatchReports}
+                onSelectMatch={(m) => setSelectedMatch(m)}
+                onEditMatch={(m) => setEditingMatch(m)}
+              />
+
             )
           ) : viewMode === "individual" ? (
             <ReportsTable
