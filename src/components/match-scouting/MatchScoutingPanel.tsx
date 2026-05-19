@@ -582,11 +582,18 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
     });
   }, [awayOrder, draftHydrated, homeOrder, matchIdentifier, playerDrafts, customPlayers]);
 
-  const handleAddCustomPlayer = useCallback((team: "home" | "away", name: string) => {
-    const trimmed = name.trim();
+  const handleAddCustomPlayer = useCallback((team: "home" | "away", details: CustomPlayerDetails) => {
+    const trimmed = details.name.trim();
     if (!trimmed) return;
     const id = `custom-${team}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    setCustomPlayers((prev) => [...prev, { id, name: trimmed, team }]);
+    setCustomPlayers((prev) => [...prev, {
+      id,
+      name: trimmed,
+      team,
+      position: details.position,
+      age: details.age,
+      nationality: details.nationality?.trim() || undefined,
+    }]);
     if (team === "home") {
       setHomeOrder((prev) => [...prev, id]);
     } else {
