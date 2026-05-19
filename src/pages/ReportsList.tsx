@@ -9,7 +9,7 @@ import ReportsTabNavigation from "@/components/reports/ReportsTabNavigation";
 import ReportsTable from "@/components/reports/ReportsTable";
 import GroupedReportsTable from "@/components/reports/GroupedReportsTable";
 import MatchReportsTable from "@/components/reports/MatchReportsTable";
-import FixtureMatchReportsTable from "@/components/reports/FixtureMatchReportsTable";
+
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
 import PlayerReportsModal from "@/components/reports/PlayerReportsModal";
 import MatchReportDetailDialog from "@/components/reports/MatchReportDetailDialog";
