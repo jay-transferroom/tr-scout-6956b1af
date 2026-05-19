@@ -69,7 +69,7 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
   };
 
   // Convert error to boolean for disabled prop
-  const isDisabled = playerLoading || !!playerError;
+  const isDisabled = playerLoading || !!playerError || isCustomPlayer;
 
   return (
     <TableRow key={report.id}>
