@@ -71,7 +71,7 @@ const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteR
     }
   };
 
-  const isDisabled = playerLoading || !!playerError;
+  const isDisabled = playerLoading || !!playerError || isCustomPlayer;
 
   return (
     <TableRow key={`${groupedReport.playerId}-grouped`}>
@@ -83,6 +83,11 @@ const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteR
             size="sm"
           />
           <span className="font-medium text-grey-900 text-sm">{playerName}</span>
+          {isCustomPlayer && (
+            <Badge variant="outline" className="border-info/30 bg-info/10 text-info text-[10px] px-1.5 py-0 h-4 font-medium">
+              Custom
+            </Badge>
+          )}
           <PlayerRecommendationView playerId={groupedReport.playerId} fallback={null} />
         </div>
       </TableCell>
