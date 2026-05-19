@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Calendar } from "@/components/ui/calendar";
 import { ClubBadge } from "@/components/ui/club-badge";
+import { Input } from "@/components/ui/input";
 import { useTeamsData } from "@/hooks/useTeamsData";
 
 interface CustomMatchDialogProps {
