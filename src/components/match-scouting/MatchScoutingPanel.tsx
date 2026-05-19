@@ -178,6 +178,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   const [isDirty, setIsDirty] = useState(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { status, description } = getPlayerStatus(player.id);
+  const isCustom = player.id.startsWith("custom-");
 
   useEffect(() => {
     setNotes(draftNotes ?? savedNotes);
@@ -246,7 +247,8 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
         "overflow-hidden rounded-lg border transition-all",
         status === "injured" && "border-amber-400/50 bg-amber-500/5",
         status === "suspended" && "border-red-400/50 bg-red-500/5",
-        status === "available" && "border-border",
+        status === "available" && !isCustom && "border-border",
+        isCustom && status === "available" && "border-dashed border-info/40 bg-info/[0.03]",
         isDragTarget && "border-primary ring-1 ring-primary/30"
       )}
       draggable
@@ -269,6 +271,11 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <span className="truncate text-sm font-medium">{player.name}</span>
+            {isCustom && (
+              <Badge variant="outline" className="shrink-0 border-info/30 bg-info/10 text-info text-[10px] font-medium px-1.5 py-0 h-4">
+                Custom
+              </Badge>
+            )}
             {status === "injured" && <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />}
             {status === "suspended" && <ShieldBan className="h-3.5 w-3.5 shrink-0 text-red-400" />}
           </div>
