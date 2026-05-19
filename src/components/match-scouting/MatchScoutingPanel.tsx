@@ -924,6 +924,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                           notes: d.notes?.trim() ? d.notes : null,
                           rating: d.rating,
                           ratings: d.ratings ?? null,
+                          playerMeta: buildPlayerMeta(playerId),
                         })
                       )
                     );
