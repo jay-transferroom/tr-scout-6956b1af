@@ -87,7 +87,7 @@ export const useMatchScoutingReports = (matchIdentifier: string | null) => {
 
       const { data, error } = await supabase
         .from("match_scouting_reports")
-        .upsert(upsertRow, { onConflict: "match_identifier,player_id,scout_id" })
+        .upsert(upsertRow as never, { onConflict: "match_identifier,player_id,scout_id" })
         .select()
         .single();
 
