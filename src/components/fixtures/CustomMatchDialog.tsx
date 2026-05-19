@@ -85,11 +85,15 @@ const CustomMatchDialog: React.FC<CustomMatchDialogProps> = ({ open, onOpenChang
     setHomeTeam("");
     setAwayTeam("");
     setDate(new Date());
+    setTime("15:00");
   };
 
   const handleSubmit = () => {
     if (!homeTeam || !awayTeam || !date) return;
-    onConfirm(homeTeam, awayTeam, date.toISOString());
+    const [h, m] = time.split(":").map(Number);
+    const combined = new Date(date);
+    combined.setHours(Number.isFinite(h) ? h : 15, Number.isFinite(m) ? m : 0, 0, 0);
+    onConfirm(homeTeam, awayTeam, combined.toISOString());
     reset();
   };
 
