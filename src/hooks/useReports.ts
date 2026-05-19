@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { DEFAULT_TEMPLATES } from '@/data/defaultTemplates';
 import { mockTemplates } from '@/data/mockTemplates';
 import { loadMatchScoutingDraft } from '@/utils/matchScoutingDrafts';
+import { Player } from '@/types/player';
 
 export const useReports = () => {
   const [reports, setReports] = useState<ReportWithPlayer[]>([]);
@@ -284,7 +285,7 @@ export const useReports = () => {
                 region: '',
                 image: undefined,
                 isCustomPlayer: true,
-              } as any;
+              } satisfies Player;
             }
 
             const scoutProfile = matchScoutProfiles.get(report.scout_id) || null;
