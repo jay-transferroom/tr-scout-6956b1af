@@ -131,24 +131,16 @@ const ReportsList = () => {
       return false;
     };
 
-    const withFilteredTotals = (reports: GroupedMatchReport[]) =>
-      reports
-        .map((match) => {
-          const filteredReports = match.reports.filter((report) =>
-            report.scout_id === user?.id &&
-            (matchSubTab === "drafts" ? !isSubmittedReport(report) : isSubmittedReport(report))
-          );
-          const totalRatings = new Set(filteredReports.filter(hasAnyScoutingData).map((report) => report.player_id)).size;
+    return sortedMatchReports
+      .map((match) => {
+        const totalRatings = new Set(
+          match.reports.filter(hasAnyScoutingData).map((report) => report.player_id)
+        ).size;
+        return { ...match, totalRatings };
+      })
+      .filter((match) => match.reports.length > 0);
+  }, [sortedMatchReports]);
 
-          return { ...match, reports: filteredReports, totalRatings };
-        })
-        .filter((match) => match.reports.length > 0);
-
-    if (matchSubTab === "drafts") {
-      return withFilteredTotals(sortedMatchReports);
-    }
-    return withFilteredTotals(sortedMatchReports);
-  }, [sortedMatchReports, matchSubTab, user?.id]);
 
   // Extract available filter options from reports
   const { availableVerdicts, availableScouts, availableClubs, availablePositions, availablePlayerNames } = useMemo(() => {
