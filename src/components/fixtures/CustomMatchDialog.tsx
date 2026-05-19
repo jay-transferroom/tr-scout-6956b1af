@@ -161,7 +161,7 @@ const CustomMatchDialog: React.FC<CustomMatchDialogProps> = ({ open, onOpenChang
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">Kick-off</label>
+              <label className="text-xs font-medium text-muted-foreground">Time</label>
               <Input
                 type="time"
                 value={time}
