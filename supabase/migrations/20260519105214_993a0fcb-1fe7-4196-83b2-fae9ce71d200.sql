@@ -1,0 +1,1 @@
+ALTER TABLE public.match_scouting_reports ADD COLUMN IF NOT EXISTS player_meta jsonb;
