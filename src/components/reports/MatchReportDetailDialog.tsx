@@ -10,6 +10,7 @@ import { useMatchReportConfig } from "@/hooks/useMatchReportConfig";
 import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
 import { createDefaultNamedSystems } from "@/components/club-settings/RatingSystemsTab";
 import { NamedRatingSystem } from "@/types/report";
+import { cn } from "@/lib/utils";
 
 interface PlayerInfo {
   id: number;
@@ -130,10 +131,20 @@ const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetai
           ) : (
             sortedPlayers.map(([playerId, reports]) => {
               const player = playerInfoMap.get(playerId);
-              const playerName = player?.name || `Player #${playerId}`;
+              const isCustomPlayer = playerId.startsWith("custom-");
+              const customTeam = isCustomPlayer
+                ? (playerId.startsWith("custom-home-") ? match.homeTeam : playerId.startsWith("custom-away-") ? match.awayTeam : undefined)
+                : undefined;
+              const playerName = player?.name || (isCustomPlayer ? "Custom player" : `Player #${playerId}`);
 
               return (
-                <div key={playerId} className="border rounded-lg p-4 space-y-3">
+                <div
+                  key={playerId}
+                  className={cn(
+                    "border rounded-lg p-4 space-y-3",
+                    isCustomPlayer && "border-dashed border-info/40 bg-info/[0.03]"
+                  )}
+                >
                   {/* Player header */}
                   <div className="flex items-center gap-3">
                     <PlayerAvatar
@@ -144,6 +155,11 @@ const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetai
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="font-semibold truncate">{playerName}</div>
+                        {isCustomPlayer && (
+                          <Badge variant="outline" className="shrink-0 border-info/30 bg-info/10 text-info text-[10px] px-1.5 py-0 h-4 font-medium">
+                            Custom
+                          </Badge>
+                        )}
                         <PlayerRecommendationView playerId={playerId} fallback={null} />
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -153,6 +169,7 @@ const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetai
                           </Badge>
                         )}
                         {player?.currentteam && <span>{player.currentteam}</span>}
+                        {isCustomPlayer && customTeam && !player?.currentteam && <span>{customTeam}</span>}
                       </div>
                     </div>
                   </div>

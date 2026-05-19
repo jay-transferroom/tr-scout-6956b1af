@@ -119,6 +119,8 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
                 ? `Edit submitted report (within ${SUBMITTED_EDIT_WINDOW_DAYS}-day window)`
                 : "";
 
+            const isCustomMatch = !match.competition || match.competition.trim() === "";
+
             return (
               <TableRow key={match.match_identifier} className="cursor-pointer hover:bg-muted/50" onClick={() => onSelectMatch?.(match)}>
                 <TableCell>
@@ -129,6 +131,11 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
                     <span className="font-medium">
                       {match.homeTeam} vs {match.awayTeam}
                     </span>
+                    {isCustomMatch && (
+                      <Badge variant="outline" className="shrink-0 border-info/30 bg-info/10 text-info text-[10px] px-1.5 py-0 h-4 font-medium">
+                        Custom
+                      </Badge>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -141,7 +148,7 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
                 </TableCell>
                 <TableCell>
                   <span className="text-sm text-muted-foreground">
-                    {match.competition || "—"}
+                    {isCustomMatch ? <span className="italic text-muted-foreground/70">No competition</span> : match.competition}
                   </span>
                 </TableCell>
                 <TableCell className="text-center">
