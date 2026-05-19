@@ -25,6 +25,7 @@ export interface Player {
   };
   // New properties for private players
   isPrivatePlayer?: boolean;
+  isCustomPlayer?: boolean;
   privatePlayerData?: import('@/types/privatePlayer').PrivatePlayer;
   // Direct private player properties
   notes?: string;
