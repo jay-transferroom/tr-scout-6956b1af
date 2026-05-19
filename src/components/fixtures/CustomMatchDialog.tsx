@@ -76,6 +76,7 @@ const CustomMatchDialog: React.FC<CustomMatchDialogProps> = ({ open, onOpenChang
   const [homeTeam, setHomeTeam] = useState("");
   const [awayTeam, setAwayTeam] = useState("");
   const [date, setDate] = useState<Date>(new Date());
+  const [time, setTime] = useState<string>("15:00");
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
 
   const sortedTeams = [...teams].sort((a, b) => a.name.localeCompare(b.name));
