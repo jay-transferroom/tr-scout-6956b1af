@@ -120,10 +120,24 @@ const ReportsList = () => {
       return !!report.notes?.trim();
     };
 
+    // A report counts as "submitted" if it has a numeric rating OR any per-config
+    // ratings filled in. The new flow (and custom matches) store values in the
+    // ratings jsonb and may leave the legacy `rating` column null.
+    const isSubmittedReport = (report: GroupedMatchReport["reports"][number]) => {
+      if (report.rating !== null) return true;
+      if (report.ratings && typeof report.ratings === "object") {
+        return Object.values(report.ratings).some((value) => value != null && String(value).trim() !== "");
+      }
+      return false;
+    };
+
     const withFilteredTotals = (reports: GroupedMatchReport[]) =>
       reports
         .map((match) => {
-          const filteredReports = match.reports.filter((report) => report.scout_id === user?.id && (matchSubTab === "drafts" ? report.rating === null : report.rating !== null));
+          const filteredReports = match.reports.filter((report) =>
+            report.scout_id === user?.id &&
+            (matchSubTab === "drafts" ? !isSubmittedReport(report) : isSubmittedReport(report))
+          );
           const totalRatings = new Set(filteredReports.filter(hasAnyScoutingData).map((report) => report.player_id)).size;
 
           return { ...match, reports: filteredReports, totalRatings };
@@ -131,11 +145,8 @@ const ReportsList = () => {
         .filter((match) => match.reports.length > 0);
 
     if (matchSubTab === "drafts") {
-      // Author-only: only the current user's drafts (rating === null)
       return withFilteredTotals(sortedMatchReports);
     }
-    // "My Submitted": current user's submitted reports (rating !== null).
-    // Role-based visibility for other users' submitted reports is preserved by the underlying hook.
     return withFilteredTotals(sortedMatchReports);
   }, [sortedMatchReports, matchSubTab, user?.id]);
 

@@ -95,14 +95,20 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
               new Date(0)
             );
 
-            const isSubmitted = match.reports.some((r) => r.rating !== null);
+            const hasFilledRatings = (r: typeof match.reports[number]) =>
+              r.ratings && typeof r.ratings === "object" &&
+              Object.values(r.ratings).some((v) => v != null && String(v).trim() !== "");
+            const isReportSubmitted = (r: typeof match.reports[number]) =>
+              r.rating !== null || hasFilledRatings(r);
+
+            const isSubmitted = match.reports.some(isReportSubmitted);
 
             // Edit eligibility for the current user.
             // Drafts: always editable by their author.
             // Submitted: editable by author within 90 days from earliest submitted updated_at (proxy for SubmittedAt).
             const myReports = user ? match.reports.filter((r) => r.scout_id === user.id) : [];
-            const myDraftReports = myReports.filter((r) => r.rating === null);
-            const mySubmittedReports = myReports.filter((r) => r.rating !== null);
+            const myDraftReports = myReports.filter((r) => !isReportSubmitted(r));
+            const mySubmittedReports = myReports.filter((r) => isReportSubmitted(r));
             const earliestSubmittedAt = mySubmittedReports.length
               ? mySubmittedReports.reduce((min, r) => {
                   const d = new Date(r.updated_at);
