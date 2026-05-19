@@ -2,6 +2,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
+export interface MatchScoutingPlayerMeta {
+  name?: string;
+  team?: "home" | "away";
+  position?: string;
+  age?: number;
+  nationality?: string;
+}
+
 export interface MatchScoutingReport {
   id: string;
   match_identifier: string;
@@ -10,6 +18,7 @@ export interface MatchScoutingReport {
   notes: string | null;
   rating: number | null;
   ratings: Record<string, string> | null;
+  player_meta: MatchScoutingPlayerMeta | null;
   created_at: string;
   updated_at: string;
 }
@@ -54,27 +63,31 @@ export const useMatchScoutingReports = (matchIdentifier: string | null) => {
       notes,
       rating,
       ratings,
+      playerMeta,
     }: {
       playerId: string;
       notes: string | null;
       rating: number | null;
       ratings?: Record<string, string> | null;
+      playerMeta?: MatchScoutingPlayerMeta | null;
     }) => {
       if (!user || !matchIdentifier) throw new Error("Not authenticated or no match selected");
 
+      const upsertRow: Record<string, unknown> = {
+        match_identifier: matchIdentifier,
+        player_id: playerId,
+        scout_id: user.id,
+        notes,
+        rating,
+        ratings: ratings ?? {},
+      };
+      if (playerMeta !== undefined) {
+        upsertRow.player_meta = playerMeta;
+      }
+
       const { data, error } = await supabase
         .from("match_scouting_reports")
-        .upsert(
-          {
-            match_identifier: matchIdentifier,
-            player_id: playerId,
-            scout_id: user.id,
-            notes,
-            rating,
-            ratings: ratings ?? {},
-          },
-          { onConflict: "match_identifier,player_id,scout_id" }
-        )
+        .upsert(upsertRow as never, { onConflict: "match_identifier,player_id,scout_id" })
         .select()
         .single();
 

@@ -2,6 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
+export interface MatchScoutingReportPlayerMeta {
+  name?: string;
+  team?: "home" | "away";
+  position?: string;
+  age?: number;
+  nationality?: string;
+}
+
 export interface MatchScoutingReportWithDetails {
   id: string;
   match_identifier: string;
@@ -10,6 +18,7 @@ export interface MatchScoutingReportWithDetails {
   notes: string | null;
   rating: number | null;
   ratings: Record<string, string> | null;
+  player_meta: MatchScoutingReportPlayerMeta | null;
   created_at: string;
   updated_at: string;
   scout_profile?: {
@@ -73,6 +82,7 @@ export const useAllMatchScoutingReports = () => {
         const enriched: MatchScoutingReportWithDetails = {
           ...report,
           ratings: (report.ratings as Record<string, string> | null) ?? null,
+          player_meta: ((report as { player_meta?: unknown }).player_meta as MatchScoutingReportPlayerMeta | null) ?? null,
           scout_profile: scoutProfiles.get(report.scout_id) || null,
         };
         const existing = grouped.get(report.match_identifier) || [];

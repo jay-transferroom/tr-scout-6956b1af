@@ -132,10 +132,28 @@ const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetai
             sortedPlayers.map(([playerId, reports]) => {
               const player = playerInfoMap.get(playerId);
               const isCustomPlayer = playerId.startsWith("custom-");
+              // Custom player metadata is persisted on the report row itself;
+              // pick the first report that has it so we can recover the name,
+              // team, position even though the player isn't in players_new.
+              const customMeta = isCustomPlayer
+                ? reports.find((r) => r.player_meta && (r.player_meta.name || r.player_meta.position))?.player_meta ?? null
+                : null;
               const customTeam = isCustomPlayer
-                ? (playerId.startsWith("custom-home-") ? match.homeTeam : playerId.startsWith("custom-away-") ? match.awayTeam : undefined)
+                ? (customMeta?.team === "home"
+                    ? match.homeTeam
+                    : customMeta?.team === "away"
+                      ? match.awayTeam
+                      : playerId.startsWith("custom-home-")
+                        ? match.homeTeam
+                        : playerId.startsWith("custom-away-")
+                          ? match.awayTeam
+                          : undefined)
                 : undefined;
-              const playerName = player?.name || (isCustomPlayer ? "Custom player" : `Player #${playerId}`);
+              const playerName =
+                player?.name ||
+                customMeta?.name ||
+                (isCustomPlayer ? "Custom player" : `Player #${playerId}`);
+              const customPosition = customMeta?.position;
 
               return (
                 <div
@@ -163,9 +181,9 @@ const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetai
                         <PlayerRecommendationView playerId={playerId} fallback={null} />
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {player?.firstposition && (
+                        {(player?.firstposition || customPosition) && (
                           <Badge variant="outline" className="text-xs px-1.5 py-0">
-                            {player.firstposition}
+                            {player?.firstposition || customPosition}
                           </Badge>
                         )}
                         {player?.currentteam && <span>{player.currentteam}</span>}

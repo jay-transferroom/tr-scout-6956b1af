@@ -32,7 +32,13 @@ interface ReportRowProps {
 }
 
 const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit }: ReportRowProps) => {
-  const { data: playerData, isLoading: playerLoading, error: playerError } = useReportPlayerData(report.playerId);
+  const isCustomPlayer = typeof report.playerId === 'string' && report.playerId.startsWith('custom-');
+  // Custom players don't exist in any players table — skip the network lookup
+  // and rely on the player payload that useReports reconstructs from player_meta.
+  const { data: fetchedPlayer, isLoading: fetchedLoading, error: playerError } =
+    useReportPlayerData(isCustomPlayer ? undefined : report.playerId);
+  const playerData = isCustomPlayer ? (report.player as any) : fetchedPlayer;
+  const playerLoading = isCustomPlayer ? false : fetchedLoading;
   const navigate = useNavigate();
   const { profile } = useAuth();
   const overallRating = getOverallRating(report);
@@ -63,7 +69,7 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
   };
 
   // Convert error to boolean for disabled prop
-  const isDisabled = playerLoading || !!playerError;
+  const isDisabled = playerLoading || !!playerError || isCustomPlayer;
 
   return (
     <TableRow key={report.id}>
@@ -75,6 +81,11 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
             size="sm"
           />
           <span className="font-medium text-grey-900 text-sm">{playerName}</span>
+          {isCustomPlayer && (
+            <Badge variant="outline" className="border-info/30 bg-info/10 text-info text-[10px] px-1.5 py-0 h-4 font-medium">
+              Custom
+            </Badge>
+          )}
           <PlayerRecommendationView playerId={report.playerId} fallback={null} />
         </div>
       </TableCell>

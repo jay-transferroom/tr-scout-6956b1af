@@ -281,6 +281,7 @@ export type Database = {
           match_identifier: string
           notes: string | null
           player_id: string
+          player_meta: Json | null
           rating: number | null
           ratings: Json
           scout_id: string
@@ -292,6 +293,7 @@ export type Database = {
           match_identifier: string
           notes?: string | null
           player_id: string
+          player_meta?: Json | null
           rating?: number | null
           ratings?: Json
           scout_id: string
@@ -303,6 +305,7 @@ export type Database = {
           match_identifier?: string
           notes?: string | null
           player_id?: string
+          player_meta?: Json | null
           rating?: number | null
           ratings?: Json
           scout_id?: string

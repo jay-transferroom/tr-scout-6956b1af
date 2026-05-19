@@ -661,12 +661,28 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
     });
   }, []);
 
+  const buildPlayerMeta = useCallback(
+    (playerId: string) => {
+      if (!playerId.startsWith("custom-")) return undefined;
+      const cp = customPlayers.find((c) => c.id === playerId);
+      if (!cp) return undefined;
+      return {
+        name: cp.name,
+        team: cp.team,
+        position: cp.position,
+        age: cp.age,
+        nationality: cp.nationality,
+      };
+    },
+    [customPlayers]
+  );
+
   const handleSave = useCallback(
     (playerId: string, notes: string, rating: number | null) => {
       const draft = playerDrafts[playerId];
       const ratings = draft?.ratings ?? null;
       upsertReport.mutate(
-        { playerId, notes: notes.trim() ? notes : null, rating, ratings },
+        { playerId, notes: notes.trim() ? notes : null, rating, ratings, playerMeta: buildPlayerMeta(playerId) },
         {
           onSuccess: () => {
             clearPlayerDraft(playerId);
@@ -681,7 +697,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
         }
       );
     },
-    [clearPlayerDraft, playerDrafts, toast, upsertReport]
+    [clearPlayerDraft, playerDrafts, toast, upsertReport, buildPlayerMeta]
   );
 
   const orderedHome = (homeOrder.length > 0 ? homeOrder : homePlayers.map((player) => player.id))
@@ -908,6 +924,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                           notes: d.notes?.trim() ? d.notes : null,
                           rating: d.rating,
                           ratings: d.ratings ?? null,
+                          playerMeta: buildPlayerMeta(playerId),
                         })
                       )
                     );
