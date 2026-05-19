@@ -71,7 +71,7 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
             <TableHead>Date</TableHead>
             <TableHead>League</TableHead>
             <TableHead className="text-center">Players Scouted</TableHead>
-            <TableHead className="text-center">Avg Rating</TableHead>
+            
             <TableHead>Scouts</TableHead>
             <TableHead>Last Updated</TableHead>
             <TableHead className="w-[60px] text-right">Actions</TableHead>
