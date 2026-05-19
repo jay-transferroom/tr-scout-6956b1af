@@ -791,7 +791,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
             <p className="py-4 text-center text-sm text-muted-foreground">No players found for {teamName}</p>
           )}
 
-          <AddCustomPlayerInline onAdd={(name) => handleAddCustomPlayer(team, name)} />
+          <AddCustomPlayerInline onAdd={(details) => handleAddCustomPlayer(team, details)} />
         </div>
       </div>
     );
