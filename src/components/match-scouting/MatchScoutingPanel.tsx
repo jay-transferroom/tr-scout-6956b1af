@@ -247,7 +247,8 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
         "overflow-hidden rounded-lg border transition-all",
         status === "injured" && "border-amber-400/50 bg-amber-500/5",
         status === "suspended" && "border-red-400/50 bg-red-500/5",
-        status === "available" && "border-border",
+        status === "available" && !isCustom && "border-border",
+        isCustom && status === "available" && "border-dashed border-info/40 bg-info/[0.03]",
         isDragTarget && "border-primary ring-1 ring-primary/30"
       )}
       draggable
