@@ -26,13 +26,16 @@ const ReportItem = ({ report, onViewReport, onEditReport, onDeleteReport, canEdi
   onDeleteReport: (reportId: string, playerName: string) => void;
   canEdit: boolean;
 }) => {
-  const { data: playerData, isLoading: playerLoading, error: playerError } = useReportPlayerData(report.playerId);
+  const isCustomPlayer = typeof report.playerId === 'string' && report.playerId.startsWith('custom-');
+  const { data: fetchedPlayer, isLoading: fetchedLoading, error: playerError } = useReportPlayerData(isCustomPlayer ? undefined : report.playerId);
+  const playerData = isCustomPlayer ? report.player : fetchedPlayer;
+  const playerLoading = isCustomPlayer ? false : fetchedLoading;
   const overallRating = getOverallRating(report);
   const recommendation = getRecommendation(report);
 
   const playerName = playerLoading ? 'Loading...' : 
                      playerError ? 'Unknown Player' :
-                     playerData?.name || 'Unknown Player';
+                      playerData?.name || report.player?.name || 'Unknown Player';
 
   return (
     <div key={report.id} className="border rounded-lg p-4 bg-card">
@@ -42,6 +45,11 @@ const ReportItem = ({ report, onViewReport, onEditReport, onDeleteReport, canEdi
             <Badge variant={report.status === "submitted" ? "secondary" : "outline"}>
               {report.status === "draft" ? "Draft" : "Submitted"}
             </Badge>
+            {isCustomPlayer && (
+              <Badge variant="outline" className="border-info/30 bg-info/10 text-info text-[10px] px-1.5 py-0 h-4 font-medium">
+                Custom
+              </Badge>
+            )}
             <span className="text-sm text-muted-foreground">
               {formatDate(report.createdAt)}
             </span>

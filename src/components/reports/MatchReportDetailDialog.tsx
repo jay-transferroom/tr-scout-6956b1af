@@ -11,6 +11,7 @@ import { PlayerRecommendationView } from "@/components/PlayerRecommendationView"
 import { createDefaultNamedSystems } from "@/components/club-settings/RatingSystemsTab";
 import { NamedRatingSystem } from "@/types/report";
 import { cn } from "@/lib/utils";
+import { loadMatchScoutingDraft } from "@/utils/matchScoutingDrafts";
 
 interface PlayerInfo {
   id: number;
@@ -135,9 +136,13 @@ const MatchReportDetailDialog = ({ match, open, onOpenChange }: MatchReportDetai
               // Custom player metadata is persisted on the report row itself;
               // pick the first report that has it so we can recover the name,
               // team, position even though the player isn't in players_new.
-              const customMeta = isCustomPlayer
+              const storedCustomMeta = isCustomPlayer
                 ? reports.find((r) => r.player_meta && (r.player_meta.name || r.player_meta.position))?.player_meta ?? null
                 : null;
+              const draftCustomMeta = isCustomPlayer
+                ? loadMatchScoutingDraft(match.match_identifier)?.customPlayers?.find((player) => player.id === playerId) ?? null
+                : null;
+              const customMeta = storedCustomMeta || draftCustomMeta;
               const customTeam = isCustomPlayer
                 ? (customMeta?.team === "home"
                     ? match.homeTeam

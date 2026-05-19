@@ -4,6 +4,8 @@ import { ReportWithPlayer, Report } from '@/types/report';
 import { useAuth } from '@/contexts/AuthContext';
 import { DEFAULT_TEMPLATES } from '@/data/defaultTemplates';
 import { mockTemplates } from '@/data/mockTemplates';
+import { loadMatchScoutingDraft } from '@/utils/matchScoutingDrafts';
+import { Player } from '@/types/player';
 
 export const useReports = () => {
   const [reports, setReports] = useState<ReportWithPlayer[]>([]);
@@ -252,11 +254,13 @@ export const useReports = () => {
             const [homeTeam, awayTeam] = (teams || '').split(' vs ');
 
             // For custom players (id starts with "custom-"), reconstruct
-            // player data from the persisted player_meta so the Player tab
-            // and individual report rows show name/club/position.
+            // player data from the persisted player_meta. Older rows may not
+            // have player_meta yet, so fall back to the local match draft.
             const isCustom = typeof report.player_id === 'string' && report.player_id.startsWith('custom-');
             if (!playerData && isCustom) {
-              const meta = (report as { player_meta?: { name?: string; team?: 'home' | 'away'; position?: string; age?: number; nationality?: string } | null }).player_meta || null;
+              const storedMeta = (report as { player_meta?: { name?: string; team?: 'home' | 'away'; position?: string; age?: number; nationality?: string } | null }).player_meta || null;
+              const draftMeta = loadMatchScoutingDraft(report.match_identifier)?.customPlayers?.find((player) => player.id === report.player_id) || null;
+              const meta = storedMeta || draftMeta;
               const fallbackTeam =
                 meta?.team === 'home'
                   ? homeTeam?.trim()
@@ -281,14 +285,15 @@ export const useReports = () => {
                 region: '',
                 image: undefined,
                 isCustomPlayer: true,
-              } as any;
+              } satisfies Player;
             }
 
             const scoutProfile = matchScoutProfiles.get(report.scout_id) || null;
 
-            // Match scouting rows with no numeric rating are drafts; only
-            // count as submitted once the scout has filled the primary rating.
-            const matchStatus: 'draft' | 'submitted' = report.rating != null ? 'submitted' : 'draft';
+            const ratings = report.ratings && typeof report.ratings === 'object' ? report.ratings as Record<string, string> : null;
+            const configuredRatingValues = ratings ? Object.values(ratings).filter((value) => value != null && String(value).trim() !== '') : [];
+            const primaryRating = report.rating ?? (ratings?.['default-overall'] ? Number(ratings['default-overall']) : null);
+            const matchStatus: 'draft' | 'submitted' = report.rating != null || configuredRatingValues.length > 0 ? 'submitted' : 'draft';
 
             return {
               id: report.id,
@@ -299,10 +304,11 @@ export const useReports = () => {
               createdAt: new Date(report.created_at),
               updatedAt: new Date(report.updated_at),
               status: matchStatus,
-              sections: report.rating != null ? [{
+              sections: matchStatus === 'submitted' ? [{
                 sectionId: 'match-rating',
                 fields: [
-                  { fieldId: 'overall-rating', value: report.rating },
+                  ...(primaryRating != null && !Number.isNaN(primaryRating) ? [{ fieldId: 'overall-rating', value: primaryRating }] : []),
+                  ...configuredRatingValues.map((value, index) => ({ fieldId: `match-rating-${index}`, value })),
                   ...(report.notes ? [{ fieldId: 'notes', value: report.notes }] : [])
                 ]
               }] : [],
