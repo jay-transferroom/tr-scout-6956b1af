@@ -251,6 +251,39 @@ export const useReports = () => {
             const [teams, date] = (report.match_identifier || '').split('|');
             const [homeTeam, awayTeam] = (teams || '').split(' vs ');
 
+            // For custom players (id starts with "custom-"), reconstruct
+            // player data from the persisted player_meta so the Player tab
+            // and individual report rows show name/club/position.
+            const isCustom = typeof report.player_id === 'string' && report.player_id.startsWith('custom-');
+            if (!playerData && isCustom) {
+              const meta = (report as { player_meta?: { name?: string; team?: 'home' | 'away'; position?: string; age?: number; nationality?: string } | null }).player_meta || null;
+              const fallbackTeam =
+                meta?.team === 'home'
+                  ? homeTeam?.trim()
+                  : meta?.team === 'away'
+                    ? awayTeam?.trim()
+                    : report.player_id.startsWith('custom-home-')
+                      ? homeTeam?.trim()
+                      : report.player_id.startsWith('custom-away-')
+                        ? awayTeam?.trim()
+                        : 'Unknown';
+              playerData = {
+                id: report.player_id,
+                name: meta?.name || 'Custom player',
+                club: fallbackTeam || 'Unknown',
+                age: meta?.age ?? 0,
+                dateOfBirth: '',
+                positions: meta?.position ? [meta.position] : [],
+                dominantFoot: 'Right' as const,
+                nationality: meta?.nationality || 'Unknown',
+                contractStatus: 'Under Contract' as const,
+                contractExpiry: null,
+                region: '',
+                image: undefined,
+                isCustomPlayer: true,
+              } as any;
+            }
+
             const scoutProfile = matchScoutProfiles.get(report.scout_id) || null;
 
             // Match scouting rows with no numeric rating are drafts; only
