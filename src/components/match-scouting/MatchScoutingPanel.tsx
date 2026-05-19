@@ -271,6 +271,11 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <span className="truncate text-sm font-medium">{player.name}</span>
+            {isCustom && (
+              <Badge variant="outline" className="shrink-0 border-info/30 bg-info/10 text-info text-[10px] font-medium px-1.5 py-0 h-4">
+                Custom
+              </Badge>
+            )}
             {status === "injured" && <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />}
             {status === "suspended" && <ShieldBan className="h-3.5 w-3.5 shrink-0 text-red-400" />}
           </div>
