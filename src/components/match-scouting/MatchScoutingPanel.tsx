@@ -948,14 +948,23 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
               </Button>
               <Button
                 className="flex-1"
-                onClick={() => {
-                  setSubmissionStatus("submitted");
-                  // Prototype-only: emit mock event so pipeline auto-transition
-                  // rules can react. Includes every player with a draft entry
-                  // (notes or rating).
-                  const submittedPlayerIds = Object.entries(playerDrafts)
-                    .filter(([, d]) => (d?.notes?.trim() || d?.rating !== null))
-                    .map(([id]) => id);
+                onClick={async () => {
+                  const entries = Object.entries(playerDrafts).filter(([, d]) => hasAnyScoutingData(d));
+                  try {
+                    await Promise.all(entries.map(([playerId, d]) => upsertReport.mutateAsync({
+                      playerId,
+                      notes: d.notes?.trim() ? d.notes : null,
+                      rating: d.rating,
+                      ratings: d.ratings ?? null,
+                      playerMeta: buildPlayerMeta(playerId),
+                    })));
+                    setSubmissionStatus("submitted");
+                  } catch (err) {
+                    console.error("[MatchScoutingPanel] Failed to submit match report:", err);
+                    sonnerToast.error("Failed to submit match report");
+                    return;
+                  }
+                  const submittedPlayerIds = entries.map(([id]) => id);
                   if (submittedPlayerIds.length > 0) {
                     emitMockReportSubmitted({
                       playerIds: submittedPlayerIds,
