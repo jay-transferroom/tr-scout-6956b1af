@@ -10,6 +10,7 @@ import { useMatchReportConfig } from "@/hooks/useMatchReportConfig";
 import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
 import { createDefaultNamedSystems } from "@/components/club-settings/RatingSystemsTab";
 import { NamedRatingSystem } from "@/types/report";
+import { cn } from "@/lib/utils";
 
 interface PlayerInfo {
   id: number;
