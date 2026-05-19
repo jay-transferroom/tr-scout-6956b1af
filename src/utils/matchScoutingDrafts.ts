@@ -8,6 +8,9 @@ export interface MatchScoutingCustomPlayer {
   id: string;
   name: string;
   team: "home" | "away";
+  position?: string;
+  age?: number;
+  nationality?: string;
 }
 
 export interface MatchScoutingDraft {

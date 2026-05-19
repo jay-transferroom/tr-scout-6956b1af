@@ -386,19 +386,46 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   );
 };
 
-const AddCustomPlayerInline: React.FC<{ onAdd: (name: string) => void }> = ({ onAdd }) => {
+const CUSTOM_PLAYER_POSITIONS = [
+  "GK", "RB", "CB", "LB", "CDM", "CM", "CAM", "RM", "LM", "RW", "LW", "CF", "ST",
+];
+
+interface CustomPlayerDetails {
+  name: string;
+  position?: string;
+  age?: number;
+  nationality?: string;
+}
+
+const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) => void }> = ({ onAdd }) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+  const [position, setPosition] = useState<string>("");
+  const [age, setAge] = useState<string>("");
+  const [nationality, setNationality] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) inputRef.current?.focus();
   }, [open]);
 
+  const reset = () => {
+    setName("");
+    setPosition("");
+    setAge("");
+    setNationality("");
+  };
+
   const submit = () => {
     if (!name.trim()) return;
-    onAdd(name);
-    setName("");
+    const parsedAge = age.trim() ? Number(age) : undefined;
+    onAdd({
+      name: name.trim(),
+      position: position || undefined,
+      age: parsedAge && Number.isFinite(parsedAge) ? parsedAge : undefined,
+      nationality: nationality.trim() || undefined,
+    });
+    reset();
     setOpen(false);
   };
 
@@ -416,7 +443,7 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (name: string) => void }> = ({ on
   }
 
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 p-2">
+    <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-2">
       <Input
         ref={inputRef}
         value={name}
@@ -425,26 +452,58 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (name: string) => void }> = ({ on
           if (e.key === "Enter") submit();
           if (e.key === "Escape") {
             setOpen(false);
-            setName("");
+            reset();
           }
         }}
         placeholder="Player name"
+        maxLength={80}
         className="h-8 text-sm"
       />
-      <Button size="sm" className="h-8" onClick={submit} disabled={!name.trim()}>
-        Add
-      </Button>
-      <Button
-        size="sm"
-        variant="ghost"
-        className="h-8"
-        onClick={() => {
-          setOpen(false);
-          setName("");
-        }}
-      >
-        Cancel
-      </Button>
+      <div className="grid grid-cols-3 gap-2">
+        <Select value={position} onValueChange={setPosition}>
+          <SelectTrigger className="h-8 text-xs">
+            <SelectValue placeholder="Position" />
+          </SelectTrigger>
+          <SelectContent>
+            {CUSTOM_PLAYER_POSITIONS.map((pos) => (
+              <SelectItem key={pos} value={pos} className="text-xs">{pos}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Input
+          type="number"
+          inputMode="numeric"
+          min={14}
+          max={50}
+          value={age}
+          onChange={(e) => setAge(e.target.value)}
+          placeholder="Age"
+          className="h-8 text-xs"
+        />
+        <Input
+          value={nationality}
+          onChange={(e) => setNationality(e.target.value)}
+          placeholder="Nationality"
+          maxLength={40}
+          className="h-8 text-xs"
+        />
+      </div>
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-8"
+          onClick={() => {
+            setOpen(false);
+            reset();
+          }}
+        >
+          Cancel
+        </Button>
+        <Button size="sm" className="h-8" onClick={submit} disabled={!name.trim()}>
+          Add
+        </Button>
+      </div>
     </div>
   );
 };
@@ -483,11 +542,11 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
     id: cp.id,
     name: cp.name,
     club: teamName,
-    age: 0,
+    age: cp.age ?? 0,
     dateOfBirth: "",
-    positions: [],
+    positions: cp.position ? [cp.position] : [],
     dominantFoot: "Right",
-    nationality: "",
+    nationality: cp.nationality ?? "",
     contractStatus: "Under Contract",
     region: "",
   }), []);
@@ -523,11 +582,18 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
     });
   }, [awayOrder, draftHydrated, homeOrder, matchIdentifier, playerDrafts, customPlayers]);
 
-  const handleAddCustomPlayer = useCallback((team: "home" | "away", name: string) => {
-    const trimmed = name.trim();
+  const handleAddCustomPlayer = useCallback((team: "home" | "away", details: CustomPlayerDetails) => {
+    const trimmed = details.name.trim();
     if (!trimmed) return;
     const id = `custom-${team}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    setCustomPlayers((prev) => [...prev, { id, name: trimmed, team }]);
+    setCustomPlayers((prev) => [...prev, {
+      id,
+      name: trimmed,
+      team,
+      position: details.position,
+      age: details.age,
+      nationality: details.nationality?.trim() || undefined,
+    }]);
     if (team === "home") {
       setHomeOrder((prev) => [...prev, id]);
     } else {
@@ -725,7 +791,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
             <p className="py-4 text-center text-sm text-muted-foreground">No players found for {teamName}</p>
           )}
 
-          <AddCustomPlayerInline onAdd={(name) => handleAddCustomPlayer(team, name)} />
+          <AddCustomPlayerInline onAdd={(details) => handleAddCustomPlayer(team, details)} />
         </div>
       </div>
     );
