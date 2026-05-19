@@ -40,8 +40,13 @@ const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteR
   canEdit: boolean;
 }) => {
   const navigate = useNavigate();
-  const { data: playerData, isLoading: playerLoading, error: playerError } = useReportPlayerData(groupedReport.playerId);
   const latestReport = groupedReport.allReports[0];
+  const isCustomPlayer = typeof groupedReport.playerId === 'string' && groupedReport.playerId.startsWith('custom-');
+  // For custom players, the persisted player_meta is rehydrated into latestReport.player by useReports.
+  const { data: fetchedPlayer, isLoading: fetchedLoading, error: playerError } =
+    useReportPlayerData(isCustomPlayer ? undefined : groupedReport.playerId);
+  const playerData = isCustomPlayer ? ((latestReport.player as any) || null) : fetchedPlayer;
+  const playerLoading = isCustomPlayer ? false : fetchedLoading;
   const recommendation = getRecommendation(latestReport);
 
   const playerName = playerLoading ? 'Loading...' : 
