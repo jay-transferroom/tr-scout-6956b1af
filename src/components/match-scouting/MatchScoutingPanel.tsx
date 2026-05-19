@@ -178,6 +178,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   const [isDirty, setIsDirty] = useState(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { status, description } = getPlayerStatus(player.id);
+  const isCustom = player.id.startsWith("custom-");
 
   useEffect(() => {
     setNotes(draftNotes ?? savedNotes);
