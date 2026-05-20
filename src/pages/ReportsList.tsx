@@ -7,7 +7,7 @@ import { useReportsFilter } from "@/hooks/useReportsFilter";
 import { toast } from "sonner";
 import ReportsTabNavigation from "@/components/reports/ReportsTabNavigation";
 import ReportsTable from "@/components/reports/ReportsTable";
-import GroupedReportsTable from "@/components/reports/GroupedReportsTable";
+import GroupedReportsTable, { GroupedSortKey, GroupedSortDir } from "@/components/reports/GroupedReportsTable";
 import MatchReportsTable from "@/components/reports/MatchReportsTable";
 
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
