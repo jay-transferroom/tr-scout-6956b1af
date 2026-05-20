@@ -824,7 +824,8 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                         e.stopPropagation();
                         handleRemoveCustomPlayer(player.id);
                       }}
-                      className="absolute top-2 right-2 z-20 rounded-full bg-background/80 p-1 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover/row:opacity-100"
+                      className="absolute -top-2 -right-2 z-20 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-background text-muted-foreground shadow-sm transition-colors hover:border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                      aria-label="Remove custom player"
                       title="Remove custom player"
                     >
                       <XIcon className="h-3 w-3" />
