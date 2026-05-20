@@ -6,6 +6,7 @@ import { convertRatingToNumeric, detectRatingSystemType } from "./ratingConversi
 export interface GroupedReport extends ReportWithPlayer {
   reportCount: number;
   avgRating: number | null;
+  latestRating: number | null;
   recommendation: string | null;
   allReports: ReportWithPlayer[];
   displayFormat: string;
