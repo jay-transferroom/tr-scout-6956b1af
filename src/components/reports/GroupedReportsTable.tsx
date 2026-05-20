@@ -51,7 +51,7 @@ interface GroupedReportsTableProps {
 type SortKey = GroupedSortKey;
 type SortDir = GroupedSortDir;
 
-type SortDir = "asc" | "desc";
+
 
 const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteReport, onViewAllReports, canEdit }: {
   groupedReport: GroupedReport;
