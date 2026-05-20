@@ -157,10 +157,8 @@ const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteR
         </div>
       </TableCell>
       <TableCell>
-        {latestReport.rating !== null && latestReport.rating !== undefined ? (
-          <ScoutingGrade grade={latestReport.rating} displayFormat={groupedReport.displayFormat} />
-        ) : groupedReport.avgRating !== null && groupedReport.avgRating !== undefined ? (
-          <ScoutingGrade grade={groupedReport.avgRating} displayFormat={groupedReport.displayFormat} />
+        {groupedReport.latestRating !== null && groupedReport.latestRating !== undefined ? (
+          <ScoutingGrade grade={groupedReport.latestRating} displayFormat={groupedReport.displayFormat} />
         ) : (
           <span className="text-grey-400 text-sm">-</span>
         )}
