@@ -40,6 +40,18 @@ const ReportsList = () => {
   const [playerReportsModalOpen, setPlayerReportsModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<GroupedMatchReport | null>(null);
   const [editingMatch, setEditingMatch] = useState<GroupedMatchReport | null>(null);
+  const [groupedSortKey, setGroupedSortKey] = useState<GroupedSortKey | null>(null);
+  const [groupedSortDir, setGroupedSortDir] = useState<GroupedSortDir>("asc");
+
+  const handleGroupedSort = (key: GroupedSortKey) => {
+    if (groupedSortKey === key) {
+      setGroupedSortDir(groupedSortDir === "asc" ? "desc" : "asc");
+    } else {
+      setGroupedSortKey(key);
+      setGroupedSortDir("asc");
+    }
+    setCurrentPage(1);
+  };
   
   const { user } = useAuth();
   const [searchFilters, setSearchFilters] = useState<ReportsFilterCriteria>({
