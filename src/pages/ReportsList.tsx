@@ -190,16 +190,23 @@ const ReportsList = () => {
   
   // Pagination logic
   const groupedReports = groupReportsByPlayer(filteredReports);
-  
+
   const isGroupedMode = viewMode === "grouped";
-  const itemsToDisplay = isGroupedMode ? groupedReports : filteredReports;
+  // Individual "Report" tab is for player-level reports only — custom players
+  // (created inline in a match report) should only appear in the Player and
+  // Match views, not as standalone report rows.
+  const individualReports = useMemo(
+    () => filteredReports.filter((r) => !(typeof r.playerId === "string" && r.playerId.startsWith("custom-"))),
+    [filteredReports]
+  );
+  const itemsToDisplay = isGroupedMode ? groupedReports : individualReports;
   const totalItems = itemsToDisplay.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedReports = isGroupedMode 
+  const paginatedReports = isGroupedMode
     ? groupedReports.slice(startIndex, endIndex).flatMap(group => group.allReports)
-    : filteredReports.slice(startIndex, endIndex);
+    : individualReports.slice(startIndex, endIndex);
   
   // Reset to first page when tab changes or filters change
   useEffect(() => {
