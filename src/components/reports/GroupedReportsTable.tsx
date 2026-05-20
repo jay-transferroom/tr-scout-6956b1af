@@ -1,7 +1,8 @@
 
+import { useState, useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Award, Edit, Eye, Users, User, Trash2, MoreHorizontal } from "lucide-react";
+import { Award, Edit, Eye, Users, User, Trash2, MoreHorizontal, ArrowUp, ArrowDown, ArrowUpDown, UserPlus } from "lucide-react";
 import { ReportWithPlayer } from "@/types/report";
 import { getRatingColor, formatDate } from "@/utils/reportFormatting";
 import { getRecommendation } from "@/utils/reportDataExtraction";
@@ -15,6 +16,7 @@ import { ScoutingGrade } from "@/components/ui/scouting-grade";
 import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
 import VerdictBadge from "@/components/VerdictBadge";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +33,18 @@ interface GroupedReportsTableProps {
   onViewAllReports: (playerId: string, playerName: string) => void;
 }
 
+type SortKey =
+  | "player"
+  | "club"
+  | "reportsCount"
+  | "latestDate"
+  | "status"
+  | "latestRating"
+  | "recommendation"
+  | "scout";
+
+type SortDir = "asc" | "desc";
+
 const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteReport, onViewAllReports, canEdit }: {
   groupedReport: GroupedReport;
   onViewReport: (reportId: string) => void;
@@ -42,22 +56,21 @@ const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteR
   const navigate = useNavigate();
   const latestReport = groupedReport.allReports[0];
   const isCustomPlayer = typeof groupedReport.playerId === 'string' && groupedReport.playerId.startsWith('custom-');
-  // For custom players, the persisted player_meta is rehydrated into latestReport.player by useReports.
   const { data: fetchedPlayer, isLoading: fetchedLoading, error: playerError } =
     useReportPlayerData(isCustomPlayer ? undefined : groupedReport.playerId);
   const playerData = isCustomPlayer ? ((latestReport.player as any) || null) : fetchedPlayer;
   const playerLoading = isCustomPlayer ? false : fetchedLoading;
   const recommendation = getRecommendation(latestReport);
 
-  const playerName = playerLoading ? 'Loading...' : 
+  const playerName = playerLoading ? 'Loading...' :
                      playerError ? 'Unknown Player' :
                      playerData?.name || 'Unknown Player';
-                     
-  const playerClub = playerLoading ? 'Loading...' : 
+
+  const playerClub = playerLoading ? 'Loading...' :
                      playerError ? 'Unknown' :
                      playerData?.club || 'Unknown';
-                     
-  const playerPositions = playerLoading ? [] : 
+
+  const playerPositions = playerLoading ? [] :
                           playerError ? [] :
                           playerData?.positions || [];
 
@@ -74,25 +87,44 @@ const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteR
   const isDisabled = playerLoading || !!playerError || isCustomPlayer;
 
   return (
-    <TableRow key={`${groupedReport.playerId}-grouped`}>
+    <TableRow
+      key={`${groupedReport.playerId}-grouped`}
+      className={cn(
+        isCustomPlayer && "bg-info/5 hover:bg-info/10 border-l-4 border-l-info"
+      )}
+    >
       <TableCell>
         <div className="flex items-center gap-3">
-          <PlayerAvatar 
-            playerName={playerName}
-            avatarUrl={playerData?.image}
-            size="sm"
-          />
-          <span className="font-medium text-grey-900 text-sm">{playerName}</span>
-          {isCustomPlayer && (
-            <Badge variant="outline" className="border-info/30 bg-info/10 text-info text-[10px] px-1.5 py-0 h-4 font-medium">
-              Custom
-            </Badge>
-          )}
-          <PlayerRecommendationView playerId={groupedReport.playerId} fallback={null} />
+          <div className="relative">
+            <PlayerAvatar
+              playerName={playerName}
+              avatarUrl={playerData?.image}
+              size="sm"
+            />
+            {isCustomPlayer && (
+              <span
+                className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-info text-info-foreground ring-2 ring-background"
+                title="Custom player"
+              >
+                <UserPlus className="h-2.5 w-2.5" />
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-grey-900 text-sm">{playerName}</span>
+              <PlayerRecommendationView playerId={groupedReport.playerId} fallback={null} />
+            </div>
+            {isCustomPlayer && (
+              <span className="text-[10px] uppercase tracking-wide font-semibold text-info">
+                Custom player
+              </span>
+            )}
+          </div>
         </div>
       </TableCell>
       <TableCell>
-        <ClubBadge 
+        <ClubBadge
           clubName={playerClub}
           size="sm"
         />
@@ -125,8 +157,8 @@ const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteR
         </div>
       </TableCell>
       <TableCell>
-        {groupedReport.avgRating !== null && groupedReport.avgRating !== undefined ? (
-          <ScoutingGrade grade={groupedReport.avgRating} displayFormat={groupedReport.displayFormat} />
+        {groupedReport.latestRating !== null && groupedReport.latestRating !== undefined ? (
+          <ScoutingGrade grade={groupedReport.latestRating} displayFormat={groupedReport.displayFormat} />
         ) : (
           <span className="text-grey-400 text-sm">-</span>
         )}
@@ -140,7 +172,7 @@ const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteR
       </TableCell>
       <TableCell>
         <div className="text-sm text-grey-700">
-          {latestReport.scoutProfile?.first_name && latestReport.scoutProfile?.last_name 
+          {latestReport.scoutProfile?.first_name && latestReport.scoutProfile?.last_name
             ? `${latestReport.scoutProfile.first_name} ${latestReport.scoutProfile.last_name}`
             : latestReport.scoutProfile?.first_name || "Scout"}
         </div>
@@ -148,8 +180,8 @@ const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteR
       <TableCell className="text-right">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               className="border-grey-300 text-grey-700 hover:bg-grey-50"
             >
@@ -179,7 +211,7 @@ const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteR
               </>
             )}
             {canEdit && (
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => onDeleteReport(latestReport.id, playerName)}
                 className="text-red-600 focus:text-red-600"
               >
@@ -194,35 +226,117 @@ const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteR
   );
 };
 
+const SortableHead = ({
+  label,
+  sortKey,
+  currentKey,
+  currentDir,
+  onSort,
+  icon,
+  className,
+}: {
+  label: string;
+  sortKey: SortKey;
+  currentKey: SortKey | null;
+  currentDir: SortDir;
+  onSort: (k: SortKey) => void;
+  icon?: React.ReactNode;
+  className?: string;
+}) => {
+  const active = currentKey === sortKey;
+  const Icon = active ? (currentDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
+  return (
+    <TableHead className={className}>
+      <button
+        type="button"
+        onClick={() => onSort(sortKey)}
+        className={cn(
+          "inline-flex items-center gap-1 -ml-1 px-1 py-0.5 rounded hover:bg-muted transition-colors",
+          active ? "text-foreground font-semibold" : "text-muted-foreground"
+        )}
+      >
+        {icon}
+        <span>{label}</span>
+        <Icon className={cn("h-3 w-3", active ? "opacity-100" : "opacity-50")} />
+      </button>
+    </TableHead>
+  );
+};
+
 const GroupedReportsTable = ({ reports, onViewReport, onEditReport, onDeleteReport, onViewAllReports }: GroupedReportsTableProps) => {
   const { user } = useAuth();
-  const groupedReports = groupReportsByPlayer(reports);
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir(sortDir === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const groupedReports = useMemo(() => groupReportsByPlayer(reports), [reports]);
+
+  const sortedGroupedReports = useMemo(() => {
+    if (!sortKey) return groupedReports;
+    const arr = [...groupedReports];
+    const dir = sortDir === "asc" ? 1 : -1;
+    const getVal = (g: GroupedReport): string | number => {
+      const latest = g.allReports[0];
+      switch (sortKey) {
+        case "player": return (latest.player?.name || "").toLowerCase();
+        case "club": return (latest.player?.club || "").toLowerCase();
+        case "reportsCount": return g.reportCount;
+        case "latestDate": return new Date(latest.createdAt).getTime();
+        case "status": return latest.status || "";
+        case "latestRating": return g.latestRating ?? g.avgRating ?? -Infinity;
+        case "recommendation": return (getRecommendation(latest) || "").toLowerCase();
+        case "scout": {
+          const p = latest.scoutProfile;
+          return `${p?.first_name || ""} ${p?.last_name || ""}`.trim().toLowerCase();
+        }
+        default: return 0;
+      }
+    };
+    arr.sort((a, b) => {
+      const va = getVal(a);
+      const vb = getVal(b);
+      if (va < vb) return -1 * dir;
+      if (va > vb) return 1 * dir;
+      return 0;
+    });
+    return arr;
+  }, [groupedReports, sortKey, sortDir]);
 
   return (
     <div className="overflow-x-auto">
       <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Player</TableHead>
-          <TableHead>Club</TableHead>
+          <SortableHead label="Player" sortKey="player" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+          <SortableHead label="Club" sortKey="club" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
           <TableHead>Positions</TableHead>
-          <TableHead>Reports Count</TableHead>
-          <TableHead>Latest Report</TableHead>
-          <TableHead className="w-[100px]">Status</TableHead>
-          <TableHead>
-            <div className="flex items-center gap-1">
-              <Award size={14} />
-              <span>Avg Rating</span>
-            </div>
-          </TableHead>
-          <TableHead>Recommendation</TableHead>
-          <TableHead>Scout</TableHead>
+          <SortableHead label="Reports Count" sortKey="reportsCount" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+          <SortableHead label="Latest Report" sortKey="latestDate" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+          <SortableHead label="Status" sortKey="status" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} className="w-[100px]" />
+          <SortableHead
+            label="Latest Rating"
+            sortKey="latestRating"
+            currentKey={sortKey}
+            currentDir={sortDir}
+            onSort={handleSort}
+            icon={<Award size={14} />}
+          />
+          <SortableHead label="Recommendation" sortKey="recommendation" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+          <SortableHead label="Scout" sortKey="scout" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
           <TableHead className="w-[80px] text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {groupedReports.length > 0 ? (
-          groupedReports.map((groupedReport: GroupedReport) => {
+        {sortedGroupedReports.length > 0 ? (
+          sortedGroupedReports.map((groupedReport: GroupedReport) => {
             const canEdit = user && groupedReport.scoutId === user.id;
 
             return (
