@@ -53,6 +53,19 @@ const ReportsList = () => {
     }
     setCurrentPage(1);
   };
+
+  const [individualSortKey, setIndividualSortKey] = useState<IndividualSortKey | null>("date");
+  const [individualSortDir, setIndividualSortDir] = useState<IndividualSortDir>("desc");
+
+  const handleIndividualSort = (key: IndividualSortKey) => {
+    if (individualSortKey === key) {
+      setIndividualSortDir(individualSortDir === "asc" ? "desc" : "asc");
+    } else {
+      setIndividualSortKey(key);
+      setIndividualSortDir("asc");
+    }
+    setCurrentPage(1);
+  };
   
   const { user } = useAuth();
   const [searchFilters, setSearchFilters] = useState<ReportsFilterCriteria>({
