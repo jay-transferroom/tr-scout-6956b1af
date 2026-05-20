@@ -281,7 +281,9 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
             {status === "suspended" && <ShieldBan className="h-3.5 w-3.5 shrink-0 text-red-400" />}
           </div>
           <div className="text-xs text-muted-foreground">
-            {player.positions?.join(", ")} • {player.age}y • {player.nationality}
+            {[player.positions?.join(", "), player.age ? `${player.age}y` : null, player.nationality]
+              .filter(Boolean)
+              .join(" • ")}
           </div>
           {status !== "available" && description && (
             <div
