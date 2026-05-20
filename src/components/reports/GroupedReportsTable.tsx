@@ -271,21 +271,38 @@ const SortableHead = ({
   );
 };
 
-const GroupedReportsTable = ({ reports, onViewReport, onEditReport, onDeleteReport, onViewAllReports }: GroupedReportsTableProps) => {
+const GroupedReportsTable = ({
+  reports,
+  onViewReport,
+  onEditReport,
+  onDeleteReport,
+  onViewAllReports,
+  sortKey: sortKeyProp,
+  sortDir: sortDirProp,
+  onSort,
+}: GroupedReportsTableProps) => {
   const { user } = useAuth();
-  const [sortKey, setSortKey] = useState<SortKey | null>(null);
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const controlled = onSort !== undefined;
+  const [localSortKey, setLocalSortKey] = useState<SortKey | null>(null);
+  const [localSortDir, setLocalSortDir] = useState<SortDir>("asc");
+  const sortKey = controlled ? sortKeyProp ?? null : localSortKey;
+  const sortDir = controlled ? sortDirProp ?? "asc" : localSortDir;
 
   const handleSort = (key: SortKey) => {
-    if (sortKey === key) {
-      setSortDir(sortDir === "asc" ? "desc" : "asc");
+    if (controlled) {
+      onSort!(key);
+      return;
+    }
+    if (localSortKey === key) {
+      setLocalSortDir(localSortDir === "asc" ? "desc" : "asc");
     } else {
-      setSortKey(key);
-      setSortDir("asc");
+      setLocalSortKey(key);
+      setLocalSortDir("asc");
     }
   };
 
   const groupedReports = useMemo(() => groupReportsByPlayer(reports), [reports]);
+
 
   const sortedGroupedReports = useMemo(() => {
     if (!sortKey) return groupedReports;
