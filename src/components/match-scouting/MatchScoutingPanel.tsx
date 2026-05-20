@@ -20,6 +20,7 @@ import {
 } from "@/utils/matchScoutingDrafts";
 import { Input } from "@/components/ui/input";
 import { Plus, X as XIcon } from "lucide-react";
+import { NATIONALITIES } from "@/data/nationalities";
 import { emitMockReportSubmitted } from "@/lib/mockReportEvents";
 import { getMatchGradient } from "@/components/fixtures/FixtureCard";
 import PlayerReportTemplateDialog from "./PlayerReportTemplateDialog";
