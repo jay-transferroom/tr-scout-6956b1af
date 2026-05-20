@@ -405,6 +405,8 @@ interface CustomPlayerDetails {
   nationality?: string;
 }
 
+const NATIONALITY_DATALIST_ID = "custom-player-nationality-list";
+
 const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) => void }> = ({ onAdd }) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -424,13 +426,19 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) =>
     setNationality("");
   };
 
+  const parsedAge = age.trim() ? Number(age) : null;
+  const ageInvalid =
+    age.trim() !== "" &&
+    (!Number.isFinite(parsedAge as number) || (parsedAge as number) < 10 || (parsedAge as number) > 50);
+
+  const canSubmit = name.trim().length > 0 && !ageInvalid;
+
   const submit = () => {
-    if (!name.trim()) return;
-    const parsedAge = age.trim() ? Number(age) : undefined;
+    if (!canSubmit) return;
     onAdd({
       name: name.trim(),
       position: position || undefined,
-      age: parsedAge && Number.isFinite(parsedAge) ? parsedAge : undefined,
+      age: parsedAge !== null && Number.isFinite(parsedAge) ? (parsedAge as number) : undefined,
       nationality: nationality.trim() || undefined,
     });
     reset();
@@ -478,24 +486,37 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) =>
             ))}
           </SelectContent>
         </Select>
+        <div className="space-y-1">
+          <Input
+            type="number"
+            inputMode="numeric"
+            min={10}
+            max={50}
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+            placeholder="Age"
+            aria-invalid={ageInvalid}
+            className={cn("h-8 text-xs", ageInvalid && "border-destructive focus-visible:ring-destructive")}
+          />
+        </div>
         <Input
-          type="number"
-          inputMode="numeric"
-          min={14}
-          max={50}
-          value={age}
-          onChange={(e) => setAge(e.target.value)}
-          placeholder="Age"
-          className="h-8 text-xs"
-        />
-        <Input
+          list={NATIONALITY_DATALIST_ID}
           value={nationality}
           onChange={(e) => setNationality(e.target.value)}
           placeholder="Nationality"
           maxLength={40}
+          autoComplete="off"
           className="h-8 text-xs"
         />
+        <datalist id={NATIONALITY_DATALIST_ID}>
+          {NATIONALITIES.map((n) => (
+            <option key={n} value={n} />
+          ))}
+        </datalist>
       </div>
+      {ageInvalid && (
+        <p className="text-xs text-destructive">Age must be between 10 and 50.</p>
+      )}
       <div className="flex items-center justify-end gap-2">
         <Button
           size="sm"
@@ -508,13 +529,14 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) =>
         >
           Cancel
         </Button>
-        <Button size="sm" className="h-8" onClick={submit} disabled={!name.trim()}>
+        <Button size="sm" className="h-8" onClick={submit} disabled={!canSubmit}>
           Add
         </Button>
       </div>
     </div>
   );
 };
+
 
 const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
   homeTeam,
