@@ -257,14 +257,52 @@ const ReportsList = () => {
     () => filteredReports.filter((r) => !(typeof r.playerId === "string" && r.playerId.startsWith("custom-"))),
     [filteredReports]
   );
-  const itemsToDisplay = isGroupedMode ? sortedGroupedReports : individualReports;
+
+  const sortedIndividualReports = useMemo(() => {
+    if (!individualSortKey) return individualReports;
+    const arr = [...individualReports];
+    const dir = individualSortDir === "asc" ? 1 : -1;
+    const getVal = (r: typeof arr[number]): string | number => {
+      switch (individualSortKey) {
+        case "player": return (r.player?.name || "").toLowerCase();
+        case "club": return (r.player?.club || "").toLowerCase();
+        case "match": {
+          const mc = r.matchContext as any;
+          if (!mc) return "";
+          return (mc.isManual
+            ? `${mc.homeTeam || ""} ${mc.awayTeam || ""}`
+            : mc.opposition || ""
+          ).toLowerCase();
+        }
+        case "watchMethod": return (r.watchMethod || "").toLowerCase();
+        case "date": return new Date(r.createdAt).getTime();
+        case "status": return r.status || "";
+        case "rating": return convertRatingToNumeric(getOverallRating(r)) ?? -Infinity;
+        case "verdict": return (getRecommendation(r) || "").toLowerCase();
+        case "scout": {
+          const p = r.scoutProfile;
+          return `${p?.first_name || ""} ${p?.last_name || ""}`.trim().toLowerCase();
+        }
+        default: return 0;
+      }
+    };
+    arr.sort((a, b) => {
+      const va = getVal(a); const vb = getVal(b);
+      if (va < vb) return -1 * dir;
+      if (va > vb) return 1 * dir;
+      return 0;
+    });
+    return arr;
+  }, [individualReports, individualSortKey, individualSortDir]);
+
+  const itemsToDisplay = isGroupedMode ? sortedGroupedReports : sortedIndividualReports;
   const totalItems = itemsToDisplay.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedReports = isGroupedMode
     ? sortedGroupedReports.slice(startIndex, endIndex).flatMap(group => group.allReports)
-    : individualReports.slice(startIndex, endIndex);
+    : sortedIndividualReports.slice(startIndex, endIndex);
   
   // Reset to first page when tab changes or filters change
   useEffect(() => {
