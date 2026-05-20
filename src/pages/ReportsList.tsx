@@ -441,6 +441,9 @@ const ReportsList = () => {
               onViewReport={handleViewReport}
               onEditReport={handleEditReport}
               onDeleteReport={handleDeleteReport}
+              sortKey={individualSortKey}
+              sortDir={individualSortDir}
+              onSort={handleIndividualSort}
             />
           ) : (
             <GroupedReportsTable
