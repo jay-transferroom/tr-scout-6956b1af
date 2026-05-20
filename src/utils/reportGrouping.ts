@@ -47,6 +47,9 @@ export const groupReportsByPlayer = (reports: ReportWithPlayer[]): GroupedReport
       ? Math.round((ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length) * 10) / 10
       : null;
 
+    // Latest rating (from most recent report)
+    const latestRating = convertRatingToNumeric(getOverallRating(mostRecentReport));
+
     // Get the most recent recommendation
     const recommendation = getRecommendation(mostRecentReport);
 
@@ -54,6 +57,7 @@ export const groupReportsByPlayer = (reports: ReportWithPlayer[]): GroupedReport
       ...mostRecentReport,
       reportCount: sortedReports.length,
       avgRating,
+      latestRating,
       recommendation,
       allReports: sortedReports,
       displayFormat
