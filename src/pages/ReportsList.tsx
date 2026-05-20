@@ -396,6 +396,9 @@ const ReportsList = () => {
               onEditReport={handleEditReport}
               onDeleteReport={handleDeleteReport}
               onViewAllReports={handleViewAllReports}
+              sortKey={groupedSortKey}
+              sortDir={groupedSortDir}
+              onSort={handleGroupedSort}
             />
           )}
 
