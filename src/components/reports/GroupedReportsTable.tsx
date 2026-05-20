@@ -25,15 +25,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-interface GroupedReportsTableProps {
-  reports: ReportWithPlayer[];
-  onViewReport: (reportId: string) => void;
-  onEditReport?: (reportId: string) => void;
-  onDeleteReport: (reportId: string, playerName: string) => void;
-  onViewAllReports: (playerId: string, playerName: string) => void;
-}
-
-type SortKey =
+export type GroupedSortKey =
   | "player"
   | "club"
   | "reportsCount"
@@ -42,6 +34,22 @@ type SortKey =
   | "latestRating"
   | "recommendation"
   | "scout";
+
+export type GroupedSortDir = "asc" | "desc";
+
+interface GroupedReportsTableProps {
+  reports: ReportWithPlayer[];
+  onViewReport: (reportId: string) => void;
+  onEditReport?: (reportId: string) => void;
+  onDeleteReport: (reportId: string, playerName: string) => void;
+  onViewAllReports: (playerId: string, playerName: string) => void;
+  sortKey?: GroupedSortKey | null;
+  sortDir?: GroupedSortDir;
+  onSort?: (key: GroupedSortKey) => void;
+}
+
+type SortKey = GroupedSortKey;
+type SortDir = GroupedSortDir;
 
 type SortDir = "asc" | "desc";
 
