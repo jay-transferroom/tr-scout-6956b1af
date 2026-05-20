@@ -3,22 +3,25 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { ReportWithPlayer } from "@/types/report";
 import { useAuth } from "@/contexts/AuthContext";
 import ReportRow from "./ReportRow";
-import ReportsTableHeader from "./ReportsTableHeader";
+import ReportsTableHeader, { IndividualSortKey, IndividualSortDir } from "./ReportsTableHeader";
 
 interface ReportsTableProps {
   reports: ReportWithPlayer[];
   onViewReport: (reportId: string) => void;
   onEditReport?: (reportId: string) => void;
   onDeleteReport: (reportId: string, playerName: string) => void;
+  sortKey?: IndividualSortKey | null;
+  sortDir?: IndividualSortDir;
+  onSort?: (k: IndividualSortKey) => void;
 }
 
-const ReportsTable = ({ reports, onViewReport, onEditReport, onDeleteReport }: ReportsTableProps) => {
+const ReportsTable = ({ reports, onViewReport, onEditReport, onDeleteReport, sortKey, sortDir, onSort }: ReportsTableProps) => {
   const { user } = useAuth();
 
   return (
     <div className="overflow-x-auto">
       <Table>
-      <ReportsTableHeader />
+      <ReportsTableHeader sortKey={sortKey} sortDir={sortDir} onSort={onSort} />
       <TableBody>
         {reports.length > 0 ? (
           reports.map((report) => {
@@ -37,7 +40,7 @@ const ReportsTable = ({ reports, onViewReport, onEditReport, onDeleteReport }: R
           })
         ) : (
           <TableRow>
-            <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
+            <TableCell colSpan={11} className="text-center py-6 text-muted-foreground">
               No reports found.
             </TableCell>
           </TableRow>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { format, differenceInDays } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,10 @@ import { Users, Calendar, Star, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { SortableTableHead } from "./SortableTableHead";
+
+type MatchSortKey = "match" | "date" | "league" | "playersScouted" | "lastUpdated";
+type MatchSortDir = "asc" | "desc";
 
 interface MatchReportsTableProps {
   matchReports: GroupedMatchReport[];
@@ -34,7 +38,40 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
   const queryClient = useQueryClient();
   const [pendingDelete, setPendingDelete] = useState<GroupedMatchReport | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [sortKey, setSortKey] = useState<MatchSortKey | null>("lastUpdated");
+  const [sortDir, setSortDir] = useState<MatchSortDir>("desc");
   const isManager = profile?.role === "recruitment" || profile?.role === "director";
+
+  const handleSort = (k: MatchSortKey) => {
+    if (sortKey === k) setSortDir(sortDir === "asc" ? "desc" : "asc");
+    else { setSortKey(k); setSortDir("asc"); }
+  };
+
+  const sortedMatchReports = useMemo(() => {
+    if (!sortKey) return matchReports;
+    const arr = [...matchReports];
+    const dir = sortDir === "asc" ? 1 : -1;
+    const latestUpdate = (m: GroupedMatchReport) =>
+      m.reports.reduce((acc, r) => Math.max(acc, new Date(r.updated_at).getTime()), 0);
+    const getVal = (m: GroupedMatchReport): string | number => {
+      switch (sortKey) {
+        case "match": return `${m.homeTeam} vs ${m.awayTeam}`.toLowerCase();
+        case "date": return m.matchDate ? new Date(m.matchDate).getTime() : 0;
+        case "league": return (m.competition || "").toLowerCase();
+        case "playersScouted": return m.totalRatings ?? 0;
+        case "lastUpdated": return latestUpdate(m);
+        default: return 0;
+      }
+    };
+    arr.sort((a, b) => {
+      const va = getVal(a); const vb = getVal(b);
+      if (va < vb) return -1 * dir;
+      if (va > vb) return 1 * dir;
+      return 0;
+    });
+    return arr;
+  }, [matchReports, sortKey, sortDir]);
+
 
   const handleConfirmDelete = async () => {
     if (!pendingDelete) return;
@@ -67,18 +104,17 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Match</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>League</TableHead>
-            <TableHead className="text-center">Players Scouted</TableHead>
-            
+            <SortableTableHead label="Match" sortKey="match" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortableTableHead label="Date" sortKey="date" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortableTableHead label="League" sortKey="league" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortableTableHead label="Players Scouted" sortKey="playersScouted" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} className="text-center" />
             <TableHead>Scouts</TableHead>
-            <TableHead>Last Updated</TableHead>
+            <SortableTableHead label="Last Updated" sortKey="lastUpdated" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <TableHead className="w-[60px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {matchReports.map((match) => {
+          {sortedMatchReports.map((match) => {
             const uniqueScouts = new Map<string, string>();
             match.reports.forEach((r) => {
               if (r.scout_profile) {
