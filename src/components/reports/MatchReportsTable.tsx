@@ -104,18 +104,17 @@ const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchRe
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Match</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>League</TableHead>
-            <TableHead className="text-center">Players Scouted</TableHead>
-            
+            <SortableTableHead label="Match" sortKey="match" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortableTableHead label="Date" sortKey="date" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortableTableHead label="League" sortKey="league" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
+            <SortableTableHead label="Players Scouted" sortKey="playersScouted" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} className="text-center" />
             <TableHead>Scouts</TableHead>
-            <TableHead>Last Updated</TableHead>
+            <SortableTableHead label="Last Updated" sortKey="lastUpdated" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
             <TableHead className="w-[60px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {matchReports.map((match) => {
+          {sortedMatchReports.map((match) => {
             const uniqueScouts = new Map<string, string>();
             match.reports.forEach((r) => {
               if (r.scout_profile) {
