@@ -15,7 +15,8 @@ import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDr
 import PlayerReportsModal from "@/components/reports/PlayerReportsModal";
 import MatchReportDetailDialog from "@/components/reports/MatchReportDetailDialog";
 import ReportsFilters, { ReportsFilterCriteria } from "@/components/reports/ReportsFilters";
-import { getRecommendation } from "@/utils/reportDataExtraction";
+import { getOverallRating, getRecommendation } from "@/utils/reportDataExtraction";
+import { convertRatingToNumeric } from "@/utils/ratingConversion";
 import { groupReportsByPlayer } from "@/utils/reportGrouping";
 import { useAllMatchScoutingReports, GroupedMatchReport } from "@/hooks/useAllMatchScoutingReports";
 import { SlidingToggle } from "@/components/ui/sliding-toggle";
