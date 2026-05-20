@@ -25,15 +25,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-interface GroupedReportsTableProps {
-  reports: ReportWithPlayer[];
-  onViewReport: (reportId: string) => void;
-  onEditReport?: (reportId: string) => void;
-  onDeleteReport: (reportId: string, playerName: string) => void;
-  onViewAllReports: (playerId: string, playerName: string) => void;
-}
-
-type SortKey =
+export type GroupedSortKey =
   | "player"
   | "club"
   | "reportsCount"
@@ -43,7 +35,23 @@ type SortKey =
   | "recommendation"
   | "scout";
 
-type SortDir = "asc" | "desc";
+export type GroupedSortDir = "asc" | "desc";
+
+interface GroupedReportsTableProps {
+  reports: ReportWithPlayer[];
+  onViewReport: (reportId: string) => void;
+  onEditReport?: (reportId: string) => void;
+  onDeleteReport: (reportId: string, playerName: string) => void;
+  onViewAllReports: (playerId: string, playerName: string) => void;
+  sortKey?: GroupedSortKey | null;
+  sortDir?: GroupedSortDir;
+  onSort?: (key: GroupedSortKey) => void;
+}
+
+type SortKey = GroupedSortKey;
+type SortDir = GroupedSortDir;
+
+
 
 const GroupedReportRow = ({ groupedReport, onViewReport, onEditReport, onDeleteReport, onViewAllReports, canEdit }: {
   groupedReport: GroupedReport;
@@ -263,21 +271,38 @@ const SortableHead = ({
   );
 };
 
-const GroupedReportsTable = ({ reports, onViewReport, onEditReport, onDeleteReport, onViewAllReports }: GroupedReportsTableProps) => {
+const GroupedReportsTable = ({
+  reports,
+  onViewReport,
+  onEditReport,
+  onDeleteReport,
+  onViewAllReports,
+  sortKey: sortKeyProp,
+  sortDir: sortDirProp,
+  onSort,
+}: GroupedReportsTableProps) => {
   const { user } = useAuth();
-  const [sortKey, setSortKey] = useState<SortKey | null>(null);
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const controlled = onSort !== undefined;
+  const [localSortKey, setLocalSortKey] = useState<SortKey | null>(null);
+  const [localSortDir, setLocalSortDir] = useState<SortDir>("asc");
+  const sortKey = controlled ? sortKeyProp ?? null : localSortKey;
+  const sortDir = controlled ? sortDirProp ?? "asc" : localSortDir;
 
   const handleSort = (key: SortKey) => {
-    if (sortKey === key) {
-      setSortDir(sortDir === "asc" ? "desc" : "asc");
+    if (controlled) {
+      onSort!(key);
+      return;
+    }
+    if (localSortKey === key) {
+      setLocalSortDir(localSortDir === "asc" ? "desc" : "asc");
     } else {
-      setSortKey(key);
-      setSortDir("asc");
+      setLocalSortKey(key);
+      setLocalSortDir("asc");
     }
   };
 
   const groupedReports = useMemo(() => groupReportsByPlayer(reports), [reports]);
+
 
   const sortedGroupedReports = useMemo(() => {
     if (!sortKey) return groupedReports;

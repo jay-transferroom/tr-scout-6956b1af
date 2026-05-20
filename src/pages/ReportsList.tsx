@@ -7,7 +7,7 @@ import { useReportsFilter } from "@/hooks/useReportsFilter";
 import { toast } from "sonner";
 import ReportsTabNavigation from "@/components/reports/ReportsTabNavigation";
 import ReportsTable from "@/components/reports/ReportsTable";
-import GroupedReportsTable from "@/components/reports/GroupedReportsTable";
+import GroupedReportsTable, { GroupedSortKey, GroupedSortDir } from "@/components/reports/GroupedReportsTable";
 import MatchReportsTable from "@/components/reports/MatchReportsTable";
 
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
@@ -40,6 +40,18 @@ const ReportsList = () => {
   const [playerReportsModalOpen, setPlayerReportsModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<GroupedMatchReport | null>(null);
   const [editingMatch, setEditingMatch] = useState<GroupedMatchReport | null>(null);
+  const [groupedSortKey, setGroupedSortKey] = useState<GroupedSortKey | null>(null);
+  const [groupedSortDir, setGroupedSortDir] = useState<GroupedSortDir>("asc");
+
+  const handleGroupedSort = (key: GroupedSortKey) => {
+    if (groupedSortKey === key) {
+      setGroupedSortDir(groupedSortDir === "asc" ? "desc" : "asc");
+    } else {
+      setGroupedSortKey(key);
+      setGroupedSortDir("asc");
+    }
+    setCurrentPage(1);
+  };
   
   const { user } = useAuth();
   const [searchFilters, setSearchFilters] = useState<ReportsFilterCriteria>({
@@ -189,7 +201,38 @@ const ReportsList = () => {
   }, [reports]);
   
   // Pagination logic
-  const groupedReports = groupReportsByPlayer(filteredReports);
+  const groupedReports = useMemo(() => groupReportsByPlayer(filteredReports), [filteredReports]);
+
+  const sortedGroupedReports = useMemo(() => {
+    if (!groupedSortKey) return groupedReports;
+    const arr = [...groupedReports];
+    const dir = groupedSortDir === "asc" ? 1 : -1;
+    const getVal = (g: typeof arr[number]): string | number => {
+      const latest = g.allReports[0];
+      switch (groupedSortKey) {
+        case "player": return (latest.player?.name || "").toLowerCase();
+        case "club": return (latest.player?.club || "").toLowerCase();
+        case "reportsCount": return g.reportCount;
+        case "latestDate": return new Date(latest.createdAt).getTime();
+        case "status": return latest.status || "";
+        case "latestRating": return g.latestRating ?? g.avgRating ?? -Infinity;
+        case "recommendation": return (getRecommendation(latest) || "").toLowerCase();
+        case "scout": {
+          const p = latest.scoutProfile;
+          return `${p?.first_name || ""} ${p?.last_name || ""}`.trim().toLowerCase();
+        }
+        default: return 0;
+      }
+    };
+    arr.sort((a, b) => {
+      const va = getVal(a);
+      const vb = getVal(b);
+      if (va < vb) return -1 * dir;
+      if (va > vb) return 1 * dir;
+      return 0;
+    });
+    return arr;
+  }, [groupedReports, groupedSortKey, groupedSortDir]);
 
   const isGroupedMode = viewMode === "grouped";
   // Individual "Report" tab is for player-level reports only — custom players
@@ -199,13 +242,13 @@ const ReportsList = () => {
     () => filteredReports.filter((r) => !(typeof r.playerId === "string" && r.playerId.startsWith("custom-"))),
     [filteredReports]
   );
-  const itemsToDisplay = isGroupedMode ? groupedReports : individualReports;
+  const itemsToDisplay = isGroupedMode ? sortedGroupedReports : individualReports;
   const totalItems = itemsToDisplay.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedReports = isGroupedMode
-    ? groupedReports.slice(startIndex, endIndex).flatMap(group => group.allReports)
+    ? sortedGroupedReports.slice(startIndex, endIndex).flatMap(group => group.allReports)
     : individualReports.slice(startIndex, endIndex);
   
   // Reset to first page when tab changes or filters change
@@ -353,6 +396,9 @@ const ReportsList = () => {
               onEditReport={handleEditReport}
               onDeleteReport={handleDeleteReport}
               onViewAllReports={handleViewAllReports}
+              sortKey={groupedSortKey}
+              sortDir={groupedSortDir}
+              onSort={handleGroupedSort}
             />
           )}
 
