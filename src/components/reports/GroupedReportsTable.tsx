@@ -291,7 +291,7 @@ const GroupedReportsTable = ({ reports, onViewReport, onEditReport, onDeleteRepo
         case "reportsCount": return g.reportCount;
         case "latestDate": return new Date(latest.createdAt).getTime();
         case "status": return latest.status || "";
-        case "latestRating": return latest.rating ?? g.avgRating ?? -Infinity;
+        case "latestRating": return g.latestRating ?? g.avgRating ?? -Infinity;
         case "recommendation": return (getRecommendation(latest) || "").toLowerCase();
         case "scout": {
           const p = latest.scoutProfile;
