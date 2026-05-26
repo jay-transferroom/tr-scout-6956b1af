@@ -1020,7 +1020,11 @@ const Calendar = () => {
                                 <Badge variant="secondary">FT</Badge>
                               )}
                               {!isLive && !isCompleted && (
-                                <Badge variant="outline">{fixture.competition || 'Scheduled'}</Badge>
+                                fixture.source === 'custom' ? (
+                                  <Badge variant="outline" className="border-info/40 bg-info/10 text-info">Custom</Badge>
+                                ) : (
+                                  <Badge variant="outline">{fixture.competition || 'Scheduled'}</Badge>
+                                )
                               )}
                             </div>
                           </div>
