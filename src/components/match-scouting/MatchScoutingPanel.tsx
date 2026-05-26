@@ -693,6 +693,25 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
     });
   }, []);
 
+  const handleUpdateCustomPlayer = useCallback((playerId: string, updates: { position?: string; age?: number | null; nationality?: string }) => {
+    setCustomPlayers((prev) =>
+      prev.map((cp) => {
+        if (cp.id !== playerId) return cp;
+        const next: MatchScoutingCustomPlayer = { ...cp };
+        if (updates.position !== undefined) {
+          next.position = updates.position || undefined;
+        }
+        if (updates.age !== undefined) {
+          next.age = updates.age ?? undefined;
+        }
+        if (updates.nationality !== undefined) {
+          next.nationality = updates.nationality || undefined;
+        }
+        return next;
+      })
+    );
+  }, []);
+
   useEffect(() => {
     const matchKey = `${homeTeam}-${awayTeam}-${matchDate}`;
 
