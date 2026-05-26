@@ -886,6 +886,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                     isDragTarget={dragOverId === player.id}
                     matchReportConfig={matchReportConfig}
                     ratingSystems={availableRatingSystems}
+                    onUpdateCustomPlayer={handleUpdateCustomPlayer}
                   />
                   {isCustom && (
                     <button
