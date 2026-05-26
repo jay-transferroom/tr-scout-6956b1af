@@ -171,6 +171,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   isDragTarget,
   matchReportConfig,
   ratingSystems,
+  onUpdateCustomPlayer,
 }) => {
   const hasAnyData = hasAnyScoutingData({ notes: draftNotes ?? savedNotes, rating: draftRating ?? savedRating, ratings: draftRatings });
   const [expanded, setExpanded] = useState(hasAnyData);
