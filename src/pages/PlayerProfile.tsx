@@ -357,6 +357,10 @@ const PlayerProfile = () => {
             <PlayerMatchHistoryTab player={player} />
           </TabsContent>
           
+          <TabsContent value="reports">
+            <PlayerReportsTab player={player} playerReports={playerReports} />
+          </TabsContent>
+
           <TabsContent value="alternatives">
             <PlayerAlternativesTab player={player} />
           </TabsContent>
