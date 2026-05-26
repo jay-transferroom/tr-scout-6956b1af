@@ -61,7 +61,7 @@ export const DEMO_MATCH_REPORTS: ReportWithPlayer[] = [
         sectionId: "overall",
         fields: [
           { fieldId: "overall-rating", value: 8 },
-          { fieldId: "recommendation", value: "Monitor" },
+          { fieldId: "recommendation", value: "monitor" },
         ],
       },
     ],
