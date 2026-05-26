@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { FileText, Plus } from "lucide-react";
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
 import VerdictBadge from "@/components/VerdictBadge";
+import ReportDetailSheet from "@/components/reports/ReportDetailSheet";
 import { ReportWithPlayer } from "@/types/report";
 import { Player } from "@/types/player";
 import { getOverallRating, getRecommendation } from "@/utils/reportDataExtraction";
