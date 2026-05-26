@@ -365,34 +365,29 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
           {isCustom && onUpdateCustomPlayer && (
             <div className="space-y-2">
               <label className="block text-xs font-medium text-muted-foreground">Player Info</label>
-              <div className="grid grid-cols-3 gap-2">
-                <Select
-                  value={player.positions?.[0] || ''}
-                  onValueChange={(value) => onUpdateCustomPlayer(player.id, { position: value || undefined })}
-                >
-                  <SelectTrigger className="h-7 text-xs">
-                    <SelectValue placeholder="Position" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CUSTOM_PLAYER_POSITIONS.map((pos) => (
-                      <SelectItem key={pos} value={pos} className="text-xs">{pos}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-medium text-muted-foreground w-[120px] shrink-0 truncate">
+                  Age
+                </label>
                 <Input
                   type="number"
                   inputMode="numeric"
-                  min={10}
-                  max={50}
+                  min={14}
+                  max={45}
                   value={player.age || ''}
                   onChange={(e) => {
                     const val = e.target.value;
                     const num = val.trim() ? Number(val) : null;
-                    onUpdateCustomPlayer(player.id, { age: num !== null && Number.isFinite(num) && num >= 10 && num <= 50 ? num : null });
+                    onUpdateCustomPlayer(player.id, { age: num !== null && Number.isFinite(num) && num >= 14 && num <= 45 ? num : null });
                   }}
                   placeholder="Age"
-                  className="h-7 text-xs"
+                  className="h-7 text-xs flex-1"
                 />
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-medium text-muted-foreground w-[120px] shrink-0 truncate">
+                  Nationality
+                </label>
                 <Input
                   list={NATIONALITY_DATALIST_ID}
                   value={player.nationality || ''}
@@ -400,7 +395,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
                   placeholder="Nationality"
                   maxLength={40}
                   autoComplete="off"
-                  className="h-7 text-xs"
+                  className="h-7 text-xs flex-1"
                 />
               </div>
             </div>
