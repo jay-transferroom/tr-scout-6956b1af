@@ -535,6 +535,13 @@ const ReportsList = () => {
         onOpenChange={(open) => { if (!open) setSelectedMatch(null); }}
       />
 
+      <ReportDetailSheet
+        report={selectedReport}
+        open={!!selectedReportId}
+        onOpenChange={(open) => { if (!open) setSelectedReportId(null); }}
+        onEditReport={(id) => { setSelectedReportId(null); handleEditReport(id); }}
+      />
+
       {editingMatch && (
         <MatchScoutingDrawer
           open={!!editingMatch}
