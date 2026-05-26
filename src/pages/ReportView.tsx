@@ -233,10 +233,13 @@ const ReportView = () => {
 
   // Update report with player data when it's available
   useEffect(() => {
-    if (report && playerData && !report.player) {
-      setReport(prev => prev ? { ...prev, player: playerData } : null);
+    if (report && !report.player) {
+      const resolved = playerData || (!playerLoading ? playerFallback : null);
+      if (resolved) {
+        setReport(prev => prev ? { ...prev, player: resolved } : null);
+      }
     }
-  }, [report, playerData]);
+  }, [report, playerData, playerLoading, playerFallback]);
 
   if (loading || playerLoading) {
     return (
