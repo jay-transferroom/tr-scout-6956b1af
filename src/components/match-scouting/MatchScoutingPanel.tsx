@@ -248,10 +248,10 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
     <div
       className={cn(
         "overflow-hidden rounded-lg border transition-all",
-        status === "injured" && "border-amber-400/50 bg-amber-500/5",
-        status === "suspended" && "border-red-400/50 bg-red-500/5",
-        status === "available" && !isCustom && "border-border",
-        isCustom && status === "available" && "border-dashed border-info/40 bg-info/[0.03]",
+        !isCustom && status === "injured" && "border-amber-400/50 bg-amber-500/5",
+        !isCustom && status === "suspended" && "border-red-400/50 bg-red-500/5",
+        !isCustom && status === "available" && "border-border",
+        isCustom && "border-dashed border-info/40 bg-info/[0.03]",
         isDragTarget && "border-primary ring-1 ring-primary/30"
       )}
       draggable
@@ -264,9 +264,9 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
         onClick={() => setExpanded((current) => !current)}
         className={cn(
           "flex w-full items-center gap-2 p-3 text-left transition-colors",
-          status === "injured" && "hover:bg-amber-500/10",
-          status === "suspended" && "hover:bg-red-500/10",
-          status === "available" && "hover:bg-muted/50"
+          !isCustom && status === "injured" && "hover:bg-amber-500/10",
+          !isCustom && status === "suspended" && "hover:bg-red-500/10",
+          (!isCustom && status === "available") || isCustom && "hover:bg-muted/50"
         )}
       >
         <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-muted-foreground/50 active:cursor-grabbing" />
@@ -279,15 +279,15 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
                 Custom
               </Badge>
             )}
-            {status === "injured" && <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />}
-            {status === "suspended" && <ShieldBan className="h-3.5 w-3.5 shrink-0 text-red-400" />}
+            {!isCustom && status === "injured" && <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />}
+            {!isCustom && status === "suspended" && <ShieldBan className="h-3.5 w-3.5 shrink-0 text-red-400" />}
           </div>
           <div className="text-xs text-muted-foreground">
             {[player.positions?.join(", "), player.age ? `${player.age}y` : null, player.nationality]
               .filter(Boolean)
               .join(" • ")}
           </div>
-          {status !== "available" && description && (
+          {status !== "available" && description && !isCustom && (
             <div
               className={cn(
                 "mt-0.5 text-[10px] font-medium",
@@ -365,34 +365,29 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
           {isCustom && onUpdateCustomPlayer && (
             <div className="space-y-2">
               <label className="block text-xs font-medium text-muted-foreground">Player Info</label>
-              <div className="grid grid-cols-3 gap-2">
-                <Select
-                  value={player.positions?.[0] || ''}
-                  onValueChange={(value) => onUpdateCustomPlayer(player.id, { position: value || undefined })}
-                >
-                  <SelectTrigger className="h-7 text-xs">
-                    <SelectValue placeholder="Position" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CUSTOM_PLAYER_POSITIONS.map((pos) => (
-                      <SelectItem key={pos} value={pos} className="text-xs">{pos}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-medium text-muted-foreground w-[120px] shrink-0 truncate">
+                  Age
+                </label>
                 <Input
                   type="number"
                   inputMode="numeric"
-                  min={10}
-                  max={50}
+                  min={14}
+                  max={45}
                   value={player.age || ''}
                   onChange={(e) => {
                     const val = e.target.value;
                     const num = val.trim() ? Number(val) : null;
-                    onUpdateCustomPlayer(player.id, { age: num !== null && Number.isFinite(num) && num >= 10 && num <= 50 ? num : null });
+                    onUpdateCustomPlayer(player.id, { age: num !== null && Number.isFinite(num) && num >= 14 && num <= 45 ? num : null });
                   }}
                   placeholder="Age"
-                  className="h-7 text-xs"
+                  className="h-7 text-xs flex-1"
                 />
+              </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-medium text-muted-foreground w-[120px] shrink-0 truncate">
+                  Nationality
+                </label>
                 <Input
                   list={NATIONALITY_DATALIST_ID}
                   value={player.nationality || ''}
@@ -400,7 +395,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
                   placeholder="Nationality"
                   maxLength={40}
                   autoComplete="off"
-                  className="h-7 text-xs"
+                  className="h-7 text-xs flex-1"
                 />
               </div>
             </div>
