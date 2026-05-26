@@ -22,6 +22,7 @@ import { PlayerPlayingStyleTab } from "@/components/player-profile/PlayerPlaying
 import { PlayerInjuriesTab } from "@/components/player-profile/PlayerInjuriesTab";
 import { PlayerMatchHistoryTab } from "@/components/player-profile/PlayerMatchHistoryTab";
 import { PlayerAlternativesTab } from "@/components/player-profile/PlayerAlternativesTab";
+import { PlayerReportsTab } from "@/components/player-profile/PlayerReportsTab";
 import { PlayerRecentResults } from "@/components/player-profile/PlayerRecentResults";
 import { PlayerUpcomingFixtures } from "@/components/player-profile/PlayerUpcomingFixtures";
 import PlayerStatusActions from "@/components/PlayerStatusActions";
@@ -328,6 +329,7 @@ const PlayerProfile = () => {
             <TabsTrigger value="playing-style" className="text-xs sm:text-sm">Playing Style</TabsTrigger>
             <TabsTrigger value="injuries" className="text-xs sm:text-sm">Injuries</TabsTrigger>
             <TabsTrigger value="match-history" className="text-xs sm:text-sm">Match History</TabsTrigger>
+            <TabsTrigger value="reports" className="text-xs sm:text-sm">Reports</TabsTrigger>
             <TabsTrigger value="alternatives" className="text-xs sm:text-sm">Alternatives</TabsTrigger>
           </TabsList>
 
@@ -355,6 +357,10 @@ const PlayerProfile = () => {
             <PlayerMatchHistoryTab player={player} />
           </TabsContent>
           
+          <TabsContent value="reports">
+            <PlayerReportsTab player={player} playerReports={playerReports} />
+          </TabsContent>
+
           <TabsContent value="alternatives">
             <PlayerAlternativesTab player={player} />
           </TabsContent>
