@@ -14,6 +14,7 @@ import MatchReportsTable from "@/components/reports/MatchReportsTable";
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
 import PlayerReportsModal from "@/components/reports/PlayerReportsModal";
 import MatchReportDetailDialog from "@/components/reports/MatchReportDetailDialog";
+import ReportDetailSheet from "@/components/reports/ReportDetailSheet";
 import ReportsFilters, { ReportsFilterCriteria } from "@/components/reports/ReportsFilters";
 import { getOverallRating, getRecommendation } from "@/utils/reportDataExtraction";
 import { convertRatingToNumeric } from "@/utils/ratingConversion";
