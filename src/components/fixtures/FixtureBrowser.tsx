@@ -527,16 +527,24 @@ const FixtureBrowser: React.FC = () => {
         open={customMatchDialogOpen}
         onOpenChange={setCustomMatchDialogOpen}
         onConfirm={(home, away, dateIso) => {
-          setScoutingFixture({
-            home_team: home,
-            away_team: away,
+          const customFixture: Fixture = {
+            matchweek: null,
+            match_number: Date.now(),
             match_date_utc: dateIso,
+            match_datetime_london: null,
             home_score: null,
             away_score: null,
-            competition: 'Custom Match',
+            season: '2025/26',
+            competition: null,
+            home_team: home,
+            away_team: away,
             venue: null,
             status: 'scheduled',
-          } as unknown as Fixture);
+            result: null,
+            source: 'custom',
+          };
+          addCustomFixture(customFixture);
+          setScoutingFixture(customFixture);
           setCustomMatchDialogOpen(false);
           setMatchScoutingOpen(true);
         }}
