@@ -48,7 +48,7 @@ const getFixtureForReport = (
 };
 
 const MatchReportsTable = ({
-  reports,
+  reports = [],
   onViewReport,
   onEditReport,
   onDeleteReport,
