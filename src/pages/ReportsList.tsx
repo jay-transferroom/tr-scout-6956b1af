@@ -425,16 +425,12 @@ const ReportsList = () => {
       <div>
         <div>
           {viewMode === "match" ? (
-            matchReportsLoading ? (
-              <div className="text-center py-8">Loading match reports...</div>
-            ) : (
-              <MatchReportsTable
-                matchReports={visibleMatchReports}
-                onSelectMatch={(m) => setSelectedMatch(m)}
-                onEditMatch={(m) => setEditingMatch(m)}
-              />
-
-            )
+            <MatchReportsTable
+              reports={sortedIndividualReports}
+              onViewReport={handleViewReport}
+              onEditReport={handleEditReport}
+              onDeleteReport={handleDeleteReport}
+            />
           ) : viewMode === "individual" ? (
             <ReportsTable
               reports={paginatedReports}
