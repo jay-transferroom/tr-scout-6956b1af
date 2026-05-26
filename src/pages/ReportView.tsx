@@ -38,6 +38,7 @@ const ReportView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [playerId, setPlayerId] = useState<string>("");
+  const [playerFallback, setPlayerFallback] = useState<any>(null);
 
   // Fetch player data separately
   const { data: playerData, isLoading: playerLoading } = useReportPlayerData(playerId);
