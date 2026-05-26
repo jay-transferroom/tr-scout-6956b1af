@@ -32,6 +32,7 @@ import { getFixtureId } from "@/types/fixtureAssignment";
 import { ASSIGNMENT_VISUALS } from "@/utils/assignmentVisuals";
 import { Trash2 } from "lucide-react";
 import CustomMatchDialog from "@/components/fixtures/CustomMatchDialog";
+import { addCustomFixture, isCustomFixture } from "@/utils/customFixtures";
 
 // Map competition names to countries for matching
 const COMPETITION_COUNTRY_MAP: Record<string, string> = {
@@ -438,12 +439,16 @@ const FixtureBrowser: React.FC = () => {
                             </div>
                           )}
 
-                          {/* Competition */}
-                          {fixture.competition && (
+                          {/* Competition / Custom badge */}
+                          {isCustomFixture(fixture) ? (
+                            <Badge variant="outline" className="hidden sm:inline-flex text-[10px] py-0 px-1.5 shrink-0 border-info/40 bg-info/10 text-info">
+                              Custom
+                            </Badge>
+                          ) : fixture.competition ? (
                             <Badge variant="outline" className="hidden sm:inline-flex text-[10px] py-0 px-1.5 shrink-0">
                               {fixture.competition}
                             </Badge>
-                          )}
+                          ) : null}
 
                           {/* Shortlisted badge */}
                           {shortlistedCount > 0 && (
@@ -522,16 +527,24 @@ const FixtureBrowser: React.FC = () => {
         open={customMatchDialogOpen}
         onOpenChange={setCustomMatchDialogOpen}
         onConfirm={(home, away, dateIso) => {
-          setScoutingFixture({
-            home_team: home,
-            away_team: away,
+          const customFixture: Fixture = {
+            matchweek: null,
+            match_number: Date.now(),
             match_date_utc: dateIso,
+            match_datetime_london: null,
             home_score: null,
             away_score: null,
-            competition: 'Custom Match',
+            season: '2025/26',
+            competition: null,
+            home_team: home,
+            away_team: away,
             venue: null,
             status: 'scheduled',
-          } as unknown as Fixture);
+            result: null,
+            source: 'custom',
+          };
+          addCustomFixture(customFixture);
+          setScoutingFixture(customFixture);
           setCustomMatchDialogOpen(false);
           setMatchScoutingOpen(true);
         }}

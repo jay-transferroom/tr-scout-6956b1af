@@ -1,6 +1,7 @@
-
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { loadCustomFixtures, subscribeCustomFixtures } from "@/utils/customFixtures";
 
 export interface Fixture {
   matchweek: number | null;
@@ -20,7 +21,13 @@ export interface Fixture {
 }
 
 export const useFixturesData = () => {
-  return useQuery({
+  const [customFixtures, setCustomFixtures] = useState<Fixture[]>(() => loadCustomFixtures());
+
+  useEffect(() => {
+    return subscribeCustomFixtures(() => setCustomFixtures(loadCustomFixtures()));
+  }, []);
+
+  const query = useQuery({
     queryKey: ['fixtures'],
     queryFn: async (): Promise<Fixture[]> => {
       const { data, error } = await supabase
@@ -33,9 +40,14 @@ export const useFixturesData = () => {
         throw error;
       }
 
-      const fixtures = (data || []) as Fixture[];
-      console.debug('Fixtures fetched:', fixtures.length);
-      return fixtures;
+      return (data || []) as Fixture[];
     },
   });
+
+  const merged = useMemo(
+    () => [...(query.data ?? []), ...customFixtures],
+    [query.data, customFixtures]
+  );
+
+  return { ...query, data: merged };
 };
