@@ -361,46 +361,6 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
             </div>
           )}
 
-          {/* Custom player metadata editing */}
-          {isCustom && onUpdateCustomPlayer && (
-            <div className="space-y-2">
-              <div className="h-px w-full bg-border" />
-              <label className="block text-xs font-semibold text-foreground">Player Info</label>
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-medium text-muted-foreground w-[120px] shrink-0 truncate">
-                  Age
-                </label>
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  min={14}
-                  max={45}
-                  value={player.age || ''}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    const num = val.trim() ? Number(val) : null;
-                    onUpdateCustomPlayer(player.id, { age: num !== null && Number.isFinite(num) && num >= 14 && num <= 45 ? num : null });
-                  }}
-                  placeholder="Age"
-                  className="h-7 text-xs flex-1"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-medium text-muted-foreground w-[120px] shrink-0 truncate">
-                  Nationality
-                </label>
-                <Input
-                  list={NATIONALITY_DATALIST_ID}
-                  value={player.nationality || ''}
-                  onChange={(e) => onUpdateCustomPlayer(player.id, { nationality: e.target.value || undefined })}
-                  placeholder="Nationality"
-                  maxLength={40}
-                  autoComplete="off"
-                  className="h-7 text-xs flex-1"
-                />
-              </div>
-            </div>
-          )}
 
           <div>
             <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Notes</label>
