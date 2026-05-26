@@ -70,6 +70,7 @@ const buildDemoReport = (player: Player): ReportWithPlayer => ({
 
 export const PlayerReportsTab = ({ player, playerReports }: PlayerReportsTabProps) => {
   const navigate = useNavigate();
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
 
   const isMadueke = player.name?.toLowerCase().includes("noni madueke");
   const reports: ReportWithPlayer[] =
@@ -79,6 +80,9 @@ export const PlayerReportsTab = ({ player, playerReports }: PlayerReportsTabProp
       ? [buildDemoReport(player)]
       : [];
 
+  const selectedReport =
+    reports.find((r) => r.id === selectedReportId) ?? null;
+
   const handleCreateReport = () => {
     navigate("/report-builder", {
       state: { selectedPlayer: { id: player.id, name: player.name } },
@@ -86,7 +90,7 @@ export const PlayerReportsTab = ({ player, playerReports }: PlayerReportsTabProp
   };
 
   const handleViewReport = (reportId: string) => {
-    navigate(`/report/${reportId}`);
+    setSelectedReportId(reportId);
   };
 
   const getMatchLabel = (report: ReportWithPlayer) => {
