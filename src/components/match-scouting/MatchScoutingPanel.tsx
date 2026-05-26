@@ -1089,6 +1089,12 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
         matchDate={matchDate}
         opposition={selectedPlayerOpposition}
       />
+
+      <datalist id={NATIONALITY_DATALIST_ID}>
+        {NATIONALITIES.map((n) => (
+          <option key={n} value={n} />
+        ))}
+      </datalist>
     </>
   );
 };
