@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useReportPlayerData } from "@/hooks/useReportPlayerData";
 import VerdictBadge from "@/components/VerdictBadge";
 import { useNavigate } from "react-router-dom";
+import { DEMO_MATCH_REPORTS } from "@/utils/matchViewDemoData";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
 import { ClubBadge } from "@/components/ui/club-badge";
 import { ScoutingGrade } from "@/components/ui/scouting-grade";
