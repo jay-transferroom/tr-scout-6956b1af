@@ -68,6 +68,7 @@ interface PlayerScoutingRowProps {
   isDragTarget: boolean;
   matchReportConfig: MatchReportConfig;
   ratingSystems: NamedRatingSystem[];
+  onUpdateCustomPlayer?: (playerId: string, updates: { position?: string; age?: number | null; nationality?: string }) => void;
 }
 
 const hasFilledConfiguredRating = (ratings?: Record<string, string> | null) => {
