@@ -68,6 +68,7 @@ interface PlayerScoutingRowProps {
   isDragTarget: boolean;
   matchReportConfig: MatchReportConfig;
   ratingSystems: NamedRatingSystem[];
+  onUpdateCustomPlayer?: (playerId: string, updates: { position?: string; age?: number | null; nationality?: string }) => void;
 }
 
 const hasFilledConfiguredRating = (ratings?: Record<string, string> | null) => {
@@ -170,6 +171,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
   isDragTarget,
   matchReportConfig,
   ratingSystems,
+  onUpdateCustomPlayer,
 }) => {
   const hasAnyData = hasAnyScoutingData({ notes: draftNotes ?? savedNotes, rating: draftRating ?? savedRating, ratings: draftRatings });
   const [expanded, setExpanded] = useState(hasAnyData);
@@ -359,6 +361,51 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
             </div>
           )}
 
+          {/* Custom player metadata editing */}
+          {isCustom && onUpdateCustomPlayer && (
+            <div className="space-y-2">
+              <label className="block text-xs font-medium text-muted-foreground">Player Info</label>
+              <div className="grid grid-cols-3 gap-2">
+                <Select
+                  value={player.positions?.[0] || ''}
+                  onValueChange={(value) => onUpdateCustomPlayer(player.id, { position: value || undefined })}
+                >
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue placeholder="Position" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CUSTOM_PLAYER_POSITIONS.map((pos) => (
+                      <SelectItem key={pos} value={pos} className="text-xs">{pos}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={10}
+                  max={50}
+                  value={player.age || ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const num = val.trim() ? Number(val) : null;
+                    onUpdateCustomPlayer(player.id, { age: num !== null && Number.isFinite(num) && num >= 10 && num <= 50 ? num : null });
+                  }}
+                  placeholder="Age"
+                  className="h-7 text-xs"
+                />
+                <Input
+                  list={NATIONALITY_DATALIST_ID}
+                  value={player.nationality || ''}
+                  onChange={(e) => onUpdateCustomPlayer(player.id, { nationality: e.target.value || undefined })}
+                  placeholder="Nationality"
+                  maxLength={40}
+                  autoComplete="off"
+                  className="h-7 text-xs"
+                />
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Notes</label>
             <Textarea
@@ -467,7 +514,14 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) =>
         value={name}
         onChange={(e) => setName(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter") submit();
+          if (e.key === "Enter") {
+            if (name.trim().length > 0) {
+              onAdd({ name: name.trim() });
+              reset();
+              setOpen(false);
+            }
+            return;
+          }
           if (e.key === "Escape") {
             setOpen(false);
             reset();
@@ -510,11 +564,6 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) =>
           autoComplete="off"
           className="h-8 text-xs"
         />
-        <datalist id={NATIONALITY_DATALIST_ID}>
-          {NATIONALITIES.map((n) => (
-            <option key={n} value={n} />
-          ))}
-        </datalist>
       </div>
       {ageInvalid && (
         <p className="text-xs text-destructive">Age must be between 10 and 50.</p>
@@ -642,6 +691,25 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
       delete next[id];
       return next;
     });
+  }, []);
+
+  const handleUpdateCustomPlayer = useCallback((playerId: string, updates: { position?: string; age?: number | null; nationality?: string }) => {
+    setCustomPlayers((prev) =>
+      prev.map((cp) => {
+        if (cp.id !== playerId) return cp;
+        const next: MatchScoutingCustomPlayer = { ...cp };
+        if (updates.position !== undefined) {
+          next.position = updates.position || undefined;
+        }
+        if (updates.age !== undefined) {
+          next.age = updates.age ?? undefined;
+        }
+        if (updates.nationality !== undefined) {
+          next.nationality = updates.nationality || undefined;
+        }
+        return next;
+      })
+    );
   }, []);
 
   useEffect(() => {
@@ -818,6 +886,7 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
                     isDragTarget={dragOverId === player.id}
                     matchReportConfig={matchReportConfig}
                     ratingSystems={availableRatingSystems}
+                    onUpdateCustomPlayer={handleUpdateCustomPlayer}
                   />
                   {isCustom && (
                     <button
@@ -1020,6 +1089,12 @@ const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
         matchDate={matchDate}
         opposition={selectedPlayerOpposition}
       />
+
+      <datalist id={NATIONALITY_DATALIST_ID}>
+        {NATIONALITIES.map((n) => (
+          <option key={n} value={n} />
+        ))}
+      </datalist>
     </>
   );
 };
