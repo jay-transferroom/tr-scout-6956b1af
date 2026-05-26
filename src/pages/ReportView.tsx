@@ -108,6 +108,20 @@ const ReportView = () => {
           const meta: any = msr.player_meta || {};
 
           setPlayerId(msr.player_id);
+          setPlayerFallback({
+            id: msr.player_id,
+            name: meta.name || msr.player_id,
+            club: (meta.team === 'home' ? homeTeam : awayTeam)?.trim() || 'Unknown',
+            age: meta.age || 0,
+            dateOfBirth: '',
+            positions: meta.position ? [meta.position] : [],
+            dominantFoot: 'Right' as const,
+            nationality: meta.nationality || 'Unknown',
+            contractStatus: 'Under Contract' as const,
+            contractExpiry: null,
+            region: 'Unknown',
+            image: undefined,
+          });
           setTemplate(DEFAULT_TEMPLATES[0]);
           setReport({
             id: msr.id,
