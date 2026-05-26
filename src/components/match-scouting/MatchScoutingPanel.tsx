@@ -514,7 +514,14 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) =>
         value={name}
         onChange={(e) => setName(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter") submit();
+          if (e.key === "Enter") {
+            if (name.trim().length > 0) {
+              onAdd({ name: name.trim() });
+              reset();
+              setOpen(false);
+            }
+            return;
+          }
           if (e.key === "Escape") {
             setOpen(false);
             reset();
