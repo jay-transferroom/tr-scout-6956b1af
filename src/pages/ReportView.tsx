@@ -26,6 +26,7 @@ import { useReportPlayerData } from "@/hooks/useReportPlayerData";
 import { extractReportDataForDisplay } from "@/utils/reportDataExtraction";
 import { formatReportDate, formatReportTime } from "@/utils/reportFormatting";
 import { DEFAULT_TEMPLATES } from "@/data/defaultTemplates";
+import { DEMO_MATCH_REPORTS } from "@/utils/matchViewDemoData";
 import ReportSummary from "@/components/reports/ReportSummary";
 
 const ReportView = () => {
