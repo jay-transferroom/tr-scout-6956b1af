@@ -32,6 +32,7 @@ import { getFixtureId } from "@/types/fixtureAssignment";
 import { ASSIGNMENT_VISUALS } from "@/utils/assignmentVisuals";
 import { Trash2 } from "lucide-react";
 import CustomMatchDialog from "@/components/fixtures/CustomMatchDialog";
+import { addCustomFixture, isCustomFixture } from "@/utils/customFixtures";
 
 // Map competition names to countries for matching
 const COMPETITION_COUNTRY_MAP: Record<string, string> = {
