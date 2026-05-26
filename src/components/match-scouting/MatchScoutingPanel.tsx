@@ -264,9 +264,9 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
         onClick={() => setExpanded((current) => !current)}
         className={cn(
           "flex w-full items-center gap-2 p-3 text-left transition-colors",
-          status === "injured" && "hover:bg-amber-500/10",
-          status === "suspended" && "hover:bg-red-500/10",
-          status === "available" && "hover:bg-muted/50"
+          !isCustom && status === "injured" && "hover:bg-amber-500/10",
+          !isCustom && status === "suspended" && "hover:bg-red-500/10",
+          (!isCustom && status === "available") || isCustom && "hover:bg-muted/50"
         )}
       >
         <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-muted-foreground/50 active:cursor-grabbing" />
