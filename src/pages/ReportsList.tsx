@@ -14,6 +14,7 @@ import MatchReportsTable from "@/components/reports/MatchReportsTable";
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
 import PlayerReportsModal from "@/components/reports/PlayerReportsModal";
 import MatchReportDetailDialog from "@/components/reports/MatchReportDetailDialog";
+import ReportDetailSheet from "@/components/reports/ReportDetailSheet";
 import ReportsFilters, { ReportsFilterCriteria } from "@/components/reports/ReportsFilters";
 import { getOverallRating, getRecommendation } from "@/utils/reportDataExtraction";
 import { convertRatingToNumeric } from "@/utils/ratingConversion";
@@ -42,6 +43,7 @@ const ReportsList = () => {
   const [playerReportsModalOpen, setPlayerReportsModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<GroupedMatchReport | null>(null);
   const [editingMatch, setEditingMatch] = useState<GroupedMatchReport | null>(null);
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [groupedSortKey, setGroupedSortKey] = useState<GroupedSortKey | null>("latestDate");
   const [groupedSortDir, setGroupedSortDir] = useState<GroupedSortDir>("desc");
 
@@ -310,8 +312,13 @@ const ReportsList = () => {
   }, [activeTab, searchFilters, viewMode]);
   
   const handleViewReport = (reportId: string) => {
-    navigate(`/report/${reportId}`);
+    setSelectedReportId(reportId);
   };
+
+  const selectedReport = useMemo(
+    () => (selectedReportId ? reports.find((r) => r.id === selectedReportId) ?? null : null),
+    [selectedReportId, reports]
+  );
 
   const handleEditReport = (reportId: string) => {
     navigate(`/report/${reportId}/edit`);
@@ -526,6 +533,13 @@ const ReportsList = () => {
         match={selectedMatch}
         open={!!selectedMatch}
         onOpenChange={(open) => { if (!open) setSelectedMatch(null); }}
+      />
+
+      <ReportDetailSheet
+        report={selectedReport}
+        open={!!selectedReportId}
+        onOpenChange={(open) => { if (!open) setSelectedReportId(null); }}
+        onEditReport={(id) => { setSelectedReportId(null); handleEditReport(id); }}
       />
 
       {editingMatch && (
