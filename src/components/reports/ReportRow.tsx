@@ -73,8 +73,12 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
   // Convert error to boolean for disabled prop
   const isDisabled = playerLoading || !!playerError || isCustomPlayer;
 
+  const handleRowClick = () => {
+    navigate(`/report/${report.id}`);
+  };
+
   return (
-    <TableRow key={report.id}>
+    <TableRow key={report.id} className="cursor-pointer" onClick={handleRowClick}>
       <TableCell>
         <div className="flex items-center gap-3">
           <PlayerAvatar 
@@ -173,7 +177,7 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
             : report.scoutProfile?.first_name || "Scout"}
         </div>
       </TableCell>
-      <TableCell className="text-right">
+      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
@@ -185,7 +189,7 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-white border border-grey-200 shadow-lg z-50">
-            <DropdownMenuItem onClick={() => onViewReport(report.id)}>
+            <DropdownMenuItem onClick={handleRowClick}>
               <Eye className="h-4 w-4 mr-2" />
               View report
             </DropdownMenuItem>
