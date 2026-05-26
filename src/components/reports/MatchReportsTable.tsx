@@ -1,284 +1,201 @@
 import { useMemo, useState } from "react";
-import { format, differenceInDays } from "date-fns";
+import { format } from "date-fns";
+import { ChevronDown, Calendar as CalendarIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { GroupedMatchReport } from "@/hooks/useAllMatchScoutingReports";
+import { ClubBadge } from "@/components/ui/club-badge";
+import { Table, TableBody } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-import { Users, Calendar, Star, Pencil, Trash2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { SortableTableHead } from "./SortableTableHead";
-
-type MatchSortKey = "match" | "date" | "league" | "playersScouted" | "lastUpdated";
-type MatchSortDir = "asc" | "desc";
+import { ReportWithPlayer } from "@/types/report";
+import ReportRow from "./ReportRow";
+import ReportsTableHeader from "./ReportsTableHeader";
+import { DEMO_MATCH_REPORTS } from "@/utils/matchViewDemoData";
 
 interface MatchReportsTableProps {
-  matchReports: GroupedMatchReport[];
-  onSelectMatch?: (match: GroupedMatchReport) => void;
-  onEditMatch?: (match: GroupedMatchReport) => void;
+  reports: ReportWithPlayer[];
+  onViewReport: (id: string) => void;
+  onEditReport?: (id: string) => void;
+  onDeleteReport: (id: string, name: string) => void;
 }
 
-const SUBMITTED_EDIT_WINDOW_DAYS = 90;
+interface FixtureGroup {
+  key: string;
+  homeTeam: string;
+  awayTeam: string;
+  date: string | null;
+  competition?: string;
+  reports: ReportWithPlayer[];
+  isDemo?: boolean;
+}
 
-const MatchReportsTable = ({ matchReports, onSelectMatch, onEditMatch }: MatchReportsTableProps) => {
-  const { user, profile } = useAuth();
-  const queryClient = useQueryClient();
-  const [pendingDelete, setPendingDelete] = useState<GroupedMatchReport | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [sortKey, setSortKey] = useState<MatchSortKey | null>("lastUpdated");
-  const [sortDir, setSortDir] = useState<MatchSortDir>("desc");
-  const isManager = profile?.role === "recruitment" || profile?.role === "director";
-
-  const handleSort = (k: MatchSortKey) => {
-    if (sortKey === k) setSortDir(sortDir === "asc" ? "desc" : "asc");
-    else { setSortKey(k); setSortDir("asc"); }
+const getFixtureForReport = (
+  r: ReportWithPlayer
+): Omit<FixtureGroup, "reports"> | null => {
+  const mc = r.matchContext;
+  if (!mc) return null;
+  const date = mc.date || null;
+  const home = mc.isManual ? mc.homeTeam || "" : r.player?.club || "";
+  const away = mc.isManual ? mc.awayTeam || "" : mc.opposition || "";
+  if (!home || !away) return null;
+  const dateKey = date ? format(new Date(date), "yyyy-MM-dd") : "no-date";
+  return {
+    key: `${home}|${away}|${dateKey}`,
+    homeTeam: home,
+    awayTeam: away,
+    date,
+    competition: mc.competition,
   };
+};
 
-  const sortedMatchReports = useMemo(() => {
-    if (!sortKey) return matchReports;
-    const arr = [...matchReports];
-    const dir = sortDir === "asc" ? 1 : -1;
-    const latestUpdate = (m: GroupedMatchReport) =>
-      m.reports.reduce((acc, r) => Math.max(acc, new Date(r.updated_at).getTime()), 0);
-    const getVal = (m: GroupedMatchReport): string | number => {
-      switch (sortKey) {
-        case "match": return `${m.homeTeam} vs ${m.awayTeam}`.toLowerCase();
-        case "date": return m.matchDate ? new Date(m.matchDate).getTime() : 0;
-        case "league": return (m.competition || "").toLowerCase();
-        case "playersScouted": return m.totalRatings ?? 0;
-        case "lastUpdated": return latestUpdate(m);
-        default: return 0;
-      }
-    };
-    arr.sort((a, b) => {
-      const va = getVal(a); const vb = getVal(b);
-      if (va < vb) return -1 * dir;
-      if (va > vb) return 1 * dir;
-      return 0;
-    });
-    return arr;
-  }, [matchReports, sortKey, sortDir]);
+const MatchReportsTable = ({
+  reports,
+  onViewReport,
+  onEditReport,
+  onDeleteReport,
+}: MatchReportsTableProps) => {
+  const { user } = useAuth();
 
+  const groups = useMemo<FixtureGroup[]>(() => {
+    const map = new Map<string, FixtureGroup>();
 
-  const handleConfirmDelete = async () => {
-    if (!pendingDelete) return;
-    setIsDeleting(true);
-    const { error } = await supabase
-      .from("match_scouting_reports")
-      .delete()
-      .eq("match_identifier", pendingDelete.match_identifier);
-    setIsDeleting(false);
-    if (error) {
-      toast.error("Failed to delete match report");
-      return;
+    // Seed with demo fixture (Brighton vs Man Utd)
+    const demoMeta = getFixtureForReport(DEMO_MATCH_REPORTS[0]);
+    if (demoMeta) {
+      map.set(demoMeta.key, {
+        ...demoMeta,
+        reports: [...DEMO_MATCH_REPORTS],
+        isDemo: true,
+      });
     }
-    await queryClient.invalidateQueries({ queryKey: ["all-match-scouting-reports"] });
-    toast.success("Match report deleted");
-    setPendingDelete(null);
-  };
 
-  if (matchReports.length === 0) {
+    reports.forEach((r) => {
+      const meta = getFixtureForReport(r);
+      if (!meta) return;
+      const existing = map.get(meta.key);
+      if (existing) {
+        existing.reports.push(r);
+        existing.isDemo = false;
+      } else {
+        map.set(meta.key, { ...meta, reports: [r] });
+      }
+    });
+
+    return Array.from(map.values()).sort((a, b) => {
+      const ta = a.date ? new Date(a.date).getTime() : 0;
+      const tb = b.date ? new Date(b.date).getTime() : 0;
+      return tb - ta;
+    });
+  }, [reports]);
+
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
+    // Default-expand the first (most recent) group so the populated state is visible
+    return groups.length > 0 ? { [groups[0].key]: true } : {};
+  });
+
+  const toggle = (key: string) =>
+    setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  if (groups.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
         <p className="text-lg font-medium mb-1">No match reports yet</p>
-        <p className="text-sm">Create match reports from the Calendar page by clicking on a fixture.</p>
+        <p className="text-sm">
+          Create match reports from the Calendar page by clicking on a fixture.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-md border overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <SortableTableHead label="Match" sortKey="match" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
-            <SortableTableHead label="Date" sortKey="date" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
-            <SortableTableHead label="League" sortKey="league" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
-            <SortableTableHead label="Players Scouted" sortKey="playersScouted" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} className="text-center" />
-            <TableHead>Scouts</TableHead>
-            <SortableTableHead label="Last Updated" sortKey="lastUpdated" currentKey={sortKey} currentDir={sortDir} onSort={handleSort} />
-            <TableHead className="w-[60px] text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedMatchReports.map((match) => {
-            const uniqueScouts = new Map<string, string>();
-            match.reports.forEach((r) => {
-              if (r.scout_profile) {
-                const name = `${r.scout_profile.first_name || ""} ${r.scout_profile.last_name || ""}`.trim() || "Scout";
-                uniqueScouts.set(r.scout_id, name);
-              }
-            });
-
-            const latestUpdate = match.reports.reduce(
-              (latest, r) => {
-                const d = new Date(r.updated_at);
-                return d > latest ? d : latest;
-              },
-              new Date(0)
-            );
-
-            const hasFilledRatings = (r: typeof match.reports[number]) =>
-              r.ratings && typeof r.ratings === "object" &&
-              Object.values(r.ratings).some((v) => v != null && String(v).trim() !== "");
-            const isReportSubmitted = (r: typeof match.reports[number]) =>
-              r.rating !== null || hasFilledRatings(r);
-
-            const isSubmitted = match.reports.some(isReportSubmitted);
-
-            // Edit eligibility for the current user.
-            // Drafts: always editable by their author.
-            // Submitted: editable by author within 90 days from earliest submitted updated_at (proxy for SubmittedAt).
-            const myReports = user ? match.reports.filter((r) => r.scout_id === user.id) : [];
-            const myDraftReports = myReports.filter((r) => !isReportSubmitted(r));
-            const mySubmittedReports = myReports.filter((r) => isReportSubmitted(r));
-            const earliestSubmittedAt = mySubmittedReports.length
-              ? mySubmittedReports.reduce((min, r) => {
-                  const d = new Date(r.updated_at);
-                  return d < min ? d : min;
-                }, new Date(mySubmittedReports[0].updated_at))
-              : null;
-            const submittedWithinWindow = earliestSubmittedAt
-              ? differenceInDays(new Date(), earliestSubmittedAt) <= SUBMITTED_EDIT_WINDOW_DAYS
-              : false;
-            const canEdit = myDraftReports.length > 0 || submittedWithinWindow;
-            const editTooltip = myDraftReports.length > 0
-              ? "Edit draft"
-              : submittedWithinWindow
-                ? `Edit submitted report (within ${SUBMITTED_EDIT_WINDOW_DAYS}-day window)`
-                : "";
-
-            const isCustomMatch = !match.competition || match.competition.trim() === "";
-
-            return (
-              <TableRow key={match.match_identifier} className="cursor-pointer hover:bg-muted/50" onClick={() => onSelectMatch?.(match)}>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">
-                      {match.homeTeam} vs {match.awayTeam}
-                    </span>
-                    {isCustomMatch && (
-                      <Badge variant="outline" className="shrink-0 border-info/30 bg-info/10 text-info text-[10px] px-1.5 py-0 h-4 font-medium">
-                        Custom
-                      </Badge>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
-                    <Calendar className="h-3.5 w-3.5" />
-                    {match.matchDate
-                      ? format(new Date(match.matchDate), "dd MMM yyyy")
-                      : "—"}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span className="text-sm text-muted-foreground">
-                    {isCustomMatch ? <span className="italic text-muted-foreground/70">No competition</span> : match.competition}
-                  </span>
-                </TableCell>
-                <TableCell className="text-center">
-                  <Badge variant="secondary" className="gap-1">
-                    <Users className="h-3 w-3" />
-                    {match.totalRatings}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {Array.from(uniqueScouts.values()).map((name) => (
-                      <Badge key={name} variant="outline" className="text-xs">
-                        {name}
-                      </Badge>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span className="text-sm text-muted-foreground">
-                    {format(latestUpdate, "dd MMM yyyy HH:mm")}
-                  </span>
-                </TableCell>
-                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                  <div className="flex items-center justify-end gap-1">
-                    {canEdit ? (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => onEditMatch?.(match)}
-                              aria-label={editTooltip}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>{editTooltip}</TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ) : null}
-                    {isManager ? (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                              onClick={() => setPendingDelete(match)}
-                              aria-label="Delete match report"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Delete match report</TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ) : null}
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-
-      <AlertDialog open={!!pendingDelete} onOpenChange={(open) => !open && !isDeleting && setPendingDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this match report?</AlertDialogTitle>
-            <AlertDialogDescription>
-              All player ratings will be permanently removed.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                handleConfirmDelete();
-              }}
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+    <div className="space-y-3">
+      {groups.map((group) => {
+        const isOpen = !!expanded[group.key];
+        return (
+          <div
+            key={group.key}
+            className="rounded-md border bg-card overflow-hidden"
+          >
+            <button
+              type="button"
+              onClick={() => toggle(group.key)}
+              className={cn(
+                "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/40",
+                isOpen && "bg-muted/30"
+              )}
+              aria-expanded={isOpen}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                  isOpen && "rotate-180"
+                )}
+              />
+
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <ClubBadge clubName={group.homeTeam} size="sm" />
+                <span className="text-sm font-semibold truncate">
+                  {group.homeTeam}
+                </span>
+                <span className="text-xs text-muted-foreground px-1">vs</span>
+                <span className="text-sm font-semibold truncate">
+                  {group.awayTeam}
+                </span>
+                <ClubBadge clubName={group.awayTeam} size="sm" />
+              </div>
+
+              {group.date && (
+                <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+                  <CalendarIcon className="h-3.5 w-3.5" />
+                  {format(new Date(group.date), "d MMM yyyy")}
+                </div>
+              )}
+
+              {group.competition && (
+                <Badge
+                  variant="outline"
+                  className="hidden md:inline-flex text-[10px] py-0 px-1.5 shrink-0"
+                >
+                  {group.competition}
+                </Badge>
+              )}
+
+              <Badge variant="secondary" className="text-xs shrink-0">
+                {group.reports.length}{" "}
+                {group.reports.length === 1 ? "report" : "reports"}
+              </Badge>
+
+              {group.isDemo && (
+                <Badge
+                  variant="outline"
+                  className="shrink-0 border-info/30 bg-info/10 text-info text-[10px] px-1.5 py-0 h-4 font-medium"
+                >
+                  Demo
+                </Badge>
+              )}
+            </button>
+
+            {isOpen && (
+              <div className="border-t overflow-x-auto">
+                <Table>
+                  <ReportsTableHeader />
+                  <TableBody>
+                    {group.reports.map((report) => (
+                      <ReportRow
+                        key={report.id}
+                        report={report}
+                        onViewReport={onViewReport}
+                        onEditReport={onEditReport}
+                        onDeleteReport={onDeleteReport}
+                        canEdit={!!user && report.scoutId === user.id}
+                      />
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };
