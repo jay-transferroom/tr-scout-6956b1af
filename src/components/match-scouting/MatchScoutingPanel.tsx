@@ -415,10 +415,10 @@ const NATIONALITY_DATALIST_ID = "custom-player-nationality-list";
 const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) => void }> = ({ onAdd }) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [position, setPosition] = useState<string>("");
   const [age, setAge] = useState<string>("");
   const [nationality, setNationality] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const ageRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) inputRef.current?.focus();
@@ -426,7 +426,6 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) =>
 
   const reset = () => {
     setName("");
-    setPosition("");
     setAge("");
     setNationality("");
   };
@@ -442,12 +441,16 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) =>
     if (!canSubmit) return;
     onAdd({
       name: name.trim(),
-      position: position || undefined,
       age: parsedAge !== null && Number.isFinite(parsedAge) ? (parsedAge as number) : undefined,
       nationality: nationality.trim() || undefined,
     });
     reset();
     setOpen(false);
+  };
+
+  const cancel = () => {
+    setOpen(false);
+    reset();
   };
 
   if (!open) {
@@ -471,41 +474,36 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) =>
         onChange={(e) => setName(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            if (name.trim().length > 0) {
-              onAdd({ name: name.trim() });
-              reset();
-              setOpen(false);
-            }
+            e.preventDefault();
+            if (name.trim().length > 0) ageRef.current?.focus();
             return;
           }
           if (e.key === "Escape") {
-            setOpen(false);
-            reset();
+            cancel();
           }
         }}
         placeholder="Player name"
         maxLength={80}
         className="h-8 text-sm"
       />
-      <div className="grid grid-cols-3 gap-2">
-        <Select value={position} onValueChange={setPosition}>
-          <SelectTrigger className="h-8 text-xs">
-            <SelectValue placeholder="Position" />
-          </SelectTrigger>
-          <SelectContent>
-            {CUSTOM_PLAYER_POSITIONS.map((pos) => (
-              <SelectItem key={pos} value={pos} className="text-xs">{pos}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="grid grid-cols-2 gap-2">
         <div className="space-y-1">
           <Input
+            ref={ageRef}
             type="number"
             inputMode="numeric"
             min={10}
             max={50}
             value={age}
             onChange={(e) => setAge(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                submit();
+              } else if (e.key === "Escape") {
+                cancel();
+              }
+            }}
             placeholder="Age"
             aria-invalid={ageInvalid}
             className={cn("h-8 text-xs", ageInvalid && "border-destructive focus-visible:ring-destructive")}
@@ -515,6 +513,14 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) =>
           list={NATIONALITY_DATALIST_ID}
           value={nationality}
           onChange={(e) => setNationality(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              submit();
+            } else if (e.key === "Escape") {
+              cancel();
+            }
+          }}
           placeholder="Nationality"
           maxLength={40}
           autoComplete="off"
@@ -525,24 +531,17 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) =>
         <p className="text-xs text-destructive">Age must be between 10 and 50.</p>
       )}
       <div className="flex items-center justify-end gap-2">
-        <Button
-          size="sm"
-          variant="ghost"
-          className="h-8"
-          onClick={() => {
-            setOpen(false);
-            reset();
-          }}
-        >
+        <Button size="sm" variant="ghost" className="h-8" onClick={cancel}>
           Cancel
         </Button>
         <Button size="sm" className="h-8" onClick={submit} disabled={!canSubmit}>
-          Add
+          Add player
         </Button>
       </div>
     </div>
   );
 };
+
 
 
 const MatchScoutingPanel: React.FC<MatchScoutingPanelProps> = ({
