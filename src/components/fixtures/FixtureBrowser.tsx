@@ -439,12 +439,16 @@ const FixtureBrowser: React.FC = () => {
                             </div>
                           )}
 
-                          {/* Competition */}
-                          {fixture.competition && (
+                          {/* Competition / Custom badge */}
+                          {isCustomFixture(fixture) ? (
+                            <Badge variant="outline" className="hidden sm:inline-flex text-[10px] py-0 px-1.5 shrink-0 border-info/40 bg-info/10 text-info">
+                              Custom
+                            </Badge>
+                          ) : fixture.competition ? (
                             <Badge variant="outline" className="hidden sm:inline-flex text-[10px] py-0 px-1.5 shrink-0">
                               {fixture.competition}
                             </Badge>
-                          )}
+                          ) : null}
 
                           {/* Shortlisted badge */}
                           {shortlistedCount > 0 && (
