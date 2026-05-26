@@ -15,6 +15,7 @@ import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDr
 import PlayerReportsModal from "@/components/reports/PlayerReportsModal";
 import MatchReportDetailDialog from "@/components/reports/MatchReportDetailDialog";
 import ReportDetailSheet from "@/components/reports/ReportDetailSheet";
+import { DEMO_MATCH_REPORTS } from "@/utils/matchViewDemoData";
 import ReportsFilters, { ReportsFilterCriteria } from "@/components/reports/ReportsFilters";
 import { getOverallRating, getRecommendation } from "@/utils/reportDataExtraction";
 import { convertRatingToNumeric } from "@/utils/ratingConversion";
@@ -316,7 +317,12 @@ const ReportsList = () => {
   };
 
   const selectedReport = useMemo(
-    () => (selectedReportId ? reports.find((r) => r.id === selectedReportId) ?? null : null),
+    () =>
+      selectedReportId
+        ? reports.find((r) => r.id === selectedReportId) ??
+          DEMO_MATCH_REPORTS.find((r) => r.id === selectedReportId) ??
+          null
+        : null,
     [selectedReportId, reports]
   );
 

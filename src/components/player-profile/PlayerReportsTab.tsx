@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { FileText, Plus } from "lucide-react";
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
 import VerdictBadge from "@/components/VerdictBadge";
+import ReportDetailSheet from "@/components/reports/ReportDetailSheet";
 import { ReportWithPlayer } from "@/types/report";
 import { Player } from "@/types/player";
 import { getOverallRating, getRecommendation } from "@/utils/reportDataExtraction";
@@ -68,6 +70,7 @@ const buildDemoReport = (player: Player): ReportWithPlayer => ({
 
 export const PlayerReportsTab = ({ player, playerReports }: PlayerReportsTabProps) => {
   const navigate = useNavigate();
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
 
   const isMadueke = player.name?.toLowerCase().includes("noni madueke");
   const reports: ReportWithPlayer[] =
@@ -77,6 +80,9 @@ export const PlayerReportsTab = ({ player, playerReports }: PlayerReportsTabProp
       ? [buildDemoReport(player)]
       : [];
 
+  const selectedReport =
+    reports.find((r) => r.id === selectedReportId) ?? null;
+
   const handleCreateReport = () => {
     navigate("/report-builder", {
       state: { selectedPlayer: { id: player.id, name: player.name } },
@@ -84,7 +90,7 @@ export const PlayerReportsTab = ({ player, playerReports }: PlayerReportsTabProp
   };
 
   const handleViewReport = (reportId: string) => {
-    navigate(`/report/${reportId}`);
+    setSelectedReportId(reportId);
   };
 
   const getMatchLabel = (report: ReportWithPlayer) => {
@@ -147,7 +153,11 @@ export const PlayerReportsTab = ({ player, playerReports }: PlayerReportsTabProp
                 : "Scout";
 
               return (
-                <TableRow key={report.id}>
+                <TableRow
+                  key={report.id}
+                  className="cursor-pointer"
+                  onClick={() => handleViewReport(report.id)}
+                >
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <PlayerAvatar playerName={scoutName} size="sm" />
@@ -187,7 +197,10 @@ export const PlayerReportsTab = ({ player, playerReports }: PlayerReportsTabProp
                       <span className="text-sm text-muted-foreground">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell
+                    className="text-right"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Button
                       variant="outline"
                       size="sm"
@@ -202,6 +215,11 @@ export const PlayerReportsTab = ({ player, playerReports }: PlayerReportsTabProp
           </TableBody>
         </Table>
       </CardContent>
+      <ReportDetailSheet
+        report={selectedReport}
+        open={!!selectedReport}
+        onOpenChange={(open) => !open && setSelectedReportId(null)}
+      />
     </Card>
   );
 };
