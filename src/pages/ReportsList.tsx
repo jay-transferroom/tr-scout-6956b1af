@@ -43,6 +43,7 @@ const ReportsList = () => {
   const [playerReportsModalOpen, setPlayerReportsModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<GroupedMatchReport | null>(null);
   const [editingMatch, setEditingMatch] = useState<GroupedMatchReport | null>(null);
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [groupedSortKey, setGroupedSortKey] = useState<GroupedSortKey | null>("latestDate");
   const [groupedSortDir, setGroupedSortDir] = useState<GroupedSortDir>("desc");
 
