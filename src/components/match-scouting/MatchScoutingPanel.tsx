@@ -564,11 +564,6 @@ const AddCustomPlayerInline: React.FC<{ onAdd: (details: CustomPlayerDetails) =>
           autoComplete="off"
           className="h-8 text-xs"
         />
-        <datalist id={NATIONALITY_DATALIST_ID}>
-          {NATIONALITIES.map((n) => (
-            <option key={n} value={n} />
-          ))}
-        </datalist>
       </div>
       {ageInvalid && (
         <p className="text-xs text-destructive">Age must be between 10 and 50.</p>
