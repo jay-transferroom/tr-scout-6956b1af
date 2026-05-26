@@ -22,6 +22,7 @@ import { PlayerPlayingStyleTab } from "@/components/player-profile/PlayerPlaying
 import { PlayerInjuriesTab } from "@/components/player-profile/PlayerInjuriesTab";
 import { PlayerMatchHistoryTab } from "@/components/player-profile/PlayerMatchHistoryTab";
 import { PlayerAlternativesTab } from "@/components/player-profile/PlayerAlternativesTab";
+import { PlayerReportsTab } from "@/components/player-profile/PlayerReportsTab";
 import { PlayerRecentResults } from "@/components/player-profile/PlayerRecentResults";
 import { PlayerUpcomingFixtures } from "@/components/player-profile/PlayerUpcomingFixtures";
 import PlayerStatusActions from "@/components/PlayerStatusActions";
