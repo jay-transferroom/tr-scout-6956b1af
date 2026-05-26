@@ -364,7 +364,8 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
           {/* Custom player metadata editing */}
           {isCustom && onUpdateCustomPlayer && (
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-muted-foreground">Player Info</label>
+              <div className="h-px w-full bg-border" />
+              <label className="block text-xs font-semibold text-foreground">Player Info</label>
               <div className="flex items-center gap-2">
                 <label className="text-xs font-medium text-muted-foreground w-[120px] shrink-0 truncate">
                   Age
