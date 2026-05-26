@@ -31,41 +31,73 @@ export const usePlayerProfile = (playerId?: string) => {
 
       console.log('Fetching player with ID:', playerId);
 
-      const { data, error } = await supabase
-        .from('players_new')
-        .select('*')
-        .eq('id', parseInt(playerId))
-        .single();
+      // Try players_new first (integer IDs)
+      const numericId = parseInt(playerId);
+      if (!Number.isNaN(numericId)) {
+        const { data, error } = await supabase
+          .from('players_new')
+          .select('*')
+          .eq('id', numericId)
+          .single();
 
-      if (error) {
-        console.error('Error fetching player:', error);
-        throw error;
+        if (!error && data) {
+          const playerRecord = data as PlayerNewRecord;
+          return {
+            id: playerRecord.id.toString(),
+            name: playerRecord.name,
+            club: playerRecord.currentteam || playerRecord.parentteam || 'Unknown',
+            age: playerRecord.age || 0,
+            dateOfBirth: playerRecord.birthdate || '',
+            positions: [playerRecord.firstposition, playerRecord.secondposition].filter(Boolean) as string[],
+            dominantFoot: 'Right' as const,
+            nationality: playerRecord.firstnationality || 'Unknown',
+            contractStatus: 'Under Contract' as const,
+            contractExpiry: playerRecord.contractexpiration,
+            region: 'Europe',
+            image: playerRecord.imageurl,
+            xtvScore: playerRecord.xtv,
+            transferroomRating: playerRecord.rating,
+            futureRating: playerRecord.potential,
+            euGbeStatus: 'Pass' as const,
+            recentForm: undefined,
+          };
+        }
       }
 
-      if (!data) return null;
+      // Fallback: try private_players (UUID IDs or when players_new lookup fails)
+      const { data: privateData, error: privateError } = await supabase
+        .from('private_players')
+        .select('*')
+        .eq('id', playerId)
+        .maybeSingle();
 
-      const playerRecord = data as PlayerNewRecord;
+      if (!privateError && privateData) {
+        return {
+          id: privateData.id,
+          name: privateData.name,
+          club: privateData.club || 'Unknown',
+          age: privateData.age || 0,
+          dateOfBirth: privateData.date_of_birth || '',
+          positions: privateData.positions || [],
+          dominantFoot: (privateData.dominant_foot as 'Left' | 'Right' | 'Both') || 'Right',
+          nationality: privateData.nationality || 'Unknown',
+          contractStatus: 'Private Player' as any,
+          contractExpiry: undefined,
+          region: privateData.region || 'Unknown',
+          image: undefined,
+          xtvScore: undefined,
+          transferroomRating: undefined,
+          futureRating: undefined,
+          euGbeStatus: 'Unknown',
+          recentForm: undefined,
+          isPrivatePlayer: true,
+          notes: privateData.notes,
+          source_context: privateData.source_context,
+        };
+      }
 
-      // Transform the data to match our Player interface
-      return {
-        id: playerRecord.id.toString(),
-        name: playerRecord.name,
-        club: playerRecord.currentteam || playerRecord.parentteam || 'Unknown',
-        age: playerRecord.age || 0,
-        dateOfBirth: playerRecord.birthdate || '',
-        positions: [playerRecord.firstposition, playerRecord.secondposition].filter(Boolean) as string[],
-        dominantFoot: 'Right' as const, // Default since not available in players_new
-        nationality: playerRecord.firstnationality || 'Unknown',
-        contractStatus: 'Under Contract' as const, // Default since not available in players_new
-        contractExpiry: playerRecord.contractexpiration,
-        region: 'Europe', // Default since not available in players_new
-        image: playerRecord.imageurl,
-        xtvScore: playerRecord.xtv,
-        transferroomRating: playerRecord.rating,
-        futureRating: playerRecord.potential,
-        euGbeStatus: 'Pass' as const, // All current Premier League players have Pass status
-        recentForm: undefined, // Not available in players_new
-      };
+      console.error('Error fetching player:', error || privateError);
+      return null;
     },
     enabled: !!playerId,
   });
