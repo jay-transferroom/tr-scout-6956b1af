@@ -38,6 +38,7 @@ const ReportView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [playerId, setPlayerId] = useState<string>("");
+  const [playerFallback, setPlayerFallback] = useState<any>(null);
 
   // Fetch player data separately
   const { data: playerData, isLoading: playerLoading } = useReportPlayerData(playerId);
@@ -77,16 +78,85 @@ const ReportView = () => {
             scout_profile:profiles(*)
           `)
           .eq('id', id)
-          .single();
+          .maybeSingle();
 
         if (fetchError) {
           console.error('Error fetching report:', fetchError);
-          setError('Failed to load report');
-          return;
         }
 
         if (!data) {
-          setError('Report not found');
+          // Fallback: try match_scouting_reports
+          const { data: msr } = await supabase
+            .from('match_scouting_reports')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
+
+          if (!msr) {
+            setError('Report not found');
+            return;
+          }
+
+          const { data: scoutProfile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', msr.scout_id)
+            .maybeSingle();
+
+          const [teams, dateStr] = (msr.match_identifier || '').split('|');
+          const [homeTeam, awayTeam] = (teams || '').split(' vs ');
+          const meta: any = msr.player_meta || {};
+
+          setPlayerId(msr.player_id);
+          setPlayerFallback({
+            id: msr.player_id,
+            name: meta.name || msr.player_id,
+            club: (meta.team === 'home' ? homeTeam : awayTeam)?.trim() || 'Unknown',
+            age: meta.age || 0,
+            dateOfBirth: '',
+            positions: meta.position ? [meta.position] : [],
+            dominantFoot: 'Right' as const,
+            nationality: meta.nationality || 'Unknown',
+            contractStatus: 'Under Contract' as const,
+            contractExpiry: null,
+            region: 'Unknown',
+            image: undefined,
+          });
+          setTemplate(DEFAULT_TEMPLATES[0]);
+          setReport({
+            id: msr.id,
+            playerId: msr.player_id,
+            templateId: 'match-scouting',
+            scoutId: msr.scout_id,
+            createdAt: new Date(msr.created_at),
+            updatedAt: new Date(msr.updated_at),
+            status: 'submitted',
+            sections: (msr.rating != null || msr.notes) ? [{
+              sectionId: 'match-rating',
+              fields: [
+                ...(msr.rating != null ? [{ fieldId: 'overall-rating', value: msr.rating }] : []),
+                ...(msr.notes ? [{ fieldId: 'notes', value: msr.notes }] : []),
+              ],
+            }] : [],
+            matchContext: {
+              date: dateStr?.trim() || '',
+              opposition: (meta.team === 'home' ? awayTeam : homeTeam)?.trim() || awayTeam?.trim() || '',
+              competition: 'Match Scouting',
+              minutesPlayed: 0,
+              homeTeam: homeTeam?.trim(),
+              awayTeam: awayTeam?.trim(),
+            },
+            tags: ['match-scouting'],
+            flaggedForReview: false,
+            player: null,
+            scoutProfile: scoutProfile ? {
+              id: scoutProfile.id,
+              first_name: scoutProfile.first_name,
+              last_name: scoutProfile.last_name,
+              email: scoutProfile.email,
+              role: scoutProfile.role as 'scout' | 'recruitment',
+            } : undefined,
+          } as any);
           return;
         }
 
@@ -163,10 +233,13 @@ const ReportView = () => {
 
   // Update report with player data when it's available
   useEffect(() => {
-    if (report && playerData && !report.player) {
-      setReport(prev => prev ? { ...prev, player: playerData } : null);
+    if (report && !report.player) {
+      const resolved = playerData || (!playerLoading ? playerFallback : null);
+      if (resolved) {
+        setReport(prev => prev ? { ...prev, player: resolved } : null);
+      }
     }
-  }, [report, playerData]);
+  }, [report, playerData, playerLoading, playerFallback]);
 
   if (loading || playerLoading) {
     return (
