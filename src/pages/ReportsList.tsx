@@ -312,8 +312,13 @@ const ReportsList = () => {
   }, [activeTab, searchFilters, viewMode]);
   
   const handleViewReport = (reportId: string) => {
-    navigate(`/report/${reportId}`);
+    setSelectedReportId(reportId);
   };
+
+  const selectedReport = useMemo(
+    () => (selectedReportId ? reports.find((r) => r.id === selectedReportId) ?? null : null),
+    [selectedReportId, reports]
+  );
 
   const handleEditReport = (reportId: string) => {
     navigate(`/report/${reportId}/edit`);
