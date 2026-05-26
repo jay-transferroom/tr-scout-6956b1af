@@ -66,7 +66,6 @@ const ReportView = () => {
             return;
           }
           setReport(demo);
-          setPlayerId(demo.playerId);
           setTemplate(DEFAULT_TEMPLATES[0]);
           return;
         }
