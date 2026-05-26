@@ -57,6 +57,19 @@ const ReportView = () => {
         setError(null);
         
         console.log('Fetching report with ID:', id);
+
+        // Handle demo reports locally (IDs not in the DB)
+        if (id.startsWith('demo-')) {
+          const demo = DEMO_MATCH_REPORTS.find((r) => r.id === id);
+          if (!demo) {
+            setError('Report not found');
+            return;
+          }
+          setReport(demo);
+          setPlayerId(demo.playerId);
+          setTemplate(DEFAULT_TEMPLATES[0]);
+          return;
+        }
         
         const { data, error: fetchError } = await supabase
           .from('reports')
