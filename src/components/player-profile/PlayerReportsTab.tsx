@@ -153,7 +153,11 @@ export const PlayerReportsTab = ({ player, playerReports }: PlayerReportsTabProp
                 : "Scout";
 
               return (
-                <TableRow key={report.id}>
+                <TableRow
+                  key={report.id}
+                  className="cursor-pointer"
+                  onClick={() => handleViewReport(report.id)}
+                >
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <PlayerAvatar playerName={scoutName} size="sm" />
@@ -193,7 +197,10 @@ export const PlayerReportsTab = ({ player, playerReports }: PlayerReportsTabProp
                       <span className="text-sm text-muted-foreground">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell
+                    className="text-right"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Button
                       variant="outline"
                       size="sm"
@@ -208,6 +215,11 @@ export const PlayerReportsTab = ({ player, playerReports }: PlayerReportsTabProp
           </TableBody>
         </Table>
       </CardContent>
+      <ReportDetailSheet
+        report={selectedReport}
+        open={!!selectedReport}
+        onOpenChange={(open) => !open && setSelectedReportId(null)}
+      />
     </Card>
   );
 };
