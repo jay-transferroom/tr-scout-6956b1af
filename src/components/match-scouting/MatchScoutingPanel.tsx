@@ -287,7 +287,7 @@ const PlayerScoutingRow: React.FC<PlayerScoutingRowProps> = ({
               .filter(Boolean)
               .join(" • ")}
           </div>
-          {status !== "available" && description && (
+          {status !== "available" && description && !isCustom && (
             <div
               className={cn(
                 "mt-0.5 text-[10px] font-medium",
