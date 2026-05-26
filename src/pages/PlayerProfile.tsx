@@ -111,18 +111,29 @@ const PlayerProfile = () => {
                 )}
               </div>
               {/* Club Badge Overlay - positioned outside the overflow container */}
-              <div className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1">
-                <ClubBadge clubName={player.club} className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
-              </div>
+              {!player.isPrivatePlayer && !player.isCustomPlayer && (
+                <div className="absolute bottom-0 right-0 transform translate-x-1 translate-y-1">
+                  <ClubBadge clubName={player.club} className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
+                </div>
+              )}
             </div>
 
             {/* Player Details */}
             <div className="flex-1 w-full">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div className="flex-1">
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1 sm:mb-2">{player.name}</h1>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1 sm:mb-2">{player.name}</h1>
+                    {(player.isCustomPlayer || player.isPrivatePlayer) && (
+                      <Badge variant="outline" className="shrink-0 border-info/30 bg-info/10 text-info text-[10px] font-medium px-1.5 py-0 h-5">
+                        Custom
+                      </Badge>
+                    )}
+                  </div>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-                    <span className="text-sm sm:text-base md:text-lg font-medium text-muted-foreground">{player.club}</span>
+                    <span className="text-sm sm:text-base md:text-lg font-medium text-muted-foreground">
+                      {(player.isCustomPlayer || player.isPrivatePlayer) ? '-' : player.club}
+                    </span>
                     <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {player.positions?.map((position) => (
                         <Badge key={position} variant="outline" className="bg-gray-50 text-gray-600 border-gray-200 text-xs">
@@ -143,7 +154,7 @@ const PlayerProfile = () => {
                       <Info className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                     </div>
                     <span className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">
-                      {clubRating?.toFixed(1) || 'N/A'}
+                      {(player.isCustomPlayer || player.isPrivatePlayer) ? '-' : (clubRating?.toFixed(1) || 'N/A')}
                     </span>
                   </div>
 
@@ -154,10 +165,10 @@ const PlayerProfile = () => {
                     </div>
                     <div className="flex items-baseline gap-1.5 sm:gap-2">
                       <span className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">
-                        {player.transferroomRating?.toFixed(1) || 'N/A'}
+                        {(player.isCustomPlayer || player.isPrivatePlayer) ? '-' : (player.transferroomRating?.toFixed(1) || 'N/A')}
                       </span>
                       <span className="text-base sm:text-lg md:text-xl text-muted-foreground">
-                        ({player.futureRating?.toFixed(1) || 'N/A'})
+                        ({(player.isCustomPlayer || player.isPrivatePlayer) ? '-' : (player.futureRating?.toFixed(1) || 'N/A')})
                       </span>
                     </div>
                   </div>
@@ -168,7 +179,7 @@ const PlayerProfile = () => {
                       <Info className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
                     </div>
                     <span className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">
-                      {player.xtvScore ? `€${player.xtvScore.toLocaleString()}` : 'N/A'}
+                      {(player.isCustomPlayer || player.isPrivatePlayer) ? '-' : (player.xtvScore ? `€${player.xtvScore.toLocaleString()}` : 'N/A')}
                     </span>
                   </div>
                 </div>

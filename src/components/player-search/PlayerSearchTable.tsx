@@ -86,6 +86,7 @@ const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, o
           players.map((player) => {
             const teamLogo = getTeamLogo(player.club);
             const myRating = computeMyRating(player, myRatingWeights['CM']);
+            const isCustom = player.isCustomPlayer || player.isPrivatePlayer;
             
             return (
               <TableRow 
@@ -107,13 +108,20 @@ const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, o
                         {player.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="font-medium">{player.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{player.name}</span>
+                      {isCustom && (
+                        <Badge variant="outline" className="shrink-0 border-info/30 bg-info/10 text-info text-[10px] font-medium px-1.5 py-0 h-4">
+                          Custom
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </TableCell>
                 
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    {teamLogo && (
+                    {!isCustom && teamLogo && (
                       <Avatar className="h-6 w-6">
                         <AvatarImage 
                           src={teamLogo} 
@@ -127,7 +135,9 @@ const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, o
                         </AvatarFallback>
                       </Avatar>
                     )}
-                    <span>{player.club}</span>
+                    <span className={isCustom ? "text-muted-foreground" : ""}>
+                      {isCustom ? '-' : player.club}
+                    </span>
                   </div>
                 </TableCell>
                 
@@ -162,14 +172,18 @@ const PlayerSearchTable = ({ players, onPlayerClick, getTeamLogo, currentSort, o
                 </TableCell>
 
                 <TableCell>
-                  <MyRatingHover rating={myRating} categories={myRatingWeights['CM']}>
-                    <div className="flex items-center gap-1 cursor-default">
-                      <span className={myRating ? "font-medium" : ""}>{formatRating(myRating)}</span>
-                      {myRating && (
-                        <User className="h-3 w-3 text-primary" />
-                      )}
-                    </div>
-                  </MyRatingHover>
+                  {isCustom ? (
+                    <span className="text-muted-foreground">-</span>
+                  ) : (
+                    <MyRatingHover rating={myRating} categories={myRatingWeights['CM']}>
+                      <div className="flex items-center gap-1 cursor-default">
+                        <span className={myRating ? "font-medium" : ""}>{formatRating(myRating)}</span>
+                        {myRating && (
+                          <User className="h-3 w-3 text-primary" />
+                        )}
+                      </div>
+                    </MyRatingHover>
+                  )}
                 </TableCell>
                 
                 <TableCell>

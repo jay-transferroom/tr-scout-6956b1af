@@ -99,9 +99,14 @@ const PrivatePlayerProfile = () => {
             <div className="flex-1">
               <div className="flex items-start justify-between">
                 <div>
-                  <h1 className="text-4xl font-bold text-foreground mb-2">{player.name}</h1>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h1 className="text-4xl font-bold text-foreground mb-2">{player.name}</h1>
+                    <Badge variant="outline" className="shrink-0 border-info/30 bg-info/10 text-info text-[10px] font-medium px-1.5 py-0 h-5">
+                      Custom
+                    </Badge>
+                  </div>
                   <div className="flex items-center gap-3 mb-3">
-                    <ClubBadge clubName={player.club || 'Unknown Club'} className="flex-shrink-0" />
+                    <span className="text-muted-foreground font-medium">-</span>
                     <div className="flex flex-wrap gap-2">
                       {player.positions?.map((position) => (
                         <Badge key={position} variant="outline" className="bg-gray-50 text-gray-600 border-gray-200 text-xs">
@@ -120,12 +125,8 @@ const PrivatePlayerProfile = () => {
                         <Info className="w-4 h-4 text-muted-foreground" />
                       </div>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-bold text-blue-600">
-                          {player.transferroomRating?.toFixed(1) || 'N/A'}
-                        </span>
-                        <span className="text-xl text-muted-foreground">
-                          ({player.futureRating?.toFixed(1) || 'N/A'})
-                        </span>
+                        <span className="text-3xl font-bold text-primary">-</span>
+                        <span className="text-xl text-muted-foreground">(-)</span>
                       </div>
                     </div>
                     
@@ -134,9 +135,7 @@ const PrivatePlayerProfile = () => {
                         <span className="text-sm text-muted-foreground">xTV</span>
                         <Info className="w-4 h-4 text-muted-foreground" />
                       </div>
-                      <span className="text-3xl font-bold text-blue-600">
-                        {player.xtvScore ? `€${player.xtvScore.toLocaleString()}` : 'N/A'}
-                      </span>
+                      <span className="text-3xl font-bold text-primary">-</span>
                     </div>
                   </div>
                   
