@@ -82,7 +82,7 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
   const isDisabled = playerLoading || !!playerError || isCustomPlayer;
 
   const handleRowClick = () => {
-    navigate(`/report/${report.id}`);
+    onViewReport(report.id);
   };
 
   return (
