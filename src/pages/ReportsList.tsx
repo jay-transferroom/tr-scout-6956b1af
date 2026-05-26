@@ -317,7 +317,12 @@ const ReportsList = () => {
   };
 
   const selectedReport = useMemo(
-    () => (selectedReportId ? reports.find((r) => r.id === selectedReportId) ?? null : null),
+    () =>
+      selectedReportId
+        ? reports.find((r) => r.id === selectedReportId) ??
+          DEMO_MATCH_REPORTS.find((r) => r.id === selectedReportId) ??
+          null
+        : null,
     [selectedReportId, reports]
   );
 
