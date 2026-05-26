@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useReportPlayerData } from "@/hooks/useReportPlayerData";
 import VerdictBadge from "@/components/VerdictBadge";
 import { useNavigate } from "react-router-dom";
+import { DEMO_MATCH_REPORTS } from "@/utils/matchViewDemoData";
 import { PlayerAvatar } from "@/components/ui/player-avatar";
 import { ClubBadge } from "@/components/ui/club-badge";
 import { ScoutingGrade } from "@/components/ui/scouting-grade";
@@ -39,7 +40,14 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
   // lookup and rely on the player payload included on the report.
   const { data: fetchedPlayer, isLoading: fetchedLoading, error: playerError } =
     useReportPlayerData(skipFetch ? undefined : report.playerId);
-  const playerData = skipFetch ? (report.player as any) : fetchedPlayer;
+  // Fallback: look up demo player data by ID in case `report.player` was stripped
+  // upstream (e.g. via filtering/sorting that creates shallow copies).
+  const demoFallback = isDemoPlayer
+    ? DEMO_MATCH_REPORTS.find((r) => r.playerId === report.playerId)?.player
+    : undefined;
+  const playerData = skipFetch
+    ? ((report.player as any) ?? demoFallback)
+    : fetchedPlayer;
   const playerLoading = skipFetch ? false : fetchedLoading;
   const navigate = useNavigate();
   const { profile } = useAuth();
