@@ -124,8 +124,8 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
             <div className="text-sm text-grey-700">
               <div className="flex items-center gap-1.5">
                 <span className="font-medium">{report.matchContext.homeTeam} vs {report.matchContext.awayTeam}</span>
-                <Badge variant="outline" className="text-[9px] py-0 px-1 bg-muted/60 text-muted-foreground border-border">
-                  Manual
+                <Badge variant="outline" className="border-info/30 bg-info/10 text-info text-[9px] py-0 px-1.5 font-medium">
+                  Custom Match
                 </Badge>
               </div>
               <div className="text-xs text-grey-500">
