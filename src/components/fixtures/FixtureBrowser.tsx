@@ -306,7 +306,7 @@ const FixtureBrowser: React.FC = () => {
 
             <div className="flex-1 min-w-[160px]">
               <label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
-                <Trophy className="h-3.5 w-3.5" /> League
+                <Trophy className="h-3.5 w-3.5" /> Competition
               </label>
               <Select value={selectedLeague} onValueChange={setSelectedLeague} disabled={!selectedCountry}>
                 <SelectTrigger><SelectValue placeholder={selectedCountry ? "All leagues" : "Select country first"} /></SelectTrigger>
