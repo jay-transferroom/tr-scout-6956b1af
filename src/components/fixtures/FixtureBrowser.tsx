@@ -281,7 +281,23 @@ const FixtureBrowser: React.FC = () => {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header CTA */}
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => {
+            setSelectedCountry("World");
+            setSelectedLeague("World Cup");
+            setDateFrom(new Date(2026, 5, 11)); // 11 Jun 2026
+            setDateTo(new Date(2026, 6, 19));   // 19 Jul 2026
+          }}
+          className="flex items-center gap-2.5 bg-gradient-to-r from-indigo-900/80 to-indigo-800/80 hover:from-indigo-800 hover:to-indigo-700 text-white rounded-lg px-3.5 py-2 transition-all group"
+        >
+          <img
+            src="https://digitalhub.fifa.com/transform/157d23bf-7e13-4d7b-949e-5d27d340987e/WC26_Logo?&io=transform:fill&quality=75"
+            alt="World Cup 2026"
+            className="h-7 w-auto object-contain"
+          />
+          <span className="text-sm font-semibold tracking-wide">World Cup</span>
+        </button>
         <Button size="sm" variant="outline" onClick={() => setCustomMatchDialogOpen(true)} className="gap-1.5">
           <Plus className="h-3.5 w-3.5" />
           Add custom match
