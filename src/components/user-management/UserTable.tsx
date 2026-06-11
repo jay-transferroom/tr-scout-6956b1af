@@ -31,7 +31,6 @@ export const UserTable = ({
   users, 
 }: UserTableProps) => {
   const { profile } = useAuth();
-  const isDirector = profile?.role === 'director';
   const { data: accessSettings = [] } = useUserAccessSettings();
   const { data: scoutUsers = [] } = useScoutUsers();
   const updateAccess = useUpdateUserAccessSetting();
