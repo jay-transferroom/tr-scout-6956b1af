@@ -112,7 +112,7 @@ export const UserTable = ({
                     mode={isUserDirector ? 'all' : (setting?.scout_access_mode || 'all')}
                     selectedScoutIds={isUserDirector ? [] : (setting?.scout_access_user_ids || [])}
                     scoutUsers={scoutUsers}
-                    isEditable={isDirector && !isUserDirector}
+                    isEditable={!isUserDirector}
                     onModeChange={(mode, scoutIds) => {
                       updateAccess.mutate({
                         userId: user.id,
@@ -129,7 +129,7 @@ export const UserTable = ({
                 {showAccess ? (
                   <ShortlistAccessCell
                     mode={isUserDirector ? 'all' : (setting?.shortlist_access_mode || 'all')}
-                    isEditable={isDirector && !isUserDirector}
+                    isEditable={!isUserDirector}
                     onModeChange={(mode) => {
                       updateAccess.mutate({
                         userId: user.id,
