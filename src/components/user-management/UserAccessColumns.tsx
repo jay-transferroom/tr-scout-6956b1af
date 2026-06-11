@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Check, ChevronDown, X } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import {
   Popover,
   PopoverContent,
@@ -27,7 +26,6 @@ interface ScoutAccessCellProps {
 }
 
 export const ScoutAccessCell = ({
-  userId,
   mode,
   selectedScoutIds,
   scoutUsers,
@@ -60,14 +58,9 @@ export const ScoutAccessCell = ({
 
   if (!isEditable) {
     return (
-      <div className="flex flex-wrap gap-1">
-        <Badge variant="outline" className={cn("text-xs bg-muted/60 text-muted-foreground border-border", mode === 'custom' && "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400")}>{mode === 'all' ? 'All' : 'Custom'}</Badge>
-        {mode === 'custom' && selectedScoutIds.map(id => (
-          <Badge key={id} variant="outline" className="text-[10px] font-normal">
-            {getScoutName(id)}
-          </Badge>
-        ))}
-      </div>
+      <span className="text-sm text-muted-foreground">
+        {mode === 'all' ? 'All' : `Custom (${selectedScoutIds.length})`}
+      </span>
     );
   }
 
@@ -75,16 +68,12 @@ export const ScoutAccessCell = ({
     <div className="space-y-1.5">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs font-normal">
-            <Badge
-              variant="outline"
-              className={cn(
-                "text-xs pointer-events-none bg-muted/60 text-muted-foreground border-border",
-                mode === 'custom' && "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800"
-              )}
-            >
-              {mode === 'all' ? 'All' : 'Custom'}
-            </Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 gap-1 px-2 text-xs font-normal w-28 justify-between"
+          >
+            <span>{mode === 'all' ? 'All' : 'Custom'}</span>
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </Button>
         </PopoverTrigger>
@@ -130,7 +119,11 @@ export const ScoutAccessCell = ({
                     "h-3.5 w-3.5 rounded-sm border flex items-center justify-center",
                     localSelectedIds.includes(scout.id) && "bg-primary border-primary"
                   )}>
-                    {localSelectedIds.includes(scout.id) && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
+                    {localSelectedIds.includes(scout.id) && (
+                      <svg className="h-2.5 w-2.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
                   </div>
                   <span className="truncate">{getScoutName(scout.id)}</span>
                 </button>
@@ -140,18 +133,6 @@ export const ScoutAccessCell = ({
               )}
             </PopoverContent>
           </Popover>
-          {localSelectedIds.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {localSelectedIds.map(id => (
-                <Badge key={id} variant="outline" className="text-[10px] font-normal gap-0.5 pr-1">
-                  {getScoutName(id)}
-                  <button onClick={() => toggleScout(id)} className="ml-0.5 hover:text-destructive">
-                    <X className="h-2.5 w-2.5" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-          )}
         </div>
       )}
     </div>
@@ -171,28 +152,23 @@ export const ShortlistAccessCell = ({
 }: ShortlistAccessCellProps) => {
   const [open, setOpen] = useState(false);
 
-  const badgeClass = mode === 'own_only'
-    ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-    : "";
-
   if (!isEditable) {
     return (
-      <Badge variant="outline" className={cn("text-xs bg-muted/60 text-muted-foreground border-border", badgeClass)}>
+      <span className="text-sm text-muted-foreground">
         {mode === 'all' ? 'All' : 'Own only'}
-      </Badge>
+      </span>
     );
   }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs font-normal">
-          <Badge
-            variant="outline"
-            className={cn("text-xs pointer-events-none bg-muted/60 text-muted-foreground border-border", badgeClass)}
-          >
-            {mode === 'all' ? 'All' : 'Own only'}
-          </Badge>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 gap-1 px-2 text-xs font-normal w-28 justify-between"
+        >
+          <span>{mode === 'all' ? 'All' : 'Own only'}</span>
           <ChevronDown className="h-3 w-3 text-muted-foreground" />
         </Button>
       </PopoverTrigger>
