@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -23,8 +22,6 @@ const UserManagement = () => {
   const { profile } = useAuth();
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [isDeletingUser, setIsDeletingUser] = useState(false);
 
   if (profile?.role !== 'recruitment' && profile?.role !== 'director') {
     return <Navigate to="/" replace />;
@@ -57,54 +54,6 @@ const UserManagement = () => {
       toast.error('Failed to fetch users');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const updateUserRole = async (userId: string, newRole: string) => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', userId);
-
-      if (error) throw error;
-
-      setUsers(users.map(user => 
-        user.id === userId ? { ...user, role: newRole } : user
-      ));
-      
-      toast.success('User role updated successfully');
-    } catch (error) {
-      console.error('Error updating user role:', error);
-      toast.error('Failed to update user role');
-    }
-  };
-
-  const deleteUser = async (userId: string) => {
-    setIsDeletingUser(true);
-    try {
-      // Call the edge function to delete the user with proper permissions
-      const { data, error } = await supabase.functions.invoke('delete-user', {
-        body: { userId }
-      });
-
-      if (error) {
-        console.error('Error calling delete-user function:', error);
-        throw new Error(error.message || 'Failed to delete user');
-      }
-
-      if (data?.error) {
-        throw new Error(data.error);
-      }
-
-      // Remove from local state
-      setUsers(users.filter(user => user.id !== userId));
-      toast.success('User deleted successfully');
-    } catch (error: any) {
-      console.error('Error deleting user:', error);
-      toast.error(error.message || 'Failed to delete user');
-    } finally {
-      setIsDeletingUser(false);
     }
   };
 
@@ -147,15 +96,7 @@ const UserManagement = () => {
             <CardTitle>All Users ({users.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            <UserTable
-              users={users}
-              currentUserId={profile?.id}
-              onUpdateRole={updateUserRole}
-              onDeleteUser={deleteUser}
-              isDeletingUser={isDeletingUser}
-              selectedUserId={selectedUserId}
-              onSelectUser={setSelectedUserId}
-            />
+            <UserTable users={users} />
           </CardContent>
         </Card>
       )}
