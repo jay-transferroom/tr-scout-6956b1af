@@ -1,7 +1,5 @@
-
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -10,26 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { MoreHorizontal, SettingsIcon, Trash2 } from 'lucide-react';
-import { UserPermissionsDialog } from './UserPermissionsDialog';
 import { ScoutAccessCell, ShortlistAccessCell } from './UserAccessColumns';
 import { useUserAccessSettings, useUpdateUserAccessSetting } from '@/hooks/useUserAccessSettings';
 import { useScoutUsers } from '@/hooks/useScoutUsers';
