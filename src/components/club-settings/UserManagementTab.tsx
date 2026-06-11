@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,11 +17,8 @@ interface Profile {
 }
 
 const UserManagementTab = () => {
-  const { profile } = useAuth();
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [isDeletingUser, setIsDeletingUser] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -42,37 +38,6 @@ const UserManagementTab = () => {
       toast.error('Failed to fetch users');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const updateUserRole = async (userId: string, newRole: string) => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', userId);
-      if (error) throw error;
-      setUsers(users.map(user => user.id === userId ? { ...user, role: newRole } : user));
-      toast.success('User role updated successfully');
-    } catch (error) {
-      console.error('Error updating user role:', error);
-      toast.error('Failed to update user role');
-    }
-  };
-
-  const deleteUser = async (userId: string) => {
-    setIsDeletingUser(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('delete-user', { body: { userId } });
-      if (error) throw new Error(error.message || 'Failed to delete user');
-      if (data?.error) throw new Error(data.error);
-      setUsers(users.filter(user => user.id !== userId));
-      toast.success('User deleted successfully');
-    } catch (error: any) {
-      console.error('Error deleting user:', error);
-      toast.error(error.message || 'Failed to delete user');
-    } finally {
-      setIsDeletingUser(false);
     }
   };
 
@@ -97,15 +62,7 @@ const UserManagementTab = () => {
         <Card>
           <CardHeader><CardTitle>All Users ({users.length})</CardTitle></CardHeader>
           <CardContent>
-            <UserTable
-              users={users}
-              currentUserId={profile?.id}
-              onUpdateRole={updateUserRole}
-              onDeleteUser={deleteUser}
-              isDeletingUser={isDeletingUser}
-              selectedUserId={selectedUserId}
-              onSelectUser={setSelectedUserId}
-            />
+            <UserTable users={users} />
           </CardContent>
         </Card>
       )}
