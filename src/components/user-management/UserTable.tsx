@@ -25,22 +25,10 @@ interface Profile {
 
 interface UserTableProps {
   users: Profile[];
-  currentUserId?: string;
-  onUpdateRole: (userId: string, role: string) => void;
-  onDeleteUser: (userId: string) => void;
-  isDeletingUser: boolean;
-  selectedUserId: string | null;
-  onSelectUser: (userId: string) => void;
 }
 
 export const UserTable = ({ 
   users, 
-  currentUserId, 
-  onUpdateRole, 
-  onDeleteUser, 
-  isDeletingUser,
-  selectedUserId,
-  onSelectUser
 }: UserTableProps) => {
   const { profile } = useAuth();
   const isDirector = profile?.role === 'director';
