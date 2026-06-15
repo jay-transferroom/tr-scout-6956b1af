@@ -230,9 +230,11 @@ const UserManagementTab = () => {
                           </span>
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs">
-                          <p className="text-xs">
-                            Scouts given "All" access will automatically see all newly created shortlists. Scouts given "Specific" access will not.
-                          </p>
+                          <div className="text-xs space-y-1">
+                            <p>Scouts given "Created Only" access can only view shortlists they have created.</p>
+                            <p>Scouts given "All" access will automatically see all newly created shortlists.</p>
+                            <p>Scouts given "Specific" access will not.</p>
+                          </div>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
