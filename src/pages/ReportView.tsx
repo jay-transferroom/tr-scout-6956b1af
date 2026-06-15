@@ -365,6 +365,19 @@ const ReportView = () => {
       {/* AI Summary Component */}
       <ReportSummary report={report} template={template} />
 
+      {/* Attachment (if any) */}
+      {(report as any).attachmentUrl && (
+        <div className="mb-3 sm:mb-6">
+          <ReportAttachmentView
+            url={(report as any).attachmentUrl}
+            name={(report as any).attachmentName || "Attachment"}
+            type={(report as any).attachmentType}
+            size={(report as any).attachmentSize}
+          />
+        </div>
+      )}
+
+
       {/* Enhanced Player Header */}
       <Card className="mb-3 sm:mb-6 overflow-hidden">
         <CardContent className="p-0">
