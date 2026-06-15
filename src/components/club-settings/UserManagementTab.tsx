@@ -56,7 +56,7 @@ interface RowState {
 }
 
 const MODE_LABEL: Record<ShortlistMode, string> = {
-  created: 'Created only',
+  created: 'Created by them',
   specific: 'Specific',
   all: 'All',
 };
@@ -230,11 +230,9 @@ const UserManagementTab = () => {
                           </span>
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs">
-                          <div className="text-xs space-y-1">
-                            <p>Scouts given "Created Only" access can only view shortlists they have created.</p>
-                            <p>Scouts given "All" access will automatically see all newly created shortlists.</p>
-                            <p>Scouts given "Specific" access will not.</p>
-                          </div>
+                          <p className="text-xs">
+                            Scouts given "All" access will automatically see all newly created shortlists. Scouts given "Specific" access will not.
+                          </p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -274,7 +272,7 @@ const UserManagementTab = () => {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="created">Created only</SelectItem>
+                              <SelectItem value="created">Created by them</SelectItem>
                               <SelectItem value="specific">Specific</SelectItem>
                               <SelectItem value="all">All</SelectItem>
                             </SelectContent>
