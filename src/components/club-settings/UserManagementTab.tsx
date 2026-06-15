@@ -191,7 +191,7 @@ const UserManagementTab = () => {
         <div>
           <h2 className="text-lg font-semibold">Shortlist Access</h2>
           <p className="text-sm text-muted-foreground">
-            Control which shortlists each scout can see.
+            Control which shortlists each scout can access.
           </p>
         </div>
         <div className="flex items-center gap-3">
