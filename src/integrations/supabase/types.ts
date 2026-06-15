@@ -1326,6 +1326,7 @@ export type Database = {
           id: string
           scout_access_mode: string
           scout_access_user_ids: Json
+          shortlist_access_ids: Json
           shortlist_access_mode: string
           updated_at: string
           user_id: string
@@ -1335,6 +1336,7 @@ export type Database = {
           id?: string
           scout_access_mode?: string
           scout_access_user_ids?: Json
+          shortlist_access_ids?: Json
           shortlist_access_mode?: string
           updated_at?: string
           user_id: string
@@ -1344,6 +1346,7 @@ export type Database = {
           id?: string
           scout_access_mode?: string
           scout_access_user_ids?: Json
+          shortlist_access_ids?: Json
           shortlist_access_mode?: string
           updated_at?: string
           user_id?: string
