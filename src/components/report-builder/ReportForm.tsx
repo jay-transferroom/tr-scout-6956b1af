@@ -7,6 +7,7 @@ import { ReportTemplate, Report } from "@/types/report";
 import ReportSection from "@/components/ReportSection";
 import TestDataFiller from "./TestDataFiller";
 import FixtureSelector, { ManualMatch } from "./FixtureSelector";
+import ReportAttachment from "./ReportAttachment";
 import { Fixture } from "@/hooks/useFixturesData";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -193,6 +194,8 @@ const ReportForm = ({
           </div>
         </div>
       </div>
+
+      <ReportAttachment />
 
       <div className="bg-card p-4 rounded-md mb-6 border">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
