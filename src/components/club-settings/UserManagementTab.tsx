@@ -27,10 +27,7 @@ import { Check, ChevronsUpDown, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import {
-  useUserAccessSettings,
-  useUpdateUserAccessSetting,
-} from '@/hooks/useUserAccessSettings';
+import { useUserAccessSettings } from '@/hooks/useUserAccessSettings';
 
 type ShortlistMode = 'created' | 'specific' | 'all';
 
