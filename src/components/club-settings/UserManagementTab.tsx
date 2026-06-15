@@ -220,7 +220,23 @@ const UserManagementTab = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Scout</TableHead>
-                  <TableHead className="w-[640px]">Shortlist access</TableHead>
+                  <TableHead className="w-[640px]">
+                    <TooltipProvider delayDuration={100}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="inline-flex items-center gap-1.5 cursor-help">
+                            Shortlist access
+                            <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs">
+                          <p className="text-xs">
+                            Scouts given "All" access will automatically see all newly created shortlists. Scouts given "Specific" access will not.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
