@@ -28,6 +28,7 @@ import { formatReportDate, formatReportTime } from "@/utils/reportFormatting";
 import { DEFAULT_TEMPLATES } from "@/data/defaultTemplates";
 import { DEMO_MATCH_REPORTS } from "@/utils/matchViewDemoData";
 import ReportSummary from "@/components/reports/ReportSummary";
+import ReportAttachmentView from "@/components/reports/ReportAttachmentView";
 
 const ReportView = () => {
   const { id } = useParams<{ id: string }>();
