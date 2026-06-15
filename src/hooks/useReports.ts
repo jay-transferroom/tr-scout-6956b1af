@@ -362,6 +362,10 @@ export const useReports = () => {
         watch_method: reportData.watchMethod,
         tags: reportData.tags,
         flagged_for_review: reportData.flaggedForReview,
+        attachment_url: reportData.attachmentUrl ?? null,
+        attachment_name: reportData.attachmentName ?? null,
+        attachment_type: reportData.attachmentType ?? null,
+        attachment_size: reportData.attachmentSize ?? null,
         updated_at: new Date().toISOString(),
       };
 
