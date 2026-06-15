@@ -190,6 +190,10 @@ export const useReports = () => {
             watchMethod: report.watch_method,
             tags: report.tags || [],
             flaggedForReview: report.flagged_for_review || false,
+            attachmentUrl: report.attachment_url || null,
+            attachmentName: report.attachment_name || null,
+            attachmentType: report.attachment_type || null,
+            attachmentSize: report.attachment_size ?? null,
             player: playerData,
             scoutProfile: report.scout_profile,
           };
@@ -362,6 +366,10 @@ export const useReports = () => {
         watch_method: reportData.watchMethod,
         tags: reportData.tags,
         flagged_for_review: reportData.flaggedForReview,
+        attachment_url: reportData.attachmentUrl ?? null,
+        attachment_name: reportData.attachmentName ?? null,
+        attachment_type: reportData.attachmentType ?? null,
+        attachment_size: reportData.attachmentSize ?? null,
         updated_at: new Date().toISOString(),
       };
 

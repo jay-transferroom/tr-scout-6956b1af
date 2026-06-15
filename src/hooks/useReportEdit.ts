@@ -38,7 +38,11 @@ export const useReportEdit = () => {
         watchMethod: report.watchMethod,
         tags: report.tags,
         flaggedForReview: report.flaggedForReview,
-        status: report.status
+        status: report.status,
+        attachmentUrl: report.attachmentUrl,
+        attachmentName: report.attachmentName,
+        attachmentType: report.attachmentType,
+        attachmentSize: report.attachmentSize,
       };
 
       await saveReport(reportData);

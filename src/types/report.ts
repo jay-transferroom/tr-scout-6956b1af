@@ -77,6 +77,10 @@ export interface Report {
   tags?: string[];
   flaggedForReview?: boolean;
   requirementProfile?: RequirementProfile;
+  attachmentUrl?: string | null;
+  attachmentName?: string | null;
+  attachmentType?: string | null;
+  attachmentSize?: number | null;
 }
 
 export interface ReportWithPlayer extends Report {

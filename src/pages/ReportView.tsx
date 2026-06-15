@@ -28,6 +28,7 @@ import { formatReportDate, formatReportTime } from "@/utils/reportFormatting";
 import { DEFAULT_TEMPLATES } from "@/data/defaultTemplates";
 import { DEMO_MATCH_REPORTS } from "@/utils/matchViewDemoData";
 import ReportSummary from "@/components/reports/ReportSummary";
+import ReportAttachmentView from "@/components/reports/ReportAttachmentView";
 
 const ReportView = () => {
   const { id } = useParams<{ id: string }>();
@@ -209,6 +210,10 @@ const ReportView = () => {
           matchContext: typeof data.match_context === 'string' ? JSON.parse(data.match_context) : data.match_context,
           tags: data.tags || [],
           flaggedForReview: data.flagged_for_review || false,
+          attachmentUrl: (data as any).attachment_url || null,
+          attachmentName: (data as any).attachment_name || null,
+          attachmentType: (data as any).attachment_type || null,
+          attachmentSize: (data as any).attachment_size ?? null,
           scoutProfile: data.scout_profile ? {
             id: data.scout_profile.id,
             first_name: data.scout_profile.first_name,
@@ -359,6 +364,19 @@ const ReportView = () => {
 
       {/* AI Summary Component */}
       <ReportSummary report={report} template={template} />
+
+      {/* Attachment (if any) */}
+      {(report as any).attachmentUrl && (
+        <div className="mb-3 sm:mb-6">
+          <ReportAttachmentView
+            url={(report as any).attachmentUrl}
+            name={(report as any).attachmentName || "Attachment"}
+            type={(report as any).attachmentType}
+            size={(report as any).attachmentSize}
+          />
+        </div>
+      )}
+
 
       {/* Enhanced Player Header */}
       <Card className="mb-3 sm:mb-6 overflow-hidden">
