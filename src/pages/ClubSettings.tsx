@@ -63,7 +63,7 @@ const ClubSettings = () => {
               </TabsTrigger>
               <TabsTrigger value="users" className="gap-2">
                 <Shield className="h-4 w-4" />
-                User Management
+                Shortlist Access
               </TabsTrigger>
               <TabsTrigger value="import" className="gap-2">
                 <Upload className="h-4 w-4" />

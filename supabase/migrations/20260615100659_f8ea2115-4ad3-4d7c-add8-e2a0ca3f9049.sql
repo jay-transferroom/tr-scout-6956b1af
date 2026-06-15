@@ -1,0 +1,1 @@
+ALTER TABLE public.user_access_settings ADD COLUMN IF NOT EXISTS shortlist_access_ids jsonb NOT NULL DEFAULT '[]'::jsonb;
