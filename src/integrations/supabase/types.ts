@@ -842,6 +842,10 @@ export type Database = {
       reports: {
         Row: {
           ai_summary: string | null
+          attachment_name: string | null
+          attachment_size: number | null
+          attachment_type: string | null
+          attachment_url: string | null
           created_at: string
           flagged_for_review: boolean | null
           id: string
@@ -858,6 +862,10 @@ export type Database = {
         }
         Insert: {
           ai_summary?: string | null
+          attachment_name?: string | null
+          attachment_size?: number | null
+          attachment_type?: string | null
+          attachment_url?: string | null
           created_at?: string
           flagged_for_review?: boolean | null
           id?: string
@@ -874,6 +882,10 @@ export type Database = {
         }
         Update: {
           ai_summary?: string | null
+          attachment_name?: string | null
+          attachment_size?: number | null
+          attachment_type?: string | null
+          attachment_url?: string | null
           created_at?: string
           flagged_for_review?: boolean | null
           id?: string
