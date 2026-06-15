@@ -23,7 +23,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Check, ChevronsUpDown, X } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { Input } from '@/components/ui/input';
+import { Check, ChevronsUpDown, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -282,82 +289,155 @@ interface MultiSelectProps {
   onChange: (ids: string[]) => void;
 }
 
+const MAX_INLINE_CHIPS = 2;
+
 const ShortlistMultiSelect = ({ options, value, onChange }: MultiSelectProps) => {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
   const selected = options.filter((o) => value.includes(o.id));
+  const filtered = useMemo(
+    () =>
+      options.filter((o) =>
+        o.name.toLowerCase().includes(query.trim().toLowerCase()),
+      ),
+    [options, query],
+  );
 
   const toggle = (id: string) => {
     if (value.includes(id)) onChange(value.filter((v) => v !== id));
     else onChange([...value, id]);
   };
 
+  const allSelected = options.length > 0 && selected.length === options.length;
+  const visible = selected.slice(0, MAX_INLINE_CHIPS);
+  const overflow = selected.slice(MAX_INLINE_CHIPS);
+
   return (
-    <div className="flex items-center gap-2 flex-wrap min-w-[260px]">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            role="combobox"
-            className="justify-between min-w-[200px]"
-          >
-            <span className="truncate text-sm">
-              {selected.length
-                ? `${selected.length} shortlist${selected.length === 1 ? '' : 's'} selected`
-                : 'Select shortlists'}
-            </span>
-            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[260px] p-1" align="start">
-          <div className="max-h-64 overflow-auto">
-            {options.length === 0 && (
-              <div className="px-2 py-3 text-xs text-muted-foreground">
-                No shortlists available
+    <TooltipProvider delayDuration={150}>
+      <div className="flex items-center gap-1.5 flex-wrap min-w-[260px]">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              role="combobox"
+              className="justify-between h-8"
+            >
+              <span className="text-sm">
+                {selected.length === 0
+                  ? 'Select shortlists'
+                  : selected.length === options.length
+                    ? `All ${options.length} shortlists`
+                    : `${selected.length} of ${options.length}`}
+              </span>
+              <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[320px] p-0" align="start">
+            <div className="p-2 border-b">
+              <div className="relative">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search shortlists..."
+                  className="h-8 pl-7 text-sm"
+                />
               </div>
-            )}
-            {options.map((o) => {
-              const checked = value.includes(o.id);
-              return (
-                <button
-                  key={o.id}
-                  type="button"
-                  onClick={() => toggle(o.id)}
-                  className={cn(
-                    'flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent text-left',
-                  )}
-                >
-                  <Check
-                    className={cn(
-                      'h-4 w-4',
-                      checked ? 'opacity-100' : 'opacity-0',
-                    )}
-                  />
-                  <span className="truncate">{o.name}</span>
-                </button>
-              );
-            })}
-          </div>
-        </PopoverContent>
-      </Popover>
-      {selected.map((o) => (
-        <Badge
-          key={o.id}
-          variant="secondary"
-          className="gap-1 pl-2 pr-1 text-xs"
-        >
-          {o.name}
-          <button
-            type="button"
-            className="rounded hover:bg-muted-foreground/20 p-0.5"
-            onClick={() => toggle(o.id)}
-            aria-label={`Remove ${o.name}`}
+              <div className="flex items-center justify-between mt-2 px-1">
+                <span className="text-xs text-muted-foreground">
+                  {selected.length} selected
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className="text-xs text-primary hover:underline disabled:opacity-40 disabled:no-underline"
+                    onClick={() => onChange(options.map((o) => o.id))}
+                    disabled={allSelected}
+                  >
+                    Select all
+                  </button>
+                  <button
+                    type="button"
+                    className="text-xs text-muted-foreground hover:underline disabled:opacity-40 disabled:no-underline"
+                    onClick={() => onChange([])}
+                    disabled={selected.length === 0}
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="max-h-64 overflow-auto p-1">
+              {filtered.length === 0 ? (
+                <div className="px-2 py-3 text-xs text-muted-foreground">
+                  No shortlists match
+                </div>
+              ) : (
+                filtered.map((o) => {
+                  const checked = value.includes(o.id);
+                  return (
+                    <button
+                      key={o.id}
+                      type="button"
+                      onClick={() => toggle(o.id)}
+                      className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent text-left"
+                    >
+                      <Check
+                        className={cn(
+                          'h-4 w-4',
+                          checked ? 'opacity-100' : 'opacity-0',
+                        )}
+                      />
+                      <span className="truncate">{o.name}</span>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {visible.map((o) => (
+          <Badge
+            key={o.id}
+            variant="secondary"
+            className="gap-1 pl-2 pr-1 text-xs font-normal max-w-[160px]"
           >
-            <X className="h-3 w-3" />
-          </button>
-        </Badge>
-      ))}
-    </div>
+            <span className="truncate">{o.name}</span>
+            <button
+              type="button"
+              className="rounded hover:bg-muted-foreground/20 p-0.5 shrink-0"
+              onClick={() => toggle(o.id)}
+              aria-label={`Remove ${o.name}`}
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </Badge>
+        ))}
+
+        {overflow.length > 0 && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => setOpen(true)}
+                className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground hover:bg-muted/70"
+              >
+                +{overflow.length} more
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs">
+              <div className="text-xs space-y-0.5">
+                {overflow.map((o) => (
+                  <div key={o.id} className="truncate">{o.name}</div>
+                ))}
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        )}
+      </div>
+    </TooltipProvider>
   );
 };
 
