@@ -193,9 +193,6 @@ const UserManagementTab = () => {
           <p className="text-sm text-muted-foreground">
             Control which shortlists each scout can see.
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Scouts given "All" access will automatically see all newly created shortlists. Scouts given "Specific" access will not.
-          </p>
         </div>
         <div className="flex items-center gap-3">
           {hasUnsaved && (
