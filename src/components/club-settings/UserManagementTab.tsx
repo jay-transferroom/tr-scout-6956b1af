@@ -69,7 +69,7 @@ const UserManagementTab = () => {
   const [saving, setSaving] = useState(false);
 
   const { data: accessSettings = [] } = useUserAccessSettings();
-  const queryClient = (await import('@tanstack/react-query')); // placeholder, replaced below
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const load = async () => {
