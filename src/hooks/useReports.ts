@@ -190,6 +190,10 @@ export const useReports = () => {
             watchMethod: report.watch_method,
             tags: report.tags || [],
             flaggedForReview: report.flagged_for_review || false,
+            attachmentUrl: report.attachment_url || null,
+            attachmentName: report.attachment_name || null,
+            attachmentType: report.attachment_type || null,
+            attachmentSize: report.attachment_size ?? null,
             player: playerData,
             scoutProfile: report.scout_profile,
           };
