@@ -22,8 +22,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
-import { Check, ChevronsUpDown, Search } from 'lucide-react';
+import { Check, ChevronsUpDown, Info, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -187,9 +193,6 @@ const UserManagementTab = () => {
           <p className="text-sm text-muted-foreground">
             Control which shortlists each scout can see.
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Scouts given "All" access will automatically see all newly created shortlists. Scouts given "Specific" access will not.
-          </p>
         </div>
         <div className="flex items-center gap-3">
           {hasUnsaved && (
@@ -217,7 +220,23 @@ const UserManagementTab = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Scout</TableHead>
-                  <TableHead className="w-[640px]">Shortlist access</TableHead>
+                  <TableHead className="w-[640px]">
+                    <TooltipProvider delayDuration={100}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="inline-flex items-center gap-1.5 cursor-help">
+                            Shortlist access
+                            <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs">
+                          <p className="text-xs">
+                            Scouts given "All" access will automatically see all newly created shortlists. Scouts given "Specific" access will not.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
