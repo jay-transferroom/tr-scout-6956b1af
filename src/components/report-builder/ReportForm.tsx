@@ -195,7 +195,28 @@ const ReportForm = ({
         </div>
       </div>
 
-      <ReportAttachment />
+      <ReportAttachment
+        reportId={report.id}
+        value={
+          report.attachmentUrl
+            ? {
+                url: report.attachmentUrl,
+                name: report.attachmentName || "Attachment",
+                type: report.attachmentType || "application/octet-stream",
+                size: report.attachmentSize ?? 0,
+              }
+            : null
+        }
+        onChange={(att) =>
+          onReportUpdate({
+            ...report,
+            attachmentUrl: att?.url ?? null,
+            attachmentName: att?.name ?? null,
+            attachmentType: att?.type ?? null,
+            attachmentSize: att?.size ?? null,
+          })
+        }
+      />
 
       <div className="bg-card p-4 rounded-md mb-6 border">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
