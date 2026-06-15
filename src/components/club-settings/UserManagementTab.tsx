@@ -157,7 +157,7 @@ const UserManagementTab = () => {
       }
       setInitial(rows);
       toast.success('Shortlist access saved');
-      updateAccess.reset?.();
+      queryClient.invalidateQueries({ queryKey: ['user-access-settings'] });
     } catch (e) {
       console.error(e);
       toast.error('Failed to save changes');
