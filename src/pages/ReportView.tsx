@@ -362,8 +362,6 @@ const ReportView = () => {
         </div>
       </div>
 
-      {/* AI Summary Component */}
-      <ReportSummary report={report} template={template} />
 
       {/* Attachment (if any) */}
       {(report as any).attachmentUrl && (
