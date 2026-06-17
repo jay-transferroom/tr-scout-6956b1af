@@ -27,7 +27,6 @@ import { extractReportDataForDisplay } from "@/utils/reportDataExtraction";
 import { formatReportDate, formatReportTime } from "@/utils/reportFormatting";
 import { DEFAULT_TEMPLATES } from "@/data/defaultTemplates";
 import { DEMO_MATCH_REPORTS } from "@/utils/matchViewDemoData";
-import ReportSummary from "@/components/reports/ReportSummary";
 import ReportAttachmentView from "@/components/reports/ReportAttachmentView";
 
 const ReportView = () => {
@@ -362,8 +361,6 @@ const ReportView = () => {
         </div>
       </div>
 
-      {/* AI Summary Component */}
-      <ReportSummary report={report} template={template} />
 
       {/* Attachment (if any) */}
       {(report as any).attachmentUrl && (
