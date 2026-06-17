@@ -362,17 +362,7 @@ const ReportView = () => {
       </div>
 
 
-      {/* Attachment (if any) */}
-      {(report as any).attachmentUrl && (
-        <div className="mb-3 sm:mb-6">
-          <ReportAttachmentView
-            url={(report as any).attachmentUrl}
-            name={(report as any).attachmentName || "Attachment"}
-            type={(report as any).attachmentType}
-            size={(report as any).attachmentSize}
-          />
-        </div>
-      )}
+
 
 
       {/* Enhanced Player Header */}
@@ -569,6 +559,20 @@ const ReportView = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Attachment (if any) */}
+      {(report as any).attachmentUrl && (
+        <div className="mb-3 sm:mb-6">
+          <ReportAttachmentView
+            url={(report as any).attachmentUrl}
+            name={(report as any).attachmentName || "Attachment"}
+            type={(report as any).attachmentType}
+            size={(report as any).attachmentSize}
+          />
+        </div>
+      )}
+
+
 
       {/* Report Sections */}
       <div className="space-y-3 sm:space-y-6">
