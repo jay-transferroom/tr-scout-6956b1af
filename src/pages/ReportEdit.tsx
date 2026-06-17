@@ -113,6 +113,10 @@ const ReportEdit = () => {
           matchContext: typeof data.match_context === 'string' ? JSON.parse(data.match_context) : data.match_context,
           tags: data.tags || [],
           flaggedForReview: data.flagged_for_review || false,
+          attachmentUrl: (data as any).attachment_url || null,
+          attachmentName: (data as any).attachment_name || null,
+          attachmentType: (data as any).attachment_type || null,
+          attachmentSize: (data as any).attachment_size ?? null,
           scoutProfile: data.scout_profile ? {
             id: data.scout_profile.id,
             first_name: data.scout_profile.first_name,
