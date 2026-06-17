@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import ReportEditSection from "@/components/ReportEditSection";
 import FixtureSelector from "@/components/report-builder/FixtureSelector";
+import ReportAttachment from "@/components/report-builder/ReportAttachment";
 import { Fixture } from "@/hooks/useFixturesData";
 import { useReportEdit } from "@/hooks/useReportEdit";
 import { useReportPlayerData } from "@/hooks/useReportPlayerData";
