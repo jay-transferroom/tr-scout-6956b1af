@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import ReportEditSection from "@/components/ReportEditSection";
 import FixtureSelector from "@/components/report-builder/FixtureSelector";
+import ReportAttachment from "@/components/report-builder/ReportAttachment";
 import { Fixture } from "@/hooks/useFixturesData";
 import { useReportEdit } from "@/hooks/useReportEdit";
 import { useReportPlayerData } from "@/hooks/useReportPlayerData";
@@ -112,6 +113,10 @@ const ReportEdit = () => {
           matchContext: typeof data.match_context === 'string' ? JSON.parse(data.match_context) : data.match_context,
           tags: data.tags || [],
           flaggedForReview: data.flagged_for_review || false,
+          attachmentUrl: (data as any).attachment_url || null,
+          attachmentName: (data as any).attachment_name || null,
+          attachmentType: (data as any).attachment_type || null,
+          attachmentSize: (data as any).attachment_size ?? null,
           scoutProfile: data.scout_profile ? {
             id: data.scout_profile.id,
             first_name: data.scout_profile.first_name,
@@ -276,7 +281,31 @@ const ReportEdit = () => {
                 <SelectItem value="Data">Data</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+      </div>
+
+      <ReportAttachment
+        reportId={report.id}
+        value={
+          report.attachmentUrl
+            ? {
+                url: report.attachmentUrl,
+                name: report.attachmentName || "Attachment",
+                type: report.attachmentType || "application/octet-stream",
+                size: report.attachmentSize ?? 0,
+              }
+            : null
+        }
+        onChange={(value) =>
+          setReport({
+            ...report,
+            attachmentUrl: value?.url ?? null,
+            attachmentName: value?.name ?? null,
+            attachmentType: value?.type ?? null,
+            attachmentSize: value?.size ?? null,
+          } as any)
+        }
+      />
+
         </div>
       </div>
 
