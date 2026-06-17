@@ -281,7 +281,31 @@ const ReportEdit = () => {
                 <SelectItem value="Data">Data</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+      </div>
+
+      <ReportAttachment
+        reportId={report.id}
+        value={
+          report.attachmentUrl
+            ? {
+                url: report.attachmentUrl,
+                name: report.attachmentName || "Attachment",
+                type: report.attachmentType || "application/octet-stream",
+                size: report.attachmentSize ?? 0,
+              }
+            : null
+        }
+        onChange={(value) =>
+          setReport({
+            ...report,
+            attachmentUrl: value?.url ?? null,
+            attachmentName: value?.name ?? null,
+            attachmentType: value?.type ?? null,
+            attachmentSize: value?.size ?? null,
+          } as any)
+        }
+      />
+
         </div>
       </div>
 
