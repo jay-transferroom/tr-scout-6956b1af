@@ -101,9 +101,20 @@ const ReportAttachment = ({ reportId, value, onChange }: ReportAttachmentProps) 
     }
   };
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
     onChange(null);
     if (inputRef.current) inputRef.current.value = "";
+    const { error: clearError } = await supabase
+      .from("reports")
+      .update({
+        attachment_url: null,
+        attachment_name: null,
+        attachment_type: null,
+        attachment_size: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", reportId);
+    if (clearError) console.warn("Failed to clear attachment on report:", clearError);
   };
 
   return (
