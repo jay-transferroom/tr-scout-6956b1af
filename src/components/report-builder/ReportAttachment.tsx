@@ -66,12 +66,31 @@ const ReportAttachment = ({ reportId, value, onChange }: ReportAttachmentProps) 
 
       const { data: publicData } = supabase.storage.from(BUCKET).getPublicUrl(path);
 
-      onChange({
+      const next = {
         url: publicData.publicUrl,
         name: selected.name,
         type: selected.type || "application/octet-stream",
         size: selected.size,
-      });
+      };
+
+      // Persist immediately so the attachment isn't lost if the user navigates away
+      // before clicking Save. Ignored silently if the report row doesn't exist yet.
+      const { error: persistError } = await supabase
+        .from("reports")
+        .update({
+          attachment_url: next.url,
+          attachment_name: next.name,
+          attachment_type: next.type,
+          attachment_size: next.size,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", reportId);
+
+      if (persistError) {
+        console.warn("Attachment uploaded but not persisted to report row:", persistError);
+      }
+
+      onChange(next);
       toast.success("Attachment uploaded");
     } catch (err: any) {
       console.error("Attachment upload failed", err);
@@ -82,9 +101,20 @@ const ReportAttachment = ({ reportId, value, onChange }: ReportAttachmentProps) 
     }
   };
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
     onChange(null);
     if (inputRef.current) inputRef.current.value = "";
+    const { error: clearError } = await supabase
+      .from("reports")
+      .update({
+        attachment_url: null,
+        attachment_name: null,
+        attachment_type: null,
+        attachment_size: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", reportId);
+    if (clearError) console.warn("Failed to clear attachment on report:", clearError);
   };
 
   return (
