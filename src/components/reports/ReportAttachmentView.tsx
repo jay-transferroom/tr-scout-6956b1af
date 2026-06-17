@@ -38,10 +38,10 @@ const ReportAttachmentView = ({ url, name, type, size }: ReportAttachmentViewPro
 
       <div className="bg-background">
         {isImage && (
-          <img src={url} alt={name} className="block max-h-[720px] w-full object-contain bg-muted/20" />
+          <img src={url} alt={name} className="block max-h-[420px] w-full object-contain bg-muted/20" />
         )}
         {isVideo && (
-          <video src={url} controls className="block w-full max-h-[720px] bg-black" />
+          <video src={url} controls className="block w-full max-h-[420px] bg-black" />
         )}
         {isAudio && (
           <div className="p-4">
@@ -53,7 +53,7 @@ const ReportAttachmentView = ({ url, name, type, size }: ReportAttachmentViewPro
             src={url}
             title={name}
             className="w-full"
-            style={{ height: "720px", border: 0 }}
+            style={{ height: "480px", border: 0 }}
           />
         )}
         {!isImage && !isVideo && !isAudio && !isPdf && (
