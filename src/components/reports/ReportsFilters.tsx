@@ -264,7 +264,7 @@ const ReportsFilters = ({ filters, onFiltersChange, availableVerdicts, available
             )}
             {filters.verdict && (
               <Badge variant="secondary" className="flex items-center gap-1 font-normal" style={{fontSize: '0.9rem'}}>
-                Verdict: {filters.verdict}
+                Recommendation: {filters.verdict}
                 <X 
                   className="h-4 w-4 cursor-pointer" 
                   onClick={() => updateFilter('verdict', '')}
