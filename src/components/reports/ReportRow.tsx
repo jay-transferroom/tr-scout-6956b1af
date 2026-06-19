@@ -174,13 +174,15 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
           <span className="text-grey-400 text-sm">-</span>
         )}
       </TableCell>
-      <TableCell>
-        {verdict ? (
-          <VerdictBadge verdict={verdict} />
-        ) : (
-          <span className="text-grey-400 text-sm">-</span>
-        )}
-      </TableCell>
+      {showRecommendation && (
+        <TableCell>
+          {verdict ? (
+            <VerdictBadge verdict={verdict} />
+          ) : (
+            <span className="text-grey-400 text-sm">-</span>
+          )}
+        </TableCell>
+      )}
       <TableCell>
         <div className="text-sm text-grey-700">
           {report.scoutProfile?.first_name && report.scoutProfile?.last_name 
