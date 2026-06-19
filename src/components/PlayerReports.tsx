@@ -98,7 +98,7 @@ export const PlayerReports = ({
                   onClick={handleScoutManagerVerdict}
                 >
                   <UserCheck className="h-4 w-4 mr-2" />
-                  Add Verdict
+                  Add Recommendation
                 </Button>
               )}
             </div>
