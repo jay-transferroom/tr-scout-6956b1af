@@ -49,7 +49,7 @@ const ReportsTableHeader = ({ sortKey = null, sortDir = "asc", onSort }: Reports
             <Head label="Report Date" k="date" />
             <Head label="Status" k="status" className="w-[100px]" />
             <Head label="Rating" k="rating" icon={<Award size={14} />} />
-            <Head label="Verdict" k="verdict" />
+            <Head label="Recommendation" k="verdict" />
             <Head label="Scout" k="scout" />
           </>
         ) : (
