@@ -179,7 +179,7 @@ const MatchReportsTable = ({
             {isOpen && (
               <div className="border-t overflow-x-auto">
                 <Table>
-                  <ReportsTableHeader />
+                  <ReportsTableHeader showRecommendation={showRecommendation} />
                   <TableBody>
                     {group.reports.map((report) => (
                       <ReportRow
@@ -189,6 +189,7 @@ const MatchReportsTable = ({
                         onEditReport={onEditReport}
                         onDeleteReport={onDeleteReport}
                         canEdit={!!user && report.scoutId === user.id}
+                        showRecommendation={showRecommendation}
                       />
                     ))}
                   </TableBody>
