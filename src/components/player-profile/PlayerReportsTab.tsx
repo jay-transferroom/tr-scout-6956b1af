@@ -137,7 +137,7 @@ export const PlayerReportsTab = ({ player, playerReports }: PlayerReportsTabProp
               <TableHead>Match</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Rating</TableHead>
-              <TableHead>Verdict</TableHead>
+              <TableHead>Recommendation</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
