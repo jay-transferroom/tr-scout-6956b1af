@@ -444,6 +444,7 @@ const ReportsList = () => {
               onViewReport={handleViewReport}
               onEditReport={handleEditReport}
               onDeleteReport={handleDeleteReport}
+              showRecommendation={false}
             />
           ) : viewMode === "individual" ? (
             <ReportsTable
@@ -454,6 +455,7 @@ const ReportsList = () => {
               sortKey={individualSortKey}
               sortDir={individualSortDir}
               onSort={handleIndividualSort}
+              showRecommendation={false}
             />
           ) : (
             <GroupedReportsTable
