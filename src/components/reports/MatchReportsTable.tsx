@@ -53,6 +53,7 @@ const MatchReportsTable = ({
   onViewReport,
   onEditReport,
   onDeleteReport,
+  showRecommendation = true,
 }: MatchReportsTableProps) => {
   const { user } = useAuth();
 
