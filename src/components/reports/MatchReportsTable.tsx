@@ -16,6 +16,7 @@ interface MatchReportsTableProps {
   onViewReport: (id: string) => void;
   onEditReport?: (id: string) => void;
   onDeleteReport: (id: string, name: string) => void;
+  showRecommendation?: boolean;
 }
 
 interface FixtureGroup {
@@ -52,6 +53,7 @@ const MatchReportsTable = ({
   onViewReport,
   onEditReport,
   onDeleteReport,
+  showRecommendation = true,
 }: MatchReportsTableProps) => {
   const { user } = useAuth();
 
@@ -177,7 +179,7 @@ const MatchReportsTable = ({
             {isOpen && (
               <div className="border-t overflow-x-auto">
                 <Table>
-                  <ReportsTableHeader />
+                  <ReportsTableHeader showRecommendation={showRecommendation} />
                   <TableBody>
                     {group.reports.map((report) => (
                       <ReportRow
@@ -187,6 +189,7 @@ const MatchReportsTable = ({
                         onEditReport={onEditReport}
                         onDeleteReport={onDeleteReport}
                         canEdit={!!user && report.scoutId === user.id}
+                        showRecommendation={showRecommendation}
                       />
                     ))}
                   </TableBody>

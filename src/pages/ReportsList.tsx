@@ -378,7 +378,7 @@ const ReportsList = () => {
         <ReportsTabNavigation onTabChange={setActiveTab} activeTab={activeTab} />
         
         <div className="flex items-center gap-2">
-          {recommendationsActive && (
+          {recommendationsActive && viewMode === "grouped" && (
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as "default" | "recommendation")}>
               <SelectTrigger className="h-9 w-[180px]">
                 <SelectValue placeholder="Sort by" />
@@ -433,6 +433,7 @@ const ReportsList = () => {
         availableClubs={availableClubs}
         availablePositions={availablePositions}
         availablePlayerNames={availablePlayerNames}
+        showRecommendation={viewMode === "grouped"}
       />
 
       <div>
@@ -443,6 +444,7 @@ const ReportsList = () => {
               onViewReport={handleViewReport}
               onEditReport={handleEditReport}
               onDeleteReport={handleDeleteReport}
+              showRecommendation={false}
             />
           ) : viewMode === "individual" ? (
             <ReportsTable
@@ -453,6 +455,7 @@ const ReportsList = () => {
               sortKey={individualSortKey}
               sortDir={individualSortDir}
               onSort={handleIndividualSort}
+              showRecommendation={false}
             />
           ) : (
             <GroupedReportsTable

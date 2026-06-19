@@ -19,9 +19,10 @@ interface ReportsTableHeaderProps {
   sortKey?: IndividualSortKey | null;
   sortDir?: IndividualSortDir;
   onSort?: (k: IndividualSortKey) => void;
+  showRecommendation?: boolean;
 }
 
-const ReportsTableHeader = ({ sortKey = null, sortDir = "asc", onSort }: ReportsTableHeaderProps) => {
+const ReportsTableHeader = ({ sortKey = null, sortDir = "asc", onSort, showRecommendation = true }: ReportsTableHeaderProps) => {
   const Head = onSort
     ? (props: { label: string; k: IndividualSortKey; icon?: React.ReactNode; className?: string }) => (
         <SortableTableHead
@@ -49,7 +50,7 @@ const ReportsTableHeader = ({ sortKey = null, sortDir = "asc", onSort }: Reports
             <Head label="Report Date" k="date" />
             <Head label="Status" k="status" className="w-[100px]" />
             <Head label="Rating" k="rating" icon={<Award size={14} />} />
-            <Head label="Recommendation" k="verdict" />
+            {showRecommendation && <Head label="Recommendation" k="verdict" />}
             <Head label="Scout" k="scout" />
           </>
         ) : (
@@ -67,7 +68,7 @@ const ReportsTableHeader = ({ sortKey = null, sortDir = "asc", onSort }: Reports
                 <span>Rating</span>
               </div>
             </TableHead>
-            <TableHead className="text-sm">Recommendation</TableHead>
+            {showRecommendation && <TableHead className="text-sm">Recommendation</TableHead>}
             <TableHead className="text-sm">Scout</TableHead>
           </>
         )}

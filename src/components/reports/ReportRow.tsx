@@ -30,9 +30,10 @@ interface ReportRowProps {
   onEditReport?: (reportId: string) => void;
   onDeleteReport: (reportId: string, playerName: string) => void;
   canEdit: boolean;
+  showRecommendation?: boolean;
 }
 
-const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit }: ReportRowProps) => {
+const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit, showRecommendation = true }: ReportRowProps) => {
   const isCustomPlayer = typeof report.playerId === 'string' && report.playerId.startsWith('custom-');
   const isDemoPlayer = typeof report.playerId === 'string' && report.playerId.startsWith('demo-');
   const skipFetch = isCustomPlayer || isDemoPlayer;
@@ -100,7 +101,9 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
               Custom
             </Badge>
           )}
-          <PlayerRecommendationView playerId={report.playerId} fallback={null} />
+          {showRecommendation && (
+            <PlayerRecommendationView playerId={report.playerId} fallback={null} />
+          )}
         </div>
       </TableCell>
       <TableCell>
@@ -171,13 +174,15 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
           <span className="text-grey-400 text-sm">-</span>
         )}
       </TableCell>
-      <TableCell>
-        {verdict ? (
-          <VerdictBadge verdict={verdict} />
-        ) : (
-          <span className="text-grey-400 text-sm">-</span>
-        )}
-      </TableCell>
+      {showRecommendation && (
+        <TableCell>
+          {verdict ? (
+            <VerdictBadge verdict={verdict} />
+          ) : (
+            <span className="text-grey-400 text-sm">-</span>
+          )}
+        </TableCell>
+      )}
       <TableCell>
         <div className="text-sm text-grey-700">
           {report.scoutProfile?.first_name && report.scoutProfile?.last_name 

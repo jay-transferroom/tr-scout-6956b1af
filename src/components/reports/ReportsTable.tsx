@@ -13,15 +13,16 @@ interface ReportsTableProps {
   sortKey?: IndividualSortKey | null;
   sortDir?: IndividualSortDir;
   onSort?: (k: IndividualSortKey) => void;
+  showRecommendation?: boolean;
 }
 
-const ReportsTable = ({ reports, onViewReport, onEditReport, onDeleteReport, sortKey, sortDir, onSort }: ReportsTableProps) => {
+const ReportsTable = ({ reports, onViewReport, onEditReport, onDeleteReport, sortKey, sortDir, onSort, showRecommendation = true }: ReportsTableProps) => {
   const { user } = useAuth();
 
   return (
     <div className="overflow-x-auto">
       <Table>
-      <ReportsTableHeader sortKey={sortKey} sortDir={sortDir} onSort={onSort} />
+      <ReportsTableHeader sortKey={sortKey} sortDir={sortDir} onSort={onSort} showRecommendation={showRecommendation} />
       <TableBody>
         {reports.length > 0 ? (
           reports.map((report) => {
@@ -35,12 +36,13 @@ const ReportsTable = ({ reports, onViewReport, onEditReport, onDeleteReport, sor
                 onEditReport={onEditReport}
                 onDeleteReport={onDeleteReport}
                 canEdit={canEdit}
+                showRecommendation={showRecommendation}
               />
             );
           })
         ) : (
           <TableRow>
-            <TableCell colSpan={11} className="text-center py-6 text-muted-foreground">
+            <TableCell colSpan={showRecommendation ? 11 : 10} className="text-center py-6 text-muted-foreground">
               No reports found.
             </TableCell>
           </TableRow>

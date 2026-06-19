@@ -26,9 +26,10 @@ interface ReportsFiltersProps {
   availableClubs: Array<{ id: string; name: string }>;
   availablePositions: string[];
   availablePlayerNames: string[];
+  showRecommendation?: boolean;
 }
 
-const ReportsFilters = ({ filters, onFiltersChange, availableVerdicts, availableScouts, availableClubs, availablePositions, availablePlayerNames }: ReportsFiltersProps) => {
+const ReportsFilters = ({ filters, onFiltersChange, availableVerdicts, availableScouts, availableClubs, availablePositions, availablePlayerNames, showRecommendation = true }: ReportsFiltersProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const updateFilter = (key: keyof ReportsFilterCriteria, value: string) => {
@@ -142,22 +143,24 @@ const ReportsFilters = ({ filters, onFiltersChange, availableVerdicts, available
                 </div>
 
                 {/* Recommendation Filter */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Recommendation</label>
-                  <Select value={filters.verdict} onValueChange={(value) => updateFilter('verdict', value === 'all' ? '' : value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All recommendations" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All recommendations</SelectItem>
-                      {availableVerdicts.map((verdict) => (
-                        <SelectItem key={verdict} value={verdict}>
-                          {verdict}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {showRecommendation && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Recommendation</label>
+                    <Select value={filters.verdict} onValueChange={(value) => updateFilter('verdict', value === 'all' ? '' : value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All recommendations" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All recommendations</SelectItem>
+                        {availableVerdicts.map((verdict) => (
+                          <SelectItem key={verdict} value={verdict}>
+                            {verdict}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 {/* Status Filter */}
                 <div className="space-y-2">
@@ -262,7 +265,7 @@ const ReportsFilters = ({ filters, onFiltersChange, availableVerdicts, available
                 />
               </Badge>
             )}
-            {filters.verdict && (
+            {showRecommendation && filters.verdict && (
               <Badge variant="secondary" className="flex items-center gap-1 font-normal" style={{fontSize: '0.9rem'}}>
                 Recommendation: {filters.verdict}
                 <X 
