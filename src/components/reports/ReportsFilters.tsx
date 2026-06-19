@@ -141,15 +141,15 @@ const ReportsFilters = ({ filters, onFiltersChange, availableVerdicts, available
                   </Select>
                 </div>
 
-                {/* Verdict Filter */}
+                {/* Recommendation Filter */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Verdict</label>
+                  <label className="text-sm font-medium">Recommendation</label>
                   <Select value={filters.verdict} onValueChange={(value) => updateFilter('verdict', value === 'all' ? '' : value)}>
                     <SelectTrigger>
-                      <SelectValue placeholder="All verdicts" />
+                      <SelectValue placeholder="All recommendations" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All verdicts</SelectItem>
+                      <SelectItem value="all">All recommendations</SelectItem>
                       {availableVerdicts.map((verdict) => (
                         <SelectItem key={verdict} value={verdict}>
                           {verdict}
