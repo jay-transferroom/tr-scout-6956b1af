@@ -67,7 +67,7 @@ const ReportsTableHeader = ({ sortKey = null, sortDir = "asc", onSort }: Reports
                 <span>Rating</span>
               </div>
             </TableHead>
-            <TableHead className="text-sm">Verdict</TableHead>
+            <TableHead className="text-sm">Recommendation</TableHead>
             <TableHead className="text-sm">Scout</TableHead>
           </>
         )}
