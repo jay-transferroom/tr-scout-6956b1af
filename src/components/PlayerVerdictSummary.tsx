@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ReportWithPlayer } from "@/types/report";
 import { getVerdictOption, VERDICT_OPTIONS } from "@/types/verdict";
 import { getRecommendation } from "@/utils/reportDataExtraction";
+import VerdictBadge from "@/components/VerdictBadge";
 import { FileText, Users } from "lucide-react";
 
 interface PlayerVerdictSummaryProps {
@@ -50,7 +51,7 @@ const PlayerVerdictSummary = ({ playerReports, playerName }: PlayerVerdictSummar
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
           <FileText className="h-5 w-5" />
-          Scout Verdicts for {playerName}
+          Scout Recommendations for {playerName}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -60,7 +61,7 @@ const PlayerVerdictSummary = ({ playerReports, playerName }: PlayerVerdictSummar
               <div className="flex items-center gap-2 mb-2">
                 <Users className="h-4 w-4 text-amber-600" />
                 <span className="text-sm font-medium text-amber-800">
-                  Conflicting Verdicts ({playerReports.length} reports)
+                  Conflicting Recommendations ({playerReports.length} reports)
                 </span>
               </div>
               <p className="text-xs text-amber-700">
@@ -73,14 +74,7 @@ const PlayerVerdictSummary = ({ playerReports, playerName }: PlayerVerdictSummar
             {uniqueVerdicts.map(({ verdict, count, option }) => (
               <div key={verdict} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {option ? (
-                    <Badge variant="outline" className={option.color}>
-                      <span className="mr-1">{option.icon}</span>
-                      {option.label}
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline">{verdict}</Badge>
-                  )}
+                  <VerdictBadge verdict={verdict} />
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">

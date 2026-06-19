@@ -12,6 +12,8 @@ export interface VerdictOption {
   label: string;
   icon: string;
   color: string;
+  /** Solid hex used by the unified RecommendationBadge presentation. */
+  hexColor: string;
   description: string;
 }
 
@@ -21,6 +23,7 @@ export const VERDICT_OPTIONS: VerdictOption[] = [
     label: 'Recommend for signing',
     icon: '✅',
     color: 'text-green-600 bg-green-50 border-green-200',
+    hexColor: '#16A34A',
     description: 'Strong recommendation to proceed with signing this player'
   },
   {
@@ -28,6 +31,7 @@ export const VERDICT_OPTIONS: VerdictOption[] = [
     label: 'Add to shortlist',
     icon: '📥',
     color: 'text-blue-600 bg-blue-50 border-blue-200',
+    hexColor: '#2563EB',
     description: 'Player should be added to our shortlist for future consideration'
   },
   {
@@ -35,6 +39,7 @@ export const VERDICT_OPTIONS: VerdictOption[] = [
     label: 'Monitor',
     icon: '👁',
     color: 'text-purple-600 bg-purple-50 border-purple-200',
+    hexColor: '#7C3AED',
     description: 'Continue monitoring player development and performance'
   },
   {
@@ -42,6 +47,7 @@ export const VERDICT_OPTIONS: VerdictOption[] = [
     label: 'Further scouting required',
     icon: '🧪',
     color: 'text-orange-600 bg-orange-50 border-orange-200',
+    hexColor: '#EA580C',
     description: 'More scouting assessment needed before making a decision'
   },
   {
@@ -49,6 +55,7 @@ export const VERDICT_OPTIONS: VerdictOption[] = [
     label: 'With reservations',
     icon: '⚠️',
     color: 'text-yellow-600 bg-yellow-50 border-yellow-200',
+    hexColor: '#CA8A04',
     description: 'Some concerns exist that need to be addressed'
   },
   {
@@ -56,6 +63,7 @@ export const VERDICT_OPTIONS: VerdictOption[] = [
     label: 'Not recommended',
     icon: '❌',
     color: 'text-red-600 bg-red-50 border-red-200',
+    hexColor: '#DC2626',
     description: 'Do not recommend pursuing this player'
   }
 ];

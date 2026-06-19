@@ -339,7 +339,7 @@ const Index = () => {
                         <TableHead className="hidden sm:table-cell">Date</TableHead>
                         <TableHead className="hidden lg:table-cell">Status</TableHead>
                         <TableHead>Rating</TableHead>
-                        <TableHead className="hidden xl:table-cell">Verdict</TableHead>
+                        <TableHead className="hidden xl:table-cell">Recommendation</TableHead>
                         <TableHead className="hidden xl:table-cell">Scout</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
