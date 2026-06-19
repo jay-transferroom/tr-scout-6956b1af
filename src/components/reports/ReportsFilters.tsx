@@ -143,22 +143,24 @@ const ReportsFilters = ({ filters, onFiltersChange, availableVerdicts, available
                 </div>
 
                 {/* Recommendation Filter */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Recommendation</label>
-                  <Select value={filters.verdict} onValueChange={(value) => updateFilter('verdict', value === 'all' ? '' : value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All recommendations" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All recommendations</SelectItem>
-                      {availableVerdicts.map((verdict) => (
-                        <SelectItem key={verdict} value={verdict}>
-                          {verdict}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {showRecommendation && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Recommendation</label>
+                    <Select value={filters.verdict} onValueChange={(value) => updateFilter('verdict', value === 'all' ? '' : value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All recommendations" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All recommendations</SelectItem>
+                        {availableVerdicts.map((verdict) => (
+                          <SelectItem key={verdict} value={verdict}>
+                            {verdict}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 {/* Status Filter */}
                 <div className="space-y-2">
