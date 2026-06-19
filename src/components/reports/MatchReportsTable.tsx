@@ -16,6 +16,7 @@ interface MatchReportsTableProps {
   onViewReport: (id: string) => void;
   onEditReport?: (id: string) => void;
   onDeleteReport: (id: string, name: string) => void;
+  showRecommendation?: boolean;
 }
 
 interface FixtureGroup {
