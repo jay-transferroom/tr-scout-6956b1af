@@ -433,6 +433,7 @@ const ReportsList = () => {
         availableClubs={availableClubs}
         availablePositions={availablePositions}
         availablePlayerNames={availablePlayerNames}
+        showRecommendation={viewMode === "grouped"}
       />
 
       <div>
