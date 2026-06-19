@@ -26,9 +26,10 @@ interface ReportsFiltersProps {
   availableClubs: Array<{ id: string; name: string }>;
   availablePositions: string[];
   availablePlayerNames: string[];
+  showRecommendation?: boolean;
 }
 
-const ReportsFilters = ({ filters, onFiltersChange, availableVerdicts, availableScouts, availableClubs, availablePositions, availablePlayerNames }: ReportsFiltersProps) => {
+const ReportsFilters = ({ filters, onFiltersChange, availableVerdicts, availableScouts, availableClubs, availablePositions, availablePlayerNames, showRecommendation = true }: ReportsFiltersProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const updateFilter = (key: keyof ReportsFilterCriteria, value: string) => {
