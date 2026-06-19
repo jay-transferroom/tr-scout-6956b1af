@@ -13,9 +13,10 @@ interface ReportsTableProps {
   sortKey?: IndividualSortKey | null;
   sortDir?: IndividualSortDir;
   onSort?: (k: IndividualSortKey) => void;
+  showRecommendation?: boolean;
 }
 
-const ReportsTable = ({ reports, onViewReport, onEditReport, onDeleteReport, sortKey, sortDir, onSort }: ReportsTableProps) => {
+const ReportsTable = ({ reports, onViewReport, onEditReport, onDeleteReport, sortKey, sortDir, onSort, showRecommendation = true }: ReportsTableProps) => {
   const { user } = useAuth();
 
   return (
