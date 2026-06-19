@@ -33,7 +33,7 @@ interface ReportRowProps {
   showRecommendation?: boolean;
 }
 
-const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit }: ReportRowProps) => {
+const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit, showRecommendation = true }: ReportRowProps) => {
   const isCustomPlayer = typeof report.playerId === 'string' && report.playerId.startsWith('custom-');
   const isDemoPlayer = typeof report.playerId === 'string' && report.playerId.startsWith('demo-');
   const skipFetch = isCustomPlayer || isDemoPlayer;
