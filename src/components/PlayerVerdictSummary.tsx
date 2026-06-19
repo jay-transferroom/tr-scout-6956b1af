@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ReportWithPlayer } from "@/types/report";
 import { getVerdictOption, VERDICT_OPTIONS } from "@/types/verdict";
 import { getRecommendation } from "@/utils/reportDataExtraction";
+import VerdictBadge from "@/components/VerdictBadge";
 import { FileText, Users } from "lucide-react";
 
 interface PlayerVerdictSummaryProps {
