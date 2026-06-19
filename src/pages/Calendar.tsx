@@ -1072,7 +1072,7 @@ const Calendar = () => {
                                         <div className="flex-1">
                                           <div className="text-sm font-medium flex items-center gap-1.5">
                                             {player.name}
-                                            <PlayerRecommendationView playerId={player.id.toString()} variant="dot" fallback={null} />
+                                            <PlayerRecommendationView playerId={player.id.toString()} fallback={null} />
                                           </div>
                                           <div className="text-xs text-muted-foreground">
                                             {player.club} • {player.positions?.[0] || 'Unknown'}
@@ -1147,7 +1147,7 @@ const Calendar = () => {
                         <div className="flex-1">
                           <div className="text-sm font-medium flex items-center gap-1.5">
                             {player.name}
-                            <PlayerRecommendationView playerId={player.id.toString()} variant="dot" fallback={null} />
+                            <PlayerRecommendationView playerId={player.id.toString()} fallback={null} />
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {player.club} • {player.positions?.[0] || 'Unknown'}
