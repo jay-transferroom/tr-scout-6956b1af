@@ -793,7 +793,7 @@ const ShortlistPlayerRow = ({
       </TableCell>
       {recommendationsActive && (
         <TableCell>
-          <PlayerRecommendationView playerId={player.id.toString()} hideWhenInactive={false} />
+          <PlayerRecommendationView playerId={player.id.toString()} variant="default" hideWhenInactive={false} />
         </TableCell>
       )}
       <TableCell>
