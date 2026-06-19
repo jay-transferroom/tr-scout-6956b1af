@@ -265,7 +265,7 @@ const ReportsFilters = ({ filters, onFiltersChange, availableVerdicts, available
                 />
               </Badge>
             )}
-            {filters.verdict && (
+            {showRecommendation && filters.verdict && (
               <Badge variant="secondary" className="flex items-center gap-1 font-normal" style={{fontSize: '0.9rem'}}>
                 Recommendation: {filters.verdict}
                 <X 
