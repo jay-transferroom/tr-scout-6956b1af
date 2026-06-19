@@ -70,12 +70,12 @@ const ScoutManagerVerdictPanel = ({
               <div className="flex items-center gap-3">
                 {currentVerdict ? (
                   <>
-                    <span className="text-sm text-muted-foreground">Current verdict:</span>
+                    <span className="text-sm text-muted-foreground">Current recommendation:</span>
                     <VerdictBadge verdict={currentVerdict} />
                   </>
                 ) : (
                   <span className="text-sm text-muted-foreground italic">
-                    No verdict set yet
+                    No recommendation set yet
                   </span>
                 )}
               </div>
@@ -88,12 +88,12 @@ const ScoutManagerVerdictPanel = ({
                 {currentVerdict ? (
                   <>
                     <Edit3 className="h-4 w-4" />
-                    Edit Verdict
+                    Edit Recommendation
                   </>
                 ) : (
                   <>
                     <Plus className="h-4 w-4" />
-                    Add Verdict
+                    Add Recommendation
                   </>
                 )}
               </Button>
@@ -102,12 +102,12 @@ const ScoutManagerVerdictPanel = ({
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Set your verdict for {playerName}:
+                  Set your recommendation for {playerName}:
                 </label>
                 <VerdictSelector
                   value={selectedVerdict}
                   onValueChange={setSelectedVerdict}
-                  placeholder="Select your verdict..."
+                  placeholder="Select your recommendation..."
                   className="w-full"
                 />
               </div>
@@ -117,7 +117,7 @@ const ScoutManagerVerdictPanel = ({
                   disabled={!selectedVerdict || isLoading}
                   size="sm"
                 >
-                  {isLoading ? "Saving..." : "Save Verdict"}
+                  {isLoading ? "Saving..." : "Save Recommendation"}
                 </Button>
                 <Button 
                   variant="outline" 
@@ -133,7 +133,7 @@ const ScoutManagerVerdictPanel = ({
           
           <div className="bg-blue-100 rounded-lg p-3">
             <p className="text-xs text-blue-700">
-              <strong>Scout Manager Note:</strong> This verdict represents your final decision 
+              <strong>Scout Manager Note:</strong> This recommendation represents your final decision 
               on this player after reviewing all scout reports and assessments.
             </p>
           </div>
