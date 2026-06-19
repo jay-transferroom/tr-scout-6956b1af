@@ -48,15 +48,6 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
   }
   return (
     <Card className={`mb-2 hover:shadow-md transition-all duration-200 relative ${getStatusColor(player.status)}`}>
-      {player.playerId && (
-        <div className="absolute -top-1 -right-1 z-20 rounded-full bg-background p-0.5 shadow-sm">
-          <PlayerRecommendationView
-            playerId={String(player.playerId)}
-            variant="dot"
-            fallback={null}
-          />
-        </div>
-      )}
       <CardContent className="p-3">
         {/* Compact horizontal player info */}
         <div className="flex items-center gap-2 mb-3">
@@ -78,11 +69,20 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
             </div>
           </div>
 
-          {player.rating && player.rating !== "N/A" && (
-            <Badge variant="rating" className="text-sm shrink-0">
-              {player.rating}
-            </Badge>
-          )}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {player.playerId && (
+              <PlayerRecommendationView
+                playerId={String(player.playerId)}
+                variant="compact"
+                fallback={null}
+              />
+            )}
+            {player.rating && player.rating !== "N/A" && (
+              <Badge variant="rating" className="text-sm">
+                {player.rating}
+              </Badge>
+            )}
+          </div>
         </div>
 
         {/* Status and metadata */}
