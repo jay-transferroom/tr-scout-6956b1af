@@ -30,6 +30,7 @@ interface ReportRowProps {
   onEditReport?: (reportId: string) => void;
   onDeleteReport: (reportId: string, playerName: string) => void;
   canEdit: boolean;
+  showRecommendation?: boolean;
 }
 
 const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit }: ReportRowProps) => {
