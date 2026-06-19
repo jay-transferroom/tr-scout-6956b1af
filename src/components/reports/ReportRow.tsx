@@ -101,7 +101,9 @@ const ReportRow = ({ report, onViewReport, onEditReport, onDeleteReport, canEdit
               Custom
             </Badge>
           )}
-          <PlayerRecommendationView playerId={report.playerId} fallback={null} />
+          {showRecommendation && (
+            <PlayerRecommendationView playerId={report.playerId} fallback={null} />
+          )}
         </div>
       </TableCell>
       <TableCell>
