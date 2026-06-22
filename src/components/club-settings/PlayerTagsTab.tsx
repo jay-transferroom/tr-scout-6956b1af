@@ -91,7 +91,7 @@ const PlayerTagsTab = () => {
               {tags.map((tag, index) => (
                 <div
                   key={tag.id}
-                  className="flex items-center gap-2 border rounded-md px-2 py-1.5"
+                  className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted/40 transition-colors"
                 >
                   <Input
                     value={tag.label}
