@@ -911,6 +911,7 @@ const ShortlistPlayerCard = ({
   onAddToNewList?: (playerId: string) => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
+  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
 
   return (
     <Card className="w-full max-w-full overflow-hidden">
