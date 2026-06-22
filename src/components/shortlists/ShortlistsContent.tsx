@@ -756,7 +756,8 @@ const ShortlistPlayerRow = ({
   const recommendationsActive = useRecommendationsActive();
 
   return (
-    <TableRow className={isSelected ? "bg-primary/5" : ""}>
+    <>
+      <TableRow className={isSelected ? "bg-primary/5" : ""}>
       {canManageShortlists && (
         <TableCell>
           <Checkbox checked={isSelected} onCheckedChange={onToggleSelect} />
