@@ -29,6 +29,7 @@ export const PlayerCard = ({
 }: PlayerCardProps) => {
   const navigate = useNavigate();
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
+  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
 
   const handleCreateReport = () => {
     if (player.isPrivate) {
