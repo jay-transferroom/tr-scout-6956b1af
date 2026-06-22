@@ -1,12 +1,14 @@
 
+import { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
-import { MapPin, Calendar, Star, UserPlus, Eye, FileText, MoreHorizontal, Bookmark, Trash2 } from "lucide-react";
+import { MapPin, Calendar, Star, UserPlus, Eye, FileText, MoreHorizontal, Bookmark, Trash2, Tag as TagIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { usePlayerScouts } from "@/hooks/usePlayerScouts";
+import { TagPlayerDialog } from "@/components/TagPlayerDialog";
 
 interface PlayerCardProps {
   player: any;
@@ -27,6 +29,7 @@ export const PlayerCard = ({
 }: PlayerCardProps) => {
   const navigate = useNavigate();
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
+  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
 
   const handleCreateReport = () => {
     if (player.isPrivate) {
@@ -152,6 +155,10 @@ export const PlayerCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => setIsTagDialogOpen(true)}>
+                  <TagIcon className="h-4 w-4 mr-2" />
+                  Tag Player
+                </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Bookmark className="h-4 w-4 mr-2" />
                   Move to list
@@ -168,6 +175,13 @@ export const PlayerCard = ({
           </div>
         </div>
       </div>
+
+      <TagPlayerDialog
+        open={isTagDialogOpen}
+        onOpenChange={setIsTagDialogOpen}
+        playerId={player.id.toString()}
+        playerName={player.name}
+      />
     </div>
   );
 };

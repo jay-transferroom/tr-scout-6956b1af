@@ -21,7 +21,8 @@ import {
   PlayCircle,
   MessageSquare,
   Bookmark,
-  Check
+  Check,
+  Tag as TagIcon
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePlayerAssignments } from "@/hooks/usePlayerAssignments";
@@ -32,6 +33,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ReportWithPlayer } from "@/types/report";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
 import { PlayerNotes } from "@/components/PlayerNotes";
+import { TagPlayerDialog } from "@/components/TagPlayerDialog";
 import { usePlayerProfile } from "@/hooks/usePlayerProfile";
 import { getOverallRating } from "@/utils/reportDataExtraction";
 import { ScoutingGrade } from "@/components/ui/scouting-grade";
@@ -50,6 +52,7 @@ const PlayerStatusActions = ({ playerId, playerName, playerReports }: PlayerStat
   const [isLoading, setIsLoading] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
   const [isShortlistDialogOpen, setIsShortlistDialogOpen] = useState(false);
   const [selectedShortlist, setSelectedShortlist] = useState<string>("");
 
@@ -335,6 +338,13 @@ const PlayerStatusActions = ({ playerId, playerName, playerReports }: PlayerStat
               {notesCount > 0 ? `View Notes (${notesCount})` : 'Add Note'}
             </Button>
 
+            {/* Tag Player action */}
+            <Button variant="outline" size="sm" onClick={() => setIsTagDialogOpen(true)} className="gap-2">
+              <TagIcon className="w-4 h-4" />
+              Tag Player
+            </Button>
+
+
             {/* Scouting assignment toggle */}
             {canAssignForScouting && !hasActiveAssignment && (
               <Button
@@ -387,6 +397,15 @@ const PlayerStatusActions = ({ playerId, playerName, playerReports }: PlayerStat
         open={isNotesOpen}
         onOpenChange={handleNotesClose}
       />
+
+      {/* Tag Player Dialog */}
+      <TagPlayerDialog
+        open={isTagDialogOpen}
+        onOpenChange={setIsTagDialogOpen}
+        playerId={playerId}
+        playerName={playerName}
+      />
+
 
       {/* Add to Shortlist Dialog */}
       <Dialog open={isShortlistDialogOpen} onOpenChange={setIsShortlistDialogOpen}>
