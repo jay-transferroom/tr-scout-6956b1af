@@ -60,8 +60,10 @@ const PlayerTagsTab = () => {
     setTags(next);
   };
 
-  const deleteTag = (index: number) => {
-    setTags(tags.filter((_, i) => i !== index));
+  const confirmDeleteTag = () => {
+    if (!tagToDelete) return;
+    setTags(tags.filter((t) => t.id !== tagToDelete.id));
+    setTagToDelete(null);
   };
 
   const addTag = () => {
