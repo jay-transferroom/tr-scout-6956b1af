@@ -1067,6 +1067,13 @@ const ShortlistPlayerCard = ({
         </div>
       </CardContent>
     </Card>
+      <TagPlayerDialog
+        open={isTagDialogOpen}
+        onOpenChange={setIsTagDialogOpen}
+        playerId={player.id.toString()}
+        playerName={player.name}
+      />
+    </>
   );
 };
 
