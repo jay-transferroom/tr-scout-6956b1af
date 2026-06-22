@@ -191,3 +191,15 @@ export const readPlayerTags = (playerId: string): PlayerTag[] => {
     .map((id) => defs.find((d) => d.id === id))
     .filter((t): t is PlayerTag => Boolean(t));
 };
+
+/** Return how many players (live assignments only) have each tag id. */
+export const getTagPlayerCounts = (): Record<string, number> => {
+  const assignments = getAssignmentsSnapshot();
+  const counts: Record<string, number> = {};
+  for (const tagIds of Object.values(assignments)) {
+    for (const id of tagIds) {
+      counts[id] = (counts[id] || 0) + 1;
+    }
+  }
+  return counts;
+};

@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Save, Undo2, Plus, Trash2, GripVertical } from "lucide-react";
+import { Save, Undo2, Plus, Trash2 } from "lucide-react";
 import {
   usePlayerTagDefinitions,
   setPlayerTagDefinitions,
+  getTagPlayerCounts,
   type PlayerTag,
 } from "@/hooks/usePlayerTags";
 
@@ -14,8 +15,6 @@ const PlayerTagsTab = () => {
   const stored = usePlayerTagDefinitions();
   const [tags, setTags] = useState<PlayerTag[]>(stored);
   const savedSnapshotRef = useRef<string>(JSON.stringify(stored));
-  const [dragSourceIdx, setDragSourceIdx] = useState<number | null>(null);
-  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
   // Sync incoming store changes when we don't have local edits in flight.
   useEffect(() => {
@@ -25,6 +24,8 @@ const PlayerTagsTab = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stored]);
+
+  const tagCounts = useMemo(() => getTagPlayerCounts(), [stored]);
 
   const hasChanges = useMemo(
     () => JSON.stringify(tags) !== savedSnapshotRef.current,
@@ -63,27 +64,6 @@ const PlayerTagsTab = () => {
     ]);
   };
 
-  const handleDragStart = (idx: number) => setDragSourceIdx(idx);
-  const handleDragOver = (e: React.DragEvent, idx: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    setDragOverIdx(idx);
-  };
-  const handleDrop = (e: React.DragEvent, targetIdx: number) => {
-    e.preventDefault();
-    if (dragSourceIdx === null || dragSourceIdx === targetIdx) {
-      setDragSourceIdx(null);
-      setDragOverIdx(null);
-      return;
-    }
-    const next = [...tags];
-    const [moved] = next.splice(dragSourceIdx, 1);
-    next.splice(targetIdx, 0, moved);
-    setTags(next);
-    setDragSourceIdx(null);
-    setDragOverIdx(null);
-  };
-
   return (
     <div className="space-y-4">
       <Card>
@@ -111,16 +91,8 @@ const PlayerTagsTab = () => {
               {tags.map((tag, index) => (
                 <div
                   key={tag.id}
-                  className={`flex items-center gap-2 border rounded-md px-2 py-1.5 transition-all ${
-                    dragOverIdx === index ? "border-primary ring-1 ring-primary/30" : ""
-                  }`}
-                  draggable
-                  onDragStart={() => handleDragStart(index)}
-                  onDragOver={(e) => handleDragOver(e, index)}
-                  onDrop={(e) => handleDrop(e, index)}
-                  onDragLeave={() => setDragOverIdx(null)}
+                  className="flex items-center gap-2 border rounded-md px-2 py-1.5"
                 >
-                  <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-muted-foreground/50 active:cursor-grabbing" />
                   <Input
                     value={tag.label}
                     onChange={(e) => updateTag(index, "label", e.target.value)}
@@ -139,6 +111,9 @@ const PlayerTagsTab = () => {
                       className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                     />
                   </label>
+                  <div className="text-xs text-muted-foreground tabular-nums min-w-[2.5rem] text-right">
+                    {tagCounts[tag.id] || 0} player{tagCounts[tag.id] === 1 ? "" : "s"}
+                  </div>
                   <Button
                     variant="ghost"
                     size="sm"
