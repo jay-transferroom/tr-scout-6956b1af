@@ -338,6 +338,13 @@ const PlayerStatusActions = ({ playerId, playerName, playerReports }: PlayerStat
               {notesCount > 0 ? `View Notes (${notesCount})` : 'Add Note'}
             </Button>
 
+            {/* Tag Player action */}
+            <Button variant="outline" size="sm" onClick={() => setIsTagDialogOpen(true)} className="gap-2">
+              <TagIcon className="w-4 h-4" />
+              Tag Player
+            </Button>
+
+
             {/* Scouting assignment toggle */}
             {canAssignForScouting && !hasActiveAssignment && (
               <Button
