@@ -7,6 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Filter, X, Search } from "lucide-react";
 import { AVAILABILITY_OPTIONS } from "@/hooks/useShortlists";
+import { usePlayerTagDefinitions } from "@/hooks/usePlayerTags";
 
 interface ShortlistFilterPopoverProps {
   positionFilter: string;
@@ -19,6 +20,8 @@ interface ShortlistFilterPopoverProps {
   onEuGbeFilterChange: (value: string) => void;
   availabilityFilter: string;
   onAvailabilityFilterChange: (value: string) => void;
+  tagFilter: string;
+  onTagFilterChange: (value: string) => void;
   xtvRange: [number, number];
   onXtvRangeChange: (value: [number, number]) => void;
   maxXtv: number;
@@ -36,12 +39,15 @@ export const ShortlistFilterPopover = ({
   onEuGbeFilterChange,
   availabilityFilter,
   onAvailabilityFilterChange,
+  tagFilter,
+  onTagFilterChange,
   xtvRange,
   onXtvRangeChange,
   maxXtv,
   onClearFilters,
 }: ShortlistFilterPopoverProps) => {
   const [open, setOpen] = useState(false);
+  const tagDefinitions = usePlayerTagDefinitions();
 
   const activeFilterCount = [
     positionFilter !== "all",
@@ -49,6 +55,7 @@ export const ShortlistFilterPopover = ({
     statusFilter !== "all",
     euGbeFilter !== "all",
     availabilityFilter !== "all",
+    tagFilter !== "all",
     xtvRange[0] > 0 || xtvRange[1] < maxXtv,
   ].filter(Boolean).length;
 
@@ -165,6 +172,23 @@ export const ShortlistFilterPopover = ({
                   <SelectItem value="pass">Pass</SelectItem>
                   <SelectItem value="fail">Fail</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Tag */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Player Tag</label>
+              <Select value={tagFilter} onValueChange={onTagFilterChange}>
+                <SelectTrigger className="w-full h-8 text-sm">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="untagged">Untagged</SelectItem>
+                  {tagDefinitions.map(tag => (
+                    <SelectItem key={tag.id} value={tag.id}>{tag.label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
