@@ -52,6 +52,7 @@ const PlayerStatusActions = ({ playerId, playerName, playerReports }: PlayerStat
   const [isLoading, setIsLoading] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
   const [isShortlistDialogOpen, setIsShortlistDialogOpen] = useState(false);
   const [selectedShortlist, setSelectedShortlist] = useState<string>("");
 
