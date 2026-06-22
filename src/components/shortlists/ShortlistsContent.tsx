@@ -27,6 +27,7 @@ import { useReports } from "@/hooks/useReports";
 import { groupReportsByPlayer } from "@/utils/reportGrouping";
 import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
 import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
+import { PlayerTagsView } from "@/components/PlayerTagsView";
 
 interface ShortlistsContentProps {
   currentList: any;
@@ -51,6 +52,8 @@ interface ShortlistsContentProps {
   onStatusFilterChange: (value: string) => void;
   availabilityFilter: string;
   onAvailabilityFilterChange: (value: string) => void;
+  tagFilter: string;
+  onTagFilterChange: (value: string) => void;
   getAssignmentBadge: (playerId: string) => { variant: any; className?: string; children: string };
   getEuGbeBadge: (status: string) => { variant: any; className?: string; children: string };
   formatXtvScore: (score: number) => string;
@@ -89,6 +92,8 @@ export const ShortlistsContent = ({
   onStatusFilterChange,
   availabilityFilter,
   onAvailabilityFilterChange,
+  tagFilter,
+  onTagFilterChange,
   getAssignmentBadge,
   getEuGbeBadge,
   formatXtvScore,
@@ -345,6 +350,8 @@ export const ShortlistsContent = ({
             onEuGbeFilterChange={onEuGbeFilterChange}
             availabilityFilter={availabilityFilter}
             onAvailabilityFilterChange={onAvailabilityFilterChange}
+            tagFilter={tagFilter}
+            onTagFilterChange={onTagFilterChange}
             xtvRange={xtvRange}
             onXtvRangeChange={onXtvRangeChange}
             maxXtv={maxXtv}
@@ -355,6 +362,7 @@ export const ShortlistsContent = ({
               onStatusFilterChange("all");
               onEuGbeFilterChange("all");
               onAvailabilityFilterChange("all");
+              onTagFilterChange("all");
             }}
           />
         </div>
