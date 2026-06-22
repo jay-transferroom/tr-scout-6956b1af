@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, FileText, UserPlus, Bookmark, Trash2 } from "lucide-react";
+import { MoreHorizontal, Eye, FileText, UserPlus, Bookmark, Trash2, Tag as TagIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PlayerSearchDialog } from "./PlayerSearchDialog";
 import { ShortlistFilterPopover } from "./ShortlistFilterPopover";
@@ -28,6 +28,7 @@ import { groupReportsByPlayer } from "@/utils/reportGrouping";
 import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
 import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 import { PlayerTagsView } from "@/components/PlayerTagsView";
+import { TagPlayerDialog } from "@/components/TagPlayerDialog";
 
 interface ShortlistsContentProps {
   currentList: any;
@@ -751,10 +752,12 @@ const ShortlistPlayerRow = ({
   onAddToNewList?: (playerId: string) => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
+  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
   const recommendationsActive = useRecommendationsActive();
 
   return (
-    <TableRow className={isSelected ? "bg-primary/5" : ""}>
+    <>
+      <TableRow className={isSelected ? "bg-primary/5" : ""}>
       {canManageShortlists && (
         <TableCell>
           <Checkbox checked={isSelected} onCheckedChange={onToggleSelect} />
@@ -858,6 +861,10 @@ const ShortlistPlayerRow = ({
               <FileText className="h-4 w-4 mr-2" />
               Create Report
             </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setIsTagDialogOpen(true)}>
+              <TagIcon className="h-4 w-4 mr-2" />
+              Tag Player
+            </DropdownMenuItem>
             {!player.isPrivate && (
               <DropdownMenuItem onClick={() => onAssignScout(player)}>
                 <UserPlus className="h-4 w-4 mr-2" />
@@ -883,6 +890,13 @@ const ShortlistPlayerRow = ({
         </DropdownMenu>
       </TableCell>
     </TableRow>
+      <TagPlayerDialog
+        open={isTagDialogOpen}
+        onOpenChange={setIsTagDialogOpen}
+        playerId={player.id.toString()}
+        playerName={player.name}
+      />
+    </>
   );
 };
 
@@ -909,9 +923,11 @@ const ShortlistPlayerCard = ({
   onAddToNewList?: (playerId: string) => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
+  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
 
   return (
-    <Card className="w-full max-w-full overflow-hidden">
+    <>
+      <Card className="w-full max-w-full overflow-hidden">
       <CardContent className="p-3 sm:p-4 w-full max-w-full overflow-hidden">
         {/* Player Header */}
         <div className="flex items-start gap-2 sm:gap-3 mb-3 w-full max-w-full overflow-hidden">
@@ -948,6 +964,10 @@ const ShortlistPlayerCard = ({
               <DropdownMenuItem onClick={() => handleCreateReport(player)}>
                 <FileText className="h-4 w-4 mr-2" />
                 Create Report
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setIsTagDialogOpen(true)}>
+                <TagIcon className="h-4 w-4 mr-2" />
+                Tag Player
               </DropdownMenuItem>
               {!player.isPrivate && (
                 <DropdownMenuItem onClick={() => onAssignScout(player)}>
@@ -1047,6 +1067,13 @@ const ShortlistPlayerCard = ({
         </div>
       </CardContent>
     </Card>
+      <TagPlayerDialog
+        open={isTagDialogOpen}
+        onOpenChange={setIsTagDialogOpen}
+        playerId={player.id.toString()}
+        playerName={player.name}
+      />
+    </>
   );
 };
 
