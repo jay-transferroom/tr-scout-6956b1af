@@ -131,7 +131,7 @@ const PlayerTagsTab = () => {
                     variant="ghost"
                     size="sm"
                     className="p-0 h-7 w-7 shrink-0 text-destructive hover:text-destructive"
-                    onClick={() => deleteTag(index)}
+                    onClick={() => setTagToDelete(tag)}
                   >
                     <Trash2 size={14} />
                   </Button>
