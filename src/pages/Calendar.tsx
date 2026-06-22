@@ -27,6 +27,7 @@ import ViewToggle from "@/components/ViewToggle";
 import { ScoutAvatars } from "@/components/ui/scout-avatars";
 import { MatchPlayersSheet } from "@/components/MatchPlayersSheet";
 import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
+import { PlayerTagsView } from "@/components/PlayerTagsView";
 import { MatchScoutingDrawer } from "@/components/match-scouting/MatchScoutingDrawer";
 import { useAllMatchScoutingReports } from "@/hooks/useAllMatchScoutingReports";
 import { getMatchIdentifier } from "@/hooks/useMatchScoutingReports";
@@ -1070,8 +1071,9 @@ const Calendar = () => {
                                         />
                                         <ClubBadge clubName={player.club} size="sm" />
                                         <div className="flex-1">
-                                          <div className="text-sm font-medium flex items-center gap-1.5">
+                                          <div className="text-sm font-medium flex items-center gap-1.5 flex-wrap">
                                             {player.name}
+                                            <PlayerTagsView playerId={player.id.toString()} max={2} />
                                             <PlayerRecommendationView playerId={player.id.toString()} fallback={null} />
                                           </div>
                                           <div className="text-xs text-muted-foreground">
@@ -1145,8 +1147,9 @@ const Calendar = () => {
                         />
                         <ClubBadge clubName={player.club} size="sm" />
                         <div className="flex-1">
-                          <div className="text-sm font-medium flex items-center gap-1.5">
+                          <div className="text-sm font-medium flex items-center gap-1.5 flex-wrap">
                             {player.name}
+                            <PlayerTagsView playerId={player.id.toString()} max={2} />
                             <PlayerRecommendationView playerId={player.id.toString()} fallback={null} />
                           </div>
                           <div className="text-xs text-muted-foreground">

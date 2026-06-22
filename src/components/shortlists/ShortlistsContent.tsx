@@ -27,6 +27,7 @@ import { useReports } from "@/hooks/useReports";
 import { groupReportsByPlayer } from "@/utils/reportGrouping";
 import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
 import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
+import { PlayerTagsView } from "@/components/PlayerTagsView";
 
 interface ShortlistsContentProps {
   currentList: any;
@@ -51,6 +52,8 @@ interface ShortlistsContentProps {
   onStatusFilterChange: (value: string) => void;
   availabilityFilter: string;
   onAvailabilityFilterChange: (value: string) => void;
+  tagFilter: string;
+  onTagFilterChange: (value: string) => void;
   getAssignmentBadge: (playerId: string) => { variant: any; className?: string; children: string };
   getEuGbeBadge: (status: string) => { variant: any; className?: string; children: string };
   formatXtvScore: (score: number) => string;
@@ -89,6 +92,8 @@ export const ShortlistsContent = ({
   onStatusFilterChange,
   availabilityFilter,
   onAvailabilityFilterChange,
+  tagFilter,
+  onTagFilterChange,
   getAssignmentBadge,
   getEuGbeBadge,
   formatXtvScore,
@@ -345,6 +350,8 @@ export const ShortlistsContent = ({
             onEuGbeFilterChange={onEuGbeFilterChange}
             availabilityFilter={availabilityFilter}
             onAvailabilityFilterChange={onAvailabilityFilterChange}
+            tagFilter={tagFilter}
+            onTagFilterChange={onTagFilterChange}
             xtvRange={xtvRange}
             onXtvRangeChange={onXtvRangeChange}
             maxXtv={maxXtv}
@@ -355,6 +362,7 @@ export const ShortlistsContent = ({
               onStatusFilterChange("all");
               onEuGbeFilterChange("all");
               onAvailabilityFilterChange("all");
+              onTagFilterChange("all");
             }}
           />
         </div>
@@ -594,6 +602,14 @@ export const ShortlistsContent = ({
                 <TableHead>EU/GBE</TableHead>
                 <TableHead>Availability</TableHead>
                 <TableHead>Scouting Grade</TableHead>
+                <SortableTableHead
+                  column="tags"
+                  currentSort={sortBy}
+                  sortOrder={sortOrder}
+                  onSort={onSortByChange}
+                >
+                  Tags
+                </SortableTableHead>
                 {recommendationsActive && (
                   <SortableTableHead
                     column="recommendation"
@@ -635,7 +651,7 @@ export const ShortlistsContent = ({
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={(canManageShortlists ? 12 : 11) + (recommendationsActive ? 1 : 0)} className="text-center py-6 text-muted-foreground">
+                  <TableCell colSpan={(canManageShortlists ? 13 : 12) + (recommendationsActive ? 1 : 0)} className="text-center py-6 text-muted-foreground">
                     No players found matching your criteria.
                   </TableCell>
                 </TableRow>
@@ -790,6 +806,9 @@ const ShortlistPlayerRow = ({
       </TableCell>
       <TableCell>
         <PlayerScoutingGrade playerId={player.id.toString()} />
+      </TableCell>
+      <TableCell>
+        <PlayerTagsView playerId={player.id.toString()} hideWhenEmpty={false} />
       </TableCell>
       {recommendationsActive && (
         <TableCell>
