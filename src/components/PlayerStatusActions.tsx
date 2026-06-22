@@ -33,6 +33,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ReportWithPlayer } from "@/types/report";
 import AssignScoutDialog from "@/components/AssignScoutDialog";
 import { PlayerNotes } from "@/components/PlayerNotes";
+import { TagPlayerDialog } from "@/components/TagPlayerDialog";
 import { usePlayerProfile } from "@/hooks/usePlayerProfile";
 import { getOverallRating } from "@/utils/reportDataExtraction";
 import { ScoutingGrade } from "@/components/ui/scouting-grade";
