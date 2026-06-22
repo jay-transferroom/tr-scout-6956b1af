@@ -28,6 +28,7 @@ const Shortlists = () => {
   const [scoutedFilter, setScoutedFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [availabilityFilter, setAvailabilityFilter] = useState<string>("all");
+  const [tagFilter, setTagFilter] = useState<string>("all");
 
   const { data: allPlayers = [], isLoading } = usePlayersData();
   const { data: assignments = [], refetch: refetchAssignments } = useScoutingAssignments();
@@ -51,7 +52,8 @@ const Shortlists = () => {
     xtvRange,
     scoutedFilter,
     statusFilter,
-    availabilityFilter
+    availabilityFilter,
+    tagFilter
   });
 
   // Handle URL parameters for selected shortlist - exclude scouting assignment list
@@ -206,6 +208,8 @@ const Shortlists = () => {
         onStatusFilterChange={setStatusFilter}
         availabilityFilter={availabilityFilter}
         onAvailabilityFilterChange={setAvailabilityFilter}
+        tagFilter={tagFilter}
+        onTagFilterChange={setTagFilter}
         getAssignmentBadge={shortlistsLogic.getAssignmentBadge}
         getEuGbeBadge={shortlistsLogic.getEuGbeBadge}
         formatXtvScore={shortlistsLogic.formatXtvScore}

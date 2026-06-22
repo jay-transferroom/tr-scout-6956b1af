@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { determinePlayerStatus, getStatusBadgeProps } from "@/utils/playerStatusUtils";
 import { AVAILABILITY_OPTIONS, type PlayerAvailability } from "@/hooks/useShortlists";
 import { getRecommendationRank } from "@/utils/mockRecommendations";
+import { readPlayerTags } from "@/hooks/usePlayerTags";
 
 interface UseShortlistsLogicProps {
   allPlayers: any[];
@@ -20,6 +21,7 @@ interface UseShortlistsLogicProps {
   scoutedFilter: string;
   statusFilter: string;
   availabilityFilter: string;
+  tagFilter: string;
 }
 
 export const useShortlistsLogic = ({
@@ -37,7 +39,8 @@ export const useShortlistsLogic = ({
   xtvRange,
   scoutedFilter,
   statusFilter,
-  availabilityFilter
+  availabilityFilter,
+  tagFilter
 }: UseShortlistsLogicProps) => {
   
   // Get real private players for shortlists from usePrivatePlayers hook
@@ -207,9 +210,18 @@ export const useShortlistsLogic = ({
         return playerAvailability === availabilityFilter;
       });
 
+  // Apply tag filter
+  const tagFilteredPlayers = tagFilter === "all"
+    ? availabilityFilteredPlayers
+    : availabilityFilteredPlayers.filter(player => {
+        const tags = readPlayerTags(player.id.toString());
+        if (tagFilter === "untagged") return tags.length === 0;
+        return tags.some(t => t.id === tagFilter);
+      });
+
   // Apply sorting
   const sortedPlayers = useMemo(() => {
-    return [...availabilityFilteredPlayers].sort((a, b) => {
+    return [...tagFilteredPlayers].sort((a, b) => {
       // Recommendation sort: unset always at the bottom regardless of order
       if (sortBy === "recommendation") {
         const aRank = getRecommendationRank(a.id.toString());
@@ -222,8 +234,25 @@ export const useShortlistsLogic = ({
         return sortOrder === "asc" ? aRank - bRank : bRank - aRank;
       }
 
+      // Tags sort: by first tag label alphabetically; untagged sinks to bottom.
+      if (sortBy === "tags") {
+        const aTags = readPlayerTags(a.id.toString());
+        const bTags = readPlayerTags(b.id.toString());
+        const aLabel = aTags[0]?.label?.toLowerCase() ?? "";
+        const bLabel = bTags[0]?.label?.toLowerCase() ?? "";
+        const aEmpty = aLabel === "";
+        const bEmpty = bLabel === "";
+        if (aEmpty && bEmpty) return 0;
+        if (aEmpty) return 1;
+        if (bEmpty) return -1;
+        if (aLabel === bLabel) return 0;
+        return sortOrder === "asc"
+          ? aLabel > bLabel ? 1 : -1
+          : aLabel < bLabel ? 1 : -1;
+      }
+
       let aValue: any, bValue: any;
-      
+
       switch (sortBy) {
         case "age":
           aValue = a.age || 0;
@@ -255,14 +284,14 @@ export const useShortlistsLogic = ({
           bValue = b.name.toLowerCase();
           break;
       }
-      
+
       if (sortOrder === "asc") {
         return aValue > bValue ? 1 : -1;
       } else {
         return aValue < bValue ? 1 : -1;
       }
     });
-  }, [availabilityFilteredPlayers, sortBy, sortOrder]);
+  }, [tagFilteredPlayers, sortBy, sortOrder]);
 
   const formatXtvScore = (score: number) => {
     return (score / 1000000).toFixed(1);
