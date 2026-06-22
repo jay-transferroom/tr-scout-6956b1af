@@ -161,6 +161,21 @@ const PlayerTagsTab = () => {
           <Save size={14} /> Save All Changes
         </Button>
       </div>
+
+      <AlertDialog open={!!tagToDelete} onOpenChange={(open) => !open && setTagToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this tag?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove the tag <strong>"{tagToDelete?.label}"</strong> from all players. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setTagToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteTag}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
