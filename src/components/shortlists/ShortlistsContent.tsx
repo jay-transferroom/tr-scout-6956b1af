@@ -28,6 +28,7 @@ import { groupReportsByPlayer } from "@/utils/reportGrouping";
 import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
 import { useRecommendationsActive } from "@/hooks/useRecommendationsActive";
 import { PlayerTagsView } from "@/components/PlayerTagsView";
+import { TagPlayerDialog } from "@/components/TagPlayerDialog";
 
 interface ShortlistsContentProps {
   currentList: any;
