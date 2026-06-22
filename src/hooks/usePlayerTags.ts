@@ -1,4 +1,5 @@
 import { useSyncExternalStore, useCallback } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 /**
  * Player Tags — club-configurable labels users can attach to any player
@@ -9,7 +10,7 @@ import { useSyncExternalStore, useCallback } from "react";
  *
  *  - Tag definitions   → `club-settings.playerTags`        (PlayerTag[])
  *  - Tag assignments   → `club-settings.playerTagAssignments`
- *                        (Record<playerId, string[]> — tag ids)
+ *                        (Record<playerId, TagAssignment[]>)
  *
  * Players that have no live assignment fall back to a deterministic mock
  * derived from their id so demo surfaces stay visually rich.
@@ -19,6 +20,12 @@ export interface PlayerTag {
   id: string;
   label: string;
   color: string; // hex e.g. "#22C55E"
+}
+
+export interface TagAssignment {
+  tagId: string;
+  taggedBy: string;
+  taggedAt: string; // ISO date string
 }
 
 const DEFS_KEY = "club-settings.playerTags";
