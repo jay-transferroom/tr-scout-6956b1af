@@ -956,6 +956,10 @@ const ShortlistPlayerCard = ({
                 <FileText className="h-4 w-4 mr-2" />
                 Create Report
               </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setIsTagDialogOpen(true)}>
+                <TagIcon className="h-4 w-4 mr-2" />
+                Tag Player
+              </DropdownMenuItem>
               {!player.isPrivate && (
                 <DropdownMenuItem onClick={() => onAssignScout(player)}>
                   <UserPlus className="h-4 w-4 mr-2" />
