@@ -6,6 +6,7 @@ import { Clock, UserPlus, User, FileText, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ClubBadge } from "@/components/ui/club-badge";
 import { PlayerRecommendationView } from "@/components/PlayerRecommendationView";
+import { PlayerTagsView } from "@/components/PlayerTagsView";
 
 
 interface PlayerCardProps {
@@ -62,7 +63,12 @@ const PlayerCard = ({ player, onAssignScout, onViewReport, onMarkAsReviewed }: P
           </Avatar>
 
           <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-sm truncate">{player.playerName}</h4>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <h4 className="font-medium text-sm truncate">{player.playerName}</h4>
+              {player.playerId && (
+                <PlayerTagsView playerId={String(player.playerId)} max={2} />
+              )}
+            </div>
             <div className="flex items-center gap-2 mt-0.5">
               <ClubBadge clubName={player.club} size="sm" />
               <span className="text-xs text-muted-foreground">{player.position}</span>
