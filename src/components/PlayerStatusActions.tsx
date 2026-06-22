@@ -398,6 +398,15 @@ const PlayerStatusActions = ({ playerId, playerName, playerReports }: PlayerStat
         onOpenChange={handleNotesClose}
       />
 
+      {/* Tag Player Dialog */}
+      <TagPlayerDialog
+        open={isTagDialogOpen}
+        onOpenChange={setIsTagDialogOpen}
+        playerId={playerId}
+        playerName={playerName}
+      />
+
+
       {/* Add to Shortlist Dialog */}
       <Dialog open={isShortlistDialogOpen} onOpenChange={setIsShortlistDialogOpen}>
         <DialogContent>
