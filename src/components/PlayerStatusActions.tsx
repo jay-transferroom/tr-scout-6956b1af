@@ -21,7 +21,8 @@ import {
   PlayCircle,
   MessageSquare,
   Bookmark,
-  Check
+  Check,
+  Tag as TagIcon
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePlayerAssignments } from "@/hooks/usePlayerAssignments";
