@@ -87,37 +87,67 @@ export const TagPlayerDialog = ({ open, onOpenChange, playerId, playerName }: Ta
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Existing tags */}
+        <div className="space-y-5">
+          {/* Applied tags */}
           <div>
-            <div className="text-xs font-medium text-muted-foreground mb-2">
-              Available tags
+            <div className="text-xs font-semibold text-foreground mb-2">
+              Applied tags
             </div>
-            {definitions.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-2">
-                No tags configured yet. Create one below.
+            {selected.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-1">
+                No tags applied yet.
               </p>
             ) : (
               <div className="flex flex-wrap gap-1.5">
-                {definitions.map((tag) => {
-                  const isSelected = selected.includes(tag.id);
-                  return (
+                {definitions
+                  .filter((t) => selected.includes(t.id))
+                  .map((tag) => (
                     <button
                       key={tag.id}
                       type="button"
                       onClick={() => toggle(tag.id)}
-                      className={cn(
-                        "inline-flex items-center gap-1 rounded-md transition-opacity",
-                        !isSelected && "opacity-50 hover:opacity-100"
-                      )}
+                      className="group inline-flex items-center gap-1 rounded-md pr-1"
+                      title={`Remove "${tag.label}"`}
                     >
-                      {isSelected && (
-                        <Check className="w-3 h-3 text-foreground" />
-                      )}
                       <PlayerTagPill label={tag.label} color={tag.color} />
+                      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-black/20 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                        <X className="w-2.5 h-2.5" />
+                      </span>
                     </button>
-                  );
-                })}
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* Available tags */}
+          <div>
+            <div className="text-xs font-semibold text-foreground mb-2">
+              Available tags
+            </div>
+            {definitions.filter((t) => !selected.includes(t.id)).length === 0 ? (
+              <p className="text-sm text-muted-foreground py-1">
+                All tags have been applied.
+              </p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {definitions
+                  .filter((t) => !selected.includes(t.id))
+                  .map((tag) => (
+                    <button
+                      key={tag.id}
+                      type="button"
+                      onClick={() => toggle(tag.id)}
+                      className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium transition-colors hover:bg-muted"
+                      style={{
+                        borderColor: `${tag.color}60`,
+                        color: tag.color,
+                      }}
+                      title={`Add "${tag.label}"`}
+                    >
+                      <Plus className="w-3 h-3 mr-1" />
+                      {tag.label}
+                    </button>
+                  ))}
               </div>
             )}
           </div>
