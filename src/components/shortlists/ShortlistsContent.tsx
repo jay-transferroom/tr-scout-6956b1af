@@ -926,7 +926,8 @@ const ShortlistPlayerCard = ({
   const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
 
   return (
-    <Card className="w-full max-w-full overflow-hidden">
+    <>
+      <Card className="w-full max-w-full overflow-hidden">
       <CardContent className="p-3 sm:p-4 w-full max-w-full overflow-hidden">
         {/* Player Header */}
         <div className="flex items-start gap-2 sm:gap-3 mb-3 w-full max-w-full overflow-hidden">
