@@ -752,6 +752,7 @@ const ShortlistPlayerRow = ({
   onAddToNewList?: (playerId: string) => void;
 }) => {
   const { data: scouts = [] } = usePlayerScouts(player.id.toString());
+  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
   const recommendationsActive = useRecommendationsActive();
 
   return (
