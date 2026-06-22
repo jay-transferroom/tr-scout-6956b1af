@@ -60,7 +60,7 @@ export const PlayerTagsView = ({
       ))}
       {overflow > 0 && (
         <span
-          className="inline-flex items-center rounded-md border border-border/60 bg-muted/40 px-1 py-0.5 text-[10px] font-medium leading-none text-muted-foreground"
+          className="inline-flex items-center rounded-md border border-border/60 bg-muted/40 px-1.5 py-0.5 text-xs font-medium text-muted-foreground"
           title={tags.slice(visible.length).map((t) => t.label).join(", ")}
         >
           +{overflow}
