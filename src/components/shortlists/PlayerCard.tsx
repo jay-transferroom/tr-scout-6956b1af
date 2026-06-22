@@ -155,6 +155,10 @@ export const PlayerCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => setIsTagDialogOpen(true)}>
+                  <TagIcon className="h-4 w-4 mr-2" />
+                  Tag Player
+                </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Bookmark className="h-4 w-4 mr-2" />
                   Move to list
@@ -171,6 +175,13 @@ export const PlayerCard = ({
           </div>
         </div>
       </div>
+
+      <TagPlayerDialog
+        open={isTagDialogOpen}
+        onOpenChange={setIsTagDialogOpen}
+        playerId={player.id.toString()}
+        playerName={player.name}
+      />
     </div>
   );
 };
