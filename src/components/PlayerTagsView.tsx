@@ -1,5 +1,11 @@
-import { usePlayerTags, type PlayerTag } from "@/hooks/usePlayerTags";
+import { usePlayerTags } from "@/hooks/usePlayerTags";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PlayerTagsViewProps {
   playerId: string;
@@ -21,18 +27,58 @@ const getContrastingText = (hex: string): string => {
   return lum > 0.6 ? "#000000" : "#FFFFFF";
 };
 
-export const PlayerTagPill = ({ tag, className }: { tag: PlayerTag; className?: string }) => (
-  <span
-    className={cn(
-      "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap",
-      className
-    )}
-    style={{ backgroundColor: tag.color, color: getContrastingText(tag.color) }}
-    title={tag.label}
-  >
-    {tag.label}
-  </span>
-);
+const formatTagDate = (iso: string) => {
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+export const PlayerTagPill = ({
+  label,
+  color,
+  taggedBy,
+  taggedAt,
+  className,
+}: {
+  label: string;
+  color: string;
+  taggedBy?: string;
+  taggedAt?: string;
+  className?: string;
+}) => {
+  const pill = (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap cursor-default",
+        className
+      )}
+      style={{ backgroundColor: color, color: getContrastingText(color) }}
+    >
+      {label}
+    </span>
+  );
+
+  if (!taggedBy || !taggedAt) return pill;
+
+  return (
+    <TooltipProvider delayDuration={150}>
+      <Tooltip>
+        <TooltipTrigger asChild>{pill}</TooltipTrigger>
+        <TooltipContent side="top" className="max-w-xs">
+          <p className="text-xs">
+            Tagged by <span className="font-medium">{taggedBy}</span>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {formatTagDate(taggedAt)}
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
 
 /**
  * Read-only display of a player's tags. Use anywhere a player name appears.
@@ -43,7 +89,7 @@ export const PlayerTagsView = ({
   className,
   hideWhenEmpty = true,
 }: PlayerTagsViewProps) => {
-  const { tags } = usePlayerTags(playerId);
+  const { tags, tagAssignments } = usePlayerTags(playerId);
 
   if (tags.length === 0) {
     if (hideWhenEmpty) return null;
@@ -53,10 +99,21 @@ export const PlayerTagsView = ({
   const visible = typeof max === "number" ? tags.slice(0, max) : tags;
   const overflow = tags.length - visible.length;
 
+  // Build a map of tagId -> assignment metadata
+  const metaMap = new Map(
+    tagAssignments.map((a) => [a.tagId, { taggedBy: a.taggedBy, taggedAt: a.taggedAt }])
+  );
+
   return (
     <span className={cn("inline-flex items-center gap-1 flex-wrap", className)}>
       {visible.map((tag) => (
-        <PlayerTagPill key={tag.id} tag={tag} />
+        <PlayerTagPill
+          key={tag.id}
+          label={tag.label}
+          color={tag.color}
+          taggedBy={metaMap.get(tag.id)?.taggedBy}
+          taggedAt={metaMap.get(tag.id)?.taggedAt}
+        />
       ))}
       {overflow > 0 && (
         <span
