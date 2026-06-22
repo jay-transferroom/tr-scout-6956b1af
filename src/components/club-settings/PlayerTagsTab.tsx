@@ -25,6 +25,7 @@ const PlayerTagsTab = () => {
   const stored = usePlayerTagDefinitions();
   const [tags, setTags] = useState<PlayerTag[]>(stored);
   const savedSnapshotRef = useRef<string>(JSON.stringify(stored));
+  const [tagToDelete, setTagToDelete] = useState<PlayerTag | null>(null);
 
   // Sync incoming store changes when we don't have local edits in flight.
   useEffect(() => {
