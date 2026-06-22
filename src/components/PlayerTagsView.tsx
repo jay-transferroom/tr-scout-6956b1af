@@ -24,7 +24,7 @@ const getContrastingText = (hex: string): string => {
 export const PlayerTagPill = ({ tag, className }: { tag: PlayerTag; className?: string }) => (
   <span
     className={cn(
-      "inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium leading-none whitespace-nowrap",
+      "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap",
       className
     )}
     style={{ backgroundColor: tag.color, color: getContrastingText(tag.color) }}
