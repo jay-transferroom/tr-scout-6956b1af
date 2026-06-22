@@ -5,6 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { Save, Undo2, Plus, Trash2 } from "lucide-react";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   usePlayerTagDefinitions,
   setPlayerTagDefinitions,
   getTagPlayerCounts,
@@ -15,6 +25,7 @@ const PlayerTagsTab = () => {
   const stored = usePlayerTagDefinitions();
   const [tags, setTags] = useState<PlayerTag[]>(stored);
   const savedSnapshotRef = useRef<string>(JSON.stringify(stored));
+  const [tagToDelete, setTagToDelete] = useState<PlayerTag | null>(null);
 
   // Sync incoming store changes when we don't have local edits in flight.
   useEffect(() => {
@@ -49,8 +60,10 @@ const PlayerTagsTab = () => {
     setTags(next);
   };
 
-  const deleteTag = (index: number) => {
-    setTags(tags.filter((_, i) => i !== index));
+  const confirmDeleteTag = () => {
+    if (!tagToDelete) return;
+    setTags(tags.filter((t) => t.id !== tagToDelete.id));
+    setTagToDelete(null);
   };
 
   const addTag = () => {
@@ -118,7 +131,7 @@ const PlayerTagsTab = () => {
                     variant="ghost"
                     size="sm"
                     className="p-0 h-7 w-7 shrink-0 text-destructive hover:text-destructive"
-                    onClick={() => deleteTag(index)}
+                    onClick={() => setTagToDelete(tag)}
                   >
                     <Trash2 size={14} />
                   </Button>
@@ -148,6 +161,21 @@ const PlayerTagsTab = () => {
           <Save size={14} /> Save All Changes
         </Button>
       </div>
+
+      <AlertDialog open={!!tagToDelete} onOpenChange={(open) => !open && setTagToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this tag?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove the tag <strong>"{tagToDelete?.label}"</strong> from all players. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setTagToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteTag}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
