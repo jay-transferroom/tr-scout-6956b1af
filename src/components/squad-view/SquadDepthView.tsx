@@ -1,10 +1,12 @@
+import { forwardRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Player } from "@/types/player";
-import { Users } from "lucide-react";
+import { Users, ChevronDown } from "lucide-react";
 import pitchBackground from "@/assets/pitch.svg";
 import { cn } from "@/lib/utils";
 import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
 import { getClubRating } from "@/utils/clubRating";
+
 
 interface PositionPlayerSlot {
   position: string;
