@@ -359,7 +359,7 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
             </DropdownMenu>
           )}
 
-          {(onExportPng || onExportPdf || onFillDepth) && (
+          {(onExportPng || onExportPdf) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -371,15 +371,6 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-background z-50">
-                {onFillDepth && (
-                  <>
-                    <DropdownMenuItem onClick={onFillDepth} className="cursor-pointer">
-                      <Users2 className="h-4 w-4 mr-2" />
-                      Fill depth (5 per position)
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
                 <DropdownMenuLabel>Export</DropdownMenuLabel>
                 {onExportPng && (
                   <DropdownMenuItem onClick={onExportPng} className="cursor-pointer">
