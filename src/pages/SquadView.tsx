@@ -168,6 +168,29 @@ const SquadView = () => {
 
   // Calculate current squad rating based on position assignments
   const currentSquadRating = useCurrentSquadRating(positionAssignments, allPlayers);
+
+  // Auto-seed depth view with 5 players per position on first entry when empty
+  const [hasAutoSeededDepth, setHasAutoSeededDepth] = useState(false);
+  useEffect(() => {
+    if (
+      viewMode === 'depth' &&
+      !hasAutoSeededDepth &&
+      positionSlots.length === 0 &&
+      clubPlayers.length > 0
+    ) {
+      const slots = buildDepthSeed(currentFormation, clubPlayers, clubWeights, 5);
+      if (slots.length > 0) {
+        loadFromAssignments(
+          slots.map((s) => ({
+            position: s.position,
+            player_id: s.activePlayerId,
+            alternate_player_ids: s.alternatePlayerIds,
+          }))
+        );
+        setHasAutoSeededDepth(true);
+      }
+    }
+  }, [viewMode, hasAutoSeededDepth, positionSlots.length, clubPlayers, currentFormation, clubWeights, loadFromAssignments]);
   
   // Auth/role guard via effect to avoid altering hook order during render
   const isAuthorized = profile?.role === 'recruitment' || profile?.role === 'director';
@@ -344,28 +367,6 @@ const SquadView = () => {
     }
   };
 
-  // Auto-seed depth view with 5 players per position on first entry when empty
-  const [hasAutoSeededDepth, setHasAutoSeededDepth] = useState(false);
-  useEffect(() => {
-    if (
-      viewMode === 'depth' &&
-      !hasAutoSeededDepth &&
-      positionSlots.length === 0 &&
-      clubPlayers.length > 0
-    ) {
-      const slots = buildDepthSeed(currentFormation, clubPlayers, clubWeights, 5);
-      if (slots.length > 0) {
-        loadFromAssignments(
-          slots.map((s) => ({
-            position: s.position,
-            player_id: s.activePlayerId,
-            alternate_player_ids: s.alternatePlayerIds,
-          }))
-        );
-        setHasAutoSeededDepth(true);
-      }
-    }
-  }, [viewMode, hasAutoSeededDepth, positionSlots.length, clubPlayers, currentFormation, clubWeights, loadFromAssignments]);
 
   return (
     <>
