@@ -344,28 +344,6 @@ const SquadView = () => {
     }
   };
 
-  // Auto-seed depth view with 5 players per position on first entry when empty
-  const [hasAutoSeededDepth, setHasAutoSeededDepth] = useState(false);
-  useEffect(() => {
-    if (
-      viewMode === 'depth' &&
-      !hasAutoSeededDepth &&
-      positionSlots.length === 0 &&
-      clubPlayers.length > 0
-    ) {
-      const slots = buildDepthSeed(currentFormation, clubPlayers, clubWeights, 5);
-      if (slots.length > 0) {
-        loadFromAssignments(
-          slots.map((s) => ({
-            position: s.position,
-            player_id: s.activePlayerId,
-            alternate_player_ids: s.alternatePlayerIds,
-          }))
-        );
-        setHasAutoSeededDepth(true);
-      }
-    }
-  }, [viewMode, hasAutoSeededDepth, positionSlots.length, clubPlayers, currentFormation, clubWeights, loadFromAssignments]);
 
   return (
     <>
