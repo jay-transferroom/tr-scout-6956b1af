@@ -123,8 +123,12 @@ export async function exportReportPdf(
     player?.positions?.join(", "),
     player?.age ? `${player.age} yrs` : null,
   ].filter(Boolean).join("   •   ");
+  const availTextW = pageW - textX - margin;
+  let cursorY = y + 32;
   if (headerBits) {
-    pdf.text(headerBits, textX, y + 32);
+    const wrapped = pdf.splitTextToSize(headerBits, availTextW);
+    pdf.text(wrapped, textX, cursorY);
+    cursorY += wrapped.length * 12;
   }
 
   const meta = [
@@ -133,9 +137,11 @@ export async function exportReportPdf(
     `Generated: ${new Date().toLocaleDateString()}`,
     `Status: ${report.status}`,
   ].filter(Boolean).join("   •   ");
-  pdf.text(meta, textX, y + 48);
+  const wrappedMeta = pdf.splitTextToSize(meta, availTextW);
+  pdf.text(wrappedMeta, textX, cursorY + 4);
+  cursorY += 4 + wrappedMeta.length * 12;
   pdf.setTextColor(0);
-  y = y + Math.max(photoSize, 56) + 16;
+  y = Math.max(y + photoSize, cursorY) + 12;
 
   // Match context
   if (report.matchContext) {
