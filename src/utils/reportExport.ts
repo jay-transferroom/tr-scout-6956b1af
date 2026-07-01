@@ -75,11 +75,26 @@ export async function exportReportPdf(
   const player = report.player;
   const templateName = opts?.templateName || template?.name || "Report";
 
-  // Header
+  // Player photo (optional)
+  const photoSize = 64;
+  let textX = margin;
+  const photoUrl = (player as any)?.image || (player as any)?.photo || null;
+  if (photoUrl) {
+    const photo = await urlToDataUrl(photoUrl);
+    if (photo) {
+      try {
+        pdf.addImage(photo.dataUrl, photo.format, margin, y, photoSize, photoSize);
+        textX = margin + photoSize + 12;
+      } catch (e) {
+        console.warn("Could not embed player photo", e);
+      }
+    }
+  }
+
+  // Header text
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(18);
-  pdf.text(player?.name || "Scouting Report", margin, y);
-  y += 20;
+  pdf.text(player?.name || "Scouting Report", textX, y + 16);
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(10);
@@ -90,8 +105,7 @@ export async function exportReportPdf(
     player?.age ? `${player.age} yrs` : null,
   ].filter(Boolean).join("   •   ");
   if (headerBits) {
-    pdf.text(headerBits, margin, y);
-    y += 14;
+    pdf.text(headerBits, textX, y + 32);
   }
 
   const meta = [
@@ -100,9 +114,9 @@ export async function exportReportPdf(
     `Generated: ${new Date().toLocaleDateString()}`,
     `Status: ${report.status}`,
   ].filter(Boolean).join("   •   ");
-  pdf.text(meta, margin, y);
-  y += 16;
+  pdf.text(meta, textX, y + 48);
   pdf.setTextColor(0);
+  y = y + Math.max(photoSize, 56) + 16;
 
   // Match context
   if (report.matchContext) {
