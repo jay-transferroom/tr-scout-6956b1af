@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useState, useRef, useLayoutEffect, useMemo, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Player } from "@/types/player";
 import { Users, ChevronDown } from "lucide-react";
@@ -6,6 +6,7 @@ import pitchBackground from "@/assets/pitch.svg";
 import { cn } from "@/lib/utils";
 import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
 import { getClubRating } from "@/utils/clubRating";
+
 
 
 interface PositionPlayerSlot {
@@ -94,13 +95,16 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
   // Density-driven presentation
   const densityConfig = {
     compact: {
-      collapsedCount: 5, // show all 5, no expand
+      collapsedCount: 5,
       minWidth: 'min-w-[150px] max-w-[180px]',
       rowPadding: 'px-1.5 py-[3px]',
       rowText: 'text-[11px]',
       pillText: 'text-[10px]',
       headerText: 'text-[11px]',
-      containerStyle: { aspectRatio: '16 / 9' } as React.CSSProperties,
+      baseAspect: 16 / 9,
+      estCardWidth: 170,
+      estHeaderHeight: 26,
+      estRowHeight: 20,
     },
     standard: {
       collapsedCount: 3,
@@ -109,7 +113,10 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
       rowText: 'text-xs',
       pillText: 'text-xs',
       headerText: 'text-xs',
-      containerStyle: { aspectRatio: '16 / 9' } as React.CSSProperties,
+      baseAspect: 16 / 9,
+      estCardWidth: 195,
+      estHeaderHeight: 28,
+      estRowHeight: 26,
     },
     full: {
       collapsedCount: 5,
@@ -118,9 +125,13 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
       rowText: 'text-xs',
       pillText: 'text-xs',
       headerText: 'text-sm',
-      containerStyle: { aspectRatio: '4 / 3' } as React.CSSProperties,
+      baseAspect: 4 / 3,
+      estCardWidth: 215,
+      estHeaderHeight: 32,
+      estRowHeight: 30,
     },
   }[density];
+
 
 
 
@@ -191,8 +202,102 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
     return 'bg-red-500 text-white';
   };
 
+  // Merge forwarded ref with local ref so we can observe container width
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const setContainerRef = (node: HTMLDivElement | null) => {
+    containerRef.current = node;
+    if (typeof ref === 'function') ref(node);
+    else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+  };
+
+  const [containerWidth, setContainerWidth] = useState(0);
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const update = () => setContainerWidth(el.clientWidth);
+    update();
+    const obs = new ResizeObserver(update);
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Pre-compute per-position players & card heights, then resolve vertical
+  // collisions between horizontally-overlapping cards. Grow container height
+  // if the resolved layout exceeds the base pitch height.
+  const positionEntries = Object.entries(currentFormation);
+  const layout = useMemo(() => {
+    if (!containerWidth) return null;
+    const baseHeight = containerWidth / densityConfig.baseAspect;
+    const cardWidth = densityConfig.estCardWidth;
+
+    const items = positionEntries.map(([position, config]) => {
+      const players = getPositionDepth(position);
+      const canExpand = density === 'standard' && players.length > densityConfig.collapsedCount;
+      const isExpanded = canExpand && expandedPosition === position;
+      const rowsShown = density === 'standard' && !isExpanded
+        ? Math.min(Math.max(players.length, 1), densityConfig.collapsedCount)
+        : Math.min(Math.max(players.length, 1), 5);
+      const bodyHeight = rowsShown * densityConfig.estRowHeight + 10;
+      const expandBtnH = canExpand ? 24 : 0;
+      const cardHeight = densityConfig.estHeaderHeight + bodyHeight + expandBtnH;
+      return {
+        position,
+        cardHeight,
+        cardWidth,
+        cx: (config.x / 100) * containerWidth,
+        cy: (config.y / 100) * baseHeight,
+      };
+    });
+
+    const VERT_PAD = 6;
+    for (let iter = 0; iter < 60; iter++) {
+      let moved = false;
+      for (let i = 0; i < items.length; i++) {
+        for (let j = i + 1; j < items.length; j++) {
+          const a = items[i];
+          const b = items[j];
+          const dx = Math.abs(a.cx - b.cx);
+          const minDx = (a.cardWidth + b.cardWidth) / 2 + 4;
+          if (dx >= minDx) continue;
+          const dy = b.cy - a.cy;
+          const minDy = (a.cardHeight + b.cardHeight) / 2 + VERT_PAD;
+          const absDy = Math.abs(dy);
+          if (absDy >= minDy) continue;
+          const push = (minDy - absDy) / 2 + 0.05;
+          if (dy >= 0) { a.cy -= push; b.cy += push; }
+          else { a.cy += push; b.cy -= push; }
+          moved = true;
+        }
+      }
+      if (!moved) break;
+    }
+
+    const OUTER = 10;
+    let top = Infinity;
+    let bottom = -Infinity;
+    items.forEach(it => {
+      top = Math.min(top, it.cy - it.cardHeight / 2);
+      bottom = Math.max(bottom, it.cy + it.cardHeight / 2);
+    });
+    const shift = OUTER - top;
+    if (shift !== 0) {
+      items.forEach(it => { it.cy += shift; });
+      top += shift;
+      bottom += shift;
+    }
+    const height = Math.max(baseHeight, bottom + OUTER);
+
+    const byPosition = new Map(items.map(it => [it.position, it]));
+    return { byPosition, height };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [containerWidth, density, expandedPosition, formation, squadPlayers, allPlayers, multiPlayerSlots, positionAssignments]);
+
+  const containerStyle: React.CSSProperties = layout
+    ? { height: layout.height }
+    : { aspectRatio: densityConfig.baseAspect === 4 / 3 ? '4 / 3' : '16 / 9' };
+
   return (
-    <div ref={ref} className="relative w-full rounded-lg overflow-hidden bg-[#3A9D5C]" style={densityConfig.containerStyle}>
+    <div ref={setContainerRef} className="relative w-full rounded-lg overflow-hidden bg-[#3A9D5C]" style={containerStyle}>
 
       {/* Football pitch background - rotated */}
       <div 
@@ -204,9 +309,9 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
         }}
       />
 
+
       {/* Position cards */}
       {(() => {
-        const positionEntries = Object.entries(currentFormation);
         const positionAvgMap = new Map<string, number | null>();
         const allAvgs: number[] = [];
 
@@ -242,6 +347,11 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
             : players;
           const remainingCount = players.length - COLLAPSED_COUNT;
           const posAvg = positionAvgMap.get(position) ?? null;
+          const laid = layout?.byPosition.get(position);
+
+          const posStyle: React.CSSProperties = laid
+            ? { left: `${laid.cx}px`, top: `${laid.cy}px` }
+            : { left: `${config.x}%`, top: `${config.y}%` };
 
           return (
             <div
@@ -250,11 +360,9 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
                 "absolute transform -translate-x-1/2 -translate-y-1/2",
                 isExpanded && "z-20"
               )}
-              style={{
-                left: `${config.x}%`,
-                top: `${config.y}%`,
-              }}
+              style={posStyle}
             >
+
               <div 
                 className={cn(
                   "backdrop-blur-sm rounded-md shadow-lg transition-all",
