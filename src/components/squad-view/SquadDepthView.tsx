@@ -84,11 +84,44 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
   onPositionClick,
   selectedPosition,
   playerReportRatings = new Map(),
+  density = 'compact',
 }, ref) => {
   const { data: clubRatingData } = useClubRatingWeights();
   const clubWeights = clubRatingData?.weights;
   const currentFormation = DEPTH_FORMATION_CONFIGS[formation] || DEPTH_FORMATION_CONFIGS['4-3-3'];
   const [expandedPosition, setExpandedPosition] = useState<string | null>(null);
+
+  // Density-driven presentation
+  const densityConfig = {
+    compact: {
+      collapsedCount: 5, // show all 5, no expand
+      minWidth: 'min-w-[150px] max-w-[180px]',
+      rowPadding: 'px-1.5 py-[3px]',
+      rowText: 'text-[11px]',
+      pillText: 'text-[10px]',
+      headerText: 'text-[11px]',
+      containerStyle: { aspectRatio: '16 / 9' } as React.CSSProperties,
+    },
+    standard: {
+      collapsedCount: 3,
+      minWidth: 'min-w-[180px] max-w-[210px]',
+      rowPadding: 'px-1.5 py-1',
+      rowText: 'text-xs',
+      pillText: 'text-xs',
+      headerText: 'text-xs',
+      containerStyle: { aspectRatio: '16 / 9' } as React.CSSProperties,
+    },
+    full: {
+      collapsedCount: 5,
+      minWidth: 'min-w-[200px] max-w-[230px]',
+      rowPadding: 'px-2 py-1.5',
+      rowText: 'text-xs',
+      pillText: 'text-xs',
+      headerText: 'text-sm',
+      containerStyle: { aspectRatio: '4 / 3' } as React.CSSProperties,
+    },
+  }[density];
+
 
 
   // Create a map of position -> ALL assigned player IDs (active + alternates) for quick lookup
