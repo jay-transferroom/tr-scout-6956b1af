@@ -133,6 +133,42 @@ export function SquadViewHeader({
               <Save className="h-4 w-4 mr-1.5" />
               Save
             </Button>
+            {viewMode === 'depth' && (onFillDepth || onExportPng || onExportPdf) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Download className="h-4 w-4 mr-1.5" />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-background z-50">
+                  {onFillDepth && (
+                    <>
+                      <DropdownMenuLabel>Demo</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={onFillDepth}>
+                        <Users2 className="h-4 w-4 mr-2" />
+                        Fill depth (5 per position)
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuLabel>Export</DropdownMenuLabel>
+                  {onExportPng && (
+                    <DropdownMenuItem onClick={onExportPng}>
+                      <FileImage className="h-4 w-4 mr-2" />
+                      Pitch snapshot (PNG)
+                    </DropdownMenuItem>
+                  )}
+                  {onExportPdf && (
+                    <DropdownMenuItem onClick={onExportPdf}>
+                      <FileText className="h-4 w-4 mr-2" />
+                      Full depth chart (PDF)
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
           </div>
         </div>
 
