@@ -435,6 +435,8 @@ const SquadView = () => {
             /* Depth View - Horizontal pitch with depth cards */
             <div className="w-full">
               <SquadDepthView
+                ref={depthPitchRef}
+
                 squadPlayers={squadPlayers}
                 allPlayers={allPlayers}
                 formation={currentFormation}
