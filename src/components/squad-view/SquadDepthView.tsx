@@ -72,7 +72,7 @@ const DEPTH_FORMATION_CONFIGS: Record<string, Record<string, { x: number; y: num
 };
 
 
-const SquadDepthView = ({
+const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
   squadPlayers,
   allPlayers = [],
   formation = '4-3-3',
@@ -81,10 +81,12 @@ const SquadDepthView = ({
   onPositionClick,
   selectedPosition,
   playerReportRatings = new Map(),
-}: SquadDepthViewProps) => {
+}, ref) => {
   const { data: clubRatingData } = useClubRatingWeights();
   const clubWeights = clubRatingData?.weights;
   const currentFormation = DEPTH_FORMATION_CONFIGS[formation] || DEPTH_FORMATION_CONFIGS['4-3-3'];
+  const [expandedPosition, setExpandedPosition] = useState<string | null>(null);
+
 
   // Create a map of position -> ALL assigned player IDs (active + alternates) for quick lookup
   const positionToAssignedPlayers = new Map<string, string[]>();
