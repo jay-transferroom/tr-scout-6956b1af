@@ -375,7 +375,6 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
               <DropdownMenuContent align="end" className="bg-background z-50">
                 {onFillDepth && (
                   <>
-                    <DropdownMenuLabel>Demo</DropdownMenuLabel>
                     <DropdownMenuItem onClick={onFillDepth} className="cursor-pointer">
                       <Users2 className="h-4 w-4 mr-2" />
                       Fill depth (5 per position)
