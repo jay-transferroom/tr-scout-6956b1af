@@ -312,7 +312,6 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
 
       {/* Position cards */}
       {(() => {
-        const positionEntries = Object.entries(currentFormation);
         const positionAvgMap = new Map<string, number | null>();
         const allAvgs: number[] = [];
 
@@ -348,6 +347,11 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
             : players;
           const remainingCount = players.length - COLLAPSED_COUNT;
           const posAvg = positionAvgMap.get(position) ?? null;
+          const laid = layout?.byPosition.get(position);
+
+          const posStyle: React.CSSProperties = laid
+            ? { left: `${laid.cx}px`, top: `${laid.cy}px` }
+            : { left: `${config.x}%`, top: `${config.y}%` };
 
           return (
             <div
@@ -356,11 +360,9 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
                 "absolute transform -translate-x-1/2 -translate-y-1/2",
                 isExpanded && "z-20"
               )}
-              style={{
-                left: `${config.x}%`,
-                top: `${config.y}%`,
-              }}
+              style={posStyle}
             >
+
               <div 
                 className={cn(
                   "backdrop-blur-sm rounded-md shadow-lg transition-all",
