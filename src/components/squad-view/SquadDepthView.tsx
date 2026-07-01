@@ -95,13 +95,16 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
   // Density-driven presentation
   const densityConfig = {
     compact: {
-      collapsedCount: 5, // show all 5, no expand
+      collapsedCount: 5,
       minWidth: 'min-w-[150px] max-w-[180px]',
       rowPadding: 'px-1.5 py-[3px]',
       rowText: 'text-[11px]',
       pillText: 'text-[10px]',
       headerText: 'text-[11px]',
-      containerStyle: { aspectRatio: '16 / 9' } as React.CSSProperties,
+      baseAspect: 16 / 9,
+      estCardWidth: 170,
+      estHeaderHeight: 26,
+      estRowHeight: 20,
     },
     standard: {
       collapsedCount: 3,
@@ -110,7 +113,10 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
       rowText: 'text-xs',
       pillText: 'text-xs',
       headerText: 'text-xs',
-      containerStyle: { aspectRatio: '16 / 9' } as React.CSSProperties,
+      baseAspect: 16 / 9,
+      estCardWidth: 195,
+      estHeaderHeight: 28,
+      estRowHeight: 26,
     },
     full: {
       collapsedCount: 5,
@@ -119,9 +125,13 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
       rowText: 'text-xs',
       pillText: 'text-xs',
       headerText: 'text-sm',
-      containerStyle: { aspectRatio: '4 / 3' } as React.CSSProperties,
+      baseAspect: 4 / 3,
+      estCardWidth: 215,
+      estHeaderHeight: 32,
+      estRowHeight: 30,
     },
   }[density];
+
 
 
 
