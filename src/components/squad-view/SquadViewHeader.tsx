@@ -68,7 +68,11 @@ interface SquadViewHeaderProps {
   onViewModeChange: (mode: 'detail' | 'depth') => void;
   clubName: string;
   onLoadConfiguration: (config: SquadConfiguration) => void;
+  onFillDepth?: () => void;
+  onExportPng?: () => void;
+  onExportPdf?: () => void;
 }
+
 
 export function SquadViewHeader({
   loadedConfiguration,
