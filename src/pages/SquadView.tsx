@@ -407,11 +407,6 @@ const SquadView = () => {
         onViewModeChange={setViewMode}
         clubName={userClub}
         onLoadConfiguration={handleLoadConfiguration}
-        onFillDepth={handleFillDepth}
-        onExportPng={handleExportPng}
-        onExportPdf={handleExportPdf}
-        depthDensity={depthDensity}
-        onDepthDensityChange={setDepthDensity}
       />
 
 
@@ -469,9 +464,14 @@ const SquadView = () => {
                 selectedPosition={selectedPosition}
                 playerReportRatings={playerReportRatings}
                 density={exportDensity ?? depthDensity}
+                onDensityChange={setDepthDensity}
+                onExportPng={handleExportPng}
+                onExportPdf={handleExportPdf}
+                onFillDepth={handleFillDepth}
               />
             </div>
           )}
+
         </div>
       </div>
 
