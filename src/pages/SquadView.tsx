@@ -386,7 +386,11 @@ const SquadView = () => {
         onViewModeChange={setViewMode}
         clubName={userClub}
         onLoadConfiguration={handleLoadConfiguration}
+        onFillDepth={handleFillDepth}
+        onExportPng={handleExportPng}
+        onExportPdf={handleExportPdf}
       />
+
 
       {/* Main Content - Grey Background */}
       <div className="w-full max-w-full overflow-x-hidden bg-muted/30">
