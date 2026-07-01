@@ -28,6 +28,7 @@ import { formatReportDate, formatReportTime } from "@/utils/reportFormatting";
 import { DEFAULT_TEMPLATES } from "@/data/defaultTemplates";
 import { DEMO_MATCH_REPORTS } from "@/utils/matchViewDemoData";
 import ReportAttachmentView from "@/components/reports/ReportAttachmentView";
+import { exportReportPdf } from "@/utils/reportExport";
 
 const ReportView = () => {
   const { id } = useParams<{ id: string }>();
@@ -347,7 +348,19 @@ const ReportView = () => {
               <span className="sm:hidden">Edit</span>
             </Button>
           )}
-          <Button variant="outline" className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10">
+          <Button
+            variant="outline"
+            className="gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10"
+            onClick={async () => {
+              try {
+                toast.info("Preparing PDF…");
+                await exportReportPdf(report, template);
+              } catch (e) {
+                console.error(e);
+                toast.error("Failed to export PDF");
+              }
+            }}
+          >
             <Download className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Export PDF</span>
             <span className="sm:hidden">Export</span>
