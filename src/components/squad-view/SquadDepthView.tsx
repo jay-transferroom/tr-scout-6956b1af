@@ -100,6 +100,11 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
   selectedPosition,
   playerReportRatings = new Map(),
   density = 'compact',
+  onDensityChange,
+  onExportPng,
+  onExportPdf,
+  onFillDepth,
+
 }, ref) => {
   const { data: clubRatingData } = useClubRatingWeights();
   const clubWeights = clubRatingData?.weights;
