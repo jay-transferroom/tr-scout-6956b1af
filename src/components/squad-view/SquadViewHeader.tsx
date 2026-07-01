@@ -3,12 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertTriangle, Lightbulb, Save, Plus } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
+import { AlertTriangle, Lightbulb, Save, Plus, Download, Users2, FileImage, FileText } from "lucide-react";
 import { SquadConfiguration } from "@/hooks/useSquadConfigurations";
 import { SquadRecommendation } from "@/hooks/useSquadRecommendations";
 import { SquadRatingCTAs } from "./SquadRatingCTAs";
 import SquadViewModeToggle from "./SquadViewModeToggle";
 import SavedConfigurationsDropdown from "./SavedConfigurationsDropdown";
+
 interface HeadCoach {
   staffid: number;
   shortname: string | null;
@@ -66,7 +68,11 @@ interface SquadViewHeaderProps {
   onViewModeChange: (mode: 'detail' | 'depth') => void;
   clubName: string;
   onLoadConfiguration: (config: SquadConfiguration) => void;
+  onFillDepth?: () => void;
+  onExportPng?: () => void;
+  onExportPdf?: () => void;
 }
+
 
 export function SquadViewHeader({
   loadedConfiguration,
@@ -86,7 +92,11 @@ export function SquadViewHeader({
   onViewModeChange,
   clubName,
   onLoadConfiguration,
+  onFillDepth,
+  onExportPng,
+  onExportPdf,
 }: SquadViewHeaderProps) {
+
   return (
     <div className="w-full bg-background border-b">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-4">
@@ -123,6 +133,42 @@ export function SquadViewHeader({
               <Save className="h-4 w-4 mr-1.5" />
               Save
             </Button>
+            {viewMode === 'depth' && (onFillDepth || onExportPng || onExportPdf) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Download className="h-4 w-4 mr-1.5" />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-background z-50">
+                  {onFillDepth && (
+                    <>
+                      <DropdownMenuLabel>Demo</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={onFillDepth}>
+                        <Users2 className="h-4 w-4 mr-2" />
+                        Fill depth (5 per position)
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuLabel>Export</DropdownMenuLabel>
+                  {onExportPng && (
+                    <DropdownMenuItem onClick={onExportPng}>
+                      <FileImage className="h-4 w-4 mr-2" />
+                      Pitch snapshot (PNG)
+                    </DropdownMenuItem>
+                  )}
+                  {onExportPdf && (
+                    <DropdownMenuItem onClick={onExportPdf}>
+                      <FileText className="h-4 w-4 mr-2" />
+                      Full depth chart (PDF)
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
           </div>
         </div>
 

@@ -1,10 +1,12 @@
+import { forwardRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Player } from "@/types/player";
-import { Users } from "lucide-react";
+import { Users, ChevronDown } from "lucide-react";
 import pitchBackground from "@/assets/pitch.svg";
 import { cn } from "@/lib/utils";
 import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
 import { getClubRating } from "@/utils/clubRating";
+
 
 interface PositionPlayerSlot {
   position: string;
@@ -70,7 +72,7 @@ const DEPTH_FORMATION_CONFIGS: Record<string, Record<string, { x: number; y: num
 };
 
 
-const SquadDepthView = ({
+const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
   squadPlayers,
   allPlayers = [],
   formation = '4-3-3',
@@ -79,10 +81,12 @@ const SquadDepthView = ({
   onPositionClick,
   selectedPosition,
   playerReportRatings = new Map(),
-}: SquadDepthViewProps) => {
+}, ref) => {
   const { data: clubRatingData } = useClubRatingWeights();
   const clubWeights = clubRatingData?.weights;
   const currentFormation = DEPTH_FORMATION_CONFIGS[formation] || DEPTH_FORMATION_CONFIGS['4-3-3'];
+  const [expandedPosition, setExpandedPosition] = useState<string | null>(null);
+
 
   // Create a map of position -> ALL assigned player IDs (active + alternates) for quick lookup
   const positionToAssignedPlayers = new Map<string, string[]>();
@@ -152,7 +156,7 @@ const SquadDepthView = ({
   };
 
   return (
-    <div className="relative w-full rounded-lg overflow-hidden bg-[#3A9D5C]" style={{ aspectRatio: '16/9' }}>
+    <div ref={ref} className="relative w-full rounded-lg overflow-hidden bg-[#3A9D5C]" style={{ aspectRatio: '16/9' }}>
       {/* Football pitch background - rotated */}
       <div 
         className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-30"
@@ -165,7 +169,6 @@ const SquadDepthView = ({
 
       {/* Position cards */}
       {(() => {
-        // Pre-compute all position averages for relative color scaling
         const positionEntries = Object.entries(currentFormation);
         const positionAvgMap = new Map<string, number | null>();
         const allAvgs: number[] = [];
@@ -185,7 +188,7 @@ const SquadDepthView = ({
         const range = maxAvg - minAvg || 1;
 
         const getRelativeRatingColor = (avg: number): string => {
-          const normalized = (avg - minAvg) / range; // 0 = lowest, 1 = highest
+          const normalized = (avg - minAvg) / range;
           if (normalized >= 0.75) return 'text-emerald-500';
           if (normalized >= 0.5) return 'text-primary';
           if (normalized >= 0.25) return 'text-amber-500';
@@ -193,117 +196,143 @@ const SquadDepthView = ({
         };
 
         return positionEntries.map(([position, config]) => {
-        const players = getPositionDepth(position);
-        const displayPlayers = players.slice(0, 3);
-        const remainingCount = players.length - 3;
-        const hasExternalPlayers = players.some(p => p.isExternal);
-        const posAvg = positionAvgMap.get(position) ?? null;
-        
-        return (
-          <div
-            key={position}
-            className="absolute transform -translate-x-1/2 -translate-y-1/2"
-            style={{
-              left: `${config.x}%`,
-              top: `${config.y}%`,
-            }}
-          >
-            {/* Position card - gold when external players added, ring when selected */}
-            <div 
+          const players = getPositionDepth(position);
+          const isExpanded = expandedPosition === position;
+          const COLLAPSED_COUNT = 3;
+          const displayPlayers = isExpanded ? players : players.slice(0, COLLAPSED_COUNT);
+          const remainingCount = players.length - COLLAPSED_COUNT;
+          const posAvg = positionAvgMap.get(position) ?? null;
+
+          return (
+            <div
+              key={position}
               className={cn(
-                "backdrop-blur-sm rounded-md shadow-lg min-w-[180px] max-w-[210px] cursor-pointer transition-all",
-                "bg-slate-800 border border-slate-700",
-                selectedPosition === position && "ring-2 ring-primary ring-offset-2 ring-offset-[#3A9D5C]"
+                "absolute transform -translate-x-1/2 -translate-y-1/2",
+                isExpanded && "z-20"
               )}
-              onClick={() => onPositionClick?.(position)}
+              style={{
+                left: `${config.x}%`,
+                top: `${config.y}%`,
+              }}
             >
-              {/* Header */}
-              <div className="flex items-center justify-between px-2 py-1.5 border-b border-slate-700">
-                <span className="text-xs font-semibold text-white">{config.label}</span>
-                <div className="flex items-center gap-1.5">
-                  {posAvg !== null && (
-                    <span className={cn("text-xs font-bold tabular-nums", getRelativeRatingColor(posAvg))}>
-                      {posAvg}
-                    </span>
-                  )}
-                  <Badge 
-                    variant="secondary" 
-                    className="h-5 min-w-5 px-1.5 text-xs font-medium border-0 bg-emerald-500 text-white"
-                  >
-                    <Users className="w-2.5 h-2.5 mr-0.5" />
-                    {players.length}
-                  </Badge>
-                </div>
-              </div>
-              
-              {/* Player list */}
-              <div className="p-1.5 space-y-1">
-              {displayPlayers.length > 0 ? (
-                  displayPlayers.map((player) => {
-                    const reportRating = playerReportRatings.get(player.id);
-                    const clubRating = getClubRating(player, clubWeights) ?? player.xtvScore;
-                    const hasReport = !!reportRating;
-                    const displayRating = hasReport ? reportRating.rating : clubRating;
-                    const isExternal = player.isExternal || false;
-                    
-                    return (
-                      <div 
-                        key={player.id}
-                        className={cn(
-                          "flex items-center justify-between gap-1 px-1.5 py-1 rounded transition-colors",
-                          isExternal
-                            ? "bg-sky-200/60 hover:bg-sky-200/80"
-                            : "bg-white/95 hover:bg-white"
-                        )}
-                      >
-                        <div className="flex items-center justify-between gap-1.5 min-w-0 flex-1">
-                          <span className={cn(
-                            "text-xs font-medium truncate",
-                            isExternal ? "text-sky-950" : "text-slate-800"
-                          )}>
-                            {player.name}
-                          </span>
-                          {hasReport ? (
-                            <span className={cn(
-                              "text-xs font-bold tabular-nums shrink-0 rounded px-1.5 py-0.5",
-                              getReportRatingStyles(reportRating.rating)
-                            )}>
-                              {displayRating}
-                            </span>
-                          ) : (
-                            <span className={cn(
-                              "text-xs font-bold tabular-nums shrink-0",
-                              getRatingColor(clubRating)
-                            )}>
-                              {displayRating || '-'}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="px-1.5 py-2 text-center">
-                    <span className="text-xs italic text-slate-400">No players</span>
-                  </div>
+              <div 
+                className={cn(
+                  "backdrop-blur-sm rounded-md shadow-lg min-w-[180px] max-w-[210px] transition-all",
+                  "bg-slate-800 border border-slate-700",
+                  selectedPosition === position && "ring-2 ring-primary ring-offset-2 ring-offset-[#3A9D5C]"
                 )}
-                
-                {/* More players indicator */}
-                {remainingCount > 0 && (
-                  <div className="px-1.5 py-0.5 text-center">
-                    <span className="text-xs text-slate-400">
-                      +{remainingCount} more player{remainingCount > 1 ? 's' : ''}
-                    </span>
+              >
+                {/* Header */}
+                <div
+                  className="flex items-center justify-between px-2 py-1.5 border-b border-slate-700 cursor-pointer"
+                  onClick={() => onPositionClick?.(position)}
+                >
+                  <span className="text-xs font-semibold text-white">{config.label}</span>
+                  <div className="flex items-center gap-1.5">
+                    {posAvg !== null && (
+                      <span className={cn("text-xs font-bold tabular-nums", getRelativeRatingColor(posAvg))}>
+                        {posAvg}
+                      </span>
+                    )}
+                    <Badge 
+                      variant="secondary" 
+                      className="h-5 min-w-5 px-1.5 text-xs font-medium border-0 bg-emerald-500 text-white"
+                    >
+                      <Users className="w-2.5 h-2.5 mr-0.5" />
+                      {players.length}
+                    </Badge>
                   </div>
+                </div>
+                
+                {/* Player list */}
+                <div className={cn(
+                  "p-1.5 space-y-1",
+                  isExpanded && "max-h-[280px] overflow-y-auto"
+                )}>
+                  {displayPlayers.length > 0 ? (
+                    displayPlayers.map((player) => {
+                      const reportRating = playerReportRatings.get(player.id);
+                      const clubRating = getClubRating(player, clubWeights) ?? player.xtvScore;
+                      const hasReport = !!reportRating;
+                      const displayRating = hasReport ? reportRating.rating : clubRating;
+                      const isExternal = player.isExternal || false;
+                      
+                      return (
+                        <div 
+                          key={player.id}
+                          className={cn(
+                            "flex items-center justify-between gap-1 px-1.5 py-1 rounded transition-colors",
+                            isExternal
+                              ? "bg-sky-200/60 hover:bg-sky-200/80"
+                              : "bg-white/95 hover:bg-white"
+                          )}
+                        >
+                          <div className="flex items-center justify-between gap-1.5 min-w-0 flex-1">
+                            <span className={cn(
+                              "text-xs font-medium truncate",
+                              isExternal ? "text-sky-950" : "text-slate-800"
+                            )}>
+                              {player.name}
+                            </span>
+                            {hasReport ? (
+                              <span className={cn(
+                                "text-xs font-bold tabular-nums shrink-0 rounded px-1.5 py-0.5",
+                                getReportRatingStyles(reportRating.rating)
+                              )}>
+                                {displayRating}
+                              </span>
+                            ) : (
+                              <span className={cn(
+                                "text-xs font-bold tabular-nums shrink-0",
+                                getRatingColor(clubRating)
+                              )}>
+                                {displayRating || '-'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="px-1.5 py-2 text-center">
+                      <span className="text-xs italic text-slate-400">No players</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Expand / collapse control */}
+                {players.length > COLLAPSED_COUNT && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedPosition(isExpanded ? null : position);
+                    }}
+                    className="w-full flex items-center justify-center gap-1 px-1.5 py-1 border-t border-slate-700 text-[11px] text-slate-300 hover:bg-slate-700/50 transition-colors"
+                  >
+                    {isExpanded ? (
+                      <>
+                        <ChevronDown className="w-3 h-3 rotate-180" />
+                        Show less
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="w-3 h-3" />
+                        +{remainingCount} more
+                      </>
+                    )}
+                  </button>
                 )}
               </div>
             </div>
-          </div>
-        );
-      });
+          );
+        });
       })()}
     </div>
   );
-};
+});
+
+SquadDepthView.displayName = "SquadDepthView";
 
 export default SquadDepthView;
+

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlayersData } from "@/hooks/usePlayersData";
@@ -15,11 +15,15 @@ import SaveSquadConfigurationDialog from "@/components/SaveSquadConfigurationDia
 import { SquadConfiguration, useSquadConfigurations } from "@/hooks/useSquadConfigurations";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentSquadRating } from "@/hooks/useCurrentSquadRating";
+import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
 import { SquadViewHeader } from "@/components/squad-view/SquadViewHeader";
 import SquadDepthView from "@/components/squad-view/SquadDepthView";
 import PositionPlayersTable from "@/components/squad-view/PositionPlayersTable";
 import DepthPositionSidebar from "@/components/squad-view/DepthPositionSidebar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { buildDepthSeed } from "@/utils/depthDemoSeed";
+import { exportDepthPng, exportDepthPdf } from "@/utils/squadExport";
+
 
 const SquadView = () => {
   const navigate = useNavigate();
@@ -53,6 +57,10 @@ const SquadView = () => {
     error
   } = usePlayersData();
   const userClub = "Chelsea F.C.";
+  const depthPitchRef = useRef<HTMLDivElement>(null);
+  const { data: clubRatingData } = useClubRatingWeights();
+  const clubWeights = clubRatingData?.weights;
+
 
   // Fetch reports to get player report ratings
   const { reports } = useReports();
@@ -277,6 +285,86 @@ const SquadView = () => {
       description: "Starting with a blank squad. Make your changes and save when ready.",
     });
   };
+
+  const handleFillDepth = () => {
+    if (!clubPlayers.length) {
+      toast({ title: "No players available", variant: "destructive" });
+      return;
+    }
+    const slots = buildDepthSeed(currentFormation, clubPlayers, clubWeights, 5);
+    loadFromAssignments(
+      slots.map((s) => ({
+        position: s.position,
+        player_id: s.activePlayerId,
+        alternate_player_ids: s.alternatePlayerIds,
+      }))
+    );
+    setDisableAutoFill(true);
+    toast({
+      title: "Depth chart populated",
+      description: `Filled ${slots.length} positions with 5 players each.`,
+    });
+  };
+
+  const handleExportPng = async () => {
+    if (!depthPitchRef.current) return;
+    try {
+      await exportDepthPng(depthPitchRef.current, {
+        formation: currentFormation,
+        clubName: userClub,
+        coachName: headCoach?.shortname,
+        slots: positionSlots,
+        players: allPlayers,
+        clubWeights,
+        playerReportRatings,
+      });
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Export failed", variant: "destructive" });
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (!depthPitchRef.current) return;
+    try {
+      await exportDepthPdf(depthPitchRef.current, {
+        formation: currentFormation,
+        clubName: userClub,
+        coachName: headCoach?.shortname,
+        slots: positionSlots,
+        players: allPlayers,
+        clubWeights,
+        playerReportRatings,
+      });
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Export failed", variant: "destructive" });
+    }
+  };
+
+  // Auto-seed depth view with 5 players per position on first entry when empty
+  const [hasAutoSeededDepth, setHasAutoSeededDepth] = useState(false);
+  useEffect(() => {
+    if (
+      viewMode === 'depth' &&
+      !hasAutoSeededDepth &&
+      positionSlots.length === 0 &&
+      clubPlayers.length > 0
+    ) {
+      const slots = buildDepthSeed(currentFormation, clubPlayers, clubWeights, 5);
+      if (slots.length > 0) {
+        loadFromAssignments(
+          slots.map((s) => ({
+            position: s.position,
+            player_id: s.activePlayerId,
+            alternate_player_ids: s.alternatePlayerIds,
+          }))
+        );
+        setHasAutoSeededDepth(true);
+      }
+    }
+  }, [viewMode, hasAutoSeededDepth, positionSlots.length, clubPlayers, currentFormation, clubWeights, loadFromAssignments]);
+
   return (
     <>
       {/* Unified Header */}
@@ -298,7 +386,11 @@ const SquadView = () => {
         onViewModeChange={setViewMode}
         clubName={userClub}
         onLoadConfiguration={handleLoadConfiguration}
+        onFillDepth={handleFillDepth}
+        onExportPng={handleExportPng}
+        onExportPdf={handleExportPdf}
       />
+
 
       {/* Main Content - Grey Background */}
       <div className="w-full max-w-full overflow-x-hidden bg-muted/30">
@@ -343,6 +435,8 @@ const SquadView = () => {
             /* Depth View - Horizontal pitch with depth cards */
             <div className="w-full">
               <SquadDepthView
+                ref={depthPitchRef}
+
                 squadPlayers={squadPlayers}
                 allPlayers={allPlayers}
                 formation={currentFormation}
