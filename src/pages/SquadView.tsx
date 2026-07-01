@@ -468,6 +468,7 @@ const SquadView = () => {
                 onPositionClick={setSelectedPosition}
                 selectedPosition={selectedPosition}
                 playerReportRatings={playerReportRatings}
+                density={exportDensity ?? depthDensity}
               />
             </div>
           )}
