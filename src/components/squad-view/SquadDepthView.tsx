@@ -1,7 +1,7 @@
 import { forwardRef, useState, useRef, useLayoutEffect, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Player } from "@/types/player";
-import { ChevronDown, Download, FileImage, FileText } from "lucide-react";
+import { Users, ChevronDown, Download, FileImage, FileText } from "lucide-react";
 import pitchBackground from "@/assets/pitch.svg";
 import { cn } from "@/lib/utils";
 import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
