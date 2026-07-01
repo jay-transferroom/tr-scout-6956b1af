@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePlayersData } from "@/hooks/usePlayersData";
@@ -15,11 +15,15 @@ import SaveSquadConfigurationDialog from "@/components/SaveSquadConfigurationDia
 import { SquadConfiguration, useSquadConfigurations } from "@/hooks/useSquadConfigurations";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentSquadRating } from "@/hooks/useCurrentSquadRating";
+import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
 import { SquadViewHeader } from "@/components/squad-view/SquadViewHeader";
 import SquadDepthView from "@/components/squad-view/SquadDepthView";
 import PositionPlayersTable from "@/components/squad-view/PositionPlayersTable";
 import DepthPositionSidebar from "@/components/squad-view/DepthPositionSidebar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { buildDepthSeed } from "@/utils/depthDemoSeed";
+import { exportDepthPng, exportDepthPdf } from "@/utils/squadExport";
+
 
 const SquadView = () => {
   const navigate = useNavigate();
