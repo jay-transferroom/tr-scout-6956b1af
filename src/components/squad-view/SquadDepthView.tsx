@@ -459,7 +459,7 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
 
               <div 
                 className={cn(
-                  "backdrop-blur-sm rounded-md shadow-lg transition-all",
+                  "rounded-md shadow-lg transition-all",
                   densityConfig.minWidth,
                   "bg-slate-800 border border-slate-700",
                   selectedPosition === position && "ring-2 ring-primary ring-offset-2 ring-offset-[#3A9D5C]"
