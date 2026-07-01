@@ -1,11 +1,20 @@
-import { forwardRef, useState, useRef, useLayoutEffect, useMemo, useEffect } from "react";
+import { forwardRef, useState, useRef, useLayoutEffect, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Player } from "@/types/player";
-import { Users, ChevronDown } from "lucide-react";
+import { Users, ChevronDown, Download, FileImage, FileText, Users2 } from "lucide-react";
 import pitchBackground from "@/assets/pitch.svg";
 import { cn } from "@/lib/utils";
 import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
 import { getClubRating } from "@/utils/clubRating";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 
 
 
