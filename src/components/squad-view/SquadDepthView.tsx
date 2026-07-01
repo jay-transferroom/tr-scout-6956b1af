@@ -192,7 +192,8 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
   };
 
   return (
-    <div ref={ref} className="relative w-full rounded-lg overflow-hidden bg-[#3A9D5C]" style={{ aspectRatio: '16/9' }}>
+    <div ref={ref} className="relative w-full rounded-lg overflow-hidden bg-[#3A9D5C]" style={densityConfig.containerStyle}>
+
       {/* Football pitch background - rotated */}
       <div 
         className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-30"
