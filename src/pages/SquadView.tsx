@@ -57,6 +57,10 @@ const SquadView = () => {
     error
   } = usePlayersData();
   const userClub = "Chelsea F.C.";
+  const depthPitchRef = useRef<HTMLDivElement>(null);
+  const { data: clubRatingData } = useClubRatingWeights();
+  const clubWeights = clubRatingData?.weights;
+
 
   // Fetch reports to get player report ratings
   const { reports } = useReports();
