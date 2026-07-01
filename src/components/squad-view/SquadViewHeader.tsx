@@ -97,6 +97,8 @@ export function SquadViewHeader({
   onFillDepth,
   onExportPng,
   onExportPdf,
+  depthDensity = 'compact',
+  onDepthDensityChange,
 }: SquadViewHeaderProps) {
 
   return (
