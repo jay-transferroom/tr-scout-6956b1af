@@ -92,7 +92,11 @@ export function SquadViewHeader({
   onViewModeChange,
   clubName,
   onLoadConfiguration,
+  onFillDepth,
+  onExportPng,
+  onExportPdf,
 }: SquadViewHeaderProps) {
+
   return (
     <div className="w-full bg-background border-b">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-4">
