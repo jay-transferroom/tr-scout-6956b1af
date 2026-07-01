@@ -157,69 +157,6 @@ export async function exportReportPdf(
     y = (pdf as any).lastAutoTable.finalY + 12;
   });
 
-  // Attachment
-  const attachmentUrl: string | null = (report as any).attachmentUrl || null;
-  const attachmentName: string = (report as any).attachmentName || "Attachment";
-  const attachmentType: string = ((report as any).attachmentType || "").toLowerCase();
-
-  if (attachmentUrl) {
-    const ext = attachmentName.split(".").pop()?.toLowerCase() ?? "";
-    const isImage = attachmentType.startsWith("image/") || ["png", "jpg", "jpeg", "gif", "webp", "avif"].includes(ext);
-    const isVideo = attachmentType.startsWith("video/") || ["mp4", "webm", "ogg", "mov", "m4v"].includes(ext);
-    const isPdf = attachmentType === "application/pdf" || ext === "pdf";
-
-    pdf.addPage();
-    y = margin;
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(14);
-    pdf.text("Attachment", margin, y);
-    y += 16;
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(10);
-    pdf.setTextColor(100);
-    pdf.text(attachmentName, margin, y);
-    y += 16;
-    pdf.setTextColor(0);
-
-    let embed: { dataUrl: string; width: number; height: number; format: "PNG" | "JPEG" } | null = null;
-    if (isImage) embed = await urlToDataUrl(attachmentUrl);
-    else if (isVideo) {
-      const frame = await captureVideoFrame(attachmentUrl);
-      if (frame) embed = frame;
-      pdf.setFontSize(9);
-      pdf.setTextColor(120);
-      pdf.text("Preview shows a frame from the attached video.", margin, y);
-      y += 14;
-      pdf.setTextColor(0);
-    }
-
-    if (embed) {
-      const availW = pageW - margin * 2;
-      const availH = pageH - y - margin;
-      const ratio = embed.width / embed.height;
-      let drawW = availW;
-      let drawH = drawW / ratio;
-      if (drawH > availH) {
-        drawH = availH;
-        drawW = drawH * ratio;
-      }
-      pdf.addImage(embed.dataUrl, embed.format, margin + (availW - drawW) / 2, y, drawW, drawH);
-    } else if (isPdf) {
-      pdf.setFontSize(10);
-      pdf.text("A PDF file is attached to this report. Download it from the app to view:", margin, y);
-      y += 14;
-      pdf.setTextColor(20, 80, 200);
-      pdf.textWithLink(attachmentUrl, margin, y, { url: attachmentUrl });
-      pdf.setTextColor(0);
-    } else {
-      pdf.setFontSize(10);
-      pdf.text("Attachment could not be embedded. Download link:", margin, y);
-      y += 14;
-      pdf.setTextColor(20, 80, 200);
-      pdf.textWithLink(attachmentUrl, margin, y, { url: attachmentUrl });
-      pdf.setTextColor(0);
-    }
-  }
 
   pdf.save(`${safe(player?.name || "report")}-report-${today()}.pdf`);
 }
