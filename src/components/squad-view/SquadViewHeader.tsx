@@ -71,6 +71,8 @@ interface SquadViewHeaderProps {
   onFillDepth?: () => void;
   onExportPng?: () => void;
   onExportPdf?: () => void;
+  depthDensity?: 'compact' | 'standard' | 'full';
+  onDepthDensityChange?: (d: 'compact' | 'standard' | 'full') => void;
 }
 
 
