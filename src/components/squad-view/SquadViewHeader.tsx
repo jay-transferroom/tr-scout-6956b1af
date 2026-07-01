@@ -67,11 +67,6 @@ interface SquadViewHeaderProps {
   onViewModeChange: (mode: 'detail' | 'depth') => void;
   clubName: string;
   onLoadConfiguration: (config: SquadConfiguration) => void;
-  onFillDepth?: () => void;
-  onExportPng?: () => void;
-  onExportPdf?: () => void;
-  depthDensity?: 'compact' | 'standard' | 'full';
-  onDepthDensityChange?: (d: 'compact' | 'standard' | 'full') => void;
 }
 
 
@@ -93,12 +88,8 @@ export function SquadViewHeader({
   onViewModeChange,
   clubName,
   onLoadConfiguration,
-  onFillDepth,
-  onExportPng,
-  onExportPdf,
-  depthDensity = 'compact',
-  onDepthDensityChange,
 }: SquadViewHeaderProps) {
+
 
   return (
     <div className="w-full bg-background border-b">
