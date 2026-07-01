@@ -297,25 +297,6 @@ const SquadView = () => {
     });
   };
 
-  const handleFillDepth = () => {
-    if (!clubPlayers.length) {
-      toast({ title: "No players available", variant: "destructive" });
-      return;
-    }
-    const slots = buildDepthSeed(currentFormation, clubPlayers, clubWeights, 5);
-    loadFromAssignments(
-      slots.map((s) => ({
-        position: s.position,
-        player_id: s.activePlayerId,
-        alternate_player_ids: s.alternatePlayerIds,
-      }))
-    );
-    setDisableAutoFill(true);
-    toast({
-      title: "Depth chart populated",
-      description: `Filled ${slots.length} positions with 5 players each.`,
-    });
-  };
 
   const waitForPaint = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
 
@@ -467,7 +448,6 @@ const SquadView = () => {
                 onDensityChange={setDepthDensity}
                 onExportPng={handleExportPng}
                 onExportPdf={handleExportPdf}
-                onFillDepth={handleFillDepth}
               />
             </div>
           )}
