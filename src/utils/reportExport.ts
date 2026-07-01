@@ -5,10 +5,9 @@ import { extractReportDataForDisplay } from "@/utils/reportDataExtraction";
 
 const safe = (s: string) => (s || "report").replace(/[^a-z0-9-]+/gi, "-").toLowerCase();
 const today = () => new Date().toISOString().slice(0, 10);
+const MARGIN = 40;
 
 function proxied(url: string): string {
-  // images.weserv.nl fetches the image server-side and returns it with
-  // permissive CORS headers, so canvas/toDataURL doesn't taint.
   const stripped = url.replace(/^https?:\/\//, "");
   return `https://images.weserv.nl/?url=${encodeURIComponent(stripped)}&output=png`;
 }
@@ -25,16 +24,9 @@ async function tryLoadDataUrl(src: string, useCrossOrigin: boolean) {
   return { dataUrl, width: canvas.width, height: canvas.height, format: "PNG" as const };
 }
 
-async function urlToDataUrl(url: string): Promise<{ dataUrl: string; width: number; height: number; format: "PNG" | "JPEG" } | null> {
-  // 1) Direct load with CORS (works for storage that sets Access-Control-Allow-Origin)
-  try {
-    return await tryLoadDataUrl(url, true);
-  } catch {}
-
-  // 2) Proxy through images.weserv.nl for hosts without CORS (e.g. transferroom blob storage)
-  try {
-    return await tryLoadDataUrl(proxied(url), true);
-  } catch (e) {
+async function urlToDataUrl(url: string) {
+  try { return await tryLoadDataUrl(url, true); } catch {}
+  try { return await tryLoadDataUrl(proxied(url), true); } catch (e) {
     console.warn("Failed to load image for export", e);
     return null;
   }
@@ -50,67 +42,27 @@ function loadImage(src: string, crossOrigin?: string): Promise<HTMLImageElement>
   });
 }
 
-async function captureVideoFrame(url: string): Promise<{ dataUrl: string; width: number; height: number; format: "PNG" } | null> {
-  try {
-    const video = document.createElement("video");
-    video.crossOrigin = "anonymous";
-    video.src = url;
-    video.muted = true;
-    video.playsInline = true;
-    await new Promise<void>((resolve, reject) => {
-      video.onloadeddata = () => resolve();
-      video.onerror = () => reject();
-    });
-    // Seek to 1s (or 10% in) for a representative frame
-    const seekTo = Math.min(1, (video.duration || 2) * 0.1);
-    await new Promise<void>((resolve) => {
-      video.onseeked = () => resolve();
-      video.currentTime = seekTo;
-    });
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return null;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    return { dataUrl: canvas.toDataURL("image/png"), width: canvas.width, height: canvas.height, format: "PNG" };
-  } catch (e) {
-    console.warn("Failed to capture video frame", e);
-    return null;
-  }
-}
-
-export async function exportReportPdf(
+async function addPlayerHeader(
+  pdf: jsPDF,
   report: ReportWithPlayer,
-  template: any,
-  opts?: { templateName?: string }
-) {
-  const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+  y: number,
+  opts?: { subtitle?: string }
+): Promise<number> {
   const pageW = pdf.internal.pageSize.getWidth();
-  const pageH = pdf.internal.pageSize.getHeight();
-  const margin = 40;
-  let y = margin;
-
   const player = report.player;
-  const templateName = opts?.templateName || template?.name || "Report";
-
-  // Player photo (optional)
   const photoSize = 64;
-  let textX = margin;
+  let textX = MARGIN;
   const photoUrl = (player as any)?.image || (player as any)?.photo || null;
   if (photoUrl) {
     const photo = await urlToDataUrl(photoUrl);
     if (photo) {
       try {
-        pdf.addImage(photo.dataUrl, photo.format, margin, y, photoSize, photoSize);
-        textX = margin + photoSize + 12;
-      } catch (e) {
-        console.warn("Could not embed player photo", e);
-      }
+        pdf.addImage(photo.dataUrl, photo.format, MARGIN, y, photoSize, photoSize);
+        textX = MARGIN + photoSize + 12;
+      } catch (e) { console.warn("Could not embed player photo", e); }
     }
   }
 
-  // Header text
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(18);
   pdf.text(player?.name || "Scouting Report", textX, y + 16);
@@ -123,7 +75,7 @@ export async function exportReportPdf(
     player?.positions?.join(", "),
     player?.age ? `${player.age} yrs` : null,
   ].filter(Boolean).join("   •   ");
-  const availTextW = pageW - textX - margin;
+  const availTextW = pageW - textX - MARGIN;
   let cursorY = y + 32;
   if (headerBits) {
     const wrapped = pdf.splitTextToSize(headerBits, availTextW);
@@ -132,18 +84,53 @@ export async function exportReportPdf(
   }
 
   const meta = [
-    templateName,
-    report.scoutProfile ? `Scout: ${report.scoutProfile.first_name ?? ""} ${report.scoutProfile.last_name ?? ""}`.trim() : null,
+    opts?.subtitle,
     `Generated: ${new Date().toLocaleDateString()}`,
-    `Status: ${report.status}`,
   ].filter(Boolean).join("   •   ");
-  const wrappedMeta = pdf.splitTextToSize(meta, availTextW);
-  pdf.text(wrappedMeta, textX, cursorY + 4);
-  cursorY += 4 + wrappedMeta.length * 12;
+  if (meta) {
+    const wrappedMeta = pdf.splitTextToSize(meta, availTextW);
+    pdf.text(wrappedMeta, textX, cursorY + 4);
+    cursorY += 4 + wrappedMeta.length * 12;
+  }
   pdf.setTextColor(0);
-  y = Math.max(y + photoSize, cursorY) + 12;
+  return Math.max(y + photoSize, cursorY) + 12;
+}
 
-  // Match context
+function addReportBody(
+  pdf: jsPDF,
+  report: ReportWithPlayer,
+  template: any,
+  y: number,
+  opts?: { title?: string; templateName?: string }
+): number {
+  const pageW = pdf.internal.pageSize.getWidth();
+  const templateName = opts?.templateName || template?.name || "Report";
+
+  if (opts?.title) {
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(13);
+    pdf.text(opts.title, MARGIN, y);
+    y += 6;
+    pdf.setDrawColor(58, 157, 92);
+    pdf.setLineWidth(1);
+    pdf.line(MARGIN, y, pageW - MARGIN, y);
+    y += 10;
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    pdf.setTextColor(100);
+    const sub = [
+      templateName,
+      report.scoutProfile ? `Scout: ${report.scoutProfile.first_name ?? ""} ${report.scoutProfile.last_name ?? ""}`.trim() : null,
+      report.createdAt ? `Date: ${new Date(report.createdAt).toLocaleDateString()}` : null,
+      `Status: ${report.status}`,
+    ].filter(Boolean).join("   •   ");
+    const wrappedSub = pdf.splitTextToSize(sub, pageW - MARGIN * 2);
+    pdf.text(wrappedSub, MARGIN, y);
+    y += wrappedSub.length * 11 + 6;
+    pdf.setTextColor(0);
+  }
+
   if (report.matchContext) {
     const mc = report.matchContext as any;
     const rows: [string, string][] = [];
@@ -166,13 +153,12 @@ export async function exportReportPdf(
         styles: { fontSize: 10, cellPadding: 5 },
         headStyles: { fillColor: [58, 157, 92] },
         columnStyles: { 0: { fontStyle: "bold", cellWidth: 120 } },
-        margin: { left: margin, right: margin },
+        margin: { left: MARGIN, right: MARGIN },
       });
       y = (pdf as any).lastAutoTable.finalY + 14;
     }
   }
 
-  // Sections
   const sections = extractReportDataForDisplay(report, template);
   sections.forEach((section: any) => {
     const body = section.fields.map((f: any) => [
@@ -191,11 +177,62 @@ export async function exportReportPdf(
         0: { fontStyle: "bold", cellWidth: 150 },
         1: { cellWidth: 120 },
       },
-      margin: { left: margin, right: margin },
+      margin: { left: MARGIN, right: MARGIN },
     });
     y = (pdf as any).lastAutoTable.finalY + 12;
   });
 
+  return y;
+}
 
-  pdf.save(`${safe(player?.name || "report")}-report-${today()}.pdf`);
+export async function exportReportPdf(
+  report: ReportWithPlayer,
+  template: any,
+  opts?: { templateName?: string }
+) {
+  const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+  const templateName = opts?.templateName || template?.name || "Report";
+  const subtitle = [
+    templateName,
+    report.scoutProfile ? `Scout: ${report.scoutProfile.first_name ?? ""} ${report.scoutProfile.last_name ?? ""}`.trim() : null,
+    `Status: ${report.status}`,
+  ].filter(Boolean).join("   •   ");
+  let y = await addPlayerHeader(pdf, report, MARGIN, { subtitle });
+  addReportBody(pdf, report, template, y, { templateName });
+  pdf.save(`${safe(report.player?.name || "report")}-report-${today()}.pdf`);
+}
+
+export async function exportPlayerReportsPdf(
+  reports: ReportWithPlayer[],
+  templatesById: Record<string, any>,
+  opts?: { playerName?: string }
+) {
+  if (!reports.length) return;
+  const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+  const pageH = pdf.internal.pageSize.getHeight();
+  const sorted = [...reports].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+  const first = sorted[0];
+  const playerName = opts?.playerName || first.player?.name || "Player";
+
+  let y = await addPlayerHeader(pdf, first, MARGIN, {
+    subtitle: `${reports.length} report${reports.length === 1 ? "" : "s"}`,
+  });
+
+  for (let i = 0; i < sorted.length; i++) {
+    const r = sorted[i];
+    const template = templatesById[r.templateId];
+    const title = `Report ${i + 1} of ${sorted.length}`;
+    // Ensure room for section title
+    if (y > pageH - 120) {
+      pdf.addPage();
+      y = MARGIN;
+    } else if (i > 0) {
+      y += 6;
+    }
+    y = addReportBody(pdf, r, template, y, { title, templateName: template?.name });
+  }
+
+  pdf.save(`${safe(playerName)}-reports-${today()}.pdf`);
 }
