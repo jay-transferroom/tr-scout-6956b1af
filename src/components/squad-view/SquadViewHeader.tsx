@@ -1,15 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
-import { AlertTriangle, Lightbulb, Save, Plus, Download, Users2, FileImage, FileText } from "lucide-react";
+import { AlertTriangle, Lightbulb, Save, Plus } from "lucide-react";
 import { SquadConfiguration } from "@/hooks/useSquadConfigurations";
 import { SquadRecommendation } from "@/hooks/useSquadRecommendations";
 import { SquadRatingCTAs } from "./SquadRatingCTAs";
 import SquadViewModeToggle from "./SquadViewModeToggle";
 import SavedConfigurationsDropdown from "./SavedConfigurationsDropdown";
+
 
 interface HeadCoach {
   staffid: number;
