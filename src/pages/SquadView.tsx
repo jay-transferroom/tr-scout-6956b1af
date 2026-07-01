@@ -317,9 +317,13 @@ const SquadView = () => {
     });
   };
 
+  const waitForPaint = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+
   const handleExportPng = async () => {
     if (!depthPitchRef.current) return;
+    setExportDensity('full');
     try {
+      await waitForPaint();
       await exportDepthPng(depthPitchRef.current, {
         formation: currentFormation,
         clubName: userClub,
@@ -332,12 +336,16 @@ const SquadView = () => {
     } catch (e) {
       console.error(e);
       toast({ title: "Export failed", variant: "destructive" });
+    } finally {
+      setExportDensity(null);
     }
   };
 
   const handleExportPdf = async () => {
     if (!depthPitchRef.current) return;
+    setExportDensity('full');
     try {
+      await waitForPaint();
       await exportDepthPdf(depthPitchRef.current, {
         formation: currentFormation,
         clubName: userClub,
@@ -350,6 +358,8 @@ const SquadView = () => {
     } catch (e) {
       console.error(e);
       toast({ title: "Export failed", variant: "destructive" });
+    } finally {
+      setExportDensity(null);
     }
   };
 
