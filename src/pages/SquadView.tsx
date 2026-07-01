@@ -410,6 +410,8 @@ const SquadView = () => {
         onFillDepth={handleFillDepth}
         onExportPng={handleExportPng}
         onExportPdf={handleExportPdf}
+        depthDensity={depthDensity}
+        onDepthDensityChange={setDepthDensity}
       />
 
 
