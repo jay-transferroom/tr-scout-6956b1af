@@ -234,9 +234,12 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
 
         return positionEntries.map(([position, config]) => {
           const players = getPositionDepth(position);
-          const isExpanded = expandedPosition === position;
-          const COLLAPSED_COUNT = 3;
-          const displayPlayers = isExpanded ? players : players.slice(0, COLLAPSED_COUNT);
+          const COLLAPSED_COUNT = densityConfig.collapsedCount;
+          const canExpand = density === 'standard' && players.length > COLLAPSED_COUNT;
+          const isExpanded = canExpand && expandedPosition === position;
+          const displayPlayers = density === 'standard' && !isExpanded
+            ? players.slice(0, COLLAPSED_COUNT)
+            : players;
           const remainingCount = players.length - COLLAPSED_COUNT;
           const posAvg = positionAvgMap.get(position) ?? null;
 
@@ -254,20 +257,21 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
             >
               <div 
                 className={cn(
-                  "backdrop-blur-sm rounded-md shadow-lg min-w-[180px] max-w-[210px] transition-all",
+                  "backdrop-blur-sm rounded-md shadow-lg transition-all",
+                  densityConfig.minWidth,
                   "bg-slate-800 border border-slate-700",
                   selectedPosition === position && "ring-2 ring-primary ring-offset-2 ring-offset-[#3A9D5C]"
                 )}
               >
                 {/* Header */}
                 <div
-                  className="flex items-center justify-between px-2 py-1.5 border-b border-slate-700 cursor-pointer"
+                  className="flex items-center justify-between px-2 py-1 border-b border-slate-700 cursor-pointer"
                   onClick={() => onPositionClick?.(position)}
                 >
-                  <span className="text-xs font-semibold text-white">{config.label}</span>
+                  <span className={cn("font-semibold text-white", densityConfig.headerText)}>{config.label}</span>
                   <div className="flex items-center gap-1.5">
                     {posAvg !== null && (
-                      <span className={cn("text-xs font-bold tabular-nums", getRelativeRatingColor(posAvg))}>
+                      <span className={cn("font-bold tabular-nums", densityConfig.headerText, getRelativeRatingColor(posAvg))}>
                         {posAvg}
                       </span>
                     )}
@@ -283,7 +287,7 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
                 
                 {/* Player list */}
                 <div className={cn(
-                  "p-1.5 space-y-1",
+                  "p-1 space-y-0.5",
                   isExpanded && "max-h-[280px] overflow-y-auto"
                 )}>
                   {displayPlayers.length > 0 ? (
@@ -298,7 +302,8 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
                         <div 
                           key={player.id}
                           className={cn(
-                            "flex items-center justify-between gap-1 px-1.5 py-1 rounded transition-colors",
+                            "flex items-center justify-between gap-1 rounded transition-colors",
+                            densityConfig.rowPadding,
                             isExternal
                               ? "bg-sky-200/60 hover:bg-sky-200/80"
                               : "bg-white/95 hover:bg-white"
@@ -306,21 +311,24 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
                         >
                           <div className="flex items-center justify-between gap-1.5 min-w-0 flex-1">
                             <span className={cn(
-                              "text-xs font-medium truncate",
+                              "font-medium truncate",
+                              densityConfig.rowText,
                               isExternal ? "text-sky-950" : "text-slate-800"
                             )}>
                               {player.name}
                             </span>
                             {hasReport ? (
                               <span className={cn(
-                                "text-xs font-bold tabular-nums shrink-0 rounded px-1.5 py-0.5",
+                                "font-bold tabular-nums shrink-0 rounded px-1.5 py-0.5",
+                                densityConfig.pillText,
                                 getReportRatingStyles(reportRating.rating)
                               )}>
                                 {displayRating}
                               </span>
                             ) : (
                               <span className={cn(
-                                "text-xs font-bold tabular-nums shrink-0",
+                                "font-bold tabular-nums shrink-0",
+                                densityConfig.pillText,
                                 getRatingColor(clubRating)
                               )}>
                                 {displayRating || '-'}
@@ -337,8 +345,8 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
                   )}
                 </div>
 
-                {/* Expand / collapse control */}
-                {players.length > COLLAPSED_COUNT && (
+                {/* Expand / collapse control (standard density only) */}
+                {canExpand && (
                   <button
                     type="button"
                     onClick={(e) => {
