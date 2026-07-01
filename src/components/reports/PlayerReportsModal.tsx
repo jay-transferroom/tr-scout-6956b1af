@@ -136,12 +136,30 @@ const PlayerReportsModal = ({
   onDeleteReport 
 }: PlayerReportsModalProps) => {
   const { user } = useAuth();
+  const { templates } = useTemplates();
+
+  const handleExportAll = async () => {
+    try {
+      toast.info("Preparing PDF…");
+      const byId = Object.fromEntries(templates.map((t: any) => [t.id, t]));
+      await exportPlayerReportsPdf(reports, byId, { playerName });
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to export PDF");
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>All Reports for {playerName} ({reports.length})</DialogTitle>
+          <div className="flex items-center justify-between gap-4 pr-8">
+            <DialogTitle>All Reports for {playerName} ({reports.length})</DialogTitle>
+            <Button variant="outline" size="sm" onClick={handleExportAll} disabled={!reports.length}>
+              <Download className="h-4 w-4 mr-1" />
+              Export PDF
+            </Button>
+          </div>
         </DialogHeader>
         
         <div className="space-y-4">
