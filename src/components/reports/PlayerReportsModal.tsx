@@ -5,9 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { ReportWithPlayer } from "@/types/report";
 import { formatDate, getRatingColor } from "@/utils/reportFormatting";
 import { getOverallRating, getRecommendation } from "@/utils/reportDataExtraction";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit, Trash2, Download } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReportPlayerData } from "@/hooks/useReportPlayerData";
+import { useTemplates } from "@/hooks/useTemplates";
+import { exportPlayerReportsPdf } from "@/utils/reportExport";
+import { toast } from "sonner";
 
 interface PlayerReportsModalProps {
   isOpen: boolean;
