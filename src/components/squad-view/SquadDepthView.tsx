@@ -1,7 +1,7 @@
 import { forwardRef, useState, useRef, useLayoutEffect, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Player } from "@/types/player";
-import { Users, ChevronDown, Download, FileImage, FileText, Users2 } from "lucide-react";
+import { Users, ChevronDown, Download, FileImage, FileText } from "lucide-react";
 import pitchBackground from "@/assets/pitch.svg";
 import { cn } from "@/lib/utils";
 import { useClubRatingWeights } from "@/hooks/useClubRatingWeights";
@@ -42,7 +42,6 @@ interface SquadDepthViewProps {
   onDensityChange?: (d: DepthDensity) => void;
   onExportPng?: () => void;
   onExportPdf?: () => void;
-  onFillDepth?: () => void;
 }
 
 
@@ -103,7 +102,6 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
   onDensityChange,
   onExportPng,
   onExportPdf,
-  onFillDepth,
 
 }, ref) => {
   const { data: clubRatingData } = useClubRatingWeights();
@@ -329,7 +327,7 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
       />
 
       {/* Floating overlay controls - excluded from exports */}
-      {(onDensityChange || onExportPng || onExportPdf || onFillDepth) && (
+      {(onDensityChange || onExportPng || onExportPdf) && (
         <div
           data-export-hidden="true"
           className="absolute top-2 right-2 z-30 flex items-center gap-1"
@@ -361,7 +359,7 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
             </DropdownMenu>
           )}
 
-          {(onExportPng || onExportPdf || onFillDepth) && (
+          {(onExportPng || onExportPdf) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -373,15 +371,6 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-background z-50">
-                {onFillDepth && (
-                  <>
-                    <DropdownMenuItem onClick={onFillDepth} className="cursor-pointer">
-                      <Users2 className="h-4 w-4 mr-2" />
-                      Fill depth (5 per position)
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
                 <DropdownMenuLabel>Export</DropdownMenuLabel>
                 {onExportPng && (
                   <DropdownMenuItem onClick={onExportPng} className="cursor-pointer">
