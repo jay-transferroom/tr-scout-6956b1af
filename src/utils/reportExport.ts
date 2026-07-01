@@ -6,37 +6,34 @@ import { extractReportDataForDisplay } from "@/utils/reportDataExtraction";
 const safe = (s: string) => (s || "report").replace(/[^a-z0-9-]+/gi, "-").toLowerCase();
 const today = () => new Date().toISOString().slice(0, 10);
 
-async function urlToDataUrl(url: string): Promise<{ dataUrl: string; width: number; height: number; format: "PNG" | "JPEG" } | null> {
-  // Try fetch first (works when CORS headers allow it)
-  try {
-    const res = await fetch(url, { mode: "cors" });
-    if (res.ok) {
-      const blob = await res.blob();
-      const dataUrl: string = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-      const img = await loadImage(dataUrl);
-      const format = blob.type.includes("png") ? "PNG" : "JPEG";
-      return { dataUrl, width: img.naturalWidth, height: img.naturalHeight, format };
-    }
-  } catch {
-    // fall through to <img> approach
-  }
+function proxied(url: string): string {
+  // images.weserv.nl fetches the image server-side and returns it with
+  // permissive CORS headers, so canvas/toDataURL doesn't taint.
+  const stripped = url.replace(/^https?:\/\//, "");
+  return `https://images.weserv.nl/?url=${encodeURIComponent(stripped)}&output=png`;
+}
 
-  // Fallback: load via <img crossOrigin> and paint onto a canvas
+async function tryLoadDataUrl(src: string, useCrossOrigin: boolean) {
+  const img = await loadImage(src, useCrossOrigin ? "anonymous" : undefined);
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("no ctx");
+  ctx.drawImage(img, 0, 0);
+  const dataUrl = canvas.toDataURL("image/png");
+  return { dataUrl, width: canvas.width, height: canvas.height, format: "PNG" as const };
+}
+
+async function urlToDataUrl(url: string): Promise<{ dataUrl: string; width: number; height: number; format: "PNG" | "JPEG" } | null> {
+  // 1) Direct load with CORS (works for storage that sets Access-Control-Allow-Origin)
   try {
-    const img = await loadImage(url, "anonymous");
-    const canvas = document.createElement("canvas");
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return null;
-    ctx.drawImage(img, 0, 0);
-    const dataUrl = canvas.toDataURL("image/png");
-    return { dataUrl, width: canvas.width, height: canvas.height, format: "PNG" };
+    return await tryLoadDataUrl(url, true);
+  } catch {}
+
+  // 2) Proxy through images.weserv.nl for hosts without CORS (e.g. transferroom blob storage)
+  try {
+    return await tryLoadDataUrl(proxied(url), true);
   } catch (e) {
     console.warn("Failed to load image for export", e);
     return null;
