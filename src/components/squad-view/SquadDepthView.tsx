@@ -375,7 +375,6 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
               <DropdownMenuContent align="end" className="bg-background z-50">
                 {onFillDepth && (
                   <>
-                    <DropdownMenuLabel>Demo</DropdownMenuLabel>
                     <DropdownMenuItem onClick={onFillDepth} className="cursor-pointer">
                       <Users2 className="h-4 w-4 mr-2" />
                       Fill depth (5 per position)
@@ -460,7 +459,7 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
 
               <div 
                 className={cn(
-                  "backdrop-blur-sm rounded-md shadow-lg transition-all",
+                  "rounded-md shadow-lg transition-all",
                   densityConfig.minWidth,
                   "bg-slate-800 border border-slate-700",
                   selectedPosition === position && "ring-2 ring-primary ring-offset-2 ring-offset-[#3A9D5C]"
