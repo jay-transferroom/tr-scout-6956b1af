@@ -14,6 +14,8 @@ interface PositionPlayerSlot {
   alternatePlayerIds: string[];
 }
 
+export type DepthDensity = 'compact' | 'standard' | 'full';
+
 interface SquadDepthViewProps {
   squadPlayers: Player[];
   allPlayers?: Player[];
@@ -26,6 +28,7 @@ interface SquadDepthViewProps {
   onPositionClick?: (position: string) => void;
   selectedPosition?: string | null;
   playerReportRatings?: Map<string, { rating: number | string; raw: any }>;
+  density?: DepthDensity;
 }
 
 // Horizontal layout - GK on left, attackers on right (shifted right to prevent GK cutoff)
