@@ -71,6 +71,8 @@ interface SquadViewHeaderProps {
   onFillDepth?: () => void;
   onExportPng?: () => void;
   onExportPdf?: () => void;
+  depthDensity?: 'compact' | 'standard' | 'full';
+  onDepthDensityChange?: (d: 'compact' | 'standard' | 'full') => void;
 }
 
 
@@ -95,6 +97,8 @@ export function SquadViewHeader({
   onFillDepth,
   onExportPng,
   onExportPdf,
+  depthDensity = 'compact',
+  onDepthDensityChange,
 }: SquadViewHeaderProps) {
 
   return (
@@ -133,6 +137,24 @@ export function SquadViewHeader({
               <Save className="h-4 w-4 mr-1.5" />
               Save
             </Button>
+            {viewMode === 'depth' && onDepthDensityChange && (
+              <>
+                <div className="h-6 w-px bg-border mx-1" />
+                <div className="flex items-center gap-0.5 p-0.5 bg-muted rounded-md" role="group" aria-label="Depth density">
+                  {(['compact', 'standard', 'full'] as const).map((d) => (
+                    <Button
+                      key={d}
+                      onClick={() => onDepthDensityChange(d)}
+                      variant={depthDensity === d ? 'secondary' : 'ghost'}
+                      size="sm"
+                      className="h-7 px-2.5 text-xs capitalize"
+                    >
+                      {d}
+                    </Button>
+                  ))}
+                </div>
+              </>
+            )}
             {viewMode === 'depth' && (onFillDepth || onExportPng || onExportPdf) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

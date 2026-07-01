@@ -34,6 +34,17 @@ const SquadView = () => {
   const [loadedConfiguration, setLoadedConfiguration] = useState<SquadConfiguration | null>(null);
   const [currentFormation, setCurrentFormation] = useState<string>('4-3-3');
   const [viewMode, setViewMode] = useState<'detail' | 'depth'>('detail');
+  const [depthDensity, setDepthDensity] = useState<'compact' | 'standard' | 'full'>(() => {
+    if (typeof window === 'undefined') return 'compact';
+    const stored = window.localStorage.getItem('squad-depth-density');
+    return stored === 'standard' || stored === 'full' || stored === 'compact' ? stored : 'compact';
+  });
+  const [exportDensity, setExportDensity] = useState<'compact' | 'standard' | 'full' | null>(null);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('squad-depth-density', depthDensity);
+    }
+  }, [depthDensity]);
   
   // Start with blank squad by default (no auto-fill)
   const [disableAutoFill, setDisableAutoFill] = useState(true);
@@ -306,9 +317,13 @@ const SquadView = () => {
     });
   };
 
+  const waitForPaint = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+
   const handleExportPng = async () => {
     if (!depthPitchRef.current) return;
+    setExportDensity('full');
     try {
+      await waitForPaint();
       await exportDepthPng(depthPitchRef.current, {
         formation: currentFormation,
         clubName: userClub,
@@ -321,12 +336,16 @@ const SquadView = () => {
     } catch (e) {
       console.error(e);
       toast({ title: "Export failed", variant: "destructive" });
+    } finally {
+      setExportDensity(null);
     }
   };
 
   const handleExportPdf = async () => {
     if (!depthPitchRef.current) return;
+    setExportDensity('full');
     try {
+      await waitForPaint();
       await exportDepthPdf(depthPitchRef.current, {
         formation: currentFormation,
         clubName: userClub,
@@ -339,6 +358,8 @@ const SquadView = () => {
     } catch (e) {
       console.error(e);
       toast({ title: "Export failed", variant: "destructive" });
+    } finally {
+      setExportDensity(null);
     }
   };
 
@@ -389,6 +410,8 @@ const SquadView = () => {
         onFillDepth={handleFillDepth}
         onExportPng={handleExportPng}
         onExportPdf={handleExportPdf}
+        depthDensity={depthDensity}
+        onDepthDensityChange={setDepthDensity}
       />
 
 
@@ -445,6 +468,7 @@ const SquadView = () => {
                 onPositionClick={setSelectedPosition}
                 selectedPosition={selectedPosition}
                 playerReportRatings={playerReportRatings}
+                density={exportDensity ?? depthDensity}
               />
             </div>
           )}
