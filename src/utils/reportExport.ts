@@ -7,28 +7,50 @@ const safe = (s: string) => (s || "report").replace(/[^a-z0-9-]+/gi, "-").toLowe
 const today = () => new Date().toISOString().slice(0, 10);
 
 async function urlToDataUrl(url: string): Promise<{ dataUrl: string; width: number; height: number; format: "PNG" | "JPEG" } | null> {
+  // Try fetch first (works when CORS headers allow it)
   try {
     const res = await fetch(url, { mode: "cors" });
-    const blob = await res.blob();
-    const dataUrl: string = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = dataUrl;
-    await new Promise<void>((res, rej) => {
-      img.onload = () => res();
-      img.onerror = () => rej();
-    });
-    const format = blob.type.includes("png") ? "PNG" : "JPEG";
-    return { dataUrl, width: img.naturalWidth, height: img.naturalHeight, format };
+    if (res.ok) {
+      const blob = await res.blob();
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+      const img = await loadImage(dataUrl);
+      const format = blob.type.includes("png") ? "PNG" : "JPEG";
+      return { dataUrl, width: img.naturalWidth, height: img.naturalHeight, format };
+    }
+  } catch {
+    // fall through to <img> approach
+  }
+
+  // Fallback: load via <img crossOrigin> and paint onto a canvas
+  try {
+    const img = await loadImage(url, "anonymous");
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    ctx.drawImage(img, 0, 0);
+    const dataUrl = canvas.toDataURL("image/png");
+    return { dataUrl, width: canvas.width, height: canvas.height, format: "PNG" };
   } catch (e) {
     console.warn("Failed to load image for export", e);
     return null;
   }
+}
+
+function loadImage(src: string, crossOrigin?: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    if (crossOrigin) img.crossOrigin = crossOrigin;
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("image load failed"));
+    img.src = src;
+  });
 }
 
 async function captureVideoFrame(url: string): Promise<{ dataUrl: string; width: number; height: number; format: "PNG" } | null> {
