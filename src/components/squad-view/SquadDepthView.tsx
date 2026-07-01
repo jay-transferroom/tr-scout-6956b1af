@@ -328,6 +328,82 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
         }}
       />
 
+      {/* Floating overlay controls - excluded from exports */}
+      {(onDensityChange || onExportPng || onExportPdf || onFillDepth) && (
+        <div
+          data-export-hidden="true"
+          className="absolute top-2 right-2 z-30 flex items-center gap-1"
+        >
+          {onDensityChange && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="flex items-center gap-1 h-7 pl-2 pr-1.5 rounded-md bg-slate-900/70 hover:bg-slate-900/85 text-white text-[11px] font-medium capitalize backdrop-blur-sm transition-colors"
+                  aria-label="Change depth density"
+                >
+                  {density}
+                  <ChevronDown className="h-3 w-3 opacity-80" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-background z-50 min-w-[8rem]">
+                <DropdownMenuLabel>Density</DropdownMenuLabel>
+                {(['compact', 'standard', 'full'] as const).map((d) => (
+                  <DropdownMenuItem
+                    key={d}
+                    onClick={() => onDensityChange(d)}
+                    className={cn("capitalize cursor-pointer", density === d && "font-semibold")}
+                  >
+                    {d}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          {(onExportPng || onExportPdf || onFillDepth) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="flex items-center justify-center h-7 w-7 rounded-md bg-slate-900/70 hover:bg-slate-900/85 text-white backdrop-blur-sm transition-colors"
+                  aria-label="Export depth chart"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-background z-50">
+                {onFillDepth && (
+                  <>
+                    <DropdownMenuLabel>Demo</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={onFillDepth} className="cursor-pointer">
+                      <Users2 className="h-4 w-4 mr-2" />
+                      Fill depth (5 per position)
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuLabel>Export</DropdownMenuLabel>
+                {onExportPng && (
+                  <DropdownMenuItem onClick={onExportPng} className="cursor-pointer">
+                    <FileImage className="h-4 w-4 mr-2" />
+                    Pitch snapshot (PNG)
+                  </DropdownMenuItem>
+                )}
+                {onExportPdf && (
+                  <DropdownMenuItem onClick={onExportPdf} className="cursor-pointer">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Full depth chart (PDF)
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      )}
+
+
+
 
       {/* Position cards */}
       {(() => {
