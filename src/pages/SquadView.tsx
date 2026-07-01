@@ -285,6 +285,86 @@ const SquadView = () => {
       description: "Starting with a blank squad. Make your changes and save when ready.",
     });
   };
+
+  const handleFillDepth = () => {
+    if (!clubPlayers.length) {
+      toast({ title: "No players available", variant: "destructive" });
+      return;
+    }
+    const slots = buildDepthSeed(currentFormation, clubPlayers, clubWeights, 5);
+    loadFromAssignments(
+      slots.map((s) => ({
+        position: s.position,
+        player_id: s.activePlayerId,
+        alternate_player_ids: s.alternatePlayerIds,
+      }))
+    );
+    setDisableAutoFill(true);
+    toast({
+      title: "Depth chart populated",
+      description: `Filled ${slots.length} positions with 5 players each.`,
+    });
+  };
+
+  const handleExportPng = async () => {
+    if (!depthPitchRef.current) return;
+    try {
+      await exportDepthPng(depthPitchRef.current, {
+        formation: currentFormation,
+        clubName: userClub,
+        coachName: headCoach?.shortname,
+        slots: positionSlots,
+        players: allPlayers,
+        clubWeights,
+        playerReportRatings,
+      });
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Export failed", variant: "destructive" });
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (!depthPitchRef.current) return;
+    try {
+      await exportDepthPdf(depthPitchRef.current, {
+        formation: currentFormation,
+        clubName: userClub,
+        coachName: headCoach?.shortname,
+        slots: positionSlots,
+        players: allPlayers,
+        clubWeights,
+        playerReportRatings,
+      });
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Export failed", variant: "destructive" });
+    }
+  };
+
+  // Auto-seed depth view with 5 players per position on first entry when empty
+  const [hasAutoSeededDepth, setHasAutoSeededDepth] = useState(false);
+  useEffect(() => {
+    if (
+      viewMode === 'depth' &&
+      !hasAutoSeededDepth &&
+      positionSlots.length === 0 &&
+      clubPlayers.length > 0
+    ) {
+      const slots = buildDepthSeed(currentFormation, clubPlayers, clubWeights, 5);
+      if (slots.length > 0) {
+        loadFromAssignments(
+          slots.map((s) => ({
+            position: s.position,
+            player_id: s.activePlayerId,
+            alternate_player_ids: s.alternatePlayerIds,
+          }))
+        );
+        setHasAutoSeededDepth(true);
+      }
+    }
+  }, [viewMode, hasAutoSeededDepth, positionSlots.length, clubPlayers, currentFormation, clubWeights, loadFromAssignments]);
+
   return (
     <>
       {/* Unified Header */}
