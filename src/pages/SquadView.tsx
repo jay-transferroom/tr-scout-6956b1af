@@ -34,6 +34,17 @@ const SquadView = () => {
   const [loadedConfiguration, setLoadedConfiguration] = useState<SquadConfiguration | null>(null);
   const [currentFormation, setCurrentFormation] = useState<string>('4-3-3');
   const [viewMode, setViewMode] = useState<'detail' | 'depth'>('detail');
+  const [depthDensity, setDepthDensity] = useState<'compact' | 'standard' | 'full'>(() => {
+    if (typeof window === 'undefined') return 'compact';
+    const stored = window.localStorage.getItem('squad-depth-density');
+    return stored === 'standard' || stored === 'full' || stored === 'compact' ? stored : 'compact';
+  });
+  const [exportDensity, setExportDensity] = useState<'compact' | 'standard' | 'full' | null>(null);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('squad-depth-density', depthDensity);
+    }
+  }, [depthDensity]);
   
   // Start with blank squad by default (no auto-fill)
   const [disableAutoFill, setDisableAutoFill] = useState(true);
