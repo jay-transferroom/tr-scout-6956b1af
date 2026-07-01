@@ -42,7 +42,6 @@ interface SquadDepthViewProps {
   onDensityChange?: (d: DepthDensity) => void;
   onExportPng?: () => void;
   onExportPdf?: () => void;
-  onFillDepth?: () => void;
 }
 
 
