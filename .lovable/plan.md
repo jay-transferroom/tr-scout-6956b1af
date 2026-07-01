@@ -1,66 +1,55 @@
 
+## 1. Seed the Depth view with 5 players per position
 
-# How Ratings Work Across the App — Analysis & Plan
+Populate the current formation (default 4-3-3, 11 positions) so each position card in `SquadDepthView` has 5 players (1 active + 4 alternates).
 
-## Current State
+**Approach:** Add a "Demo: fill depth (5 per position)" action in the `SquadViewHeader` overflow menu (dev-only, hidden in production) that:
+- Takes the current formation's positions
+- Pulls 55 eligible Chelsea/loan players from `useSquadData`, ranked by rating
+- Assigns 5 unique players per position via `useMultiPlayerPositions.loadFromAssignments`
+- Falls back to repeating from top-rated players if fewer than 55 eligible players exist
 
-The app has multiple rating system types defined in templates: **numeric 1-5**, **numeric 1-10**, **letter grades (A-E)**, **custom tags**, and **percentage**. However, the averaging and display logic is fragile and inconsistent:
+This is non-destructive (uses the in-memory multi-player slot store) and gives us a realistic dense view to design against.
 
-### Averaging (the core problem)
+## 2. Pitch view — supporting many players per position
 
-In `reportGrouping.ts`, when calculating `avgRating` across multiple reports for a player, the code **only includes ratings that are `typeof "number"`** — letter grades like "A" or "B" are silently dropped. This means:
+The current card shows only the top 3 players then a "+N more" line. With 5+ this becomes the norm and the card feels truncated. Options to explore (I'd build one, then we iterate):
 
-- A player with 3 reports graded A, B, A → `avgRating = null` (no numeric values found)
-- A player with numeric 1-10 reports → works fine, averages correctly
-- Mixed rating types across reports → only numeric ones count
+**A. Expandable stack (recommended default)**
+- Show top 3 by default; click the card to expand it in-place to full list (max-height + scroll)
+- Keeps the pitch readable, one-click reveal, no layout shift for other cards (uses absolute overlay + z-index)
 
-The `convertRatingToNumeric` utility in `ratingConversion.ts` exists (A→9, B→7.5, C→6, D→4, E→2) but is **never called during averaging** — it's only imported in `reportDataExtraction.ts` but not used in the grouping/averaging path.
+**B. Density toggle in header** ("Compact / Standard / Full")
+- Compact: name only, 5 rows fit
+- Standard: current
+- Full: name + rating + age + contract chip
 
-### Display
+**C. Avatar-stack summary + hover peek**
+- Card shows overlapping avatar bubbles (up to 5) with a single position rating; hover/click opens the full sidebar (existing `DepthPositionSidebar`)
+- Best for very dense formations; loses inline rating visibility
 
-The `ScoutingGrade` component handles both numeric and string grades with a colored dot, which is good. But averaged values are always shown as numbers (e.g., `7.5`) even if the underlying reports used letter grades.
+**D. Column-per-position layout (non-pitch)**
+- Alternative "List depth" mode where each position is a vertical column of cards, unlimited length, no pitch background. Great for exports and printing.
 
-### Where ratings appear
+Recommendation: ship **A** as the interaction, keep the existing sidebar for edit; add **B** later if needed.
 
-1. **Reports list** (`GroupedReportsTable`, `ReportRow`) — shows `ScoutingGrade` with `avgRating`
-2. **Dashboard** (`Index.tsx`) — shows `ScoutingGrade` for recent reports
-3. **Player profile** (`PlayerStatusActions`) — shows scouting grade
-4. **Shortlist cards** — currently show NO scouting grade at all
-5. **Squad view** — uses scouting report ratings with colored pills
+## 3. Export / PDF
 
----
+Add an "Export" button in `SquadViewHeader` with two options:
 
-## Proposed Plan
+- **PNG snapshot** — `html-to-image` on the pitch container. Fast, one-click, good for Slack/email.
+- **PDF** — `jspdf` + `html-to-image`. Page 1: pitch snapshot + formation/coach/rating header. Page 2+: per-position depth tables (position, player name, age, club rating, report rating, contract expiry) — rendered from data, not DOM, so it's crisp and paginated cleanly.
 
-### 1. Fix averaging to handle all rating types
+Filename: `chelsea-depth-{formation}-{yyyy-mm-dd}.pdf`.
 
-Update `reportGrouping.ts` to use `convertRatingToNumeric` when calculating `avgRating`, so letter grades and custom tags are properly included in averages.
+Dependencies to add: `jspdf`, `jspdf-autotable`, `html-to-image`.
 
-### 2. Add "display format" awareness to averaged ratings
+### Technical notes
+- Depth seeding lives in a new util `src/utils/depthDemoSeed.ts`; header button wired via existing `onStartNewSquad`-style pattern.
+- Expandable card state kept locally in `SquadDepthView` (`expandedPosition: string | null`).
+- Export logic in `src/utils/squadExport.ts`, invoked from header; no backend changes.
 
-Store the original rating system type alongside the average so the UI can decide how to display it:
-- If all reports used **letter grades** → convert average back to nearest letter (e.g., 8.25 → "A")
-- If all reports used **numeric** → show as number (e.g., "7.5")
-- If **mixed** → show as number with the converted scale
-
-Add a helper `convertNumericToDisplay(avg, ratingSystemType)` that maps back.
-
-### 3. Update ScoutingGrade component
-
-Enhance to accept an optional `displayFormat` prop so it can render "A" instead of "9" when the template used letter grades, while keeping the colored dot logic.
-
-### 4. Add scouting grade to shortlist PlayerCard
-
-Show the averaged scouting grade on shortlist cards (currently missing), using the same `ScoutingGrade` component.
-
-### 5. Files to modify
-
-| File | Change |
-|---|---|
-| `src/utils/reportGrouping.ts` | Use `convertRatingToNumeric` in averaging; detect rating system type from report template |
-| `src/utils/ratingConversion.ts` | Add `convertNumericToGrade(value, type)` reverse mapping |
-| `src/components/ui/scouting-grade.tsx` | Accept optional `displayFormat` for letter/numeric rendering |
-| `src/components/shortlists/PlayerCard.tsx` | Add ScoutingGrade display using report data |
-| `src/hooks/useReportPlayerData.ts` | Ensure avgRating + rating type are returned |
-| `src/components/reports/GroupedReportsTable.tsx` | Pass display format to ScoutingGrade |
-
+## Questions before I build
+1. For the depth seed — happy with a dev-only button, or do you want it to auto-populate on first load of the Depth view when empty?
+2. For the pitch density — go with **A (expandable stack)**, or do you want to see **B/C** too?
+3. PDF format — pitch snapshot + per-position tables sound right, or do you want scout notes / recommendations included?
