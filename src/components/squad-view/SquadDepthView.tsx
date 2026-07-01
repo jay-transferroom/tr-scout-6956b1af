@@ -39,7 +39,12 @@ interface SquadDepthViewProps {
   selectedPosition?: string | null;
   playerReportRatings?: Map<string, { rating: number | string; raw: any }>;
   density?: DepthDensity;
+  onDensityChange?: (d: DepthDensity) => void;
+  onExportPng?: () => void;
+  onExportPdf?: () => void;
+  onFillDepth?: () => void;
 }
+
 
 // Horizontal layout - GK on left, attackers on right (shifted right to prevent GK cutoff)
 const DEPTH_FORMATION_CONFIGS: Record<string, Record<string, { x: number; y: number; label: string }>> = {
