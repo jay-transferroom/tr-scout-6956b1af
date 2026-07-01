@@ -327,7 +327,7 @@ const SquadDepthView = forwardRef<HTMLDivElement, SquadDepthViewProps>(({
       />
 
       {/* Floating overlay controls - excluded from exports */}
-      {(onDensityChange || onExportPng || onExportPdf || onFillDepth) && (
+      {(onDensityChange || onExportPng || onExportPdf) && (
         <div
           data-export-hidden="true"
           className="absolute top-2 right-2 z-30 flex items-center gap-1"
