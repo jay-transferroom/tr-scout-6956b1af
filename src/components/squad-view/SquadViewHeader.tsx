@@ -1,15 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
-import { AlertTriangle, Lightbulb, Save, Plus, Download, Users2, FileImage, FileText } from "lucide-react";
+import { AlertTriangle, Lightbulb, Save, Plus } from "lucide-react";
 import { SquadConfiguration } from "@/hooks/useSquadConfigurations";
 import { SquadRecommendation } from "@/hooks/useSquadRecommendations";
 import { SquadRatingCTAs } from "./SquadRatingCTAs";
 import SquadViewModeToggle from "./SquadViewModeToggle";
 import SavedConfigurationsDropdown from "./SavedConfigurationsDropdown";
+
 
 interface HeadCoach {
   staffid: number;
@@ -68,11 +67,6 @@ interface SquadViewHeaderProps {
   onViewModeChange: (mode: 'detail' | 'depth') => void;
   clubName: string;
   onLoadConfiguration: (config: SquadConfiguration) => void;
-  onFillDepth?: () => void;
-  onExportPng?: () => void;
-  onExportPdf?: () => void;
-  depthDensity?: 'compact' | 'standard' | 'full';
-  onDepthDensityChange?: (d: 'compact' | 'standard' | 'full') => void;
 }
 
 
@@ -94,12 +88,8 @@ export function SquadViewHeader({
   onViewModeChange,
   clubName,
   onLoadConfiguration,
-  onFillDepth,
-  onExportPng,
-  onExportPdf,
-  depthDensity = 'compact',
-  onDepthDensityChange,
 }: SquadViewHeaderProps) {
+
 
   return (
     <div className="w-full bg-background border-b">
@@ -137,61 +127,8 @@ export function SquadViewHeader({
               <Save className="h-4 w-4 mr-1.5" />
               Save
             </Button>
-            {viewMode === 'depth' && onDepthDensityChange && (
-              <>
-                <div className="h-6 w-px bg-border mx-1" />
-                <div className="flex items-center gap-0.5 p-0.5 bg-muted rounded-md" role="group" aria-label="Depth density">
-                  {(['compact', 'standard', 'full'] as const).map((d) => (
-                    <Button
-                      key={d}
-                      onClick={() => onDepthDensityChange(d)}
-                      variant={depthDensity === d ? 'secondary' : 'ghost'}
-                      size="sm"
-                      className="h-7 px-2.5 text-xs capitalize"
-                    >
-                      {d}
-                    </Button>
-                  ))}
-                </div>
-              </>
-            )}
-            {viewMode === 'depth' && (onFillDepth || onExportPng || onExportPdf) && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-1.5" />
-                    Export
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-background z-50">
-                  {onFillDepth && (
-                    <>
-                      <DropdownMenuLabel>Demo</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={onFillDepth}>
-                        <Users2 className="h-4 w-4 mr-2" />
-                        Fill depth (5 per position)
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
-                  )}
-                  <DropdownMenuLabel>Export</DropdownMenuLabel>
-                  {onExportPng && (
-                    <DropdownMenuItem onClick={onExportPng}>
-                      <FileImage className="h-4 w-4 mr-2" />
-                      Pitch snapshot (PNG)
-                    </DropdownMenuItem>
-                  )}
-                  {onExportPdf && (
-                    <DropdownMenuItem onClick={onExportPdf}>
-                      <FileText className="h-4 w-4 mr-2" />
-                      Full depth chart (PDF)
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-
           </div>
+
         </div>
 
         {/* Main Controls Row */}
