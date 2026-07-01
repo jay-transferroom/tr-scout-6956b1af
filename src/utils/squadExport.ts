@@ -18,8 +18,11 @@ interface ExportContext {
 const today = () => new Date().toISOString().slice(0, 10);
 const safe = (s: string) => s.replace(/[^a-z0-9-]+/gi, "-").toLowerCase();
 
+const exportFilter = (n: HTMLElement) =>
+  !(n instanceof HTMLElement && n.dataset && n.dataset.exportHidden === "true");
+
 export async function exportDepthPng(node: HTMLElement, ctx: ExportContext) {
-  const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true, backgroundColor: "#3A9D5C" });
+  const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true, backgroundColor: "#3A9D5C", filter: exportFilter });
   const link = document.createElement("a");
   link.download = `${safe(ctx.clubName)}-depth-${safe(ctx.formation)}-${today()}.png`;
   link.href = dataUrl;
@@ -27,7 +30,8 @@ export async function exportDepthPng(node: HTMLElement, ctx: ExportContext) {
 }
 
 export async function exportDepthPdf(node: HTMLElement, ctx: ExportContext) {
-  const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true, backgroundColor: "#3A9D5C" });
+  const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true, backgroundColor: "#3A9D5C", filter: exportFilter });
+
 
   const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
   const pageW = pdf.internal.pageSize.getWidth();
